@@ -86,3 +86,9 @@ Falls Probleme auftreten:
 1. Stellen Sie sicher, dass die PHP-Version 7.4 oder höher ist
 2. Überprüfen Sie die Schreibberechtigungen für die Verzeichnisse `tests/` und `results/`
 3. Prüfen Sie das Format Ihrer Testdateien
+
+## Versionskontrolle
+Das Projekt wird mit Git versioniert. Wichtige Befehle:
+- `git add .` - Alle Änderungen für Commit vormerken
+- `git commit -m "Nachricht"` - Änderungen committen
+- `git status` - Aktuellen Status anzeigen
