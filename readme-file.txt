@@ -1,4 +1,21 @@
-# MCQ-Testsystem Anleitung
+# MCQ Test System
+
+Ein System zur Durchführung von Multiple-Choice-Tests.
+
+## Funktionen
+- Multiple-Choice-Tests mit automatischer Auswertung
+- Aufmerksamkeitsbutton zur Konzentrationskontrolle
+- Lehrerbereich zur Verwaltung und Auswertung
+- Testmodus für Systemtests
+
+## Installation
+1. Dateien auf einen PHP-fähigen Webserver kopieren
+2. Berechtigungen für results/ Ordner setzen
+3. System über index.php aufrufen
+
+## Zugang
+- Schüler: Zugangscode des jeweiligen Tests
+- Lehrer: admin123
 
 ## Übersicht
 Dieses webbasierte Multiple-Choice-Testsystem ermöglicht es Lehrern, Tests zu erstellen, zu verwalten und auszuwerten. Schüler können Tests mit entsprechenden Zugangscodes absolvieren.
@@ -21,16 +38,6 @@ mcq-test-system/
 │
 └── results/               # Verzeichnis für Testergebnisse
 ```
-
-## Installation und Einrichtung
-1. Kopieren Sie alle Dateien auf Ihren Webserver
-2. Stellen Sie sicher, dass PHP 7.4 oder höher installiert ist
-3. Erstellen Sie die Verzeichnisse `tests/` und `results/` und setzen Sie die Schreibberechtigungen korrekt:
-   ```
-   mkdir tests results
-   chmod 755 tests results
-   ```
-4. Öffnen Sie die Anwendung in einem Webbrowser
 
 ## Testformat
 Jede Testdatei im `tests/`-Ordner sollte folgendes Format haben:
