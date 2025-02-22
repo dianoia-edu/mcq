@@ -1,0 +1,37 @@
+ABC123
+Mathematik Test 2024
+Was ist das Ergebnis von 5 × 7?
+30
+*[richtig] 35
+40
+25
+
+Welche Zahl ist durch 3 teilbar?
+10
+11
+*[richtig] 15
+17
+
+Was ist die Quadratwurzel von 16?
+3
+*[richtig] 4
+5
+6
+
+Berechne: 18 ÷ 3
+*[richtig] 6
+8
+4
+9
+
+Was ist die Summe der Zahlen von 1 bis 5?
+10
+*[richtig] 15
+12
+20
+
+Welches ist die kleinste Primzahl?
+0
+1
+*[richtig] 2
+4

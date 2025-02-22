@@ -1,0 +1,20 @@
+# Konfigurationsdateien
+config.json
+
+# Ergebnisdateien
+results/
+
+# Temporäre Dateien
+*.log
+*.tmp
+*.temp
+
+# IDE-spezifische Dateien
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Betriebssystem-spezifische Dateien
+.DS_Store
+Thumbs.db 
