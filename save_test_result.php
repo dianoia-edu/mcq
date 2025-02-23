@@ -30,8 +30,13 @@ try {
     
     // Stelle sicher, dass das results-Verzeichnis existiert
     if (!is_dir('results')) {
-        if (!mkdir('results', 0777, true)) {
+        if (!mkdir('results', 0755, true)) {
             throw new Exception('Konnte results-Verzeichnis nicht erstellen');
+        }
+        // Setze Berechtigungen für Windows
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $resultsPath = __DIR__ . DIRECTORY_SEPARATOR . 'results';
+            exec("icacls \"$resultsPath\" /grant \"Everyone\":(OI)(CI)F /T");
         }
     }
 

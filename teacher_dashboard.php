@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config.php';
+require_once __DIR__ . '/includes/qr_generator.php';
 
 // Cache-Prevention-Header
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -12,18 +13,111 @@ if (!isset($_SESSION["teacher"]) || $_SESSION["teacher"] !== true) {
     exit;
 }
 
-// Verarbeite AJAX-Anfragen für Konfigurationsänderungen
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    header('Content-Type: application/json');
-    if ($_POST['action'] === 'updateTestMode') {
-        $config = [
-            'testMode' => $_POST['testMode'] === 'true',
-            'disableAttentionButton' => $_POST['testMode'] === 'true',
-            'allowTestRepetition' => $_POST['testMode'] === 'true'
-        ];
-        saveConfig($config);
-        echo json_encode(['success' => true]);
-        exit;
+// Am Anfang der Datei, nach den Session-Checks
+if (isset($_GET['message'])) {
+    $message = ['type' => 'success', 'text' => $_GET['message']];
+}
+
+// Lösche alte Fehlermeldungen beim Tab-Wechsel
+if (isset($_GET['tab'])) {
+    unset($_SESSION['error_message']);
+}
+
+// Verarbeite AJAX-Anfragen für Konfigurationsänderungen und Test-Ergebnisse
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action'])) {
+        header('Content-Type: application/json');
+        if ($_POST['action'] === 'updateTestMode') {
+            $config = [
+                'testMode' => $_POST['testMode'] === 'true',
+                'disableAttentionButton' => $_POST['testMode'] === 'true',
+                'allowTestRepetition' => $_POST['testMode'] === 'true'
+            ];
+            saveConfig($config);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    } else if (isset($_POST['title'])) {
+        // Test-Editor Verarbeitung
+        try {
+            error_log("POST-Daten: " . print_r($_POST, true)); // Debug-Log
+            
+            // Validiere Eingaben
+            if (empty($_POST['title']) || empty($_POST['questions'])) {
+                throw new Exception('Bitte füllen Sie alle Pflichtfelder aus.');
+            }
+
+            $accessCode = !empty($_POST['accessCode']) ? 
+                preg_replace('/[^A-Z0-9]/', '', strtoupper($_POST['accessCode'])) : 
+                generateAccessCode();
+
+            // Erstelle Test-Inhalt
+            $testContent = $accessCode . "\n" . trim($_POST['title']) . "\n\n";  // Extra Leerzeile nach Titel
+            
+            foreach ($_POST['questions'] as $question) {
+                if (empty($question['text']) || empty($question['answers'])) {
+                    continue;
+                }
+                
+                // Füge Fragezeichen hinzu, wenn es nicht bereits vorhanden ist
+                $questionText = trim($question['text']);
+                if (!str_ends_with($questionText, '?')) {
+                    $questionText .= '?';
+                }
+                $testContent .= $questionText . "\n";
+                
+                // Füge Antworten hinzu
+                foreach ($question['answers'] as $answer) {
+                    if (empty($answer['text'])) continue;
+                    $testContent .= (isset($answer['correct']) ? '*[richtig] ' : '') . 
+                                  trim($answer['text']) . "\n";
+                }
+                $testContent .= "\n";  // Leerzeile nach jeder Frage
+            }
+
+            // Entferne überschüssige Leerzeilen am Ende
+            $testContent = rtrim($testContent) . "\n";
+
+            // Stelle sicher, dass das tests-Verzeichnis existiert
+            $testsDir = __DIR__ . '/tests';
+            if (!is_dir($testsDir)) {
+                mkdir($testsDir, 0777, true);
+            }
+
+            // Speichere Test unter neuem Namen
+            $filename = $testsDir . '/' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $_POST['title']) . '.txt';
+            
+            error_log("Speicherort: " . $filename); // Debug
+            error_log("Test-Inhalt: " . $testContent); // Debug
+            error_log("Schreibrechte: " . (is_writable($testsDir) ? 'Ja' : 'Nein')); // Debug
+
+            if (file_put_contents($filename, $testContent) === false) {
+                error_log("Fehler beim Speichern: " . error_get_last()['message']); // Debug
+                throw new Exception('Fehler beim Speichern des Tests.');
+            }
+
+            error_log("Test wurde erfolgreich gespeichert"); // Debug
+
+            $_SESSION['success_message'] = 'Test "' . htmlspecialchars($_POST['title']) . '" wurde erfolgreich gespeichert.';
+            $_SESSION['active_tab'] = 'test-editor';
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?tab=test-editor');
+            exit();
+
+        } catch (Exception $e) {
+            error_log("Fehler: " . $e->getMessage()); // Debug
+            $_SESSION['error_message'] = $e->getMessage();
+            $_SESSION['active_tab'] = 'test-editor';
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?tab=test-editor');
+            exit();
+        }
+    } else {
+        // Verarbeite Test-Ergebnis-Speicherung
+        $data = json_decode(file_get_contents('php://input'), true);
+        if ($data) {
+            header('Content-Type: application/json');
+            echo json_encode(saveTestResult($data));
+            exit;
+        }
     }
 }
 
@@ -45,22 +139,18 @@ function saveTestResult($data) {
     return ['success' => true, 'message' => 'Ergebnis gespeichert'];
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    header('Content-Type: application/json');
-    echo json_encode(saveTestResult($data));
-    exit;
-}
-
 $testFiles = glob("tests/*.txt");
 $tests = [];
 
 foreach ($testFiles as $testFile) {
     $lines = file($testFile, FILE_IGNORE_NEW_LINES);
+    $content = file_get_contents($testFile);
     $tests[] = [
         "file" => $testFile,
-        "name" => $lines[1],
-        "accessCode" => $lines[0]
+        "name" => basename($testFile, '.txt'),
+        "title" => $lines[1],
+        "accessCode" => $lines[0],
+        "content" => $content
     ];
 }
 
@@ -462,6 +552,74 @@ if (!empty($selectedTest)) {
             font-weight: 500;
             font-size: 1.1rem;
         }
+
+        /* Tab Styles */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .nav-tabs .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+
+        .qr-icon {
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+
+        .qr-lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .qr-lightbox img {
+            max-width: 80%;
+            max-height: 80%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .qr-lightbox .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
     </style>
     <link rel="stylesheet" href="./styles.css?v=<?php echo time(); ?>">
     <script>
@@ -566,36 +724,89 @@ if (!empty($selectedTest)) {
             const tabs = document.querySelectorAll('.tab');
             const contents = document.querySelectorAll('.tab-content');
             
+            // Tab-Klick-Handler
             tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Alle Tabs und Inhalte deaktivieren
                     tabs.forEach(t => t.classList.remove('active'));
                     contents.forEach(c => c.classList.remove('active'));
                     
+                    // Angeklickten Tab und zugehörigen Inhalt aktivieren
                     tab.classList.add('active');
                     document.querySelector(tab.dataset.target).classList.add('active');
                 });
             });
             
+            // Aktiviere den gespeicherten Tab oder den ersten Tab
+            const activeTab = '<?php echo isset($_SESSION["active_tab"]) ? $_SESSION["active_tab"] : ""; ?>';
+            if (activeTab) {
+                const tab = document.querySelector(`.tab[data-target="#${activeTab}"]`) || tabs[0];
+                if (tab) {
+                    tab.click();
+                }
+            } else {
+                tabs[0].click();
+            }
+            
             // Testmodus-Schieberegler
             const testModeToggle = document.getElementById('testModeToggle');
-            testModeToggle.checked = <?php echo $config['testMode'] ? 'true' : 'false'; ?>;
-            
-            testModeToggle.addEventListener('change', function() {
-                fetch('teacher_dashboard.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=updateTestMode&testMode=' + this.checked
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    }
+            if (testModeToggle) {
+                testModeToggle.checked = <?php echo $config['testMode'] ? 'true' : 'false'; ?>;
+                
+                testModeToggle.addEventListener('change', function() {
+                    fetch('teacher_dashboard.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'action=updateTestMode&testMode=' + this.checked
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        }
+                    });
                 });
-            });
+            }
         });
+
+        function showQRCode(filename) {
+            const lightbox = document.createElement('div');
+            lightbox.className = 'qr-lightbox';
+            lightbox.innerHTML = `
+                <span class="close-btn" onclick="this.parentElement.remove()">&times;</span>
+                <img src="qrcodes/${filename}" alt="QR-Code für Test-Zugang">
+            `;
+            document.body.appendChild(lightbox);
+            
+            // Verhindere Ereignis-Bubbling
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.remove();
+                }
+            });
+        }
+
+        // Speichere aktiven Tab im localStorage
+        function saveActiveTab(tabId) {
+            localStorage.setItem('activeTeacherTab', tabId);
+        }
+
+        // Stelle aktiven Tab wieder her
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeTab = localStorage.getItem('activeTeacherTab');
+            if (activeTab) {
+                showTab(activeTab);
+            }
+        });
+
+        function showTab(tabId) {
+            // ... existierender showTab Code ...
+            saveActiveTab(tabId);
+        }
     </script>
 </head>
 <body>
@@ -604,19 +815,16 @@ if (!empty($selectedTest)) {
     <div class="container">
         <h1>Lehrer-Dashboard</h1>
         
-        <div class="tabs">
-            <div class="tab active" data-target="#testResults">Testergebnisse</div>
-            <div class="tab" data-target="#configuration">Konfiguration</div>
-        </div>
-        
-        <div id="configuration" class="tab-content">
-            <div class="test-mode-control">
-                <label for="testModeToggle">Testmodus</label>
-                <label class="switch">
-                    <input type="checkbox" id="testModeToggle">
-                    <span class="slider"></span>
-                </label>
+        <?php if (isset($message)): ?>
+            <div class="alert alert-<?php echo $message['type']; ?>">
+                <?php echo htmlspecialchars($message['text']); ?>
             </div>
+        <?php endif; ?>
+        
+        <div class="nav-tabs">
+            <a href="#" class="tab active" data-target="#testResults">Testergebnisse</a>
+            <a href="#" class="tab" data-target="#configuration">Konfiguration</a>
+            <a href="#" class="tab" data-target="#test-editor">Test-Editor</a>
         </div>
         
         <div id="testResults" class="tab-content active">
@@ -630,6 +838,9 @@ if (!empty($selectedTest)) {
                                 <option value="<?php echo htmlspecialchars($test["name"]); ?>" 
                                         <?php echo $selectedTest === $test["name"] ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($test["name"]); ?>
+                                    <?php if (isset($test["qrCode"])): ?>
+                                        <span class="qr-icon" onclick="showQRCode('<?php echo $test["qrCode"]; ?>')">📱</span>
+                                    <?php endif; ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -683,6 +894,21 @@ if (!empty($selectedTest)) {
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
+        </div>
+        
+        <div id="configuration" class="tab-content">
+            <div class="test-mode-control">
+                <label for="testModeToggle">Testmodus</label>
+                <label class="switch">
+                    <input type="checkbox" id="testModeToggle">
+                    <span class="slider"></span>
+                </label>
+                <p class="warning-text">Achtung: Im Testmodus werden alle Sicherheitsfunktionen deaktiviert!</p>
+            </div>
+        </div>
+        
+        <div id="test-editor" class="tab-content">
+            <?php include __DIR__ . '/teacher/test_editor.php'; ?>
         </div>
         
         <div class="navigation">
