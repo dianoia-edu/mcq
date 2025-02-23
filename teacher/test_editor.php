@@ -107,8 +107,8 @@ if (isset($_GET['edit']) && !empty($_GET['edit'])) {
         <!-- Bestehender Test-Editor Code -->
         <form id="testForm" method="post" action="teacher_dashboard.php">
             <input type="hidden" name="tab" value="test-editor">
-            <!-- Wenn ein Test bearbeitet wird, füge die Test-ID hinzu -->
             <input type="hidden" name="edit_test" id="editTestField" value="">
+            <input type="hidden" name="confirm_overwrite" id="confirmOverwrite" value="false">
             <div>
                 <label for="title">Testtitel:</label>
                 <input type="text" id="title" name="title" required>
@@ -321,6 +321,36 @@ if (isset($_GET['edit']) && !empty($_GET['edit'])) {
                 questionCounter++;
             });
         }
+
+        // Füge Form-Submit-Handler hinzu
+        document.getElementById('testForm').onsubmit = async function(e) {
+            e.preventDefault();
+            
+            // Setze confirm_overwrite zurück
+            document.getElementById('confirmOverwrite').value = 'false';
+            
+            try {
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.text();
+                
+                if (result.includes('CONFIRM_OVERWRITE')) {
+                    if (confirm('Ein Test mit diesem Namen existiert bereits. Möchten Sie den vorhandenen Test überschreiben?')) {
+                        document.getElementById('confirmOverwrite').value = 'true';
+                        this.submit();
+                    }
+                } else {
+                    window.location.href = 'teacher_dashboard.php?tab=test-editor';
+                }
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                alert('Fehler beim Speichern des Tests.');
+            }
+        };
     </script>
 </body>
 </html>

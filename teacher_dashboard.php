@@ -84,9 +84,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mkdir($testsDir, 0777, true);
             }
 
-            // Speichere Test unter neuem Namen
+            // Prüfe, ob ein Test mit diesem Namen bereits existiert
             $filename = $testsDir . '/' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $_POST['title']) . '.txt';
-            
+            if (file_exists($filename)) {
+                if (!isset($_POST['confirm_overwrite']) || $_POST['confirm_overwrite'] !== 'true') {
+                    throw new Exception('CONFIRM_OVERWRITE');
+                }
+            }
+
+            // Speichere Test unter neuem Namen
             error_log("Speicherort: " . $filename); // Debug
             error_log("Test-Inhalt: " . $testContent); // Debug
             error_log("Schreibrechte: " . (is_writable($testsDir) ? 'Ja' : 'Nein')); // Debug
