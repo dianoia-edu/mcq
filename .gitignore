@@ -1,6 +1,7 @@
 # Konfigurationsdateien
 includes/config/openai_config.php
 config/config.php
+/includes/database_config.php
 
 # Allgemeine Dateien, die ignoriert werden sollten
 .DS_Store

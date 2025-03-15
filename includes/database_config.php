@@ -8,13 +8,31 @@ class DatabaseConfig {
     private $config;
     
     private function __construct() {
-        // Direkte Konfiguration anstelle von Config::get
-        $this->config = [
-            'db_host' => 'localhost',
-            'db_user' => 'root',
-            'db_password' => '',
-            'db_name' => 'mcq_test_system'
-        ];
+        // Prüfen, ob wir uns auf dem Produktionsserver befinden
+        $isProduction = ($_SERVER['SERVER_NAME'] ?? '') === 'mcq.medizin.uni-tuebingen.de';
+        
+        // Konfiguration basierend auf der Umgebung
+        if ($isProduction) {
+            // Produktionsumgebung
+            $this->config = [
+                'db_host' => 'localhost',
+                'db_user' => 'mcquser',
+                'db_password' => 'IhrSicheresPasswort', // Hier das richtige Passwort eintragen
+                'db_name' => 'mcq_test_system'
+            ];
+        } else {
+            // Lokale Entwicklungsumgebung
+            $this->config = [
+                'db_host' => 'localhost',
+                'db_user' => 'root',
+                'db_password' => '',
+                'db_name' => 'mcq_test_system'
+            ];
+        }
+        
+        // Protokollieren der verwendeten Umgebung (ohne sensible Daten)
+        error_log("Datenbankverbindung initialisiert für Umgebung: " . 
+                 ($isProduction ? 'Produktion' : 'Entwicklung'));
     }
     
     public static function getInstance() {

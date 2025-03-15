@@ -1,80 +1,133 @@
 <?php
-// Ausgabe als Text formatieren
-header('Content-Type: text/plain');
+// Starte Session
+session_start();
 
-echo "=== MCQ Test System - Serverüberprüfung ===\n\n";
+// Setze Fehlerberichterstattung
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// PHP-Version prüfen
-echo "PHP-Version: " . phpversion() . "\n";
-
-// Erforderliche PHP-Erweiterungen prüfen
-$requiredExtensions = ['pdo', 'pdo_mysql', 'gd', 'fileinfo', 'curl', 'xml', 'mbstring'];
-echo "\nPHP-Erweiterungen:\n";
-foreach ($requiredExtensions as $ext) {
-    echo "- $ext: " . (extension_loaded($ext) ? "OK" : "FEHLT") . "\n";
-}
-
-// Externe Programme prüfen
-echo "\nExterne Programme:\n";
-
-// Tesseract OCR
-exec('tesseract --version 2>&1', $tesseractOutput, $tesseractReturnVar);
-echo "- Tesseract OCR: " . ($tesseractReturnVar === 0 ? "OK (" . trim($tesseractOutput[0]) . ")" : "FEHLT - Bitte installieren") . "\n";
-
-// Ghostscript
-exec('gs --version 2>&1', $gsOutput, $gsReturnVar);
-if ($gsReturnVar !== 0) {
-    // Versuche alternative Befehle für Windows
-    exec('gswin64c --version 2>&1', $gsOutput, $gsReturnVar);
-    if ($gsReturnVar !== 0) {
-        exec('gswin32c --version 2>&1', $gsOutput, $gsReturnVar);
-    }
-}
-echo "- Ghostscript: " . ($gsReturnVar === 0 ? "OK (v" . trim($gsOutput[0]) . ")" : "FEHLT - Bitte installieren") . "\n";
-
-// Verzeichnisberechtigungen prüfen
-$directories = [
-    'logs',
-    'results',
-    'uploads',
-    sys_get_temp_dir()
-];
-
-echo "\nVerzeichnisberechtigungen:\n";
-foreach ($directories as $dir) {
-    if (!file_exists($dir)) {
-        echo "- $dir: NICHT GEFUNDEN - Bitte erstellen\n";
-        continue;
-    }
-    echo "- $dir: " . (is_writable($dir) ? "Schreibbar" : "NICHT SCHREIBBAR - Bitte Berechtigungen anpassen") . "\n";
-}
-
-// Datenbankverbindung testen
-echo "\nDatenbankverbindung:\n";
-try {
-    require_once __DIR__ . '/includes/database_config.php';
-    $dbConfig = DatabaseConfig::getInstance();
-    $conn = $dbConfig->getConnection();
+// Funktion zum Überprüfen der Voraussetzungen
+function checkRequirements() {
+    $requirements = [
+        'php_version' => [
+            'name' => 'PHP Version',
+            'required' => '7.4.0',
+            'current' => PHP_VERSION,
+            'status' => version_compare(PHP_VERSION, '7.4.0', '>=')
+        ],
+        'extensions' => [
+            'name' => 'PHP Erweiterungen',
+            'required' => ['pdo', 'pdo_mysql', 'gd', 'fileinfo', 'curl', 'xml', 'mbstring'],
+            'current' => array_filter(['pdo', 'pdo_mysql', 'gd', 'fileinfo', 'curl', 'xml', 'mbstring'], 'extension_loaded'),
+            'status' => count(array_filter(['pdo', 'pdo_mysql', 'gd', 'fileinfo', 'curl', 'xml', 'mbstring'], 'extension_loaded')) === 7
+        ],
+        'tesseract' => [
+            'name' => 'Tesseract OCR',
+            'required' => 'Installiert',
+            'current' => exec('which tesseract') ? 'Installiert' : 'Nicht gefunden',
+            'status' => exec('which tesseract') ? true : false
+        ],
+        'ghostscript' => [
+            'name' => 'Ghostscript',
+            'required' => 'Installiert',
+            'current' => exec('which gs') ? 'Installiert' : 'Nicht gefunden',
+            'status' => exec('which gs') ? true : false
+        ],
+        'directories' => [
+            'name' => 'Verzeichnisberechtigungen',
+            'required' => 'Schreibbar',
+            'current' => (is_writable('logs') && is_writable('results') && is_writable('uploads')) ? 'Schreibbar' : 'Nicht schreibbar',
+            'status' => (is_writable('logs') && is_writable('results') && is_writable('uploads'))
+        ]
+    ];
     
-    echo "- Verbindung: OK\n";
-    
-    // Tabellen prüfen
-    $tables = ['tests', 'test_attempts', 'test_statistics', 'daily_attempts'];
-    foreach ($tables as $table) {
-        $stmt = $conn->query("SHOW TABLES LIKE '$table'");
-        echo "- Tabelle '$table': " . ($stmt->rowCount() > 0 ? "OK" : "NICHT GEFUNDEN") . "\n";
+    // Überprüfe Datenbankverbindung
+    require_once 'includes/database_config.php';
+    try {
+        $db = DatabaseConfig::getInstance()->getConnection();
+        $requirements['database'] = [
+            'name' => 'Datenbankverbindung',
+            'required' => 'Verbunden',
+            'current' => 'Verbunden',
+            'status' => true
+        ];
+    } catch (Exception $e) {
+        $requirements['database'] = [
+            'name' => 'Datenbankverbindung',
+            'required' => 'Verbunden',
+            'current' => 'Fehler: ' . $e->getMessage(),
+            'status' => false
+        ];
     }
-} catch (Exception $e) {
-    echo "- Verbindung: FEHLER (" . $e->getMessage() . ")\n";
+    
+    return $requirements;
 }
 
-// Upload-Konfiguration prüfen
-echo "\nPHP-Upload-Konfiguration:\n";
-echo "- upload_max_filesize: " . ini_get('upload_max_filesize') . "\n";
-echo "- post_max_size: " . ini_get('post_max_size') . "\n";
-echo "- max_execution_time: " . ini_get('max_execution_time') . " Sekunden\n";
-echo "- memory_limit: " . ini_get('memory_limit') . "\n";
+// Führe die Überprüfung durch
+$requirements = checkRequirements();
+$allPassed = array_reduce($requirements, function($carry, $item) {
+    return $carry && $item['status'];
+}, true);
 
-echo "\n=== Überprüfung abgeschlossen ===\n";
-echo "\nBitte stellen Sie sicher, dass alle externen Programme (Tesseract, Ghostscript) auf dem Server installiert sind.\n";
-echo "Wenn Programme fehlen, installieren Sie diese bitte gemäß der Installationsanleitung in der README.md.\n"; 
+// HTML-Ausgabe
+?>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server-Überprüfung</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .success { color: green; }
+        .error { color: red; }
+        .summary { margin-top: 20px; padding: 15px; border-radius: 5px; }
+        .success-bg { background-color: #dff0d8; border: 1px solid #d6e9c6; }
+        .error-bg { background-color: #f2dede; border: 1px solid #ebccd1; }
+    </style>
+</head>
+<body>
+    <h1>Server-Überprüfung</h1>
+    
+    <table>
+        <tr>
+            <th>Voraussetzung</th>
+            <th>Erforderlich</th>
+            <th>Aktuell</th>
+            <th>Status</th>
+        </tr>
+        <?php foreach ($requirements as $req): ?>
+        <tr>
+            <td><?php echo $req['name']; ?></td>
+            <td><?php echo is_array($req['required']) ? implode(', ', $req['required']) : $req['required']; ?></td>
+            <td><?php echo is_array($req['current']) ? implode(', ', $req['current']) : $req['current']; ?></td>
+            <td class="<?php echo $req['status'] ? 'success' : 'error'; ?>">
+                <?php echo $req['status'] ? '✓' : '✗'; ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+    
+    <div class="summary <?php echo $allPassed ? 'success-bg' : 'error-bg'; ?>">
+        <?php if ($allPassed): ?>
+            <p><strong>Alle Voraussetzungen erfüllt!</strong> Das System kann verwendet werden.</p>
+        <?php else: ?>
+            <p><strong>Es gibt Probleme mit den Voraussetzungen.</strong> Bitte beheben Sie die oben aufgeführten Fehler.</p>
+        <?php endif; ?>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <p>Serverinformationen:</p>
+        <ul>
+            <li>Server: <?php echo $_SERVER['SERVER_SOFTWARE'] ?? 'Unbekannt'; ?></li>
+            <li>Hostname: <?php echo $_SERVER['SERVER_NAME'] ?? 'Unbekannt'; ?></li>
+            <li>Dokumentenroot: <?php echo $_SERVER['DOCUMENT_ROOT'] ?? 'Unbekannt'; ?></li>
+            <li>PHP SAPI: <?php echo php_sapi_name(); ?></li>
+        </ul>
+    </div>
+</body>
+</html>

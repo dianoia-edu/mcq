@@ -6,16 +6,29 @@ function loadConfig() {
     
     if ($config === null) {
         try {
-            // Da config.php nicht mehr existiert, erstellen wir eine einfache Standardkonfiguration
+            // Basiseinstellungen
             $config = [
-                // Hier können Standardwerte definiert werden
-                'environment' => 'production'
+                'environment' => 'development'
             ];
             
-            // Füge zusätzliche Konfigurationen hinzu
-            $configFile = __DIR__ . '/../config/api_config.json';
-            if (file_exists($configFile)) {
-                $apiConfig = json_decode(file_get_contents($configFile), true);
+            // Prüfen, ob wir uns auf dem Produktionsserver befinden
+            if (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME'] === 'mcq.medizin.uni-tuebingen.de') {
+                $config['environment'] = 'production';
+            }
+            
+            // App-Konfiguration laden
+            $appConfigFile = __DIR__ . '/config/app_config.php';
+            if (file_exists($appConfigFile)) {
+                $appConfig = require $appConfigFile;
+                if (is_array($appConfig)) {
+                    $config = array_merge($config, $appConfig);
+                }
+            }
+            
+            // API-Konfiguration laden
+            $apiConfigFile = __DIR__ . '/config/api_config.json';
+            if (file_exists($apiConfigFile)) {
+                $apiConfig = json_decode(file_get_contents($apiConfigFile), true);
                 if (is_array($apiConfig)) {
                     $config = array_merge($config, $apiConfig);
                 }
