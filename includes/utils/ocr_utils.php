@@ -1,5 +1,4 @@
 <?php
-require_once 'config.php';
 
 function performOCR($file) {
     // Überprüfe Upload-Fehler

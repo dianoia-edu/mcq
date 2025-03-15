@@ -6,7 +6,6 @@ ob_start();
 session_start();
 
 require_once 'check_test_attempts.php';
-require_once 'config.php';
 
 // Überprüfe, ob die notwendigen Session-Variablen gesetzt sind
 if (!isset($_SESSION["testFile"]) || !isset($_SESSION["testName"]) || !isset($_SESSION["loginTime"])) {
@@ -23,8 +22,8 @@ if (hasCompletedTestToday($_SESSION["testName"])) {
     exit;
 }
 
-// Lade Konfiguration
-$config = loadConfig();
+// Lade Konfiguration - Anpassung, da config.php nicht mehr existiert
+// $config = loadConfig();
 
 // Verarbeite POST-Anfrage
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["studentName"])) {

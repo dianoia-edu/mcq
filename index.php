@@ -6,7 +6,6 @@ ob_start();
 session_start();
 
 require_once 'check_test_attempts.php';
-require_once 'config.php';
 
 // Debug-Informationen für alle Anfragen
 error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);

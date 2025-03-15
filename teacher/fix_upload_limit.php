@@ -245,17 +245,6 @@ foreach ($directories as $dir) {
 // Verarbeite Formular-Daten
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Lade Konfiguration
-        require_once '../includes/config_loader.php';
-        $config = loadConfig();
-        
-        if (!isset($config['api_key']) || empty($config['api_key'])) {
-            throw new Exception('OpenAI API Key nicht in der Konfiguration gefunden');
-        }
-        
-        $apiKey = $config['api_key'];
-        $combinedContent = '';
-        
         // Verarbeite Datei-Upload
         if (isset($_FILES['source_file'])) {
             debug_log("Datei-Upload gefunden:");

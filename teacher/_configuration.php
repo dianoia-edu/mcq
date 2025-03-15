@@ -4,7 +4,11 @@ if (!isset($_SESSION['teacher']) || $_SESSION['teacher'] !== true) {
     exit();
 }
 
-$config = require(__DIR__ . '/../includes/config.php');
+// Direkte Konfiguration anstelle von config.php
+$config = [
+    // Hier können Standardwerte definiert werden
+    'environment' => 'production'
+];
 ?>
 
 <div class="config-container">

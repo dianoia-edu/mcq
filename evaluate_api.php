@@ -1,5 +1,4 @@
 <?php
-require_once 'config.php';
 require_once 'auswertung.php';
 
 header('Content-Type: application/json');

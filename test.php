@@ -2,10 +2,9 @@
 ob_start();
 
 require_once 'check_test_attempts.php';
-require_once 'config.php';
 
-// Lade Konfiguration
-$config = loadConfig();
+// Lade Konfiguration - Anpassung, da config.php nicht mehr existiert
+// $config = loadConfig();
 
 // Überprüfe alle erforderlichen Session-Variablen
 $requiredSessionVars = ["test_file", "test_code", "student_name"];

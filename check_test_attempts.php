@@ -1,7 +1,9 @@
 <?php
+session_start();
+// require_once 'config.php'; wurde entfernt
+require_once 'includes/database_config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-require_once 'config.php';
 
 /**
  * Generiert einen eindeutigen Identifikator für einen Schüler

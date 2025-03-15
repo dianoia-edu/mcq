@@ -52,7 +52,6 @@ echo "- Ghostscript: " . ($gsReturnVar === 0 ? "OK (v" . trim($gsOutput[0]) . ")
 // Datenbankverbindung testen
 echo "\nDatenbankverbindung:\n";
 try {
-    require_once __DIR__ . '/config/config.php';
     require_once __DIR__ . '/includes/database_config.php';
     
     $dbConfig = DatabaseConfig::getInstance();

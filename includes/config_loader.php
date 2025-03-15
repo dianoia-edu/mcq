@@ -1,14 +1,16 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+// require_once __DIR__ . '/../config/config.php'; wurde entfernt
 
 function loadConfig() {
     static $config = null;
     
     if ($config === null) {
         try {
-            // Lade die Konfiguration basierend auf der aktuellen Umgebung
-            $environment = Config::getEnvironment();
-            $config = Config::get($environment);
+            // Da config.php nicht mehr existiert, erstellen wir eine einfache Standardkonfiguration
+            $config = [
+                // Hier können Standardwerte definiert werden
+                'environment' => 'production'
+            ];
             
             // Füge zusätzliche Konfigurationen hinzu
             $configFile = __DIR__ . '/../config/api_config.json';

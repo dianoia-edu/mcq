@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+// require_once __DIR__ . '/../config/config.php'; wurde entfernt
 
 // Datenbankverbindungskonfiguration
 class DatabaseConfig {
@@ -8,7 +8,13 @@ class DatabaseConfig {
     private $config;
     
     private function __construct() {
-        $this->config = Config::get(Config::getEnvironment());
+        // Direkte Konfiguration anstelle von Config::get
+        $this->config = [
+            'db_host' => 'localhost',
+            'db_user' => 'root',
+            'db_password' => '',
+            'db_name' => 'mcq_test_system'
+        ];
     }
     
     public static function getInstance() {
