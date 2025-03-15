@@ -52,3 +52,4 @@ config/config.production.php
 # Composer
 vendor/
 composer.lock 
+/tests
