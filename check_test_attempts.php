@@ -1,5 +1,8 @@
 <?php
-session_start();
+// Starte Session nur, wenn noch keine aktiv ist
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 // require_once 'config.php'; wurde entfernt
 require_once 'includes/database_config.php';
 error_reporting(E_ALL);
