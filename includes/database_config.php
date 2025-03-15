@@ -1,5 +1,5 @@
 <?php
-// require_once __DIR__ . '/../config/config.php'; wurde entfernt
+// require_once __DIR__ . '/../config/config.php'; wurde  entfernt
 
 // Datenbankverbindungskonfiguration
 class DatabaseConfig {

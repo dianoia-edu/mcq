@@ -54,3 +54,4 @@ config/config.production.php
 vendor/
 composer.lock 
 /tests
+includes/database_config.php
