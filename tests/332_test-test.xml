@@ -1,0 +1,258 @@
+<?xml version="1.0"?>
+<test>
+  <title>test_test</title>
+  <access_code>332</access_code>
+  <question_count>12</question_count>
+  <answer_count>3</answer_count>
+  <answer_type>multiple</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Frage 1</text>
+      <answers>
+        <answer nr="A">
+          <text>1. Antwort falsch</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>2. Antwort richtig</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>3. Antwort falsch</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher Artikel der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte spricht von der Freiheit und ihren Grenzen?</text>
+      <answers>
+        <answer nr="A">
+          <text>1. Antwort richtig</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="B">
+          <text>2. Antwort falsch</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>3. Antwort richtig</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>4. Antwort falsch</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was war ein zentrales Anliegen der Aufkl&#xE4;rung im Hinblick auf die Gesellschaft?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die F&#xF6;rderung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Die St&#xE4;rkung traditioneller Hierarchien</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Die Verbreitung von Menschen- und B&#xFC;rgerrechten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die Beibehaltung der st&#xE4;ndischen Ordnung</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welcher Artikel der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte spricht von der Freiheit und ihren Grenzen?</text>
+      <answers>
+        <answer nr="A">
+          <text>Artikel 1</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Artikel 4</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Artikel 5</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Artikel 10</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>In welchem Jahr wurde die Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte verabschiedet?</text>
+      <answers>
+        <answer nr="A">
+          <text>1789</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="B">
+          <text>1791</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>1804</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>1815</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Welches Prinzip wird im Artikel 16 der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte betont?</text>
+      <answers>
+        <answer nr="A">
+          <text>Volkssouver&#xE4;nit&#xE4;t</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Gewaltenteilung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Religionsfreiheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Eigentumsrecht</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Wie beeinflusste Jean-Jacques Rousseau mit seinen Schriften das europ&#xE4;ische Selbstverst&#xE4;ndnis w&#xE4;hrend der Aufkl&#xE4;rung?</text>
+      <answers>
+        <answer nr="A">
+          <text>Durch die Verteidigung des Feudalismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Durch die Kritik an der Vernachl&#xE4;ssigung von Tugenden und Pflichten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Durch die F&#xF6;rderung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Durch das Eintreten f&#xFC;r eine unkontrollierte Monarchie</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was kennzeichnete den aufgekl&#xE4;rten Absolutismus in Preu&#xDF;en unter Friedrich dem Gro&#xDF;en?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine strikte Trennung von Kirche und Staat</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Reformen im Justizwesen und in anderen Bereichen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Vollst&#xE4;ndige Abschaffung des Adelsstandes</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Unmittelbare Umsetzung aller Ideen des Gesellschaftsvertrags</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welche Rolle spielte die Nationalversammlung w&#xE4;hrend der Franz&#xF6;sischen Revolution?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie verteidigte den absolutistischen Anspruch des K&#xF6;nigs.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Sie setzte sich f&#xFC;r die Wiederherstellung der Feudalordnung ein.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Sie erarbeitete die Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Sie f&#xF6;rderte die Ausbreitung monarchischer Macht.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Welches Ziel verfolgte Joseph II. von &#xD6;sterreich mit seinen Reformen?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Wiederherstellung mittelalterlicher Strukturen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Die Sicherstellung seiner pers&#xF6;nlichen Bereicherung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Der Dienst am Staat und das Wohl seiner Untertanen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die Expansion seines Reiches durch milit&#xE4;rische Eroberungen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="11">
+      <text>Was war eine direkte Folge der Aufkl&#xE4;rung f&#xFC;r das politische System in Europa?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine R&#xFC;ckkehr zu traditionellen monarchischen Strukturen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Eine Verst&#xE4;rkung feudaler Privilegien</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Eine Abkehr von st&#xE4;ndischen Gesellschaftsordnungen hin zu b&#xFC;rgerlichen Werten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Eine vollst&#xE4;ndige Eliminierung staatlicher Strukturen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="12">
+      <text>Wie &#xE4;u&#xDF;erte sich die Kritik Rousseaus an der zeitgen&#xF6;ssischen Erziehung in seinen Schriften?</text>
+      <answers>
+        <answer nr="A">
+          <text>Er lobte die Fokussierung auf praktische F&#xE4;higkeiten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Er unterst&#xFC;tzte den fr&#xFC;hen Spracherwerb mehrerer Fremdsprachen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Er bem&#xE4;ngelte, dass Kinder nicht ihre Pflichten, sondern unn&#xFC;tze Dinge lernten.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Er forderte eine st&#xE4;rkere Konzentration auf religi&#xF6;se Inhalte.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

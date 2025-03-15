@@ -1,127 +1,271 @@
 <?php
-session_start();
+require_once 'includes/database_config.php';
 
-// Überprüfen, ob der Benutzer ein Lehrer ist
-if (!isset($_SESSION["teacher"]) || $_SESSION["teacher"] !== true) {
-    header("Location: index.php");
-    exit;
-}
-
-// Überprüfen, ob ein Test ausgewählt wurde
-$selectedTest = $_GET["test"] ?? null;
-if (!$selectedTest) {
-    header("Location: teacher_dashboard.php");
-    exit;
-}
-
-// Resultate für den ausgewählten Test abrufen
-$resultFiles = glob("results/{$selectedTest}_*.txt");
-$results = [];
-
-foreach ($resultFiles as $resultFile) {
-    $resultData = json_decode(file_get_contents($resultFile), true);
-    if ($resultData) {
-        $results[] = $resultData;
+// Funktion zum Laden des Notenschemas
+function loadGradeSchema() {
+    $schemaFile = 'notenschema.txt';
+    if (!file_exists($schemaFile)) {
+        error_log("Notenschema nicht gefunden: " . $schemaFile);
+        return false;
     }
-}
 
-// Sortieren nach Nachname
-usort($results, function($a, $b) {
-    $lastNameA = explode(' ', $a["studentName"]);
-    $lastNameA = end($lastNameA);
-    
-    $lastNameB = explode(' ', $b["studentName"]);
-    $lastNameB = end($lastNameB);
-    
-    return strcmp($lastNameA, $lastNameB);
-});
-
-// Statistiken berechnen
-$statistics = [
-    "totalStudents" => count($results),
-    "averagePercentage" => 0,
-    "averageGrade" => 0,
-    "highestGrade" => 0,
-    "lowestGrade" => 15,
-    "distribution" => [
-        "0" => 0,
-        "3" => 0,
-        "6" => 0,
-        "9" => 0,
-        "12" => 0,
-        "15" => 0
-    ]
-];
-
-if (!empty($results)) {
-    $totalPercentage = 0;
-    $totalGrade = 0;
-    
-    foreach ($results as $result) {
-        $totalPercentage += $result["percentage"];
-        $totalGrade += $result["grade"];
-        
-        $statistics["highestGrade"] = max($statistics["highestGrade"], $result["grade"]);
-        $statistics["lowestGrade"] = min($statistics["lowestGrade"], $result["grade"]);
-        
-        // Notenverteilung aktualisieren
-        $statistics["distribution"]["{$result["grade"]}"]++;
-    }
-    
-    $statistics["averagePercentage"] = $totalPercentage / count($results);
-    $statistics["averageGrade"] = $totalGrade / count($results);
-}
-
-// Fragen analysieren, um zu sehen, welche am schwierigsten waren
-$questionStats = [];
-if (!empty($results) && !empty($results[0]["results"])) {
-    foreach ($results[0]["results"] as $qIndex => $questionResult) {
-        $questionStats[$qIndex] = [
-            "question" => $questionResult["question"],
-            "correctAnswers" => $questionResult["correctAnswers"],
-            "totalCorrect" => 0,
-            "totalIncorrect" => 0
-        ];
-    }
-    
-    foreach ($results as $result) {
-        foreach ($result["results"] as $qIndex => $questionResult) {
-            if ($questionResult["points"] > 0) {
-                $questionStats[$qIndex]["totalCorrect"]++;
-            } else {
-                $questionStats[$qIndex]["totalIncorrect"]++;
-            }
+    $schema = [];
+    $lines = file($schemaFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $parts = explode(':', $line);
+        if (count($parts) === 2) {
+            $grade = trim($parts[0]);
+            $minPercentage = (float)trim($parts[1]);
+            $schema[] = ['grade' => $grade, 'minPercentage' => $minPercentage];
         }
     }
+
+    // Sortiere nach Prozentsatz absteigend
+    usort($schema, function($a, $b) {
+        return $b['minPercentage'] <=> $a['minPercentage'];
+    });
+
+    return $schema;
 }
 
-// Nach Schwierigkeitsgrad sortieren (schwierigste zuerst)
-uasort($questionStats, function($a, $b) {
-    $correctRateA = $a["totalCorrect"] / ($a["totalCorrect"] + $a["totalIncorrect"]);
-    $correctRateB = $b["totalCorrect"] / ($b["totalCorrect"] + $b["totalIncorrect"]);
-    return $correctRateA <=> $correctRateB;
-});
-?>
+// Funktion zur Berechnung der Note basierend auf dem Prozentsatz
+function calculateGrade($percentage, $schema) {
+    foreach ($schema as $entry) {
+        if ($percentage >= $entry['minPercentage']) {
+            return $entry['grade'];
+        }
+    }
+    return end($schema)['grade']; // Schlechteste Note als Fallback
+}
 
+// Funktion zur Auswertung eines einzelnen Tests
+function evaluateTest($xmlFile) {
+    error_log("Starte Auswertung für: " . $xmlFile);
+    
+    // Lade die XML-Datei
+    $xml = simplexml_load_file($xmlFile);
+    if ($xml === false) {
+        error_log("Fehler beim Laden der XML-Datei: " . $xmlFile);
+        return false;
+    }
+
+    $maxPoints = 0;      // Maximale Punktzahl
+    $achievedPoints = 0; // Erreichte Punktzahl
+
+    // Gehe durch alle Fragen
+    foreach ($xml->questions->question as $question) {
+        $correctAnswers = 0;    // Anzahl richtiger Antworten in dieser Frage
+        $correctChosen = 0;     // Anzahl richtig gewählter Antworten
+        $wrongChosen = 0;       // Anzahl falsch gewählter Antworten
+        
+        // Zähle zunächst die möglichen richtigen Antworten
+        foreach ($question->answers->answer as $answer) {
+            if ((int)$answer->correct === 1) {
+                $correctAnswers++;
+            }
+        }
+        
+        // Addiere zur maximalen Punktzahl
+        $maxPoints += $correctAnswers;
+        
+        // Prüfe die Schülerantworten
+        foreach ($question->answers->answer as $answer) {
+            $isCorrect = (int)$answer->correct === 1;
+            $wasChosen = (int)$answer->schuelerantwort === 1;
+            
+            if ($isCorrect && $wasChosen) {
+                // Richtige Antwort wurde gewählt
+                $correctChosen++;
+            } elseif (!$isCorrect && $wasChosen) {
+                // Falsche Antwort wurde gewählt
+                $wrongChosen++;
+            }
+        }
+        
+        // Berechne Punkte für diese Frage
+        // Neue Logik für Fragen mit mehreren richtigen Antworten:
+        // - Wenn falsche Antworten gewählt wurden, werden die Punkte reduziert
+        // - Pro Frage gibt es keine Minuspunkte
+        // - Bei einer falschen Antwort wird ein Punkt abgezogen
+        $questionPoints = 0;
+        if ($wrongChosen === 0) {
+            // Keine falschen Antworten gewählt -> alle richtigen Antworten zählen
+            $questionPoints = $correctChosen;
+        } else {
+            // Bei falschen Antworten: Ziehe einen Punkt pro falscher Antwort ab
+            $questionPoints = max(0, $correctChosen - $wrongChosen);
+        }
+        
+        $achievedPoints += $questionPoints;
+        
+        error_log("Frage " . $question['nr'] . ":");
+        error_log(" - Mögliche richtige Antworten: " . $correctAnswers);
+        error_log(" - Richtig gewählte Antworten: " . $correctChosen);
+        error_log(" - Falsch gewählte Antworten: " . $wrongChosen);
+        error_log(" - Punkte für diese Frage: " . $questionPoints);
+    }
+    
+    // Berechne Prozentsatz
+    $percentage = ($maxPoints > 0) ? round(($achievedPoints / $maxPoints) * 100, 2) : 0;
+    
+    error_log("Auswertung abgeschlossen:");
+    error_log(" - Maximale Punktzahl: " . $maxPoints);
+    error_log(" - Erreichte Punktzahl: " . $achievedPoints);
+    error_log(" - Prozentsatz: " . $percentage . "%");
+    
+    return [
+        'max' => $maxPoints,
+        'achieved' => $achievedPoints,
+        'percentage' => $percentage
+    ];
+}
+
+// AJAX-Endpunkt für Ergebnisse
+if (isset($_GET['action']) && $_GET['action'] === 'get_results') {
+    header('Content-Type: application/json');
+    try {
+        $db = DatabaseConfig::getInstance()->getConnection();
+        $stmt = $db->query("
+            SELECT 
+                t.access_code as test_code,
+                t.title as test_title,
+                ta.student_name,
+                ta.completed_at as date,
+                ta.points_achieved as achieved_points,
+                ta.points_maximum as max_points,
+                ta.percentage,
+                ta.grade,
+                ts.attempts_count,
+                ts.average_percentage
+            FROM test_attempts ta
+            JOIN tests t ON ta.test_id = t.test_id
+            LEFT JOIN test_statistics ts ON t.test_id = ts.test_id
+            ORDER BY ta.completed_at DESC
+        ");
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'data' => $results]);
+    } catch (Exception $e) {
+        error_log("Fehler beim Laden der Ergebnisse: " . $e->getMessage());
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auswertung: <?php echo $selectedTest; ?> - MCQ Test System</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Testauswertung</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .result-item {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result-item h3 {
+            margin-top: 0;
+            color: #2563eb;
+        }
+        .test-stats {
+            background: #f3f4f6;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .error-message {
+            color: #dc2626;
+            padding: 10px;
+            background: #fee2e2;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Auswertung: <?php echo $selectedTest; ?></h1>
+        <h1>Testauswertung</h1>
+        <div id="results-list">
+            <!-- Hier werden die Ergebnisse dynamisch eingefügt -->
+        </div>
+    </div>
+    <script>
+    function loadResults() {
+        console.log('Debug: auswertung.php wird geladen - Version vom ' + new Date().toLocaleString('de-DE'));
         
-        <?php if (empty($results)): ?>
-            <div class="message error">
-                Keine Ergebnisse für diesen Test gefunden.
-            </div>
-        <?php else: ?>
-            <div class="dashboard-section">
-                <h2>Zusammenfassung</h2>
-                <div class="stats-summary">
-                    <div class="stats-item">
-                        <strong>Anzahl Schüler:</strong> <?php echo
+        fetch('auswertung.php?action=get_results')
+            .then(response => response.json())
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.error || 'Fehler beim Laden der Daten');
+                }
+                
+                const resultsList = document.getElementById('results-list');
+                resultsList.innerHTML = '';
+                
+                if (!response.data || response.data.length === 0) {
+                    resultsList.innerHTML = '<div class="result-item">Keine Ergebnisse verfügbar.</div>';
+                    return;
+                }
+                
+                // Gruppiere Ergebnisse nach Test
+                const testGroups = {};
+                response.data.forEach(attempt => {
+                    if (!testGroups[attempt.test_code]) {
+                        testGroups[attempt.test_code] = {
+                            title: attempt.test_title,
+                            attempts_count: attempt.attempts_count,
+                            average_percentage: attempt.average_percentage,
+                            results: []
+                        };
+                    }
+                    testGroups[attempt.test_code].results.push(attempt);
+                });
+                
+                // Zeige Ergebnisse gruppiert nach Test an
+                Object.entries(testGroups).forEach(([testCode, group]) => {
+                    const testDiv = document.createElement('div');
+                    testDiv.className = 'test-group';
+                    testDiv.innerHTML = `
+                        <h2>${group.title} (${testCode})</h2>
+                        <div class="test-stats">
+                            <p>Gesamtversuche: ${group.attempts_count || 0}</p>
+                            <p>Durchschnittliche Leistung: ${group.average_percentage ? group.average_percentage.toFixed(1) + '%' : 'N/A'}</p>
+                        </div>
+                    `;
+                    
+                    group.results.forEach(attempt => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'result-item';
+                        resultDiv.innerHTML = `
+                            <h3>${attempt.student_name}</h3>
+                            <p>Datum: ${new Date(attempt.date).toLocaleString('de-DE')}</p>
+                            <p>Punkte: ${attempt.achieved_points} von ${attempt.max_points}</p>
+                            <p>Prozent: ${attempt.percentage}%</p>
+                            <p>Note: ${attempt.grade}</p>
+                        `;
+                        testDiv.appendChild(resultDiv);
+                    });
+                    
+                    resultsList.appendChild(testDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Fehler beim Laden der Ergebnisse:', error);
+                const resultsList = document.getElementById('results-list');
+                resultsList.innerHTML = `
+                    <div class="error-message">
+                        Fehler beim Laden der Ergebnisse. Bitte versuchen Sie es später erneut.
+                    </div>
+                `;
+            });
+    }
+
+    // Lade die Ergebnisse beim Start
+    document.addEventListener('DOMContentLoaded', loadResults);
+    </script>
+</body>
+</html> 

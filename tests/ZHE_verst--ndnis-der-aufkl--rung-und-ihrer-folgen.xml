@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>ZHE</access_code>
+  <title>Verständnis der Aufklärung und ihrer Folgen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Welche Aussage beschreibt am besten die Rolle der Aufklärung im Hinblick auf die politischen und gesellschaftlichen Veränderungen in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Aufklärung hatte wenig Einfluss auf die Entwicklung der politischen Systeme in Europa.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Aufklärung führte zur Abschaffung aller Monarchien und zur Etablierung von Demokratien in ganz Europa.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Aufklärung beeinflusste maßgeblich die Entstehung moderner demokratischer Prinzipien und Menschenrechte.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Aufklärung war ausschließlich eine kulturelle Bewegung ohne Auswirkungen auf politische Strukturen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Was war eine direkte Folge der Aufklärungsphilosophie in Bezug auf die französische Gesellschaft des 18. Jahrhunderts?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die unveränderte Fortführung des Absolutismus ohne jegliche Reformen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine sofortige Umwandlung Frankreichs in eine vollständige Demokratie.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Verbreitung von Ideen, die letztendlich zur Französischen Revolution führten.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine vollständige Trennung von Kirche und Staat in allen europäischen Ländern.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welches Prinzip ist KEIN Bestandteil der Erklärung der Menschen- und Bürgerrechte von 1789?</text>
+      <answers>
+        <answer nr="1">
+          <text>Freiheit besteht darin, alles tun zu können, was einem anderen nicht schadet.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Das Gesetz ist der Ausdruck des allgemeinen Willens und soll alle Bürger gleich schützen und bestrafen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eigentum ist ein unverletzliches und heiliges Recht, das niemandem genommen werden darf.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Das Recht auf absolute Meinungs- und Pressefreiheit ohne jegliche gesetzliche Einschränkungen.</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Wie äußerte sich Jean-Jacques Rousseau kritisch über den Einfluss der Wissenschaften und Künste auf die Sitten?</text>
+      <answers>
+        <answer nr="1">
+          <text>Er behauptete, dass Wissenschaften und Künste keinerlei Einfluss auf die Sitten einer Gesellschaft haben.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Rousseau lobte die Wissenschaften und Künste als einzigen Weg zur moralischen Vervollkommnung des Menschen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Er kritisierte, dass durch Wissenschaften und Künste die Sitten verderben könnten, da sie den Menschen von seiner natürlichen Tugendhaftigkeit entfernen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Rousseau forderte eine strikte Zensur der Wissenschaften und Künste, um die Sitten der Gesellschaft zu schützen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="1">
+      <text>Was ist ein wesentliches Merkmal von QR-Codes, das sie von herkömmlichen Barcodes unterscheidet?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie können nur numerische Daten speichern.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie benötigen eine Internetverbindung zum Scannen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie können in alle Richtungen (360 Grad) gescannt werden.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie sind ausschließlich für den Einsatz im Einzelhandel bestimmt.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welche Komponente ist NICHT erforderlich, um einen QR-Code zu generieren, der Text in codierter Form enthält?</text>
+      <answers>
+        <answer nr="1">
+          <text>Ein Algorithmus zur Fehlerkorrektur.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Makro-Objektiv für die Kamera.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein Encoder, der den Text in eine Bitfolge umwandelt.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine Methode zur Bestimmung des Fehlerkorrekturgrades.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Wie wird die Information in einem QR-Code verschlüsselt, wenn der Text ausschließlich aus Ziffern besteht?</text>
+      <answers>
+        <answer nr="1">
+          <text>Jedes Zeichen wird als separate QR-Einheit gespeichert.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Drei Ziffern werden zusammengefasst und als eine QR-Einheit gespeichert.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Zwei Zeichen werden zusammengefasst und als eine QR-Einheit gespeichert.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Jedes Zeichen wird durch ein individuelles Bildsymbol dargestellt.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="1">
+      <text>Was ist die primäre Funktion der ZXing (Zebra Crossing) Bibliothek?</text>
+      <answers>
+        <answer nr="1">
+          <text>Zum Erstellen von 3D-Modellen für Spieleentwicklung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Zum Scannen und Interpretieren von QR-Codes</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Zur Verschlüsselung von sensiblen Daten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Zum Streamen von Multimedia-Inhalten</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welche Aussage beschreibt eine innovative Anwendung von QR-Codes im Bereich der Notfallhilfe?</text>
+      <answers>
+        <answer nr="1">
+          <text>QR-Codes werden verwendet, um interaktive Konzerte zu veranstalten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>QR-Codes dienen dazu, die Effizienz in der Nahrungsmittellogistik zu steigern.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>QR-Codes helfen dabei, Gaffer an Unfallorten durch Selbstauslösung zu identifizieren.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>QR-Codes werden genutzt, um virtuelle Museumsführungen anzubieten.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was ist ein potenzielles Sicherheitsrisiko beim Scannen von QR-Codes?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Übertragung von Viren auf physische Gegenstände</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die unbeabsichtigte Änderung des Smartphone-Betriebssystems</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Das Auslösen eines automatischen Neustarts des Geräts</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Das Herunterladen und Installieren eines Android-Trojaners</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

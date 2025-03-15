@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>K2S</access_code>
+  <title>Die Aufklärung in Europa und ihre Folgen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein zentrales Anliegen der Aufklärung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Förderung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Wiederherstellung feudaler Strukturen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Verbreitung von Menschen- und Bürgerrechten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Unterdrückung wissenschaftlicher Erkenntnisse</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welches Ereignis markiert den Beginn der Französischen Revolution, die stark von den Ideen der Aufklärung beeinflusst wurde?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Sturm auf die Bastille</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Veröffentlichung der Encyclopédie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Wiener Kongress</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Schlacht bei Waterloo</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welcher Grundsatz ist KEIN Teil der in der Erklärung der Menschen- und Bürgerrechte festgelegten Rechte?</text>
+      <answers>
+        <answer nr="1">
+          <text>Freiheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eigentum</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sicherheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Unfehlbarkeit der Regierung</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was versteht man unter dem Begriff "aufgeklärter Absolutismus"?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Herrschaftsform, die auf den Prinzipien der Aufklärung basiert, aber weiterhin absolute Macht beim Monarchen belässt</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Regierungsform, die ausschließlich auf Vernunft und Wissenschaft gründet</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein politisches System, das durch direkte Demokratie gekennzeichnet ist</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine Gesellschaftsordnung, die auf traditionellen religiösen Werten beruht</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie beeinflusste Jean-Jacques Rousseau mit seinen Schriften das europäische Selbstverständnis während der Aufklärung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch die Betonung des göttlichen Rechts von Königen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch die Kritik an gesellschaftlichen Missständen und die Förderung von Bildung und Tugend</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch die Unterstützung des Feudalsystems und der Ständeordnung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch das Eintreten für eine Rückkehr zu primitiven Lebensweisen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Welche Aussage beschreibt eine direkte Folge der Aufklärung für das politische System in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die unveränderte Beibehaltung des Feudalsystems in allen europäischen Ländern</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Abschaffung aller Monarchien und die Errichtung republikanischer Staaten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Übergang von absolutistischen zu konstitutionellen Monarchien in einigen Staaten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die vollständige Trennung von Kirche und Staat überall in Europa</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Was kennzeichnete den sogenannten "Dritten Stand" vor der Französischen Revolution?</text>
+      <answers>
+        <answer nr="1">
+          <text>Er bestand ausschließlich aus Adligen und Klerikern.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Er umfasste das Bürgertum sowie Bauern und galt als Vertreter des Volkes.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Er hatte keine politische Bedeutung und blieb ohne Einfluss.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Er unterstützte uneingeschränkt den Absolutismus.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>In welchem Bereich fanden im Zuge des aufgeklärten Absolutismus KEINE Reformen statt?</text>
+      <answers>
+        <answer nr="1">
+          <text>Im Gesundheitswesen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>In der Landwirtschaft</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Im Straf- und Zivilrecht</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>In der vollständigen Abschaffung des Militärs</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welches Prinzip wurde NICHT durch die Amerikanische Revolution beeinflusst, die ebenfalls von den Idealen der Aufklärung geprägt war?</text>
+      <answers>
+        <answer nr="1">
+          <text>Volkssouveränität</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Repräsentative Demokratie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Gleichheit vor dem Gesetz</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Das göttliche Recht von Königen</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was war eine langfristige Auswirkung der Aufklärung auf die europäische Gesellschaftsstruktur?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Rückkehr zu stärker hierarchisch geordneten Gesellschaftsformen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Beibehaltung des Feudalsystems ohne wesentliche Änderungen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Übergang zu einer bürgerlichen Ordnung, basierend auf Besitz, Bildung und Leistung.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die vollständige Eliminierung sozialer Unterschiede und Klassen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

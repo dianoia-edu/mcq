@@ -1,0 +1,151 @@
+/* Gemeinsame Styles für Test-Vorschau und Testergebnis-Modals */
+.test-preview {
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.test-header {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.test-header h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+.question-block {
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.question-text {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    color: #212529;
+    line-height: 1.5;
+}
+
+.answers-list {
+    margin-left: 0.5rem;
+}
+
+.answer-item {
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 4px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.answer-letter {
+    font-weight: bold;
+    margin-right: 12px;
+    min-width: 1.5em;
+    color: #495057;
+}
+
+.answer-correct {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.answer-wrong {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.answer-missed {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+}
+
+.student-choice {
+    margin-left: auto;
+    padding: 2px 6px;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 3px;
+    font-size: 0.8em;
+}
+
+.correct-answer {
+    margin-left: 8px;
+    padding: 2px 6px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 3px;
+    font-size: 0.8em;
+}
+
+.answer-type-hint {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed #dee2e6;
+}
+
+.question-evaluation {
+    color: #495057;
+    font-weight: 500;
+}
+
+/* Zusätzliche Styles für bessere Lesbarkeit */
+.modal-dialog {
+    max-width: 1000px;
+    margin: 1.75rem auto;
+}
+
+@media (min-width: 992px) {
+    .modal-dialog {
+        max-width: 1000px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .modal-dialog {
+        max-width: 1200px;
+    }
+}
+
+.modal-body {
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.richtig {
+    display: inline-block;
+    padding: 2px 6px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 3px;
+    font-size: 0.8em;
+    margin-left: 8px;
+} 

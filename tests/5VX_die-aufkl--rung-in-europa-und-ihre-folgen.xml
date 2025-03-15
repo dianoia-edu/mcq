@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>5VX</access_code>
+  <title>Die Aufklärung in Europa und ihre Folgen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein Hauptziel der französischen Nationalversammlung bei der Verkündung der Erklärung der Menschen- und Bürgerrechte im Jahr 1789?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Abschaffung der Monarchie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Einführung von Gewaltenteilung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Festlegung unveräußerlicher Menschenrechte</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Gründung einer neuen Religion</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher Artikel der Erklärung der Menschen- und Bürgerrechte betont die Freiheit als ein Grundrecht, das nur durch Gesetz eingeschränkt werden kann?</text>
+      <answers>
+        <answer nr="1">
+          <text>Artikel 1</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Artikel 4</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Artikel 10</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Artikel 11</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was versteht man unter dem Prinzip der Volkssouveränität, wie es in der Aufklärung diskutiert wurde?</text>
+      <answers>
+        <answer nr="1">
+          <text>Alle Macht geht vom König aus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Das Militär hat die oberste Kontrolle über den Staat.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Kirche bestimmt die politische Ordnung.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Macht im Staat geht vom Volk aus.</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Wie beeinflusste Jean-Jacques Rousseaus Kritik an den Wissenschaften und Künsten das Denken der Aufklärung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Er unterstützte uneingeschränkt die Fortschritte in Wissenschaft und Kunst.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Er warnte vor den moralischen Gefahren des Missbrauchs von Wissenschaft und Kunst.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Er forderte die vollständige Abschaffung aller wissenschaftlichen Disziplinen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Er plädierte für eine streng religiöse Kontrolle über Wissenschaft und Kunst.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Welche Rolle spielte die Aufklärung bei der Entwicklung des modernen europäischen Selbstverständnisses?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie führte zur Ablehnung jeglicher Form von Rationalität.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie betonte Tradition und Autorität als Hauptquellen des Wissens.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie förderte den Glauben an Vernunft, Freiheit und individuelle Rechte.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie unterstützte ausschließlich die Rückkehr zu feudalen Strukturen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was kennzeichnete den aufgeklärten Absolutismus, wie er unter Friedrich dem Großen in Preußen praktiziert wurde?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine absolute Ablehnung aufklärerischer Ideen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Kombination aus absolutistischer Herrschaft und aufklärerischen Reformen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine direkte Demokratie ohne monarchische Einflüsse.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine vollständige Umsetzung des Gesellschaftsvertrags nach Rousseau.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>In welchem Bereich wurden im Zuge des aufgeklärten Absolutismus KEINE Reformen durchgeführt?</text>
+      <answers>
+        <answer nr="1">
+          <text>Im Gesundheitswesen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>In der Landwirtschaft</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Im Feudalsystem</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Im Straf- und Zivilrecht</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Welches Ereignis markierte den Höhepunkt der politischen und gesellschaftlichen Veränderungen, die durch die Aufklärungsphilosophie inspiriert wurden?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Wiener Kongress</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Französische Revolution</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Amerikanische Unabhängigkeitskrieg</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Gründung des Deutschen Reiches</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welches Prinzip wurde NICHT in der Französischen Revolution umgesetzt, obwohl es ein zentrales Thema der Aufklärungsphilosophie war?</text>
+      <answers>
+        <answer nr="1">
+          <text>Freiheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Gleichheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Brüderlichkeit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Gewaltenteilung</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Wie beeinflussten die Ideen der Aufklärung das Bildungsverständnis in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Es gab eine Abkehr von Bildung hin zu ausschließlich praktischen Fertigkeiten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Bildung wurde zunehmend als Mittel zur Förderung kritischen Denkens verstanden.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Traditionelle Lehrmethoden wurden verstärkt, um den Status quo zu bewahren.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Religiöse Ausbildung wurde als einzige Form legitimer Bildung angesehen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

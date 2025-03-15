@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>PRL</access_code>
+  <title>Der Kalte Krieg und der Ost-West-Konflikt</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war die Breschnew-Doktrin?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Politik der friedlichen Koexistenz zwischen Ost und West</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Grundsatz, der der UdSSR das Recht gab, in sozialistischen Ländern zu intervenieren</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Reform zur Einführung von Meinungsfreiheit in der Sowjetunion</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Wirtschaftsprogramm zur Steigerung der Lebensmittelproduktion in Osteuropa</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Warum griffen westliche Staaten nicht militärisch ein, um die antikommunistischen Aufstände in Osteuropa zu unterstützen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Weil sie die Aufständischen ideologisch nicht unterstützten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Weil sie eine direkte militärische Konfrontation mit der UdSSR befürchteten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Weil sie keine Kenntnis von den Aufständen hatten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Weil sie bereits mit eigenen inneren Konflikten beschäftigt waren</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welches Ereignis führte dazu, dass Präsident Kennedy eine Seeblockade gegen Kuba verhängte?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Entdeckung sowjetischer Abschussrampen für Atomraketen auf Kuba</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Versuch Kubas, eine Invasion in den USA zu starten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Unterzeichnung eines Bündnisses zwischen Kuba und der UdSSR</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Entführung amerikanischer Staatsbürger durch kubanische Kräfte</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was war das Ergebnis des geheimen Briefwechsels zwischen Kennedy und Chruschtschow während der Kubakrise?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Vereinbarung eines gemeinsamen Atomwaffensperrvertrags</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Rückbau sowjetischer Raketen auf Kuba im Austausch gegen den Rückbau amerikanischer Raketen in der Türkei</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein Friedensvertrag zwischen den USA und der UdSSR</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Zusage Kennedys, die Sowjetunion finanziell zu unterstützen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Welche Auswirkungen hatte die stalinistische Wirtschaftspolitik auf die Menschen in Osteuropa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie führte zu einer verbesserten Versorgung mit Lebensmitteln und Gütern des täglichen Gebrauchs.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie steigerte das Pro-Kopf-Einkommen und den Lebensstandard.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie verursachte Unzufriedenheit durch Mangelversorgung und Währungsreformen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie ermöglichte eine größere Reisefreiheit innerhalb des Ostblocks.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Wie reagierte die westliche Welt auf die Niederschlagung des Prager Frühlings?</text>
+      <answers>
+        <answer nr="1">
+          <text>Mit einer sofortigen militärischen Intervention.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Mit verbalen Verurteilungen, aber ohne militärische Aktionen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Mit wirtschaftlichen Sanktionen gegen die Sowjetunion.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Mit einer vollständigen diplomatischen Isolation des Warschauer Paktes.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Was kennzeichnete die Rollback-Politik unter Präsident Eisenhower?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Strategie zur Ausbreitung des Kommunismus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Politik zur Förderung von Demokratie und Marktwirtschaft im Ostblock.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Strategie zur psychologischen Kriegsführung gegen den Kommunismus mittels Propaganda.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Plan zur friedlichen Koexistenz mit kommunistischen Staaten.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Warum scheiterte letztlich die US-Strategie, den Kommunismus in Vietnam aufzuhalten?</text>
+      <answers>
+        <answer nr="1">
+          <text>Weil Nordvietnam eine überlegene Luftwaffe besaß.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Weil Südvietnam sich entschied, sich dem Kommunismus anzuschließen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Weil die USA ihre militärische Präsenz zu früh reduzierten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Weil trotz massiver Militärpräsenz und Bombardements ein Rückhalt in der Bevölkerung fehlte und Nordvietnam schließlich ganz Vietnam unter kommunistische Herrschaft brachte.</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welche Folgen hatte der Vietnamkrieg für die USA abseits des militärischen Konflikts?</text>
+      <answers>
+        <answer nr="1">
+          <text>Er führte zu einer verstärkten militärischen Aufrüstung.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Er bewirkte einen Anstieg des amerikanischen Nationalstolzes.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Er verursachte einen Verlust an Glaubwürdigkeit und ein gesellschaftliches Trauma.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Er stärkte das Vertrauen in die Regierungsführung.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was war ein direktes Ergebnis der antikommunistischen Aufstände in Ungarn 1956?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Einführung von Mehrparteiensystemen im Ostblock.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Bildung einer unabhängigen ungarischen Regierung.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die gewaltsame Niederschlagung durch sowjetische Truppen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Der Beginn von Verhandlungen über eine mögliche Wiedervereinigung mit Österreich.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

@@ -1,0 +1,430 @@
+<?xml version="1.0"?>
+<test>
+  <title>Aufkl&#xE4;rung in Europa und ihre Folgen: Ein Multiple-Choice-Test</title>
+  <access_code>LNY</access_code>
+  <question_count>20</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein prim&#xE4;res Ziel der franz&#xF6;sischen Nationalversammlung bei der Verk&#xFC;ndung der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte im Jahr 1789?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Abschaffung der Monarchie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Die Festlegung unver&#xE4;u&#xDF;erlicher Rechte zur Erinnerung an Pflichten und Rechte</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Die sofortige Umsetzung einer demokratischen Regierungsform</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die Einf&#xFC;hrung einer zentralisierten Staatsreligion</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welches Prinzip wird in Artikel 1 der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte betont?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Freiheit des Eigentums</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Die Gleichheit vor dem Gesetz</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Das Recht auf Bildung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Das Recht auf freie Berufswahl</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was ist laut Artikel 4 der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte die Hauptaufgabe des Gesetzes?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Bestrafung von Verbrechen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Der Schutz privaten Eigentums</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Das Verbot von Handlungen, die der Gesellschaft sch&#xE4;dlich sind</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die F&#xF6;rderung des allgemeinen Wohlstands</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>In welchem Artikel wird die Gewaltenteilung als notwendige Bedingung f&#xFC;r eine funktionierende Gesellschaft hervorgehoben?</text>
+      <answers>
+        <answer nr="A">
+          <text>Artikel 11</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Artikel 14</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Artikel 16</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Artikel 19</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie dr&#xFC;ckt sich die Freiheit gem&#xE4;&#xDF; Artikel 4 aus?</text>
+      <answers>
+        <answer nr="A">
+          <text>In der M&#xF6;glichkeit, Eigentum zu erwerben und zu besitzen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>In der F&#xE4;higkeit, an politischen Wahlen teilzunehmen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>In der Aus&#xFC;bung nat&#xFC;rlicher Rechte ohne Schaden f&#xFC;r andere</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>In der Teilnahme an gesetzgebenden Prozessen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Welche Aussage trifft auf Jean-Jacques Rousseaus Betrachtungen &#xFC;ber die Wissenschaften und K&#xFC;nste zu?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie loben den Fortschritt und dessen positive Auswirkungen auf die Sitten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Sie kritisieren den Einfluss von Wissenschaften und K&#xFC;nsten auf die Moral.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Sie fordern eine strengere Regulierung wissenschaftlicher Forschung.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Sie betonen die Notwendigkeit, Wissenschaften ausschlie&#xDF;lich f&#xFC;r milit&#xE4;rische Zwecke zu nutzen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Wie beeinflusste das Denken der Aufkl&#xE4;rung den aufgekl&#xE4;rten Absolutismus in Preu&#xDF;en unter Friedrich dem Gro&#xDF;en?</text>
+      <answers>
+        <answer nr="A">
+          <text>Es f&#xFC;hrte zur vollst&#xE4;ndigen Abschaffung des Absolutismus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Es inspirierte Reformen im Justizwesen und in anderen Bereichen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Es hatte keinerlei Einfluss auf Friedrichs Regierungsstil.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Es veranlasste Friedrich dazu, alle Macht an das Volk abzugeben.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was war eine direkte Folge der Aufkl&#xE4;rung f&#xFC;r das europ&#xE4;ische Selbstverst&#xE4;ndnis?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine verst&#xE4;rkte Hinwendung zu traditionellen monarchischen Prinzipien.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Eine Abkehr von religi&#xF6;sen Weltanschauungen zugunsten s&#xE4;kularer Werte.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Eine Neubewertung von Menschen- und B&#xFC;rgerrechten mit universellem Anspruch.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Eine vollst&#xE4;ndige Ablehnung aller vorherigen sozialen und politischen Strukturen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welche Rolle spielten Ideen wie Freiheit, Gleichheit und Repr&#xE4;sentation w&#xE4;hrend der Franz&#xF6;sischen Revolution?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie wurden als irrelevant f&#xFC;r den revolution&#xE4;ren Prozess angesehen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Sie dienten als geistige Grundlage f&#xFC;r die Forderungen des Volkes.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Sie wurden ausschlie&#xDF;lich von ausl&#xE4;ndischen M&#xE4;chten propagiert.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Sie f&#xFC;hrten zur sofortigen Etablierung einer stabilen Demokratie.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was zeigt die Amerikanische Revolution im Kontext der Aufkl&#xE4;rungsphilosophie?</text>
+      <answers>
+        <answer nr="A">
+          <text>Dass feudale Systeme unver&#xE4;nderlich sind.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Dass eine Alternative zu Feudalismus und Absolutismus m&#xF6;glich ist.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Dass koloniale M&#xE4;chte stets &#xFC;berlegen bleiben.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Dass Aufkl&#xE4;rungsprinzipien nur in Europa Anwendung finden k&#xF6;nnen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="11">
+      <text>Was war ein zentrales Anliegen der Aufkl&#xE4;rung im Hinblick auf die Regierungsf&#xFC;hrung?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die F&#xF6;rderung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Die Beibehaltung traditioneller Monarchien</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Die Einf&#xFC;hrung der Gewaltenteilung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die Unterst&#xFC;tzung des Feudalismus</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="12">
+      <text>Welcher Artikel der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte betont die Gleichheit vor dem Gesetz?</text>
+      <answers>
+        <answer nr="A">
+          <text>Artikel 1 &#x2013; Freiheit und Gleichheit in Rechten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Artikel 6 &#x2013; Gleichheit vor dem Gesetz</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Artikel 10 &#x2013; Meinungsfreiheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Artikel 17 &#x2013; Recht auf Eigentum</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="13">
+      <text>In welchem Jahr wurde die Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte verabschiedet?</text>
+      <answers>
+        <answer nr="A">
+          <text>1776</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>1789</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>1799</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>1804</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="14">
+      <text>Welches Ziel verfolgte Jean-Jacques Rousseau mit seiner Abhandlung &#xFC;ber die Wissenschaften und K&#xFC;nste?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Verteidigung des religi&#xF6;sen Dogmatismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Die Kritik an der Verderbtheit der Sitten durch den Fortschritt</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Die Unterst&#xFC;tzung f&#xFC;r den Ausbau des Bildungssystems</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die F&#xF6;rderung von Wissenschaft und Kunst als Mittel zur Machtsteigerung</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="15">
+      <text>Was kennzeichnete den sogenannten aufgekl&#xE4;rten Absolutismus?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine strikte Trennung von Kirche und Staat</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Eine absolute Machtverteilung ohne Einfluss der Aufkl&#xE4;rer</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Reformen, die von aufgekl&#xE4;rten Ideen beeinflusst waren</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Eine vollst&#xE4;ndige Umsetzung demokratischer Prinzipien</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="16">
+      <text>Wie wird Freiheit gem&#xE4;&#xDF; Artikel 4 der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte definiert?</text>
+      <answers>
+        <answer nr="A">
+          <text>Das Recht auf Privateigentum ohne Einschr&#xE4;nkungen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Das Recht, alles zu tun, was anderen nicht schadet</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Die Freiheit, ohne gesetzliche Beschr&#xE4;nkungen zu handeln</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Das Recht auf Widerstand gegen Unterdr&#xFC;ckung</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="17">
+      <text>Was war eine direkte Folge der Aufkl&#xE4;rung f&#xFC;r das europ&#xE4;ische Selbstverst&#xE4;ndnis?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine verst&#xE4;rkte Hinwendung zum traditionellen Feudalismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Eine Abkehr von wissenschaftlichem Denken</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Die Betonung von individuellen Menschenrechten und b&#xFC;rgerlichen Freiheiten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die vollst&#xE4;ndige Ablehnung aller vorherigen kulturellen Werte</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="18">
+      <text>Welche Rolle spielte die Unkenntnis, Vergehen oder Verachtung der Menschenrechte nach Ansicht der franz&#xF6;sischen Nationalversammlung?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie waren eine Triebkraft f&#xFC;r wirtschaftliche Prosperit&#xE4;t.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Sie galten als Ursachen f&#xFC;r &#xF6;ffentliches Ungl&#xFC;ck und Verderbtheit der Regierungen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Sie wurden als notwendig f&#xFC;r die Aufrechterhaltung des sozialen Friedens angesehen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Sie hatten keinen Einfluss auf die politische Stabilit&#xE4;t.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="19">
+      <text>Was besagt Artikel 11 der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte &#xFC;ber die Kommunikation von Gedanken und Meinungen?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie ist nur mit Zustimmung des K&#xF6;nigs erlaubt.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Sie darf ausschlie&#xDF;lich durch staatlich kontrollierte Medien erfolgen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Sie ist eines der kostbarsten Menschenrechte.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Sie ist nur innerhalb bestimmter gesellschaftlicher Klassen gestattet.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="20">
+      <text>Wie beeinflussten die Ideen der Aufkl&#xE4;rung die Franz&#xF6;sische Revolution?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie f&#xFC;hrten zu einer St&#xE4;rkung des absolutistischen Systems.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Sie trugen zur Entstehung einer m&#xE4;chtigen Opposition gegen Adel und Klerus bei.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Sie verhinderten jegliche Form von sozialem Wandel.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Sie f&#xF6;rderten eine R&#xFC;ckkehr zu mittelalterlichen Herrschaftsformen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

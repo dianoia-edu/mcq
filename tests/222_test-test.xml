@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<test>
+  <title>test_test</title>
+  <access_code>222</access_code>
+  <question_count>2</question_count>
+  <answer_count>3</answer_count>
+  <answer_type>multiple</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Frage 1</text>
+      <answers>
+        <answer nr="A">
+          <text>1. Antwort falsch</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>2. Antwort richtig</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>3. Antwort falsch</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher Artikel der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte spricht von der Freiheit und ihren Grenzen?</text>
+      <answers>
+        <answer nr="A">
+          <text>1. Antwort richtig</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="B">
+          <text>2. Antwort falsch</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>3. Antwort richtig</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>4. Antwort falsch</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

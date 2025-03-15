@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>36G</access_code>
+  <title>Verständnis von KI-Modellen und ihre Anwendung</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was beschreibt der Begriff "Reasoning-Modell" im Kontext von OpenAI?</text>
+      <answers>
+        <answer nr="1">
+          <text>Ein Modell, das menschliches Denken simuliert</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Modell, das autonom handeln kann</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein Modell, das zwischen den Zeilen lesen kann</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Modell, das komplexe mathematische Probleme löst</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Was ist der Hauptzweck des Fine-Tunings bei KI-Modellen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Reduzierung der Trainingskosten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Verbesserung der allgemeinen Intelligenz des Modells</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Anpassung des Modells an spezifische Aufgaben</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Beschleunigung der Antwortzeit des Modells</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welche Aussage trifft auf die Nutzung von OpenAI's Reasoning-Modellen zu?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie sind bereits für alle Nutzer verfügbar</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie werden schrittweise für Plus-User verfügbar gemacht</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie sind ausschließlich für emotionale Erkennung optimiert</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie können aktuelle Informationen ohne externe Datenquellen liefern</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was ist ein signifikantes Problem bei Large Language Models (LLMs), das auch bei neueren Modellen noch besteht?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie können keine mathematischen Probleme lösen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie haben Schwierigkeiten mit einfachen Zusammenfassungen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie neigen zu Halluzinationen und geben nicht immer präzise Antworten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie können keine emotionalen Zustände erkennen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie unterscheiden sich die neuesten KI-Modelle von OpenAI in Bezug auf ihre Fähigkeit, Emotionen zu erkennen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie sind deutlich schlechter im Erkennen von Emotionen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Es gibt keine Verbesserung gegenüber älteren Modellen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie sind deutlich besser im emotionalen Erkennen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie können Emotionen perfekt wie ein Mensch verstehen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Warum ist es wichtig, dass KI-Modelle zwischen den Zeilen lesen können?</text>
+      <answers>
+        <answer nr="1">
+          <text>Um mathematische Probleme besser zu lösen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Um Suchanfragen effizienter zu gestalten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Um nuancierte Aspekte in Gesprächen zu erfassen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Um die Kosten für das Training zu senken</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Was bedeutet es, wenn gesagt wird, dass ein KI-Modell "Weltwissen" besitzt?</text>
+      <answers>
+        <answer nr="1">
+          <text>Das Modell kann autonom Entscheidungen treffen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Das Modell hat Zugriff auf Echtzeit-Daten aus dem Internet</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Das Modell verfügt über eine breite Basis an Informationen und Kontext</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Das Modell kann neue wissenschaftliche Theorien entwickeln</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>In welchem Bereich werden Reasoning-Modelle als besonders nützlich angesehen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Bei der Lösung komplexer Logikaufgaben</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Bei Aufgaben, die Kreativität und emotionale Intelligenz erfordern</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Bei der Durchführung von High-Frequency-Trading auf Finanzmärkten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Bei der Programmierung von Computerspielen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Was ist eine Herausforderung beim Betrieb aktueller KI-Modelle von OpenAI?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie benötigen keine Wartung oder Updates</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie sind vergleichsweise kostengünstig in der Anwendung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Betrieb dieser Modelle ist immer noch relativ teuer</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie funktionieren nur in Verbindung mit spezieller Hardware</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was wird als zukünftige Entwicklung bei der Interaktion mit KI-Modellen erwartet?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Verringerung der Relevanz emotionaler Erkennungsfähigkeiten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine stärkere Bindung und ein besseres "Attachment" zu den Modellen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine vollständige Ablösung menschlicher Interaktion durch KI-Modelle</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine Abnahme der Genauigkeit und Zuverlässigkeit von KI-Antworten</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

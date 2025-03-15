@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>PY9</access_code>
+  <title>Die Aufklärung in Europa und ihre Folgen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war das primäre Ziel der Erklärung der Menschen- und Bürgerrechte von 1789?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Abschaffung der Monarchie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Festlegung der Rechte und Pflichten der Bürger</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Einführung des allgemeinen Wahlrechts</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Verstaatlichung des Eigentums</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher Artikel der Erklärung der Menschen- und Bürgerrechte betont die Freiheit als ein Grundrecht?</text>
+      <answers>
+        <answer nr="1">
+          <text>Artikel 1</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Artikel 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Artikel 3</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Artikel 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>In welchem Kontext entstand die Erklärung der Menschen- und Bürgerrechte?</text>
+      <answers>
+        <answer nr="1">
+          <text>Während der industriellen Revolution</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Im Zuge der Französischen Revolution</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Nach dem Wiener Kongress</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Während des Amerikanischen Unabhängigkeitskrieges</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welches Prinzip wird in Artikel 16 der Erklärung der Menschen- und Bürgerrechte als notwendig für eine Gesellschaft angesehen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Religiöse Toleranz</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Gewaltenteilung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Freie Marktwirtschaft</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie beeinflusste Jean-Jacques Rousseau mit seinen Schriften die Aufklärung in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch die Förderung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch die Kritik an den bestehenden sozialen Strukturen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch die Unterstützung des Feudalismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch das Verfassen von religiösen Texten</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was kennzeichnete den aufgeklärten Absolutismus, wie er unter Friedrich dem Großen in Preußen praktiziert wurde?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine absolute Macht ohne Reformen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Herrschaft basierend auf Vernunft und Reformen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine direkte Demokratie ohne Monarchie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine Rückkehr zu traditionellen mittelalterlichen Werten</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welche Auswirkungen hatte die Aufklärung auf das Selbstverständnis und Weltbild in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie führte zu einer verstärkten Hinwendung zum Mystizismus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie bewirkte eine Abkehr von wissenschaftlichem Denken.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie stärkte den Glauben an übernatürliche Kräfte.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie förderte Rationalität, Menschenrechte und Fortschritt.</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Wie veränderte die Französische Revolution das politische System in Frankreich?</text>
+      <answers>
+        <answer nr="1">
+          <text>Es führte zu einer Stärkung des Adels.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Es etablierte eine konstitutionelle Monarchie mit eingeschränkten Rechten für den König.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Es leitete den Übergang von einer absolutistischen zu einer republikanischen Staatsform ein.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Es resultierte in einer unveränderten Fortführung des Ancien Régime.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welche Rolle spielte die Idee des Gesellschaftsvertrags während der Aufklärungszeit?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie diente als Rechtfertigung für die Sklaverei.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie begründete das Konzept von unveräußerlichen Menschenrechten.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie unterstützte die Idee des göttlichen Rechts von Königen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie förderte den Gedanken, dass nur Adlige regieren sollten.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was war eine direkte Folge der Aufklärungsphilosophie für das Bürgertum in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Verschlechterung ihrer sozialen Stellung.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Verstärkung feudaler Strukturen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein Anstieg ihres politischen Einflusses und sozialen Status.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Rückgang ihrer wirtschaftlichen Bedeutung.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

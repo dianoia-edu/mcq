@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>5CJ</access_code>
+  <title>Der Kalte Krieg und der Ost-West-Konflikt</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war die Breschnew-Doktrin?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Politik der friedlichen Koexistenz zwischen Ost und West</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Grundsatz, der der UdSSR das Recht gab, in sozialistischen Ländern zu intervenieren</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Reformbewegung für mehr Freiheit im Ostblock</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Wirtschaftsprogramm zur Förderung des Sozialismus in Osteuropa</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Warum griffen westliche Staaten nicht militärisch in die Aufstände in Osteuropa ein?</text>
+      <answers>
+        <answer nr="1">
+          <text>Weil sie die Aufständischen nicht unterstützten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Weil sie die Aufstände nicht als legitim ansahen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Weil sie das Risiko eines Krieges mit der UdSSR vermeiden wollten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Weil sie bereits in andere Konflikte verwickelt waren</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welche Auswirkungen hatte die stalinistische Wirtschaftspolitik auf die Menschen in Osteuropa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Verbesserung der Lebensmittelversorgung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Steigerung des Lebensstandards</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Verlust von Geld durch Währungsreformen und Unzufriedenheit</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Erhöhung der politischen Freiheiten</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was war ein Ziel der amerikanischen Rollback-Politik unter Präsident Eisenhower?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Ausbreitung des Kommunismus zu fördern</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Sowjetunion militärisch zu besiegen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die kommunistischen Regierungen in Osteuropa durch psychologische Kriegsführung zu destabilisieren</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine direkte militärische Konfrontation mit der UdSSR zu suchen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie reagierten westliche Staaten auf den Prager Frühling 1968?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie unterstützten die Reformkommunisten mit Waffenlieferungen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie griffen militärisch ein, um die Reformen zu schützen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie boten den Reformkommunisten Asyl an</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie blieben weitgehend passiv und griffen nicht militärisch ein</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was war eine direkte Folge des Scheiterns der Aufstände im Ostblock?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Vereinigung Europas unter kommunistischer Führung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Beginn einer neuen Phase des Kalten Krieges außerhalb Europas</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Abschaffung des Warschauer Paktes</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die sofortige Beendigung des Kalten Krieges</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Was löste die Kubakrise aus?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Entdeckung sowjetischer Atomraketen auf Kuba durch US-Aufklärungsflugzeuge</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Angriff Kubas auf die USA</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Bau der Berliner Mauer</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine Seeblockade Kubas durch die USA</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Wie wurde die Kubakrise beigelegt?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch einen Atomkrieg zwischen den USA und der UdSSR</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch den Rückbau sowjetischer Raketen auf Kuba im Austausch gegen den Abbau amerikanischer Raketen in der Türkei</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch eine Invasion Kubas durch US-Truppen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch einen Militärputsch in Kuba</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Was kennzeichnete den Vietnamkrieg?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine klare Unterstützung der südvietnamesischen Regierung durch ihre Bevölkerung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Einen konventionellen Krieg zwischen regulären Armeen beider Seiten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Einen Guerillakrieg, bei dem sich die kommunistischen Kämpfer als widerstandsfähig erwiesen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Einen schnellen Sieg der USA über Nordvietnam</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was war eine langfristige Folge des Vietnamkrieges für die USA?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Stärkung ihrer Position als Weltmacht</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Trauma und Verlust an Glaubwürdigkeit wegen ihrer Kriegsführung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Verbesserung ihrer Beziehungen zu kommunistischen Ländern</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Anstieg ihrer wirtschaftlichen Macht durch Kriegsgewinne</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

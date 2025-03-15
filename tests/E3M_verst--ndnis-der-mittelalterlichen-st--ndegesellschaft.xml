@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>E3M</access_code>
+  <title>Verständnis der mittelalterlichen Ständegesellschaft</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Frage 1</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Frage 2</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Frage 3</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Frage 4</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Frage 5</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Frage 6</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Frage 7</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Frage 8</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Frage 9</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Frage 10</text>
+      <answers>
+        <answer nr="1">
+          <text>Antwort 1</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Antwort 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Antwort 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Antwort 4</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

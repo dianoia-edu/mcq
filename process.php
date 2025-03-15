@@ -1,221 +1,276 @@
 <?php
+// Starte Output-Buffering
 ob_start();
+
+// Temporäre Debug-Ausgaben
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
-require_once 'check_test_attempts.php';
 require_once 'config.php';
+require_once 'check_test_attempts.php';
+require_once 'auswertung.php';
+require_once 'includes/TestDatabase.php';
 
-if (!isset($_SESSION["original_questions"]) || !isset($_SESSION["testName"]) || !isset($_SESSION["studentName"])) {
+error_log("=== Start der Testverarbeitung ===");
+
+// Überprüfe, ob alle erforderlichen Session-Variablen vorhanden sind
+if (!isset($_SESSION['test_file']) || !isset($_SESSION['test_code']) || !isset($_SESSION['student_name']) || !isset($_SESSION['original_questions'])) {
+    error_log("Fehlende Session-Variablen in process.php");
+    error_log("Session-Variablen: " . print_r($_SESSION, true));
+    $_SESSION['error'] = "Ungültige Sitzung. Bitte starten Sie den Test neu.";
     header("Location: index.php");
-    exit;
+    exit();
 }
 
-// Überprüfe erneut, ob der Test bereits absolviert wurde
-if (hasCompletedTestToday($_SESSION["testName"])) {
-    $_SESSION["error"] = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
+error_log("Session-Variablen sind vorhanden");
+
+// Validiere den Schülernamen
+if (!preg_match('/^[a-zA-Z0-9\s\-_]{2,50}$/', $_SESSION['student_name'])) {
+    error_log("Ungültiger Schülername: " . $_SESSION['student_name']);
+    $_SESSION['error'] = "Ungültiger Schülername. Bitte verwenden Sie nur Buchstaben, Zahlen und Leerzeichen.";
     header("Location: index.php");
-    exit;
+    exit();
 }
 
-$questions = $_SESSION["original_questions"]; // Verwende die originalen Fragen für die Auswertung
-$testName = $_SESSION["testName"];
-$studentName = $_SESSION["studentName"];
-$submittedAnswers = $_POST["answers"] ?? [];
-$isAborted = isset($_POST['aborted']) && $_POST['aborted'] === 'true';
-$missedClicks = isset($_POST['missedClicks']) ? intval($_POST['missedClicks']) : 0;
+// Überprüfe, ob der Test bereits heute absolviert wurde
+if (hasCompletedTestToday($_SESSION['test_code'], $_SESSION['student_name'])) {
+    error_log("Doppelter Testversuch von: " . $_SESSION['student_name']);
+    $_SESSION['error'] = "Sie haben diesen Test heute bereits absolviert.";
+    header("Location: index.php");
+    exit();
+}
+
+// Überprüfe, ob die Testdatei existiert und lesbar ist
+if (!file_exists($_SESSION['test_file']) || !is_readable($_SESSION['test_file'])) {
+    error_log("Testdatei nicht gefunden oder nicht lesbar: " . $_SESSION['test_file']);
+    $_SESSION['error'] = "Der Test konnte nicht geladen werden. Bitte kontaktieren Sie den Administrator.";
+    header("Location: index.php");
+    exit();
+}
+
+// Lade den Original-Test
+$originalXml = simplexml_load_file($_SESSION['test_file']);
+if ($originalXml === false) {
+    error_log("XML-Parsing-Fehler in: " . $_SESSION['test_file']);
+    $_SESSION['error'] = "Fehler beim Laden des Tests.";
+    header("Location: index.php");
+    exit();
+}
+
+// Erstelle eine Kopie des XML für die Antworten
+$answerXml = clone $originalXml;
+
+// Füge den Schülernamen und Zeitstempel hinzu
+$answerXml->addChild('schuelername', htmlspecialchars($_SESSION['student_name']));
+$answerXml->addChild('abgabezeit', date('Y-m-d H:i:s'));
 
 // Debug-Ausgabe
-error_log("Empfangene POST-Daten: " . print_r($_POST, true));
-error_log("Test abgebrochen: " . ($isAborted ? 'Ja' : 'Nein'));
-error_log("Verpasste Klicks: " . $missedClicks);
+error_log("Verarbeite Testabgabe von: " . $_SESSION['student_name']);
 
-// Ergebnis berechnen
-$totalPoints = 0;
-$maxPoints = 0;
-$answeredQuestions = 0;
-$results = [];
+// Verarbeite die Antworten
+foreach ($_POST as $key => $value) {
+    if (strpos($key, 'answer_') === 0) {
+        // Extrahiere den Fragenindex
+        $questionIndex = substr($key, 7);
+        
+        // Validiere den Fragenindex
+        if (!is_numeric($questionIndex) || $questionIndex < 0) {
+            error_log("Ungültiger Fragenindex: " . $questionIndex);
+            continue;
+        }
+        
+        // Wenn es sich um eine Checkbox-Antwort handelt (Array)
+        if (is_array($value)) {
+            foreach ($value as $answerIndex) {
+                // Validiere die Antwortnummer
+                if (!is_numeric($answerIndex) || $answerIndex < 0) {
+                    error_log("Ungültige Checkbox-Antwort: " . $answerIndex);
+                    continue;
+                }
+                
+                // Finde die ursprüngliche Antwort in der XML
+                foreach ($answerXml->questions->question as $question) {
+                    if ((string)$question['nr'] === $questionIndex) {
+                        foreach ($question->answers->answer as $answer) {
+                            if ((string)$answer['nr'] === $answerIndex) {
+                                $answer->addChild('schuelerantwort', '1');
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            // Wenn es sich um eine Radio-Button-Antwort handelt
+            if (!is_numeric($value) && !preg_match('/^[A-D]$/', $value)) {
+                error_log("Ungültige Radio-Antwort: " . $value);
+                continue;
+            }
+            
+            foreach ($answerXml->questions->question as $question) {
+                if ((string)$question['nr'] === $questionIndex) {
+                    foreach ($question->answers->answer as $answer) {
+                        if ((string)$answer['nr'] === $value) {
+                            $answer->addChild('schuelerantwort', '1');
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
-foreach ($questions as $qIndex => $question) {
-    $questionResult = [
-        "question" => $question["question"],
-        "selectedAnswers" => [],
-        "correctAnswers" => [],
-        "points" => 0,
-        "answered" => false
+// Setze alle nicht beantworteten Antworten auf 0
+foreach ($answerXml->questions->question as $question) {
+    foreach ($question->answers->answer as $answer) {
+        if (!isset($answer->schuelerantwort)) {
+            $answer->addChild('schuelerantwort', '0');
+        }
+    }
+}
+
+// Erstelle den Ordnernamen basierend auf Zugangscode und Datum
+$date = date('Y-m-d');
+$folderName = $_SESSION['test_code'] . '_' . $date;
+$resultsDir = 'results/' . $folderName;
+
+// Erstelle den Ordner, falls er nicht existiert
+if (!file_exists($resultsDir)) {
+    if (!mkdir($resultsDir, 0777, true)) {
+        error_log("Fehler beim Erstellen des Ergebnisordners: " . $resultsDir);
+        $_SESSION['error'] = "Fehler beim Speichern des Tests. Bitte kontaktieren Sie den Administrator.";
+        header("Location: index.php");
+        exit();
+    }
+}
+
+// Erstelle den Dateinamen
+$timestamp = date('Y-m-d_H-i-s');
+$filename = $_SESSION['test_code'] . '_' . $_SESSION['student_name'] . '_' . $timestamp . '.xml';
+$filepath = $resultsDir . '/' . $filename;
+
+// Formatiere das XML für bessere Lesbarkeit
+$dom = new DOMDocument('1.0');
+$dom->preserveWhiteSpace = false;
+$dom->formatOutput = true;
+$dom->loadXML($answerXml->asXML());
+
+// Speichere die XML-Datei
+error_log("Versuche XML-Datei zu speichern: " . $filepath);
+if (!$dom->save($filepath)) {
+    error_log("Fehler beim Speichern der XML-Datei: " . $filepath);
+    $_SESSION['error'] = "Fehler beim Speichern des Tests.";
+    header("Location: index.php");
+    exit();
+}
+error_log("XML-Datei erfolgreich gespeichert");
+
+// Markiere den Test als absolviert
+error_log("Markiere Test als absolviert");
+if (!markTestAsCompleted($_SESSION['test_code'], $_SESSION['student_name'])) {
+    error_log("Fehler beim Markieren des Tests als abgeschlossen");
+    $_SESSION['error'] = "Fehler beim Speichern des Teststatus.";
+    header("Location: index.php");
+    exit();
+}
+error_log("Test erfolgreich als absolviert markiert");
+
+// Führe die Auswertung anhand der gespeicherten XML-Datei durch
+error_log("Starte Testauswertung anhand der gespeicherten XML-Datei");
+$results = evaluateTest($filepath);
+if ($results === false) {
+    error_log("Fehler bei der Auswertung des Tests: " . $filepath);
+    $_SESSION['error'] = "Fehler bei der Auswertung des Tests.";
+    header("Location: index.php");
+    exit();
+}
+error_log("Testauswertung erfolgreich: " . print_r($results, true));
+
+// Lade das Notenschema für die Notenberechnung
+error_log("Lade Notenschema");
+$schema = loadGradeSchema();
+error_log("Notenschema geladen: " . print_r($schema, true));
+$grade = calculateGrade($results['percentage'], $schema);
+error_log("Note berechnet: " . $grade);
+
+// Speichere die Ergebnisse in der Datenbank
+try {
+    error_log("Speichere Ergebnisse in der Datenbank");
+    $testDb = new TestDatabase();
+    
+    // Bestimme den Antworttyp basierend auf den Fragen
+    $answerType = 'single';
+    $multipleChoiceFound = false;
+    $singleChoiceFound = false;
+    
+    foreach ($answerXml->questions->question as $question) {
+        $correctCount = 0;
+        foreach ($question->answers->answer as $answer) {
+            if ((int)$answer->correct === 1) {
+                $correctCount++;
+            }
+        }
+        if ($correctCount > 1) {
+            $multipleChoiceFound = true;
+        } else {
+            $singleChoiceFound = true;
+        }
+    }
+    
+    if ($multipleChoiceFound && $singleChoiceFound) {
+        $answerType = 'mixed';
+    } elseif ($multipleChoiceFound) {
+        $answerType = 'multiple';
+    }
+    
+    // Konvertiere SimpleXMLElement zu Array für die Zählung
+    $questions = iterator_to_array($originalXml->questions->question);
+    $totalAnswers = 0;
+    foreach ($questions as $question) {
+        $totalAnswers += count($question->answers->answer);
+    }
+    
+    // Verwende den Basis-Code für die Datenbank
+    $baseCode = getBaseCode($_SESSION['test_code']);
+    
+    // Bereite die Testdaten vor
+    $testData = [
+        'access_code' => $baseCode, // Speichere den Basis-Code
+        'title' => (string)$originalXml->title,
+        'question_count' => count($questions),
+        'answer_count' => $totalAnswers,
+        'answer_type' => $answerType,
+        'student_name' => $_SESSION['student_name'] . (isAdminCode($_SESSION['test_code']) ? ' (Admin)' : ''),
+        'xml_file_path' => $filepath,
+        'points_achieved' => $results['achieved'],
+        'points_maximum' => $results['max'],
+        'percentage' => $results['percentage'],
+        'grade' => $grade,
+        'started_at' => $_SESSION['test_start_time'] ?? date('Y-m-d H:i:s')
     ];
     
-    // Richtige Antworten ermitteln und maxPoints berechnen
-    $correctAnswerIndices = [];
-    foreach ($question["answers"] as $aIndex => $answer) {
-        if ($answer["isCorrect"]) {
-            $correctAnswerIndices[] = $aIndex;
-            $questionResult["correctAnswers"][] = $answer["text"];
-        }
-    }
-    $maxPoints += count($correctAnswerIndices);
-    
-    // Ausgewählte Antworten für diese Frage ermitteln
-    if (isset($submittedAnswers[$qIndex])) {
-        $questionResult["answered"] = true;
-        $answeredQuestions++;
-        
-        $selectedAnswerIndices = is_array($submittedAnswers[$qIndex]) 
-            ? array_map('intval', $submittedAnswers[$qIndex])
-            : [intval($submittedAnswers[$qIndex])];
-        
-        // Ausgewählte Antworten speichern
-        foreach ($selectedAnswerIndices as $aIndex) {
-            if (isset($question["answers"][$aIndex])) {
-                $questionResult["selectedAnswers"][] = $question["answers"][$aIndex]["text"];
-            }
-        }
-        
-        // Punkte berechnen
-        $points = 0;
-        foreach ($selectedAnswerIndices as $aIndex) {
-            if (in_array($aIndex, $correctAnswerIndices)) {
-                $points++;
-            } else {
-                $points--;
-            }
-        }
-        foreach ($correctAnswerIndices as $aIndex) {
-            if (!in_array($aIndex, $selectedAnswerIndices)) {
-                $points--;
-            }
-        }
-        
-        $points = max(0, $points);
-        $questionResult["points"] = $points;
-        $totalPoints += $points;
-    }
-    
-    $results[] = $questionResult;
+    $testDb->saveTestAttempt($testData);
+    error_log("Ergebnisse erfolgreich in der Datenbank gespeichert");
+} catch (Exception $e) {
+    error_log("Fehler beim Speichern in der Datenbank: " . $e->getMessage());
+    // Fahre trotz Datenbankfehler fort, da die XML-Datei bereits gespeichert wurde
 }
 
-// Prozentsatz und Note berechnen
-$percentage = $maxPoints > 0 ? ($totalPoints / $maxPoints) * 100 : 0;
-
-if ($percentage > 90) {
-    $grade = 15;
-} elseif ($percentage > 80) {
-    $grade = 12;
-} elseif ($percentage > 70) {
-    $grade = 9;
-} elseif ($percentage > 60) {
-    $grade = 6;
-} elseif ($percentage > 50) {
-    $grade = 3;
-} else {
-    $grade = 0;
-}
-
-// Ergebnisse in JSON umwandeln und speichern
-$resultData = [
-    "testName" => $testName,
-    "studentName" => $studentName,
-    "totalPoints" => $totalPoints,
-    "maxPoints" => $maxPoints,
-    "percentage" => $percentage,
-    "grade" => $grade,
-    "submissionDate" => date("Y-m-d H:i:s"),
-    "clientId" => getClientIdentifier(),
-    "isAborted" => $isAborted,
-    "missedClicks" => $missedClicks,
-    "answeredQuestions" => $answeredQuestions,
-    "totalQuestions" => count($questions),
-    "results" => $results
+// Speichere die Ergebnisse in der Session
+error_log("Speichere Ergebnisse in der Session");
+$_SESSION['test_results'] = [
+    'achieved' => $results['achieved'],
+    'max' => $results['max'],
+    'percentage' => $results['percentage'],
+    'grade' => $grade
 ];
+error_log("Session nach Speichern der Ergebnisse: " . print_r($_SESSION, true));
 
-$jsonResult = json_encode($resultData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+// Weiterleitung zur Ergebnisseite
+error_log("Weiterleitung zur Ergebnisseite");
+header("Location: result.php");
+exit();
 
-// Ergebnisse speichern
-$resultDir = "results";
-if (!is_dir($resultDir)) {
-    mkdir($resultDir, 0755, true);
-}
-
-$safeTestName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $testName);
-$safeStudentName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $studentName);
-$clientId = substr(getClientIdentifier(), 0, 8);
-$timestamp = date('Y-m-d_H-i-s');
-$abortedFlag = $isAborted ? '_aborted' : '';
-
-// Erstelle einen eindeutigen Dateinamen mit allen relevanten Informationen
-$resultFile = "{$resultDir}/{$safeTestName}_{$safeStudentName}_{$clientId}{$abortedFlag}_{$timestamp}.txt";
-file_put_contents($resultFile, $jsonResult);
-
-// Markiere den Test als abgeschlossen
-markTestAsCompleted($_SESSION["testName"]);
-
-// Nach erfolgreicher Verarbeitung und Speicherung des Tests
-if (!isset($_SESSION['completed_tests'])) {
-    $_SESSION['completed_tests'] = [];
-}
-
-$testKey = date('Y-m-d') . '_' . $_SESSION["testName"];
-$_SESSION['completed_tests'][] = $testKey;
+error_log("=== Ende der Testverarbeitung ===");
 ?>
-
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Testergebnis - <?php echo $testName; ?></title>
-    <style>
-        .warning-message {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ffeeba;
-            border-radius: 0.5rem;
-            text-align: center;
-        }
-        
-        .result-summary {
-            margin-top: 1.5rem;
-        }
-
-        .progress-info {
-            margin-top: 1rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-    </style>
-    <link rel="stylesheet" href="./styles.css?v=<?php echo time(); ?>">
-</head>
-<body>
-    <?php echo getTestModeWarning(); ?>
-    <div class="container">
-        <h1>Testergebnis</h1>
-        <?php if ($isAborted): ?>
-            <div class="warning-message">
-                Der Test wurde aufgrund von <?php echo $missedClicks; ?> verpassten Aufmerksamkeitsklicks vorzeitig beendet. 
-                Die bis dahin erreichten Ergebnisse wurden gespeichert.
-                <div class="progress-info">
-                    Bearbeitete Fragen: <?php echo $answeredQuestions; ?> von <?php echo count($questions); ?>
-                </div>
-            </div>
-        <?php endif; ?>
-        <div class="result-summary">
-            <div class="result-text">
-                Rohpunkte: <?php echo $totalPoints; ?> von <?php echo $maxPoints; ?> Punkten 
-                (<?php echo number_format($percentage, 1); ?>%)
-            </div>
-            <div class="grade">
-                <strong>Note: <?php echo $grade; ?> Punkte</strong>
-            </div>
-        </div>
-        <div class="navigation">
-            <a href="index.php" class="btn primary-btn">Zurück zur Startseite</a>
-        </div>
-    </div>
-    <div style="position: fixed; bottom: 5px; right: 5px; font-size: 0.7em; color: #666; opacity: 0.5;">
-        <?php echo "Letzte Änderung: " . date('d.m.Y H:i:s', filemtime(__FILE__)); ?>
-    </div>
-</body>
-</html>

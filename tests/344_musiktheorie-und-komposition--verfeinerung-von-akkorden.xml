@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>344</access_code>
+  <title>Musiktheorie und Komposition: Verfeinerung von Akkorden</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was ist die primäre Funktion eines Intervalls in der Musiktheorie?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Distanz zwischen zwei Tönen zu beschreiben</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Lautstärke eines Musikstücks zu bestimmen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Geschwindigkeit einer Melodie festzulegen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Anzahl der Takte in einem Musikstück zu zählen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welches Intervall entsteht, wenn man von einem Ton zum nächsten diatonischen Ton aufsteigt?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Sekunde</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Terz</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Quarte</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine Quinte</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was ist ein Triad in der Musik?</text>
+      <answers>
+        <answer nr="1">
+          <text>Ein Akkord bestehend aus drei Tönen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Rhythmusmuster mit drei Schlägen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Skala mit drei Noten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Musikstück für drei Instrumente</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Wie kann man einen einfachen C-Dur-Triad (C-E-G) interessanter gestalten?</text>
+      <answers>
+        <answer nr="1">
+          <text>Indem man eine Oktave hinzufügt</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Indem man eine zusätzliche Terz hinzufügt</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Indem man den G-Ton eine Oktave höher spielt</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Indem man den C-Ton entfernt</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Was ist eine Inversion im Kontext von Akkorden?</text>
+      <answers>
+        <answer nr="1">
+          <text>Das Spielen eines Akkordes in einer anderen Tonart</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Das Vertauschen der Reihenfolge der Töne eines Akkordes</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Das Spielen eines Akkordes rückwärts</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Das Ersetzen eines Tones durch einen anderen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Welche Aussage trifft auf diatonische Harmonie zu?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie verwendet ausschließlich Töne außerhalb einer Skala.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie basiert auf einer chromatischen Skala.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie beinhaltet das Spielen von Dissonanzen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie nutzt Töne innerhalb einer bestimmten Skala.</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Was ist ein DistroKid in der Musikindustrie?</text>
+      <answers>
+        <answer nr="1">
+          <text>Ein Instrument zur Klangveränderung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Service für die Verteilung von Musik</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein Genre elektronischer Tanzmusik</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Typ von Synthesizer</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Wie kann ein Musiker seinen Spotify-Profil optimieren?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch das Hochladen von Videos auf Spotify</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch das Erstellen eines verifizierten Künstler-Accounts</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch das direkte Verkaufen von Alben auf Spotify</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch das Anbieten von kostenlosen Downloads</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Was ist ein Meme-Generator im Kontext der Musikpromotion?</text>
+      <answers>
+        <answer nr="1">
+          <text>Ein Tool zum Erstellen viraler Inhalte</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Gerät zur Erzeugung elektronischer Beats</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Software zur Komposition von Symphonien</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Algorithmus zur Auswahl von Playlists</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Wie kann ein Chord-Progression variiert werden, um mehr Komplexität zu erreichen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch das Hinzufügen dissonanter Intervalle</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch das Spielen der Akkorde in einer höheren Lautstärke</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch das Ändern der Oktavlage einzelner Töne</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch das Wiederholen derselben Akkorde</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

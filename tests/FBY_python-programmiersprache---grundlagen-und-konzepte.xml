@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>FBY</access_code>
+  <title>Python Programmiersprache - Grundlagen und Konzepte</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Welches Jahr markiert das Erscheinungsjahr der Programmiersprache Python?</text>
+      <answers>
+        <answer nr="1">
+          <text>1989</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>1990</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>1991</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>1992</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Was beschreibt das Prinzip des Duck-Typing in Python am besten?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Typisierung basiert auf der Klassenhierarchie von Objekten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Typ eines Objekts wird zur Laufzeit überprüft und nicht im Voraus festgelegt.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Variablen müssen vor ihrer Verwendung explizit typisiert werden.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Alle Objekte müssen von einer Basis-Duck-Klasse erben.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welche der folgenden Implementierungen ist KEINE bekannte Python-Implementierung?</text>
+      <answers>
+        <answer nr="1">
+          <text>CPython</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Jython</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>IronPython</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>RubyPython</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Wie wird in Python die Strukturierung von Codeblöcken erreicht?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch geschweifte Klammern {}</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch Semikolons ;</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch Einrückungen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch runde Klammern ()</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Was ist ein wesentliches Merkmal der Syntax von Python im Vergleich zu vielen anderen Programmiersprachen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Verwendung von End-of-Line-Semicolons zur Trennung von Anweisungen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Notwendigkeit, Variablen vor ihrer Verwendung zu deklarieren.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Strukturierung des Codes durch Einrückungen statt durch Klammern oder Schlüsselwörter.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Beschränkung auf funktionale Programmierparadigmen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="1">
+      <text>Welche Schnittstelle wird verwendet, um Python in Webserver einzubinden?</text>
+      <answers>
+        <answer nr="1">
+          <text>CGI (Common Gateway Interface)</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>WSGI (Web Server Gateway Interface)</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>API (Application Programming Interface)</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>SSI (Server Side Includes)</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welches Python-Framework wird hauptsächlich für Webanwendungen verwendet?</text>
+      <answers>
+        <answer nr="1">
+          <text>SQLAlchemy</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Flask</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Django</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>NumPy</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Für welche Art von Anwendungen ist das Python-Framework Flask besonders geeignet?</text>
+      <answers>
+        <answer nr="1">
+          <text>Komplexe wissenschaftliche Berechnungen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Große, vollständige Webanwendungen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Kleine bis mittelgroße Webanwendungen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Desktop-Anwendungen mit grafischer Benutzeroberfläche</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welche Bibliothek wird in Python üblicherweise für numerische Rechnungen verwendet?</text>
+      <answers>
+        <answer nr="1">
+          <text>Django</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Flask</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Zope</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>NumPy</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Was ist ein Hauptgrund für die Verwendung von Python in der wissenschaftlichen Gemeinschaft?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die einfache Integration in Webserver</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Verfügbarkeit einer Vielzahl wissenschaftlicher Bibliotheken</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Unterstützung durch Symbian-Betriebssysteme</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die hohe Ausführungsgeschwindigkeit im Vergleich zu kompilierten Sprachen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

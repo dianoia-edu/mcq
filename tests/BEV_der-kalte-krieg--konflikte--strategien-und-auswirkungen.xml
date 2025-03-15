@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>BEV</access_code>
+  <title>Der Kalte Krieg: Konflikte, Strategien und Auswirkungen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war die primäre Ursache für die Zweiteilung der Welt während des Kalten Krieges?</text>
+      <answers>
+        <answer nr="1">
+          <text>Wirtschaftliche Differenzen zwischen den USA und Japan</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ideologische Unterschiede zwischen Kapitalismus und Kommunismus</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Militärische Allianzen im Nahen Osten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Kulturelle Konflikte zwischen Ost- und Westeuropa</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welches Ereignis markierte das Ende des Zweiten Weltkriegs und den Beginn des Atomzeitalters?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Unterzeichnung der UN-Charta</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Abwurf der ersten Atombombe auf Hiroshima</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Gründung der NATO</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Berliner Luftbrücke</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Warum schlossen sich westliche Staaten im April 1949 zur NATO zusammen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Um wirtschaftliche Interessen in Europa zu fördern</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Als Reaktion auf die Blockade Berlins durch die UdSSR</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Um eine gemeinsame Währung zu etablieren</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Als Antwort auf den Marshallplan</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was war ein direktes Ergebnis des erfolgreichen sowjetischen Atombombentests im August 1949?</text>
+      <answers>
+        <answer nr="1">
+          <text>Das Ende des Kalten Krieges</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Gründung der Europäischen Union</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Das Ende des Atomwaffenmonopols der USA</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Der Beginn des Vietnamkrieges</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Welche Strategie verfolgten die USA, um die Ausbreitung des Kommunismus zu verhindern?</text>
+      <answers>
+        <answer nr="1">
+          <text>Detente-Politik</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Marshallplan</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Containment-Strategie</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Rollback-Politik</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Wie wurde Korea nach dem Zweiten Weltkrieg geteilt?</text>
+      <answers>
+        <answer nr="1">
+          <text>Entlang des 38. Breitengrades</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Zwischen Nord- und Südvietnam</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch den Ural</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Entlang des Jangtsekiang</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Was löste den Koreakrieg aus?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Angriff Südkoreas auf Nordkorea</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Revolution in Südkorea</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Angriff Nordkoreas auf Südkorea</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Ein Putschversuch in Nordkorea</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Welche Rolle spielten die Vereinten Nationen im Koreakrieg?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie unterstützten Nordkorea militärisch.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie verurteilten den nordkoreanischen Überfall und autorisierten eine Gegenoffensive.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie blieben neutral und vermittelten Friedensgespräche.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie lieferten humanitäre Hilfe, aber keine militärische Unterstützung.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Wie reagierte Präsident Dwight Eisenhower auf die wahrgenommene Unzulänglichkeit von Trumans Containment-Politik?</text>
+      <answers>
+        <answer nr="1">
+          <text>Er setzte auf eine Politik der friedlichen Koexistenz.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Er versprach, die sowjetische Expansion aktiv zurückzudrängen (Rollback-Politik).</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Er zog alle US-Truppen aus Europa zurück.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Er verstärkte die wirtschaftlichen Sanktionen gegen kommunistische Länder.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was war das Hauptziel der Bewegung der Blockfreien Staaten während des Kalten Krieges?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Unterstützung der Sowjetunion in ihrem Konflikt mit den USA</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Förderung von Menschenrechten und das Verbot von Einmischungen in innere Angelegenheiten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Bildung einer dritten militärischen Allianz gegen NATO und Warschauer Pakt</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Unterstützung aller kommunistischen Bewegungen weltweit</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

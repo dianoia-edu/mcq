@@ -15,6 +15,7 @@ if (!isset($_SESSION["testFile"]) || !isset($_SESSION["testName"]) || !isset($_S
 }
 
 // Überprüfe, ob der Test bereits absolviert wurde
+// Der Schülername ist an dieser Stelle noch nicht bekannt, daher nur Cookie-Prüfung
 if (hasCompletedTestToday($_SESSION["testName"])) {
     $_SESSION["error"] = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
     if (ob_get_length()) ob_clean();

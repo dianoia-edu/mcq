@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>KKW</access_code>
+  <title>Die Aufklärung in Europa und ihre Folgen</title>
+  <schuelername>erfre</schuelername>
+  <question_count>5</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>mixed</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Welche Aussage beschreibt am besten die Rolle der französischen Nationalversammlung bei der Erklärung der Menschen- und Bürgerrechte?</text>
+      <answers>
+        <answer>
+          <text>Sie fungierte als gesetzgebende Körperschaft, die die Rechte kodifizierte.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Sie war hauptsächlich für die Durchsetzung der Menschenrechte verantwortlich.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Ihre Hauptaufgabe war es, die Unkenntnis der Menschenrechte zu verbreiten.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Sie diente als beratendes Organ ohne Einfluss auf die Erklärung der Rechte.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welches Prinzip wird NICHT direkt in den Artikeln der Erklärung der Menschen- und Bürgerrechte von 1789 angesprochen?</text>
+      <answers>
+        <answer>
+          <text>Freiheit des Einzelnen, solange andere nicht geschädigt werden.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Das Recht auf Widerstand gegen Unterdrückung.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Die Einführung einer Monarchie als Regierungsform.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Die Gleichheit aller Bürger vor dem Gesetz.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>In welchem Artikel der Erklärung der Menschen- und Bürgerrechte wird das Konzept der Gewaltenteilung impliziert?</text>
+      <answers>
+        <answer>
+          <text>Artikel 1: Freiheit und Gleichheit in den Rechten.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Artikel 4: Freiheit und deren Grenzen durch das Gesetz.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Artikel 11: Freie Mitteilung von Gedanken und Meinungen.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Artikel 16: Gewährleistung der Rechte und Gewaltenteilung.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welche Aussagen treffen auf Jean-Jacques Rousseaus Kritik an den Wissenschaften und Künsten zu? (Mehrere Antworten können richtig sein.)</text>
+      <answers>
+        <answer>
+          <text>Rousseau sah in den Wissenschaften eine Quelle moralischer Verderbtheit.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Er glaubte, dass wissenschaftliche Forschung stets zu wahrheitsgetreuen Ergebnissen führt.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Rousseau argumentierte, dass Wissenschaften und Künste zur Verbesserung der Sitten beitragen können.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Er kritisierte die Ausbildung junger Menschen als abgehoben und realitätsfern.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie beeinflusste das Denken der Aufklärung die politische Landschaft in Europa im 18. Jahrhundert?</text>
+      <answers>
+        <answer>
+          <text>Es führte unmittelbar zur Abschaffung aller monarchischen Systeme in Europa.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Die Ideen von Freiheit, Gleichheit und Repräsentation bildeten eine Grundlage für revolutionäre Forderungen.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Aufklärerische Ideen hatten keinerlei Einfluss auf politische Reformen oder Revolutionen.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer>
+          <text>Alle europäischen Staaten übernahmen umgehend demokratische Regierungssysteme nach amerikanischem Vorbild.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

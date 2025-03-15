@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>K6P</access_code>
+  <title>Python Programmiersprache - Grundlagen und Anwendung</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Welches Jahr markiert die offizielle Erstveröffentlichung von Python?</text>
+      <answers>
+        <answer nr="1">
+          <text>1989</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>1991</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>1995</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>2000</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Was beschreibt das Prinzip des "Duck-Typing" in Python am besten?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Methode zur statischen Typisierung von Variablen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine strenge Form der Typprüfung zur Laufzeit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein Konzept, bei dem die Semantik eines Objekts wichtiger ist als sein Typ</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Verwendung von Entenklassen in objektorientierten Programmen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welches Modul wird in Python standardmäßig für die Erstellung grafischer Benutzeroberflächen verwendet?</text>
+      <answers>
+        <answer nr="1">
+          <text>PyGTK</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>PyQt</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Tkinter</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>wxPython</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Wie wird in Python eine Liste mit den ersten fünf positiven ungeraden Zahlen erstellt?</text>
+      <answers>
+        <answer nr="1">
+          <text>odd_numbers = [2n + 1 for n in range(5)]</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>odd_numbers = [2n - 1 for n in range(5)]</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>odd_numbers = [2n for n in range(1, 6)]</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>odd_numbers = [2n + 1 for n in range(1, 6)]</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="1">
+      <text>Welche Schnittstelle wird standardmäßig verwendet, um Python-Anwendungen in Webserver einzubinden?</text>
+      <answers>
+        <answer nr="1">
+          <text>CGI (Common Gateway Interface)</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>WSGI (Web Server Gateway Interface)</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>ASP.NET</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>JSP (JavaServer Pages)</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Für welche Art von Anwendungen ist Python besonders aufgrund seiner leistungsfähigen Bibliotheken und Frameworks bekannt?</text>
+      <answers>
+        <answer nr="1">
+          <text>3D-Animationssoftware</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Betriebssystementwicklung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Maschinelles Lernen und Datenanalyse</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Embedded Systems für Automobilindustrie</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was markiert das Ende der offiziellen Unterstützung für Python 2?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Start von Python 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Das Jahr 2015, als Python 3 populär wurde</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Veröffentlichung von Python 2.7.18 im April 2020</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Einführung des Global Interpreter Lock (GIL)</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="1">
+      <text>Was ist der Hauptzweck, die dritte Note einer Akkord-Triade eine Oktave höher zu versetzen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Um den Akkord dissonanter zu machen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Um die Klangfarbe des Akkords zu verändern</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Um den Akkord in eine andere Tonart zu transponieren</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Um den Akkord einfacher zu gestalten</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welche Auswirkung hat es, wenn man zur fünften Note eines Akkords eine Oktave hinzufügt?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Akkord wird dadurch zu einem Septakkord</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Akkord verliert seine tonale Qualität</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Es entsteht eine Verdopplung der Quinte, was den Klang verstärkt</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Der Akkord wird automatisch zu einem Moll-Akkord</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Warum kann das Hinzufügen einer weiteren Note zur Schale eines Akkords (z.B. einer -scharf als Major) die Harmonie verbessern?</text>
+      <answers>
+        <answer nr="1">
+          <text>Es erzeugt einen Kontrast durch Hinzufügen einer nicht-diatonischen Note</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Es führt dazu, dass der Akkord nicht mehr im ursprünglichen Schlüssel bleibt</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Es schafft eine reichhaltigere Textur durch Erweiterung des Klangs</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Es macht den Akkord einfacher und damit leichter spielbar</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

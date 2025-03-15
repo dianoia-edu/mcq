@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>8UA</access_code>
+  <title>Der Kalte Krieg und der Ost-West-Konflikt</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war die Breschnew-Doktrin?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Wirtschaftsreform in der Sowjetunion</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ein Grundsatz, der der UdSSR das Recht gab, in sozialistischen Ländern zu intervenieren</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein Friedensabkommen zwischen den USA und der Sowjetunion</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine politische Strategie zur Ausweitung des Kapitalismus</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Warum griffen westliche Staaten nicht militärisch ein, um die antikommunistischen Aufstände in Osteuropa zu unterstützen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Weil sie die Aufständischen ideologisch nicht unterstützten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Weil sie eine direkte Konfrontation mit der Sowjetunion befürchteten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Weil sie keine Kenntnis von den Aufständen hatten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Weil sie bereits in andere Konflikte verwickelt waren</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welche Auswirkungen hatte die stalinistische Wirtschaftspolitik auf die Menschen in Osteuropa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Verbesserung der Lebensmittelversorgung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Steigerung des Lebensstandards</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Verschlechterung der Versorgung mit Lebensmitteln und Gütern des täglichen Gebrauchs</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Erhöhung des privaten Vermögens durch Währungsreformen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was war ein Ziel der Rollback-Politik unter Präsident Eisenhower?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Verbreitung kommunistischer Ideale eindämmen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Unterstützung sozialistischer Regierungen weltweit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Förderung demokratischer Bewegungen im Warschauer Pakt</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die psychologische Kriegsführung gegen den Kommunismus durch Propaganda</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie reagierte Präsident Kennedy auf die Entdeckung sowjetischer Raketen auf Kuba?</text>
+      <answers>
+        <answer nr="1">
+          <text>Er akzeptierte die sowjetische Präsenz als Teil des Gleichgewichts der Mächte</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Er startete sofort einen präventiven Atomangriff</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Er verhängte eine Seeblockade und forderte den Abbau der Raketen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Er bot an, US-Raketen in der Türkei als Gegenleistung zu stationieren</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was führte zum Ende des Prager Frühlings 1968?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine friedliche Übereinkunft mit den Reformkommunisten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Rücktritt von Leonid Breschnew als sowjetischer Parteichef</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Einmarsch von Truppen des Warschauer Paktes</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine Volksabstimmung gegen die Reformen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welches Ereignis markierte das Scheitern der Rollback-Politik in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Unterzeichnung des Warschauer Paktes</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Niederschlagung des Ungarischen Volksaufstandes 1956</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Bau der Berliner Mauer 1961</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Unterzeichnung des Helsinki-Abkommens 1975</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Wie reagierte die internationale Gemeinschaft auf die Bombardierung Kambodschas durch Präsident Nixon?</text>
+      <answers>
+        <answer nr="1">
+          <text>Mit breiter Zustimmung für die Ausweitung des Vietnamkrieges</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Mit einem Veto im Sicherheitsrat der Vereinten Nationen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Mit massivem Protest und Ablehnung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Mit finanzieller Unterstützung für weitere Militäraktionen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Was war das Ergebnis des Vietnamkrieges für die USA?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie erweiterten ihren Einflussbereich in Südostasien.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie erreichten einen dauerhaften Waffenstillstand mit Nordvietnam.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie erlebten einen Verlust an Glaubwürdigkeit und ein nationales Trauma.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie förderten erfolgreich eine pro-westliche Regierung in Südvietnam.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Welche Strategie verfolgten amerikanische Geheimdienste, um Unzufriedenheit im Ostblock zu schüren?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie unterstützten militärische Staatsstreiche gegen kommunistische Regierungen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie verbreiteten Propaganda durch Flugblätter und Radiobeiträge.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie finanzierten direkt oppositionelle Parteien und Bewegungen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie organisierten öffentliche Demonstrationen in osteuropäischen Hauptstädten.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

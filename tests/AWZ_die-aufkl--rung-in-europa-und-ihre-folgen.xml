@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>AWZ</access_code>
+  <title>Die Aufklärung in Europa und ihre Folgen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein zentrales Anliegen der Aufklärung im Hinblick auf die Gesellschaft?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Förderung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Stärkung traditioneller Hierarchien</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Verbreitung von Menschen- und Bürgerrechten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Beibehaltung der ständischen Ordnung</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher Artikel der Erklärung der Menschen- und Bürgerrechte spricht von der Freiheit und ihren Grenzen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Artikel 1</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Artikel 4</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Artikel 5</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Artikel 10</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>In welchem Jahr wurde die Erklärung der Menschen- und Bürgerrechte verabschiedet?</text>
+      <answers>
+        <answer nr="1">
+          <text>1789</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>1791</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>1804</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>1815</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welches Prinzip wird im Artikel 16 der Erklärung der Menschen- und Bürgerrechte betont?</text>
+      <answers>
+        <answer nr="1">
+          <text>Volkssouveränität</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Gewaltenteilung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Religionsfreiheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eigentumsrecht</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie beeinflusste Jean-Jacques Rousseau mit seinen Schriften das europäische Selbstverständnis während der Aufklärung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch die Verteidigung des Feudalismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch die Kritik an der Vernachlässigung von Tugenden und Pflichten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch die Förderung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch das Eintreten für eine unkontrollierte Monarchie</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was kennzeichnete den aufgeklärten Absolutismus in Preußen unter Friedrich dem Großen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine strikte Trennung von Kirche und Staat</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Reformen im Justizwesen und in anderen Bereichen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Vollständige Abschaffung des Adelsstandes</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Unmittelbare Umsetzung aller Ideen des Gesellschaftsvertrags</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welche Rolle spielte die Nationalversammlung während der Französischen Revolution?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie verteidigte den absolutistischen Anspruch des Königs.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie setzte sich für die Wiederherstellung der Feudalordnung ein.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie erarbeitete die Erklärung der Menschen- und Bürgerrechte.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie förderte die Ausbreitung monarchischer Macht.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Welches Ziel verfolgte Joseph II. von Österreich mit seinen Reformen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Wiederherstellung mittelalterlicher Strukturen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Sicherstellung seiner persönlichen Bereicherung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Dienst am Staat und das Wohl seiner Untertanen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Expansion seines Reiches durch militärische Eroberungen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Was war eine direkte Folge der Aufklärung für das politische System in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Rückkehr zu traditionellen monarchischen Strukturen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Verstärkung feudaler Privilegien</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Abkehr von ständischen Gesellschaftsordnungen hin zu bürgerlichen Werten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine vollständige Eliminierung staatlicher Strukturen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Wie äußerte sich die Kritik Rousseaus an der zeitgenössischen Erziehung in seinen Schriften?</text>
+      <answers>
+        <answer nr="1">
+          <text>Er lobte die Fokussierung auf praktische Fähigkeiten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Er unterstützte den frühen Spracherwerb mehrerer Fremdsprachen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Er bemängelte, dass Kinder nicht ihre Pflichten, sondern unnütze Dinge lernten.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Er forderte eine stärkere Konzentration auf religiöse Inhalte.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

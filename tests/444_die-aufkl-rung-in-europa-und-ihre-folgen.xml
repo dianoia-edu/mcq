@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<test>
+  <title>Die Aufkl&#xE4;rung in Europa und ihre Folgen</title>
+  <access_code>444</access_code>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>multiple</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein zentrales Anliegen der Aufkl&#xE4;rung im Hinblick auf die Gesellschaft?</text>
+      <answers>
+        <answer nr="A">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="B">
+          <text>Die Beibehaltung traditioneller Hierarchien</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die Unterst&#xFC;tzung monarchischer Privilegien</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher Artikel der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte spricht von der Freiheit und ihren Grenzen?</text>
+      <answers>
+        <answer nr="A">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="B">
+          <text>Artikel 1</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Artikel 7</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Artikel 10</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>In welchem Jahr wurde die Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte verabschiedet?</text>
+      <answers>
+        <answer nr="A">
+          <text>1776</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>1799</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>1804</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welches Prinzip wird in Artikel 16 der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte betont?</text>
+      <answers>
+        <answer nr="A">
+          <text>Volkssouver&#xE4;nit&#xE4;t</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Religionsfreiheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Freie Meinungs&#xE4;u&#xDF;erung</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie beeinflusste Jean-Jacques Rousseau mit seinen Schriften das europ&#xE4;ische Selbstverst&#xE4;ndnis w&#xE4;hrend der Aufkl&#xE4;rung?</text>
+      <answers>
+        <answer nr="A">
+          <text>Durch die Verteidigung des Feudalismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Durch die Unterst&#xFC;tzung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Durch das Pl&#xE4;doyer f&#xFC;r eine unkontrollierte Monarchie</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was ist ein Merkmal des aufgekl&#xE4;rten Absolutismus, wie er unter Friedrich dem Gro&#xDF;en in Preu&#xDF;en praktiziert wurde?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die vollst&#xE4;ndige Abschaffung des Adels</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Die Einf&#xFC;hrung direkter Demokratie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Die Verst&#xE4;rkung feudaler Strukturen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welche Rolle spielte die Nationalversammlung w&#xE4;hrend der Franz&#xF6;sischen Revolution?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie verteidigte den absolutistischen Staat.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Sie repr&#xE4;sentierte ausschlie&#xDF;lich den Adel und Klerus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Sie f&#xF6;rderte die R&#xFC;ckkehr zum Feudalsystem.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was war eine direkte Folge der Franz&#xF6;sischen Revolution f&#xFC;r Europa?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Wiederherstellung des Feudalsystems in Frankreich.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Der Beginn einer Phase des verst&#xE4;rkten Kolonialismus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Eine sofortige Verbesserung der Lebensbedingungen aller europ&#xE4;ischen B&#xFC;rger.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welche Aussage trifft auf das Verst&#xE4;ndnis von Eigentum laut Artikel 17 der Erkl&#xE4;rung der Menschen- und B&#xFC;rgerrechte zu?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eigentum ist ein vor&#xFC;bergehendes Recht, das jederzeit entzogen werden kann.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Eigentum sollte gleichm&#xE4;&#xDF;ig unter allen B&#xFC;rgern verteilt werden.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Eigentum ist nur f&#xFC;r Mitglieder des Adels und Klerus gesch&#xFC;tzt.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Wie reflektiert Rousseaus Kritik an den Sitten seiner Zeit das Denken der Aufkl&#xE4;rung?</text>
+      <answers>
+        <answer nr="A">
+          <text>Durch das Festhalten an traditionellen Werten ohne Ver&#xE4;nderungsbedarf.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Durch die Betonung von Bildung als Mittel zur Unterdr&#xFC;ckung individueller Freiheiten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>RICHTIG</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Durch die Ablehnung jeglicher Form von Wissenschaft und Vernunft.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

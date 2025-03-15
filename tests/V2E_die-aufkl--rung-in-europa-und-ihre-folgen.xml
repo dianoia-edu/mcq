@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>V2E</access_code>
+  <title>Die Aufklärung in Europa und ihre Folgen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was versteht man unter der "Aufklärung" im historischen Kontext Europas?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine kulturelle Bewegung, die Vernunft und Wissenschaft betont</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine politische Partei, die im 18. Jahrhundert entstand</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein wirtschaftliches System, das auf freien Märkten basiert</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine religiöse Erneuerungsbewegung im frühen Mittelalter</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welches Dokument verkündet die "Erklärung der Menschen- und Bürgerrechte"?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Amerikanische Unabhängigkeitserklärung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Magna Carta</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Französische Nationalversammlung von 1789</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Das Habeas Corpus Gesetz</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welcher Artikel der "Erklärung der Menschen- und Bürgerrechte" betont die Freiheit als ein Grundrecht?</text>
+      <answers>
+        <answer nr="1">
+          <text>Artikel 1</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Artikel 2</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Artikel 3</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Artikel 4</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was ist das Hauptziel jeder politischen Vereinigung gemäß der "Erklärung der Menschen- und Bürgerrechte"?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Förderung des Wohlstands</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Schutz der natürlichen und unveräußerlichen Menschenrechte</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Durchsetzung staatlicher Autorität</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Expansion territorialer Grenzen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie definiert die "Erklärung der Menschen- und Bürgerrechte" Eigentum?</text>
+      <answers>
+        <answer nr="1">
+          <text>Als ein Privileg, das nur Adligen zusteht</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Als ein unverletzliches und heiliges Recht</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Als eine staatliche Zuweisung nach Bedarf</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Als eine temporäre Leihgabe von der Regierung</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>In welchem Kontext steht Jean-Jacques Rousseaus Abhandlung über die Neubelebung von Wissenschaften und Künsten?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie lobt den Fortschritt durch Aufklärung.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie kritisiert den Einfluss der Aufklärung auf die Sitten.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie fordert eine Rückkehr zu mittelalterlichen Traditionen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie beschreibt die Vorteile des Absolutismus.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welche Auswirkungen hatte das Denken der Aufklärung auf den Bereich der Politik?</text>
+      <answers>
+        <answer nr="1">
+          <text>Es führte zu einer verstärkten Monarchie.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Es hatte keine nennenswerten Auswirkungen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Es förderte demokratische Reformen und Ideale.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Es unterstützte feudale Strukturen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was charakterisiert den aufgeklärten Absolutismus?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine absolute Herrschaft ohne jegliche Reformen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Herrschaft, die sich an Idealen der Aufklärung orientiert und Reformen umsetzt.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Ein politisches System, das ausschließlich auf Religion basiert.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine Demokratie mit starkem Einfluss des Volkes.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Wie beeinflusste die Aufklärungsphilosophie die Französische Revolution?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie trug zur Festigung des Absolutismus bei.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie hatte keinen Einfluss auf den Verlauf der Revolution.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie bildete eine geistige Grundlage für Forderungen nach Freiheit und Gleichheit.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie förderte eine Rückkehr zu traditionellen monarchischen Werten.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Welche Rolle spielte die "Erklärung der Menschen- und Bürgerrechte" für das europäische Selbstverständnis nach der Aufklärung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie wurde als irrelevant angesehen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie diente als Grundlage für eine neue gesellschaftliche Ordnung basierend auf Besitz, Bildung und Leistung.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie führte zur sofortigen Abschaffung aller Monarchien in Europa.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie hatte keinerlei Einfluss auf andere europäische Staaten außer Frankreich.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

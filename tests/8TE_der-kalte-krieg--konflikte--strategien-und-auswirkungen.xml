@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>8TE</access_code>
+  <title>Der Kalte Krieg: Konflikte, Strategien und Auswirkungen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war die primäre Ursache für die Zweiteilung der Welt während des Kalten Krieges?</text>
+      <answers>
+        <answer nr="1">
+          <text>Wirtschaftliche Differenzen zwischen den USA und Japan</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Ideologische Gegensätze zwischen Kapitalismus und Kommunismus</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Territoriale Streitigkeiten in Europa nach dem Ersten Weltkrieg</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Religiöse Konflikte zwischen Ost- und Westeuropa</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Warum konnten lokale Konflikte während des Kalten Krieges eine globale Dimension annehmen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Weil lokale Konflikte oft religiöser Natur waren</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Weil die Vereinten Nationen alle Konflikte globalisierten</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Weil die Supermächte Stellvertreterkriege unterstützten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Weil lokale Konflikte direkte militärische Auseinandersetzungen zwischen den Supermächten auslösten</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welches Ereignis demonstrierte am Ende des Zweiten Weltkriegs die militärische Überlegenheit der USA und leitete das Atomzeitalter ein?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Schlacht um Stalingrad</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Abwurf von Atombomben auf Hiroshima und Nagasaki</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Invasion der Normandie (D-Day)</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Unterzeichnung des Versailler Vertrags</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was war eine direkte Folge der Berlin-Blockade von 1948/49?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Gründung der Europäischen Union</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Beginn des Vietnamkrieges</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Auflösung der Sowjetunion</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Gründung der NATO im April 1949</text>
+          <correct>1</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie reagierte die Sowjetunion auf die Bildung der NATO?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch den Beitritt zur NATO, um Einfluss zu gewinnen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch den Abschluss des Warschauer Paktes</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch eine formelle Allianz mit China</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch die Aufgabe ihrer kommunistischen Ideologie</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was war ein Hauptziel der Containment-Strategie der USA während des Kalten Krieges?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Förderung des Kommunismus weltweit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Das Ausbreiten kapitalistischer Märkte in Osteuropa</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Das Verhindern einer weiteren Ausbreitung des Kommunismus</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die vollständige Eliminierung aller kommunistischen Regierungen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welcher Krieg eskalierte 1950 zu einem internationalen Konflikt und wurde zu einem Stellvertreterkrieg im Kalten Krieg?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Vietnamkrieg</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Koreakrieg</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Der Arabisch-Israelische Krieg</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Der Falklandkrieg</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Welche Rolle spielten die Vereinten Nationen im Koreakrieg?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie unterstützten Nordkorea militärisch.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie verurteilten den nordkoreanischen Angriff und autorisierten eine Militärintervention.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie blieben neutral und vermittelten nur diplomatisch.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie erkannten Nordkorea als einzigen legitimen koreanischen Staat an.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Wie reagierte Präsident Dwight D. Eisenhower auf die wahrgenommene Unzulänglichkeit von Trumans Containment-Politik?</text>
+      <answers>
+        <answer nr="1">
+          <text>Mit einer Politik des Rollbacks, um sowjetische Expansion aktiv zurückzudrängen</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Mit einer Politik der totalen Kapitulation gegenüber dem Kommunismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Mit einer Politik der verstärkten Zusammenarbeit mit der Sowjetunion</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Mit einer Politik, die ausschließlich auf nukleare Abschreckung setzte</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was war ein Hauptanliegen der Bewegung der Blockfreien Staaten während des Kalten Krieges?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Unterstützung aller kommunistischen Bewegungen weltweit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Förderung von Menschenrechten und das Verbot von Einmischung in innere Angelegenheiten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Bildung eines dritten militärischen Blocks gegen NATO und Warschauer Pakt</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die vollständige Isolation von den Supermächten</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

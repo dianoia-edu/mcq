@@ -1,0 +1,212 @@
+{
+    "KK3": [
+        {
+            "date": "2025-03-06",
+            "student": "sus1"
+        }
+    ],
+    "KKW": [
+        {
+            "date": "2025-03-06",
+            "student": "sus3"
+        }
+    ],
+    "KK4": [
+        {
+            "date": "2025-03-06",
+            "student": "sus1"
+        }
+    ],
+    "111": [
+        {
+            "date": "2025-03-06",
+            "student": "sus1"
+        }
+    ],
+    "222": [
+        {
+            "date": "2025-03-06",
+            "student": "sus1"
+        }
+    ],
+    "333": [
+        {
+            "date": "2025-03-06",
+            "student": "sus1"
+        }
+    ],
+    "444": [
+        {
+            "date": "2025-03-06",
+            "student": "sus1"
+        }
+    ],
+    "2UD": [
+        {
+            "date": "2025-03-06",
+            "student": "erfre"
+        }
+    ],
+    "2U2": [
+        {
+            "date": "2025-03-06",
+            "student": "teacher tester"
+        },
+        {
+            "date": "2025-03-07",
+            "student": "testDB"
+        },
+        {
+            "date": "2025-03-07",
+            "student": "lehrerDB",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-07",
+            "student": "lehrer2DB",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-07",
+            "student": "wdw",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-07",
+            "student": "wdw",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-07",
+            "student": "test handy",
+            "is_admin": true
+        }
+    ],
+    "2U3": [
+        {
+            "date": "2025-03-06",
+            "student": "sus1"
+        }
+    ],
+    "2U4": [
+        {
+            "date": "2025-03-06",
+            "student": "gggg"
+        }
+    ],
+    "2U5": [
+        {
+            "date": "2025-03-06",
+            "student": "dfer"
+        }
+    ],
+    "2U6": [
+        {
+            "date": "2025-03-06",
+            "student": "fewf"
+        }
+    ],
+    "2U7": [
+        {
+            "date": "2025-03-06",
+            "student": "dfe"
+        }
+    ],
+    "2U8": [
+        {
+            "date": "2025-03-06",
+            "student": "kihoi"
+        }
+    ],
+    "2U9": [
+        {
+            "date": "2025-03-06",
+            "student": "oiz"
+        }
+    ],
+    "445": {
+        "test_code": "2U9",
+        "student_name": "oiz",
+        "date": "2025-03-06 21:30:13",
+        "results": {
+            "achieved_points": 0,
+            "max_points": 0,
+            "percentage": 0,
+            "grade": 6
+        }
+    },
+    "AA1": [
+        {
+            "date": "2025-03-06",
+            "student": "re4wr"
+        }
+    ],
+    "446": {
+        "test_code": "AA1",
+        "student_name": "re4wr",
+        "date": "2025-03-06 21:39:21",
+        "results": {
+            "achieved_points": 0,
+            "max_points": 0,
+            "percentage": 0,
+            "grade": 6
+        }
+    },
+    "AA2": [
+        {
+            "date": "2025-03-06",
+            "student": "re4wr"
+        }
+    ],
+    "447": {
+        "test_code": "AA2",
+        "student_name": "re4wr",
+        "date": "2025-03-06 21:46:09",
+        "results": {
+            "achieved_points": 0,
+            "max_points": 0,
+            "percentage": 0,
+            "grade": 6
+        }
+    },
+    "AA3": [
+        {
+            "date": "2025-03-06",
+            "student": "re4wr"
+        }
+    ],
+    "448": {
+        "test_code": "AA3",
+        "student_name": "re4wr",
+        "date": "2025-03-06 21:50:49",
+        "results": {
+            "achieved_points": 0,
+            "max_points": 0,
+            "percentage": 0,
+            "grade": 6
+        }
+    },
+    "AA5": [
+        {
+            "date": "2025-03-06",
+            "student": "dwd"
+        }
+    ],
+    "449": {
+        "test_code": "AA5",
+        "student_name": "dwd",
+        "date": "2025-03-06 21:54:51",
+        "results": {
+            "achieved_points": 0,
+            "max_points": 0,
+            "percentage": 0,
+            "grade": 6
+        }
+    },
+    "AA6": [
+        {
+            "date": "2025-03-06",
+            "student": "dwd"
+        }
+    ]
+}

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>93X</access_code>
+  <title>Die Aufklärung in Europa und ihre Folgen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein zentrales Anliegen der Aufklärung im Hinblick auf die Gesellschaft?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Förderung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Beibehaltung traditioneller Hierarchien</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Verbreitung von Menschen- und Bürgerrechten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Unterstützung monarchischer Privilegien</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher Artikel der Erklärung der Menschen- und Bürgerrechte spricht von der Freiheit und ihren Grenzen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Artikel 4</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="2">
+          <text>Artikel 1</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Artikel 7</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Artikel 10</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>In welchem Jahr wurde die Erklärung der Menschen- und Bürgerrechte verabschiedet?</text>
+      <answers>
+        <answer nr="1">
+          <text>1776</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>1789</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>1799</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>1804</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welches Prinzip wird in Artikel 16 der Erklärung der Menschen- und Bürgerrechte betont?</text>
+      <answers>
+        <answer nr="1">
+          <text>Volkssouveränität</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Religionsfreiheit</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Gewaltenteilung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Freie Meinungsäußerung</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie beeinflusste Jean-Jacques Rousseau mit seinen Schriften das europäische Selbstverständnis während der Aufklärung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch die Verteidigung des Feudalismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch die Kritik an den bestehenden Sitten und die Förderung einer Rückkehr zur Natur</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch die Unterstützung des Absolutismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch das Plädoyer für eine unkontrollierte Monarchie</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was ist ein Merkmal des aufgeklärten Absolutismus, wie er unter Friedrich dem Großen in Preußen praktiziert wurde?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die vollständige Abschaffung des Adels</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Reformen basierend auf Ideen der Aufklärung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Einführung direkter Demokratie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Verstärkung feudaler Strukturen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welche Rolle spielte die Nationalversammlung während der Französischen Revolution?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie verteidigte den absolutistischen Staat.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie repräsentierte ausschließlich den Adel und Klerus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie setzte sich für die Rechte des Dritten Standes ein und verfasste die Menschen- und Bürgerrechte.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie förderte die Rückkehr zum Feudalsystem.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was war eine direkte Folge der Französischen Revolution für Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Wiederherstellung des Feudalsystems in Frankreich.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Beginn einer Phase des verstärkten Kolonialismus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die Ausbreitung demokratischer Ideale und gesellschaftlicher Reformen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine sofortige Verbesserung der Lebensbedingungen aller europäischen Bürger.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welche Aussage trifft auf das Verständnis von Eigentum laut Artikel 17 der Erklärung der Menschen- und Bürgerrechte zu?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eigentum ist ein vorübergehendes Recht, das jederzeit entzogen werden kann.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eigentum ist ein unverletzliches und heiliges Recht, das nicht ohne gesetzliche Grundlage entzogen werden darf.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eigentum sollte gleichmäßig unter allen Bürgern verteilt werden.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eigentum ist nur für Mitglieder des Adels und Klerus geschützt.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Wie reflektiert Rousseaus Kritik an den Sitten seiner Zeit das Denken der Aufklärung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch das Festhalten an traditionellen Werten ohne Veränderungsbedarf.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Durch die Betonung von Bildung als Mittel zur Unterdrückung individueller Freiheiten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Durch das Hinterfragen bestehender Normen und das Plädieren für eine natürlichere Lebensweise.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Durch die Ablehnung jeglicher Form von Wissenschaft und Vernunft.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>LNY</access_code>
+  <title>Aufklärung in Europa und ihre Folgen: Ein Multiple-Choice-Test</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein primäres Ziel der französischen Nationalversammlung bei der Verkündung der Erklärung der Menschen- und Bürgerrechte im Jahr 1789?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Abschaffung der Monarchie</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Festlegung unveräußerlicher Rechte zur Erinnerung an Pflichten und Rechte</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Die sofortige Umsetzung einer demokratischen Regierungsform</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Einführung einer zentralisierten Staatsreligion</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welches Prinzip wird in Artikel 1 der Erklärung der Menschen- und Bürgerrechte betont?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Freiheit des Eigentums</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Die Gleichheit vor dem Gesetz</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Das Recht auf Bildung</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Das Recht auf freie Berufswahl</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was ist laut Artikel 4 der Erklärung der Menschen- und Bürgerrechte die Hauptaufgabe des Gesetzes?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Bestrafung von Verbrechen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Der Schutz privaten Eigentums</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Das Verbot von Handlungen, die der Gesellschaft schädlich sind</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Die Förderung des allgemeinen Wohlstands</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>In welchem Artikel wird die Gewaltenteilung als notwendige Bedingung für eine funktionierende Gesellschaft hervorgehoben?</text>
+      <answers>
+        <answer nr="1">
+          <text>Artikel 11</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Artikel 14</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Artikel 16</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Artikel 19</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wie drückt sich die Freiheit gemäß Artikel 4 aus?</text>
+      <answers>
+        <answer nr="1">
+          <text>In der Möglichkeit, Eigentum zu erwerben und zu besitzen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>In der Fähigkeit, an politischen Wahlen teilzunehmen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>In der Ausübung natürlicher Rechte ohne Schaden für andere</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>In der Teilnahme an gesetzgebenden Prozessen</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Welche Aussage trifft auf Jean-Jacques Rousseaus Betrachtungen über die Wissenschaften und Künste zu?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie loben den Fortschritt und dessen positive Auswirkungen auf die Sitten.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie kritisieren den Einfluss von Wissenschaften und Künsten auf die Moral.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie fordern eine strengere Regulierung wissenschaftlicher Forschung.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie betonen die Notwendigkeit, Wissenschaften ausschließlich für militärische Zwecke zu nutzen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Wie beeinflusste das Denken der Aufklärung den aufgeklärten Absolutismus in Preußen unter Friedrich dem Großen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Es führte zur vollständigen Abschaffung des Absolutismus.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Es inspirierte Reformen im Justizwesen und in anderen Bereichen.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Es hatte keinerlei Einfluss auf Friedrichs Regierungsstil.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Es veranlasste Friedrich dazu, alle Macht an das Volk abzugeben.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was war eine direkte Folge der Aufklärung für das europäische Selbstverständnis?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine verstärkte Hinwendung zu traditionellen monarchischen Prinzipien.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Eine Abkehr von religiösen Weltanschauungen zugunsten säkularer Werte.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="3">
+          <text>Eine Neubewertung von Menschen- und Bürgerrechten mit universellem Anspruch.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="4">
+          <text>Eine vollständige Ablehnung aller vorherigen sozialen und politischen Strukturen.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welche Rolle spielten Ideen wie Freiheit, Gleichheit und Repräsentation während der Französischen Revolution?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie wurden als irrelevant für den revolutionären Prozess angesehen.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Sie dienten als geistige Grundlage für die Forderungen des Volkes.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Sie wurden ausschließlich von ausländischen Mächten propagiert.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Sie führten zur sofortigen Etablierung einer stabilen Demokratie.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was zeigt die Amerikanische Revolution im Kontext der Aufklärungsphilosophie?</text>
+      <answers>
+        <answer nr="1">
+          <text>Dass feudale Systeme unveränderlich sind.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="2">
+          <text>Dass eine Alternative zu Feudalismus und Absolutismus möglich ist.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="3">
+          <text>Dass koloniale Mächte stets überlegen bleiben.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="4">
+          <text>Dass Aufklärungsprinzipien nur in Europa Anwendung finden können.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>

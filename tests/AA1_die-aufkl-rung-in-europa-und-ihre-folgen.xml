@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<test>
+  <title>Die Aufkl&#xE4;rung in Europa und ihre Folgen</title>
+  <access_code>AA1</access_code>
+  <question_count>5</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Welche Aussage trifft auf die Rolle von Jean-Jacques Rousseau bez&#xFC;glich der Aufkl&#xE4;rung zu?</text>
+      <answers>
+        <answer nr="A">
+          <text>Er lehnte die Prinzipien der Aufkl&#xE4;rung vollst&#xE4;ndig ab.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Er trug zur Neubelebung von Wissenschaften und K&#xFC;nsten bei, was die Sitten verbesserte.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="C">
+          <text>Er war ein entschiedener Gegner jeglicher Form von Bildung.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Er f&#xF6;rderte den Absolutismus als ideale Regierungsform.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Was kennzeichnete den sogenannten aufgekl&#xE4;rten Absolutismus in Preu&#xDF;en unter Friedrich dem Gro&#xDF;en?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine vollst&#xE4;ndige Abschaffung des Adelsstandes</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Eine strikte Trennung von Kirche und Staat</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Reformen, die auf den Ideen der Aufkl&#xE4;rer basierten</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Eine radikale Umverteilung von Grundbesitz</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welche direkte Folge hatte die Unzufriedenheit mit dem absolutistischen System in Frankreich?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Gr&#xFC;ndung zahlreicher neuer Monarchien in Europa</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Eine verst&#xE4;rkte Hinwendung zum Feudalismus</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Der Ausbruch der Franz&#xF6;sischen Revolution</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Ein sofortiger &#xDC;bergang zu einer demokratischen Regierung</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Wie beeinflusste die Amerikanische Revolution das europ&#xE4;ische Selbstverst&#xE4;ndnis im Kontext der Aufkl&#xE4;rung?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie zeigte eine Alternative zum Feudalismus und Absolutismus auf.</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="B">
+          <text>Sie f&#xFC;hrte zu einer verst&#xE4;rkten Isolation Europas.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Sie bewirkte eine R&#xFC;ckkehr zu traditionellen monarchischen Prinzipien.</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="D">
+          <text>Sie hatte keinen nennenswerten Einfluss auf Europa.</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Was war eine langfristige Auswirkung der Aufkl&#xE4;rungsprinzipien auf die europ&#xE4;ische Gesellschaftsordnung?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine R&#xFC;ckkehr zu st&#xE4;ndisch geordneten Gesellschaftsstrukturen</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="B">
+          <text>Eine Verst&#xE4;rkung des Adels als f&#xFC;hrende gesellschaftliche Klasse</text>
+          <correct>0</correct>
+        </answer>
+        <answer nr="C">
+          <text>Eine Abkehr von st&#xE4;ndisch geordneten Strukturen hin zu einer b&#xFC;rgerlichen Ordnung</text>
+          <correct>1</correct>
+        </answer>
+        <answer nr="D">
+          <text>Eine vollst&#xE4;ndige Abschaffung aller sozialen Unterschiede</text>
+          <correct>0</correct>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+</test>
