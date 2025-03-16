@@ -271,7 +271,6 @@ $_SESSION["questions"] = $shuffledQuestions;
 </head>
 <body data-test-mode="<?php echo isset($config['testMode']) && $config['testMode'] ? 'true' : 'false'; ?>"
       data-disable-attention-button="<?php echo isset($config['disableAttentionButton']) && $config['disableAttentionButton'] ? 'true' : 'false'; ?>">
-    <?php echo getTestModeWarning(); ?>
     
     <div class="container">
         <div class="test-header">
