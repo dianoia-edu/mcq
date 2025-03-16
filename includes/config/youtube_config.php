@@ -3,7 +3,7 @@
 error_reporting(E_ERROR);
 ini_set('display_errors', 0);
 
-// YouTube API Key - Ersetzen Sie dies mit Ihrem tatsächlichen API-Key
+// YouTube API Key - Ersetzen Sie dies mit Ihrem tatsächlichen  API-Key
 $youtubeApiKey = 'AIzaSyC7gIh326Qla46--5LI54B_nFSdkORaj1o';
 
 // Funktion zum Laden des YouTube API Keys

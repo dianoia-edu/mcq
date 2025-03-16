@@ -58,3 +58,4 @@ composer.lock
 includes/database_config.php
 includes/config/youtube_config.php
 /includes/config
+includes/config/youtube_config.php
