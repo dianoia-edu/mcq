@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     branches: [ master ]
-  workflow_dispatch:  # Ermöglicht manuelles Auslösen
+  workflow_dispatch:  # Ermöglicht manuelles  Auslösen
 
 jobs:
   deploy:
