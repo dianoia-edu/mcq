@@ -17,4 +17,22 @@ RewriteEngine On
 <IfModule mod_php7.c>
     php_flag display_errors on
     php_value error_reporting E_ALL
+    
+    # Upload-Limits erhöhen
+    php_value upload_max_filesize 20M
+    php_value post_max_size 20M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>
+
+# PHP-Einstellungen für PHP 8
+<IfModule mod_php.c>
+    php_flag display_errors on
+    php_value error_reporting E_ALL
+    
+    # Upload-Limits erhöhen
+    php_value upload_max_filesize 20M
+    php_value post_max_size 20M
+    php_value max_execution_time 300
+    php_value max_input_time 300
 </IfModule> 
