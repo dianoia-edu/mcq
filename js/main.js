@@ -879,6 +879,9 @@ $(document).on('click', '#editTest', function() {
     if (accessCode) {
         console.log('Leite weiter zum Editor mit Code:', accessCode);
         
+        // Setze den currentTestFilename, damit die Buttons im Editor aktiviert werden
+        currentTestFilename = accessCode;
+        
         // Konstruiere die URL für den Editor mit dem Tab-Parameter
         const editorUrl = 'teacher_dashboard.php?tab=editor&test=' + encodeURIComponent(accessCode);
         
@@ -915,6 +918,10 @@ function initTestEditor() {
                 testFound = true;
                 // Wähle den Test aus und triggere das Change-Event
                 $('#testSelector').val($(this).val()).trigger('change');
+                
+                // Setze currentTestFilename, damit die Buttons aktiviert werden
+                currentTestFilename = $(this).val();
+                
                 return false; // Schleife beenden
             }
         });
@@ -1197,6 +1204,13 @@ function loadTestContent(testName) {
                 
                 // Setze Änderungsstatus zurück
                 testHasChanges = false;
+                
+                // Stelle sicher, dass currentTestFilename gesetzt ist
+                if (!currentTestFilename) {
+                    currentTestFilename = testName + '.xml';
+                }
+                
+                // Aktualisiere Button-Sichtbarkeit
                 updateButtonVisibility();
             } else {
                 alert('Fehler beim Laden des Tests: ' + response.error);
@@ -1767,6 +1781,30 @@ function deleteTest() {
         // Entferne ein möglicherweise vorhandenes altes Modal
         $('#deleteConfirmModal').remove();
 
+        // Stelle sicher, dass der Dateiname die .xml-Erweiterung hat
+        let filenameToDelete = currentTestFilename;
+        if (!filenameToDelete.endsWith('.xml')) {
+            // Wenn der Dateiname keine .xml-Erweiterung hat, suche nach dem passenden Dateinamen
+            let foundFilename = null;
+            $('#testSelector option').each(function() {
+                const optionAccessCode = $(this).data('access-code');
+                if (optionAccessCode === accessCode) {
+                    foundFilename = $(this).val() + '.xml';
+                    return false; // Schleife beenden
+                }
+            });
+            
+            if (foundFilename) {
+                filenameToDelete = foundFilename;
+            } else {
+                // Fallback: Erstelle einen Dateinamen aus dem Zugangscode
+                const safeTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                filenameToDelete = accessCode + '_' + safeTitle + '.xml';
+            }
+            
+            console.log('Korrigierter Dateiname zum Löschen:', filenameToDelete);
+        }
+
         // Erstelle das Modal für die Löschbestätigung
         const modalContent = `
             <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
@@ -1809,7 +1847,7 @@ function deleteTest() {
             $.ajax({
                 url: 'delete_test.php',
                 type: 'POST',
-                data: { filename: currentTestFilename },
+                data: { filename: filenameToDelete },
                 success: function(response) {
                     if (response.success) {
                         // Zeige schöne Erfolgsmeldung
@@ -1829,7 +1867,7 @@ function deleteTest() {
                 }
             });
         });
-
+        
         // Event-Handler zum Entfernen des Modals
         $('#deleteConfirmModal').on('hidden.bs.modal', function() {
             $(this).remove();
