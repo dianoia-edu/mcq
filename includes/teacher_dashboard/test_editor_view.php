@@ -4,6 +4,8 @@
     <title>Test-Editor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Globale CSS-Datei -->
+    <link href="../css/global.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -227,13 +229,15 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Es existiert bereits ein Test mit dem Zugangscode <strong id="existingAccessCode"></strong>:</p>
-                <div class="alert alert-info">
-                    <strong>Titel:</strong> <span id="existingTitle"></span>
+                <p style="padding-left: 15px; margin-left: 10px;">Es existiert bereits ein Test mit dem Zugangscode <strong id="existingAccessCode"></strong>:</p>
+                <div class="alert alert-info" style="display: flex; align-items: center;">
+                    <i class="bi bi-info-circle-fill" style="margin-right: 10px;"></i>
+                    <span><strong>Titel:</strong> <span id="existingTitle"></span></span>
                 </div>
-                <p>Möchten Sie diesen Test mit Ihrem neuen Test überschreiben?</p>
-                <div class="alert alert-warning">
-                    <strong>Neuer Titel:</strong> <span id="newTitle"></span>
+                <p style="padding-left: 15px; margin-left: 10px;">Möchten Sie diesen Test mit Ihrem neuen Test überschreiben?</p>
+                <div class="alert alert-warning" style="display: flex; align-items: center;">
+                    <i class="bi bi-exclamation-triangle-fill" style="margin-right: 10px;"></i>
+                    <span><strong>Neuer Titel:</strong> <span id="newTitle"></span></span>
                 </div>
             </div>
             <div class="modal-footer">

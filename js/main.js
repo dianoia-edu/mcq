@@ -145,13 +145,15 @@ $(document).ready(function() {
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Es existiert bereits ein Test mit dem Zugangscode <strong id="existingAccessCode"></strong>:</p>
-                        <div class="alert alert-info">
-                            <strong>Titel:</strong> <span id="existingTitle"></span>
+                        <p style="padding-left: 15px; margin-left: 10px;">Es existiert bereits ein Test mit dem Zugangscode <strong id="existingAccessCode"></strong>:</p>
+                        <div class="alert alert-info" style="display: flex; align-items: center;">
+                            <i class="bi bi-info-circle-fill" style="margin-right: 10px;"></i>
+                            <span><strong>Titel:</strong> <span id="existingTitle"></span></span>
                         </div>
-                        <p>Möchten Sie diesen Test mit Ihrem neuen Test überschreiben?</p>
-                        <div class="alert alert-warning">
-                            <strong>Neuer Titel:</strong> <span id="newTitle"></span>
+                        <p style="padding-left: 15px; margin-left: 10px;">Möchten Sie diesen Test mit Ihrem neuen Test überschreiben?</p>
+                        <div class="alert alert-warning" style="display: flex; align-items: center;">
+                            <i class="bi bi-exclamation-triangle-fill" style="margin-right: 10px;"></i>
+                            <span><strong>Neuer Titel:</strong> <span id="newTitle"></span></span>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -972,7 +974,7 @@ function initTestEditor() {
                                     <i class="bi bi-exclamation-triangle me-2"></i>
                                     <strong>Achtung:</strong> Alle nicht gespeicherten Änderungen gehen verloren.
                                 </div>
-                                <p>Möchten Sie wirklich fortfahren?</p>
+                                <p style="padding-left: 15px; margin-left: 10px;">Möchten Sie wirklich fortfahren?</p>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
@@ -1815,12 +1817,15 @@ function deleteTest() {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <p>Möchten Sie wirklich den folgenden Test löschen?</p>
+                            <p style="padding-left: 15px; margin-left: 10px;">Möchten Sie wirklich den folgenden Test löschen?</p>
                             <div class="alert alert-info">
                                 <strong>Zugangscode:</strong> ${accessCode}<br>
                                 <strong>Titel:</strong> ${title}
                             </div>
-                            <p class="text-danger"><strong>Achtung:</strong> Diese Aktion kann nicht rückgängig gemacht werden!</p>
+                            <div class="alert alert-danger" style="display: flex; align-items: center;">
+                                <i class="bi bi-exclamation-triangle-fill" style="margin-right: 10px;"></i>
+                                <span><strong>Achtung:</strong> Diese Aktion kann nicht rückgängig gemacht werden!</span>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>

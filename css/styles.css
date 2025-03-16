@@ -54,6 +54,22 @@
     display: block;
 }
 
+/* Bootstrap Alerts - Einrückung für alle Alerts */
+.alert {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+.alert > * {
+    margin-left: 15px !important;
+}
+
+.alert > i:first-child,
+.alert > .bi:first-child,
+.alert > svg:first-child {
+    margin-left: 0 !important;
+}
+
 /* Tables */
 .results-table {
     width: 100%;

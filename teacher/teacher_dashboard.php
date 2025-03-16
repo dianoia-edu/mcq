@@ -102,6 +102,12 @@ echo "-->\n";
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Flatpickr für Datumsauswahl -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
+    <!-- Globale CSS-Datei -->
+    <link href="../css/global.css" rel="stylesheet">
     <link href="../css/styles.css" rel="stylesheet">
     <style>
         .nav-tabs {
@@ -198,13 +204,28 @@ echo "-->\n";
     <script>
         // Füge automatisch eine Frage mit 4 Antworten hinzu, wenn der Test-Editor leer ist
         $(document).ready(function() {
-            // Wenn der Test-Editor Tab aktiviert wird und keine Fragen vorhanden sind
-            $('.tab[data-target="#editor"]').on('click', function() {
-                if ($('#questionsContainer .question-card').length === 0 && $('#testSelector').val() === '') {
+            // Tab-Funktionalität
+            $('.tab').on('click', function(e) {
+                e.preventDefault();
+                const target = $(this).data('target');
+                
+                // Deaktiviere alle Tabs und Tab-Inhalte
+                $('.tab').removeClass('active');
+                $('.tab-pane').removeClass('active');
+                
+                // Aktiviere den ausgewählten Tab und Tab-Inhalt
+                $(this).addClass('active');
+                $(target).addClass('active');
+                
+                // Wenn der Test-Editor Tab aktiviert wird und keine Fragen vorhanden sind
+                if (target === '#editor' && $('#questionsContainer .question-card').length === 0 && $('#testSelector').val() === '') {
                     // Füge eine Frage hinzu
-                    addQuestion();
+                    if (typeof addQuestion === 'function') {
+                        addQuestion();
+                    }
                 }
             });
         });
+    </script>
 </body>
 </html>

@@ -171,13 +171,10 @@ $testDatesJson = json_encode($testDates);
 $uniqueTestsJson = json_encode($uniqueTests);
 ?>
 
-<!-- Flatpickr für verbesserte Datumsauswahl -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
-
 <!-- Bootstrap CSS und JS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Globale CSS-Datei -->
+<link href="../css/global.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <div class="container mt-4">
@@ -341,6 +338,16 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Debug: test_results_view.php wird geladen - Version vom ' + new Date().toLocaleString('de-DE'));
     
     const resultDetailModal = document.getElementById('resultDetailModal');
+    const studentFilter = document.getElementById('studentFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const testFilter = document.getElementById('testFilterBtn');
+    
+    // Prüfe, ob die Elemente existieren, bevor wir mit ihnen arbeiten
+    if (!resultDetailModal || !studentFilter || !dateFilter || !testFilter) {
+        console.log('Debug: Einige Elemente wurden nicht gefunden, möglicherweise ist der Tab nicht aktiv');
+        return; // Beende die Ausführung, wenn Elemente fehlen
+    }
+    
     const modalInstance = new bootstrap.Modal(resultDetailModal);
     let lastFocusedElement = null;
 
@@ -381,15 +388,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Aktualisiere Modal-Inhalt
                 const modalContent = document.getElementById('resultDetailContent');
-                modalContent.innerHTML = data.html;
+                if (modalContent) {
+                    modalContent.innerHTML = data.html;
+                }
                 
             } catch (error) {
                 console.error('Fehler:', error);
-                document.getElementById('resultDetailContent').innerHTML = `
-                    <div class="alert alert-danger">
-                        Fehler beim Laden der Vorschau: ${error.message}
-                    </div>
-                `;
+                const modalContent = document.getElementById('resultDetailContent');
+                if (modalContent) {
+                    modalContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            Fehler beim Laden der Vorschau: ${error.message}
+                        </div>
+                    `;
+                }
             }
         });
     });
@@ -401,27 +413,25 @@ document.addEventListener('DOMContentLoaded', function() {
             lastFocusedElement.focus();
         }
         // Leere den Modal-Inhalt
-        document.getElementById('resultDetailContent').innerHTML = `
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Lade...</span>
+        const modalContent = document.getElementById('resultDetailContent');
+        if (modalContent) {
+            modalContent.innerHTML = `
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Lade...</span>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
     });
 
     // Verhindern, dass der Fokus im Modal bleibt, wenn es geschlossen wird
     resultDetailModal.addEventListener('hide.bs.modal', function () {
         const focusedElement = document.activeElement;
-        if (this.contains(focusedElement)) {
+        if (this.contains(focusedElement) && lastFocusedElement) {
             lastFocusedElement.focus();
         }
     });
-
-    // Filter-Funktionalität
-    const studentFilter = document.getElementById('studentFilter');
-    const dateFilter = document.getElementById('dateFilter');
-    const testFilter = document.getElementById('testFilterBtn');
 
     // Verfügbare Daten aus PHP
     const availableStudents = <?php echo $studentListJson; ?>;
@@ -429,44 +439,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const availableTests = <?php echo $uniqueTestsJson; ?>;
 
     // Initialisiere Flatpickr für das Datumsfeld
-    const datePicker = flatpickr(dateFilter, {
-        dateFormat: "Y-m-d",
-        enable: availableDates,
-        inline: false,
-        monthSelectorType: "static",
-        locale: {
-            firstDayOfWeek: 1,
-            weekdays: {
-                shorthand: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
-                longhand: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
+    if (dateFilter) {
+        const datePicker = flatpickr(dateFilter, {
+            dateFormat: "Y-m-d",
+            enable: availableDates,
+            inline: false,
+            monthSelectorType: "static",
+            locale: {
+                firstDayOfWeek: 1,
+                weekdays: {
+                    shorthand: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+                    longhand: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
+                },
+                months: {
+                    shorthand: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+                    longhand: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+                }
             },
-            months: {
-                shorthand: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
-                longhand: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+            onChange: function(selectedDates) {
+                applyFilters();
             }
-        },
-        onChange: function(selectedDates) {
-            applyFilters();
-        }
-    });
+        });
+    }
 
     // Autovervollständigung für Schülernamen
-    studentFilter.addEventListener('input', function(e) {
-        const value = e.target.value.toLowerCase();
-        if (!value) return;
+    if (studentFilter) {
+        studentFilter.addEventListener('input', function(e) {
+            const value = e.target.value.toLowerCase();
+            if (!value) return;
 
-        const matchingStudents = availableStudents.filter(student => 
-            student.toLowerCase().includes(value)
-        );
+            const matchingStudents = availableStudents.filter(student => 
+                student.toLowerCase().includes(value)
+            );
 
-        // Aktualisiere die Datalist
-        const datalist = document.getElementById('studentsList');
-        datalist.innerHTML = matchingStudents
-            .map(student => `<option value="${student}">`)
-            .join('');
-    });
+            // Aktualisiere die Datalist
+            const datalist = document.getElementById('studentsList');
+            if (datalist) {
+                datalist.innerHTML = matchingStudents
+                    .map(student => `<option value="${student}">`)
+                    .join('');
+            }
+        });
+    }
 
     function applyFilters() {
+        if (!studentFilter || !dateFilter || !testFilter) return;
+        
         const studentValue = studentFilter.value.toLowerCase();
         const dateValue = dateFilter.value;
         const selectedTest = testFilter.textContent.trim();
@@ -513,31 +531,42 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Event-Listener für Filter
-    studentFilter.addEventListener('input', applyFilters);
-    testFilter.addEventListener('change', applyFilters);
+    if (studentFilter) {
+        studentFilter.addEventListener('input', applyFilters);
+    }
+    
+    if (testFilter) {
+        testFilter.addEventListener('change', applyFilters);
+    }
 
     // Debounce-Funktion für die Suche
     let timeout = null;
-    studentFilter.addEventListener('input', function() {
-        clearTimeout(timeout);
-        timeout = setTimeout(applyFilters, 300);
-    });
+    if (studentFilter) {
+        studentFilter.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(applyFilters, 300);
+        });
+    }
 
     // Dropdown-Funktionalität
     const dropdownItems = document.querySelectorAll('.dropdown-menu .dropdown-item');
     
-    dropdownItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const value = this.dataset.value;
-            const code = this.dataset.code;
-            
-            // Update button text
-            testFilter.textContent = value ? `${code} - ${value}` : 'Alle Tests';
-            
-            // Trigger filter update
-            applyFilters();
+    if (dropdownItems && dropdownItems.length > 0) {
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const value = this.dataset.value;
+                const code = this.dataset.code;
+                
+                // Update button text
+                if (testFilter) {
+                    testFilter.textContent = value ? `${code} - ${value}` : 'Alle Tests';
+                    
+                    // Trigger filter update
+                    applyFilters();
+                }
+            });
         });
-    });
+    }
 });
 </script> 

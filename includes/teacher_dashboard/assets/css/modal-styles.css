@@ -106,6 +106,22 @@
     font-weight: 500;
 }
 
+/* Bootstrap Alerts - Einrückung für alle Alerts */
+.alert {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+.alert > * {
+    margin-left: 15px !important;
+}
+
+.alert > i:first-child,
+.alert > .bi:first-child,
+.alert > svg:first-child {
+    margin-left: 0 !important;
+}
+
 /* Zusätzliche Styles für bessere Lesbarkeit */
 .modal-dialog {
     max-width: 1000px;

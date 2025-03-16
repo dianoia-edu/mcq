@@ -1,0 +1,128 @@
+/* Globale Styles für das gesamte MCQ-Test-System */
+
+/* Bootstrap Alerts - Einrückung für alle Alerts */
+.alert {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+.alert > * {
+    margin-left: 15px !important;
+}
+
+.alert > i:first-child,
+.alert > .bi:first-child,
+.alert > svg:first-child {
+    margin-left: 0 !important;
+}
+
+/* Spezifische Regeln für Löschbestätigungsdialoge */
+.modal .alert-danger {
+    padding: 15px 20px !important;
+}
+
+.modal .alert-danger > * {
+    margin-left: 15px !important;
+}
+
+.modal .alert-danger > i:first-child,
+.modal .alert-danger > .bi:first-child,
+.modal .alert-danger > svg:first-child {
+    margin-left: 0 !important;
+}
+
+/* Spezifische Regel für das Achtung-Element */
+.alert strong {
+    margin-left: 10px !important;
+    display: inline-block !important;
+}
+
+/* Spezifische Regel für den Löschbestätigungsdialog */
+#confirmDeleteModal .alert-danger,
+.modal-content .alert-danger {
+    display: flex !important;
+    align-items: center !important;
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+#confirmDeleteModal .alert-danger i,
+.modal-content .alert-danger i,
+#confirmDeleteModal .alert-danger .bi,
+.modal-content .alert-danger .bi {
+    margin-right: 10px !important;
+    flex-shrink: 0 !important;
+    margin-left: 0 !important;
+}
+
+#confirmDeleteModal .alert-danger span,
+.modal-content .alert-danger span {
+    flex-grow: 1 !important;
+    margin-left: 0 !important;
+}
+
+#confirmDeleteModal .alert-danger strong,
+.modal-content .alert-danger strong {
+    margin-right: 5px !important;
+    margin-left: 0 !important;
+}
+
+/* Direkte Regel für die Warnmeldung im Löschbestätigungsdialog */
+.modal-body .alert-danger,
+.modal-content .alert-danger {
+    padding: 15px !important;
+}
+
+.modal-body .alert-danger i + strong,
+.modal-content .alert-danger i + strong {
+    margin-left: 10px !important;
+}
+
+.modal-body .alert-danger strong + *,
+.modal-content .alert-danger strong + * {
+    margin-left: 5px !important;
+}
+
+/* Allgemeine Regel für alle Alert-Danger-Elemente */
+.alert-danger {
+    display: flex !important;
+    align-items: center !important;
+    padding: 15px !important;
+}
+
+.alert-danger i,
+.alert-danger .bi,
+.alert-danger svg {
+    margin-right: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+.alert-danger span {
+    flex-grow: 1 !important;
+}
+
+/* Höchste Spezifität für den Löschbestätigungsdialog */
+body #confirmDeleteModal .alert-danger {
+    display: flex !important;
+    align-items: center !important;
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+body #confirmDeleteModal .alert-danger i,
+body #confirmDeleteModal .alert-danger .bi,
+body #confirmDeleteModal .alert-danger svg {
+    margin: 0 10px 0 0 !important;
+    flex-shrink: 0 !important;
+}
+
+body #confirmDeleteModal .alert-danger span {
+    flex-grow: 1 !important;
+    margin: 0 !important;
+}
+
+body #confirmDeleteModal .alert-danger strong {
+    margin: 0 5px 0 0 !important;
+}
+
+/* Weitere globale Styles können hier hinzugefügt werden */ 
