@@ -2,7 +2,7 @@
 // Starte Output-Buffering
 ob_start();
 
-// Starte  Session 
+// Starte    Session 
 session_start();
 
 require_once 'check_test_attempts.php';
