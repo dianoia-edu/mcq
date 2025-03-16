@@ -190,6 +190,22 @@ class TestDatabase {
      */
     public function getLatestTestResult($testCode, $studentName) {
         try {
+            error_log("Suche Testergebnis für Test: $testCode, Schüler: $studentName");
+            
+            // Prüfe zuerst, ob der Test existiert
+            $testStmt = $this->db->prepare("SELECT test_id FROM tests WHERE access_code = :access_code");
+            $testStmt->execute(['access_code' => $testCode]);
+            $test = $testStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$test) {
+                error_log("Test mit Zugangscode $testCode nicht gefunden");
+                return false;
+            }
+            
+            $testId = $test['test_id'];
+            error_log("Test gefunden mit ID: $testId");
+            
+            // Suche nach dem neuesten Versuch für diesen Test und Schüler
             $stmt = $this->db->prepare("
                 SELECT 
                     ta.points_achieved,
@@ -198,15 +214,14 @@ class TestDatabase {
                     ta.grade,
                     ta.completed_at
                 FROM test_attempts ta
-                JOIN tests t ON ta.test_id = t.test_id
-                WHERE t.access_code = :access_code
+                WHERE ta.test_id = :test_id
                 AND ta.student_name = :student_name
                 ORDER BY ta.completed_at DESC
                 LIMIT 1
             ");
             
             $stmt->execute([
-                'access_code' => $testCode,
+                'test_id' => $testId,
                 'student_name' => $studentName
             ]);
             
@@ -217,6 +232,42 @@ class TestDatabase {
                 return $result;
             } else {
                 error_log("Kein Testergebnis gefunden für " . $studentName . " (Test: " . $testCode . ")");
+                
+                // Versuche, direkt nach dem XML-Pfad zu suchen
+                $xmlStmt = $this->db->prepare("
+                    SELECT xml_file_path 
+                    FROM test_attempts 
+                    WHERE test_id = :test_id 
+                    AND student_name = :student_name
+                ");
+                $xmlStmt->execute([
+                    'test_id' => $testId,
+                    'student_name' => $studentName
+                ]);
+                
+                $xmlPath = $xmlStmt->fetchColumn();
+                if ($xmlPath && file_exists($xmlPath)) {
+                    error_log("XML-Datei gefunden: $xmlPath");
+                    
+                    // Versuche, die XML-Datei zu laden
+                    $xml = @simplexml_load_file($xmlPath);
+                    if ($xml) {
+                        $achievedPoints = isset($xml->achieved_points) ? (int)$xml->achieved_points : 0;
+                        $maxPoints = isset($xml->max_points) ? (int)$xml->max_points : 0;
+                        $percentage = isset($xml->percentage) ? (float)$xml->percentage : 0;
+                        $grade = isset($xml->grade) ? (string)$xml->grade : 'N/A';
+                        $date = isset($xml->date) ? (string)$xml->date : date('Y-m-d H:i:s');
+                        
+                        return [
+                            'points_achieved' => $achievedPoints,
+                            'points_maximum' => $maxPoints,
+                            'percentage' => $percentage,
+                            'grade' => $grade,
+                            'completed_at' => $date
+                        ];
+                    }
+                }
+                
                 return false;
             }
         } catch (Exception $e) {

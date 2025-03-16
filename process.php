@@ -225,8 +225,15 @@ try {
     
     error_log("Speichere Testergebnis in der Datenbank: " . print_r($testData, true));
     
+    // Teste die Datenbankverbindung
+    if ($testDb->testConnection()) {
+        error_log("Datenbankverbindung erfolgreich getestet");
+    } else {
+        error_log("Datenbankverbindung konnte nicht getestet werden");
+    }
+    
     // Speichere den Testversuch
-    $testDb->saveTestAttempt(
+    $success = $testDb->saveTestAttempt(
         $_SESSION['test_code'],
         $_SESSION['student_name'],
         $filepath,
@@ -237,7 +244,11 @@ try {
         $_SESSION['test_started_at'] ?? date('Y-m-d H:i:s')
     );
     
-    error_log("Testergebnis erfolgreich in der Datenbank gespeichert");
+    if ($success) {
+        error_log("Testergebnis erfolgreich in der Datenbank gespeichert");
+    } else {
+        error_log("Fehler beim Speichern des Testergebnisses in der Datenbank");
+    }
 } catch (Exception $e) {
     error_log("Fehler beim Speichern des Testergebnisses in der Datenbank: " . $e->getMessage() . "\n" . $e->getTraceAsString());
 }
@@ -252,7 +263,7 @@ $_SESSION['test_results'] = [
 ];
 
 // Leite zur Ergebnisseite weiter
-error_log("Weiterleitung zur Ergebnisseite mit Testergebnissen in der Session");
+error_log("Weiterleitung zur Ergebnisseite mit Testergebnissen in der Session: " . print_r($_SESSION['test_results'], true));
 header("Location: result.php");
 exit();
 

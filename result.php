@@ -3,7 +3,7 @@ session_start();
 require_once 'includes/TestDatabase.php';
 
 // Debug-Logging
-error_log("Session-Variablen in result.php: " . print_r($_SESSION, true));
+error_log("result.php aufgerufen - Session-Variablen: " . print_r($_SESSION, true));
 
 // Prüfen, ob Testergebnisse in der Session vorhanden sind
 if (!isset($_SESSION['test_results'])) {
@@ -15,11 +15,19 @@ if (!isset($_SESSION['test_results'])) {
         
         try {
             $db = new TestDatabase();
+            
+            // Teste die Datenbankverbindung
+            if ($db->testConnection()) {
+                error_log("Datenbankverbindung erfolgreich getestet");
+            } else {
+                error_log("Datenbankverbindung konnte nicht getestet werden");
+            }
+            
             $results = $db->getLatestTestResult($_SESSION['test_code'], $_SESSION['student_name']);
             
             if ($results) {
                 $_SESSION['test_results'] = $results;
-                error_log("Ergebnisse erfolgreich aus der Datenbank geladen");
+                error_log("Ergebnisse erfolgreich aus der Datenbank geladen: " . print_r($results, true));
             } else {
                 error_log("Keine Ergebnisse in der Datenbank gefunden");
                 header("Location: index.php?error=no_results");
@@ -39,6 +47,16 @@ if (!isset($_SESSION['test_results'])) {
 
 $results = $_SESSION['test_results'];
 $studentName = isset($_SESSION['student_name']) ? $_SESSION['student_name'] : 'Unbekannt';
+
+// Stelle sicher, dass die Ergebnisse die richtigen Schlüssel haben
+if (!isset($results['points_achieved']) && isset($results['achieved'])) {
+    $results['points_achieved'] = $results['achieved'];
+}
+if (!isset($results['points_maximum']) && isset($results['max'])) {
+    $results['points_maximum'] = $results['max'];
+}
+
+error_log("Zeige Testergebnisse an: " . print_r($results, true));
 ?>
 <!DOCTYPE html>
 <html lang="de">
