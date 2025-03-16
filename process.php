@@ -1,5 +1,5 @@
 <?php
-// Starte Output-Buffering
+// Starte  Output-Buffering
 ob_start();
 
 // Temporäre Debug-Ausgaben

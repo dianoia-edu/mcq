@@ -3,7 +3,7 @@ ob_start();
 
 require_once 'check_test_attempts.php';
 
-// Lade Konfiguration - Anpassung, da config.php nicht mehr existiert
+// Lade Konfiguration - Anpassung,  da config.php nicht mehr existiert
 // $config = loadConfig();
 
 // Überprüfe alle erforderlichen Session-Variablen

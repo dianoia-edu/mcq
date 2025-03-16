@@ -239,6 +239,13 @@
             "student_id": "44d02ca27971ba8ddca8e507e12b2ce6de35e7f2b2088bfc877c13c4cc6c1795",
             "client_id": "d01679f2af8c852bf6fb52beefd81076fb1148a1ac8b3dcaff35ef010adcfac9",
             "is_admin": false
+        },
+        {
+            "date": "2025-03-16",
+            "student": "test admin",
+            "student_id": "b387e71f20bdd2ad7de103768c313ebfb5e3626900a299f0674884282fc0954b",
+            "client_id": "dac355854f2b697e663e240db12f289bd6a5dec249cd45cda55e7a80ef060887",
+            "is_admin": true
         }
     ]
 }
