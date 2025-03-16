@@ -7,7 +7,6 @@ if (!is_writable(sys_get_temp_dir())) {
         mkdir($customTempDir, 0777, true);
     }
     ini_set('upload_tmp_dir', $customTempDir);
-    error_log("Using custom temp directory: " . $customTempDir);
 }
 
 // Aktiviere Error Reporting für Entwicklung
@@ -18,130 +17,6 @@ ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
 
 // Setze Header für JSON
 header('Content-Type: application/json');
-
-// Überprüfe, ob das tests-Verzeichnis existiert und schreibbar ist
-$testsDir = __DIR__ . '/../tests';
-if (!file_exists($testsDir)) {
-    error_log("Tests directory does not exist: " . $testsDir);
-    mkdir($testsDir, 0777, true);
-    error_log("Created tests directory: " . $testsDir);
-}
-
-if (!is_writable($testsDir)) {
-    error_log("Tests directory is not writable: " . $testsDir);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Das Tests-Verzeichnis ist nicht beschreibbar. Bitte überprüfen Sie die Berechtigungen.',
-        'details' => [
-            'directory' => $testsDir,
-            'permissions' => substr(sprintf('%o', fileperms($testsDir)), -4)
-        ]
-    ]);
-    exit;
-}
-
-// Überprüfe, ob das temp-Verzeichnis existiert und schreibbar ist
-$tempDir = __DIR__ . '/../temp';
-if (!file_exists($tempDir)) {
-    error_log("Temp directory does not exist: " . $tempDir);
-    mkdir($tempDir, 0777, true);
-    error_log("Created temp directory: " . $tempDir);
-}
-
-if (!is_writable($tempDir)) {
-    error_log("Temp directory is not writable: " . $tempDir);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Das temporäre Verzeichnis ist nicht beschreibbar. Bitte überprüfen Sie die Berechtigungen.',
-        'details' => [
-            'directory' => $tempDir,
-            'permissions' => substr(sprintf('%o', fileperms($tempDir)), -4)
-        ]
-    ]);
-    exit;
-}
-
-// Überprüfe, ob die POST-Daten empfangen wurden
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    error_log("Invalid request method: " . $_SERVER['REQUEST_METHOD']);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Ungültige Anfragemethode. Nur POST-Anfragen sind erlaubt.',
-        'details' => [
-            'method' => $_SERVER['REQUEST_METHOD']
-        ]
-    ]);
-    exit;
-}
-
-// Überprüfe, ob die POST-Daten vorhanden sind
-if (empty($_POST)) {
-    error_log("No POST data received");
-    echo json_encode([
-        'success' => false,
-        'error' => 'Keine POST-Daten empfangen.',
-        'details' => [
-            'post' => $_POST,
-            'files' => $_FILES
-        ]
-    ]);
-    exit;
-}
-
-// Überprüfe, ob eine Datei hochgeladen wurde
-if (!isset($_FILES['source_file']) || $_FILES['source_file']['error'] !== UPLOAD_ERR_OK) {
-    if (isset($_FILES['source_file'])) {
-        $error_codes = [
-            UPLOAD_ERR_INI_SIZE => 'Die hochgeladene Datei überschreitet die in der php.ini festgelegte upload_max_filesize Direktive.',
-            UPLOAD_ERR_FORM_SIZE => 'Die hochgeladene Datei überschreitet die im HTML-Formular mittels MAX_FILE_SIZE Direktive angegebene maximale Dateigröße.',
-            UPLOAD_ERR_PARTIAL => 'Die Datei wurde nur teilweise hochgeladen.',
-            UPLOAD_ERR_NO_FILE => 'Es wurde keine Datei hochgeladen.',
-            UPLOAD_ERR_NO_TMP_DIR => 'Temporärer Ordner fehlt.',
-            UPLOAD_ERR_CANT_WRITE => 'Fehler beim Schreiben der Datei auf die Festplatte.',
-            UPLOAD_ERR_EXTENSION => 'Eine PHP-Erweiterung hat den Upload gestoppt.'
-        ];
-        
-        $error_code = $_FILES['source_file']['error'];
-        $error_message = isset($error_codes[$error_code]) ? $error_codes[$error_code] : 'Unbekannter Fehler beim Datei-Upload.';
-        error_log("File upload error: " . $error_message . " (Code: " . $error_code . ")");
-        
-        // Überprüfe, ob eine URL oder YouTube-URL eingegeben wurde
-        if (empty($_POST['website_url']) && empty($_POST['youtube_url'])) {
-            error_log("No content source found (no file, no URL, no YouTube URL)");
-            echo json_encode([
-                'success' => false,
-                'error' => 'Keine Inhaltsquelle gefunden. Bitte laden Sie eine Datei hoch oder geben Sie eine URL ein.',
-                'details' => [
-                    'file_error' => $error_message,
-                    'file_error_code' => $error_code,
-                    'post' => $_POST
-                ]
-            ]);
-            exit;
-        }
-    } else {
-        error_log("No file upload detected in the request");
-        
-        // Überprüfe, ob eine URL oder YouTube-URL eingegeben wurde
-        if (empty($_POST['website_url']) && empty($_POST['youtube_url'])) {
-            error_log("No content source found (no file, no URL, no YouTube URL)");
-            echo json_encode([
-                'success' => false,
-                'error' => 'Keine Inhaltsquelle gefunden. Bitte laden Sie eine Datei hoch oder geben Sie eine URL ein.',
-                'details' => [
-                    'post' => $_POST
-                ]
-            ]);
-            exit;
-        }
-    }
-}
-
-// Überprüfe die PHP-Konfiguration für Uploads
-error_log("PHP upload_max_filesize: " . ini_get('upload_max_filesize'));
-error_log("PHP post_max_size: " . ini_get('post_max_size'));
-error_log("PHP memory_limit: " . ini_get('memory_limit'));
-error_log("PHP max_execution_time: " . ini_get('max_execution_time'));
 
 // Debug-Ausgaben nur in Logs schreiben, nicht in die Ausgabe
 function debug_log($message) {
@@ -547,11 +422,6 @@ try {
 
     // Verarbeite Datei-Upload, falls vorhanden
     if (isset($_FILES['source_file']) && $_FILES['source_file']['error'] === UPLOAD_ERR_OK) {
-        // Debug-Informationen
-        error_log("File upload detected: " . $_FILES['source_file']['name']);
-        error_log("File size: " . $_FILES['source_file']['size']);
-        error_log("Temporary file: " . $_FILES['source_file']['tmp_name']);
-        
         // Überprüfe Dateigröße
         if ($_FILES['source_file']['size'] === 0) {
             throw new Exception('Leere Datei hochgeladen');
@@ -567,34 +437,14 @@ try {
         // Extrahiere Text aus der Datei
         if ($mime_type === 'application/pdf' || in_array($mime_type, ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp'])) {
             $combinedContent .= performOCR($_FILES['source_file']['tmp_name'], $mime_type) . "\n\n";
-            error_log("OCR performed on file");
         } 
         else if ($mime_type === 'text/plain') {
             $combinedContent .= file_get_contents($_FILES['source_file']['tmp_name']) . "\n\n";
-            error_log("Text file content extracted");
         }
         else if (in_array($mime_type, ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])) {
             // Bestehende DOCX/DOC Verarbeitung
-            error_log("Word document detected, processing...");
             // ... (vorhandener Code bleibt unverändert)
         }
-    } else if (isset($_FILES['source_file'])) {
-        // Debug-Informationen bei Fehlern
-        $error_codes = [
-            UPLOAD_ERR_INI_SIZE => 'Die hochgeladene Datei überschreitet die in der php.ini festgelegte upload_max_filesize Direktive.',
-            UPLOAD_ERR_FORM_SIZE => 'Die hochgeladene Datei überschreitet die im HTML-Formular mittels MAX_FILE_SIZE Direktive angegebene maximale Dateigröße.',
-            UPLOAD_ERR_PARTIAL => 'Die Datei wurde nur teilweise hochgeladen.',
-            UPLOAD_ERR_NO_FILE => 'Es wurde keine Datei hochgeladen.',
-            UPLOAD_ERR_NO_TMP_DIR => 'Temporärer Ordner fehlt.',
-            UPLOAD_ERR_CANT_WRITE => 'Fehler beim Schreiben der Datei auf die Festplatte.',
-            UPLOAD_ERR_EXTENSION => 'Eine PHP-Erweiterung hat den Upload gestoppt.'
-        ];
-        
-        $error_code = $_FILES['source_file']['error'];
-        $error_message = isset($error_codes[$error_code]) ? $error_codes[$error_code] : 'Unbekannter Fehler beim Datei-Upload.';
-        error_log("File upload error: " . $error_message . " (Code: " . $error_code . ")");
-    } else {
-        error_log("No file upload detected in the request");
     }
 
     // Verarbeite Webseiten-URL, falls vorhanden
@@ -1066,66 +916,16 @@ try {
     // Logge den Fehler
     error_log("Error in generate_test.php: " . $e->getMessage());
     error_log("Stack trace: " . $e->getTraceAsString());
-    
-    // Überprüfe, ob der Fehler mit dem Datei-Upload zusammenhängt
-    if (strpos($e->getMessage(), 'Keine Inhaltsquelle gefunden') !== false) {
-        error_log("Content source error detected");
-        error_log("POST data: " . print_r($_POST, true));
-        error_log("FILES data: " . print_r($_FILES, true));
-    }
-    
-    // Überprüfe, ob der Fehler mit dem Tesseract oder Ghostscript zusammenhängt
-    if (strpos($e->getMessage(), 'Tesseract') !== false || strpos($e->getMessage(), 'Ghostscript') !== false) {
-        error_log("OCR software error detected");
-        // Überprüfe, ob die Programme installiert sind
-        exec('which tesseract', $tesseract_output, $tesseract_return);
-        exec('which gs', $gs_output, $gs_return);
-        error_log("Tesseract installed: " . ($tesseract_return === 0 ? 'Yes' : 'No'));
-        error_log("Ghostscript installed: " . ($gs_return === 0 ? 'Yes' : 'No'));
-    }
-    
-    // Überprüfe, ob der Fehler mit Berechtigungen zusammenhängt
-    if (strpos($e->getMessage(), 'Permission denied') !== false || 
-        strpos($e->getMessage(), 'nicht beschreibbar') !== false) {
-        error_log("Permission error detected");
-        // Überprüfe die Berechtigungen der relevanten Verzeichnisse
-        $testsDir = __DIR__ . '/../tests';
-        $tempDir = __DIR__ . '/../temp';
-        $logsDir = __DIR__ . '/../logs';
-        
-        error_log("Tests directory exists: " . (file_exists($testsDir) ? 'Yes' : 'No'));
-        error_log("Tests directory writable: " . (is_writable($testsDir) ? 'Yes' : 'No'));
-        error_log("Tests directory permissions: " . substr(sprintf('%o', fileperms($testsDir)), -4));
-        
-        error_log("Temp directory exists: " . (file_exists($tempDir) ? 'Yes' : 'No'));
-        error_log("Temp directory writable: " . (is_writable($tempDir) ? 'Yes' : 'No'));
-        error_log("Temp directory permissions: " . substr(sprintf('%o', fileperms($tempDir)), -4));
-        
-        error_log("Logs directory exists: " . (file_exists($logsDir) ? 'Yes' : 'No'));
-        error_log("Logs directory writable: " . (is_writable($logsDir) ? 'Yes' : 'No'));
-        error_log("Logs directory permissions: " . substr(sprintf('%o', fileperms($logsDir)), -4));
-    }
-    
-    // Sende Fehler-JSON mit detaillierten Informationen
+    // Sende Fehler-JSON
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'error' => $e->getMessage(),
         'details' => [
             'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => explode("\n", $e->getTraceAsString()),
-            'server' => [
-                'php_version' => phpversion(),
-                'os' => PHP_OS,
-                'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
-                'upload_max_filesize' => ini_get('upload_max_filesize'),
-                'post_max_size' => ini_get('post_max_size'),
-                'memory_limit' => ini_get('memory_limit'),
-                'max_execution_time' => ini_get('max_execution_time')
-            ]
+            'line' => $e->getLine()
         ]
-    ], JSON_UNESCAPED_UNICODE);
+    ]);
     exit;
 }
 ?> 
