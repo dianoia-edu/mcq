@@ -9,15 +9,17 @@ class DatabaseConfig {
     
     private function __construct() {
         // Prüfen, ob wir uns auf dem Produktionsserver befinden
-        $isProduction = ($_SERVER['SERVER_NAME'] ?? '') === 'mcq.medizin.uni-tuebingen.de';
+        $isProduction = ($_SERVER['SERVER_NAME'] ?? '') === 'mcq.medizin.uni-tuebingen.de' || 
+                        ($_SERVER['SERVER_NAME'] ?? '') === 'www.dianoia-ai.de' ||
+                        php_sapi_name() === 'cli'; // CLI-Ausführung als Produktion betrachten
         
         // Konfiguration basierend auf der Umgebung
         if ($isProduction) {
             // Produktionsumgebung
             $this->config = [
                 'db_host' => 'localhost',
-                'db_user' => 'mcquser',
-                'db_password' => 'IhrSicheresPasswort', // Hier das richtige Passwort eintragen
+                'db_user' => 'mcqadmin',  // Angepasst an den Benutzer, der in den Logs erscheint
+                'db_password' => 'Ib1973g!np', // Hier das richtige Passwort eintragen
                 'db_name' => 'mcq_test_system'
             ];
         } else {

@@ -227,7 +227,41 @@ echo "-->\n";
                         addQuestion();
                     }
                 }
+                
+                // Wenn der Testergebnisse-Tab aktiviert wird, lade die Ergebnisse neu
+                if (target === '#testResults') {
+                    loadTestResults();
+                }
             });
+            
+            // Funktion zum Laden der Testergebnisse
+            function loadTestResults() {
+                const resultsContainer = $('#testResults');
+                
+                // Zeige Ladeindikator
+                resultsContainer.html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Lade...</span></div><p class="mt-2">Lade Testergebnisse...</p></div>');
+                
+                // Lade die Ergebnisse via AJAX
+                $.ajax({
+                    url: 'load_test_results.php',
+                    method: 'GET',
+                    success: function(response) {
+                        resultsContainer.html(response);
+                        
+                        // Initialisiere die Event-Listener für die neu geladenen Elemente
+                        initTestResultsEventListeners();
+                    },
+                    error: function(xhr, status, error) {
+                        resultsContainer.html('<div class="alert alert-danger">Fehler beim Laden der Testergebnisse: ' + error + '</div>');
+                    }
+                });
+            }
+            
+            // Initialisiere Event-Listener für die Testergebnisse
+            function initTestResultsEventListeners() {
+                // Hier können Event-Listener für die Elemente im Testergebnisse-Tab hinzugefügt werden
+                console.log('Testergebnisse wurden geladen und Event-Listener initialisiert');
+            }
         });
     </script>
 </body>

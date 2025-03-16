@@ -208,5 +208,37 @@
             "date": "2025-03-06",
             "student": "dwd"
         }
+    ],
+    "LC5": [
+        {
+            "date": "2025-03-16",
+            "student": "test lokal",
+            "student_id": "e944e65e5e7b0b201df2c7bc84533c00ceb1a06a9b33195217a928c7c87664d9",
+            "client_id": "dac355854f2b697e663e240db12f289bd6a5dec249cd45cda55e7a80ef060887",
+            "is_admin": false
+        }
+    ],
+    "72G": [
+        {
+            "date": "2025-03-16",
+            "student": "test chrome",
+            "student_id": "7d13fc684731c654f56dc68c707a6d30a0005c512d79d8a456103178fda11581",
+            "client_id": "dac355854f2b697e663e240db12f289bd6a5dec249cd45cda55e7a80ef060887",
+            "is_admin": false
+        },
+        {
+            "date": "2025-03-16",
+            "student": "test android",
+            "student_id": "79d098677eb3dd6a041f3b9544efc0a20911f6cee109740ac0b48ca115f7552e",
+            "client_id": "1dcc2068d9540f9e130c84c44f890eca82ee7db4b288f83475e9e286f0d3e536",
+            "is_admin": false
+        },
+        {
+            "date": "2025-03-16",
+            "student": "test ipad",
+            "student_id": "44d02ca27971ba8ddca8e507e12b2ce6de35e7f2b2088bfc877c13c4cc6c1795",
+            "client_id": "d01679f2af8c852bf6fb52beefd81076fb1148a1ac8b3dcaff35ef010adcfac9",
+            "is_admin": false
+        }
     ]
 }
