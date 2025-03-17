@@ -201,6 +201,9 @@ echo "-->\n";
             // Wenn der Test-Editor Tab aktiviert wird und keine Fragen vorhanden sind
             $('.tab[data-target="#editor"]').on('click', function() {
                 if ($('#questionsContainer .question-card').length === 0 && $('#testSelector').val() === '') {
+            // Wenn der Test-Editor Tab aktiviert wird und keine Fragen vorhanden sind
+            $('.tab[data-target="#editor"]').on('click', function() {
+                if ($('#questionsContainer .question-card').length === 0 && $('#testSelector').val() === '') {
                     // Füge eine Frage hinzu
                     addQuestion();
                 }

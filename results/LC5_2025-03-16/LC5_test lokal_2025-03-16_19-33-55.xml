@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>LC5</access_code>
+  <title>Der Kalte Krieg und sein Ende</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war die "Eiserne Vorhang" im Kontext des Kalten Krieges?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine physische Barriere zwischen Ost- und Westdeutschland</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Eine metaphorische Bezeichnung für die Trennung zwischen dem kommunistischen Osten und dem kapitalistischen Westen</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Ein Spionagenetzwerk der Sowjetunion</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Ein militärisches Bündnis unter Führung der USA</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welche Rolle spielte Lech Wałęsa während des Streiks in der Lenin-Werft in Danzig?</text>
+      <answers>
+        <answer nr="1">
+          <text>Er war ein Priester, der den Arbeitern die Beichte abnahm.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Er war ein sowjetischer Diplomat, der verhandelte.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Er war einer der Streikführer und später Präsident von Polen.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Er war ein Reporter, der über den Streik berichtete.</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was versteht man unter "Perestroika" in der Politik Michail Gorbatschows?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Stärkung des militärischen Apparats</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Umgestaltung von Gesellschaft und Wirtschaft</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Gründung neuer politischer Parteien</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Rückkehr zu strengerem Stalinismus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was bedeutet "Glasnost" im Rahmen von Gorbatschows Reformen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Wirtschaftliche Liberalisierung</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Offenheit und Transparenz in der politischen Arbeit</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Geheimdienstreform</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Militärische Entspannungspolitik</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>In welchem Jahr wurde Michail Gorbatschow zum Generalsekretär der KPdSU gewählt?</text>
+      <answers>
+        <answer nr="1">
+          <text>1980</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>1982</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>1985</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>1989</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Welcher Konflikt erwies sich für die Sowjetunion als kostspielig und zermürbend, was zur Krise beitrug?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Vietnamkrieg</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Der Koreakrieg</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Der Krieg in Afghanistan</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Der Iran-Irak-Krieg</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welches Ereignis markierte das Ende des Wettrüstens zwischen den USA und der Sowjetunion?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Unterzeichnung des START-Vertrags</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Kubakrise</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Unterzeichnung des INF-Vertrags</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Berliner Luftbrücke</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was bedeutete die Aufgabe der Breschnew-Doktrin durch Gorbatschow für die Staaten des Warschauer Paktes?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie mussten ihre Bündnistreue zur Sowjetunion verstärken.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Sie durften eigene politische und wirtschaftliche Wege beschreiten.</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Sie wurden zu direkten Demokratien umgewandelt.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Sie traten dem NATO-Bündnis bei.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Wie unterstützte die katholische Kirche die Gewerkschaftsbewegung Solidarność in Polen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch finanzielle Zuwendungen an die Gewerkschaftsführer</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Indem sie als eine oppositionelle Kraft gegen das kommunistische Regime auftrat</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Durch den Bau von Gewerkschaftsbüros auf Kirchengelände</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Durch öffentliche Verurteilung von Streiks und Protesten</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Wann erklärte die Charta von Paris den Ost-West-Konflikt in Europa für offiziell beendet?</text>
+      <answers>
+        <answer nr="1">
+          <text>Im November 1989</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Im Juli 1991</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Im November 1990</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Im Dezember 1992</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>test lokal</schuelername>
+  <abgabezeit>2025-03-16 19:33:55</abgabezeit>
+</test>
