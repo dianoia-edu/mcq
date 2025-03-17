@@ -8,83 +8,69 @@ function writeLog($message) {
     file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
 
-// Lade die Ergebnisse aus der Datenbank
-$allResults = [];
+// Prüfe ob es sich um einen AJAX-Request handelt
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+          strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+
 try {
-    writeLog("Starte Datenbankverbindung...");
     $db = DatabaseConfig::getInstance()->getConnection();
     writeLog("Datenbankverbindung hergestellt");
-    
-    // Debug: Überprüfe direkt die tests-Tabelle
-    writeLog("Führe Test-Tabellen-Abfrage aus...");
-    $testCheck = $db->query("SELECT * FROM tests");
-    if ($testCheck === false) {
-        writeLog("Fehler bei der Test-Tabellen-Abfrage: " . print_r($db->errorInfo(), true));
-    }
-    $allTests = $testCheck->fetchAll(PDO::FETCH_ASSOC);
-    writeLog("Anzahl gefundener Tests: " . count($allTests));
-    writeLog("Alle Tests in der Datenbank:");
-    foreach ($allTests as $test) {
-        writeLog(sprintf("ID: %d, Code: %s, Titel: %s", 
-            $test['test_id'], 
-            $test['access_code'], 
-            $test['title']
-        ));
-    }
-    
-    // Debug: Überprüfe direkt die test_attempts-Tabelle
-    $attemptsCheck = $db->query("SELECT * FROM test_attempts WHERE test_id IN (SELECT test_id FROM tests WHERE access_code IN ('KKW', 'KK3'))");
-    $attempts = $attemptsCheck->fetchAll(PDO::FETCH_ASSOC);
-    writeLog("Test-Versuche für KKW und KK3:");
-    foreach ($attempts as $attempt) {
-        writeLog(sprintf("ID: %d, Test-ID: %d, Student: %s, XML: %s",
-            $attempt['attempt_id'],
-            $attempt['test_id'],
-            $attempt['student_name'],
-            $attempt['xml_file_path']
-        ));
-    }
-    
-    // Hauptabfrage für Testergebnisse
-    writeLog("Führe Hauptabfrage für Testergebnisse aus...");
-    $stmt = $db->query("
+
+    // Hole Filter-Parameter
+    $selectedTest = $_GET['test'] ?? '';
+    $startDate = $_GET['start_date'] ?? '';
+    $endDate = $_GET['end_date'] ?? '';
+    $searchTerm = $_GET['search'] ?? '';
+
+    // Baue die SQL-Query
+    $sql = "
         SELECT 
-            t.access_code,
             t.title as testTitle,
             ta.student_name as studentName,
             ta.completed_at as date,
+            t.access_code,
+            ta.xml_file_path as fileName,
             ta.points_achieved,
             ta.points_maximum,
             ta.percentage,
             ta.grade,
-            ta.xml_file_path as fileName,
-            t.created_at
+            ta.created_at
         FROM test_attempts ta
         JOIN tests t ON ta.test_id = t.test_id
-        ORDER BY t.created_at DESC, ta.completed_at DESC
-    ");
+        WHERE 1=1
+    ";
     
-    if ($stmt === false) {
-        writeLog("Fehler bei der Hauptabfrage: " . print_r($db->errorInfo(), true));
+    $params = [];
+    
+    if (!empty($selectedTest)) {
+        $sql .= " AND t.access_code = ?";
+        $params[] = $selectedTest;
     }
     
+    if (!empty($startDate)) {
+        $sql .= " AND DATE(ta.completed_at) >= ?";
+        $params[] = $startDate;
+    }
+    
+    if (!empty($endDate)) {
+        $sql .= " AND DATE(ta.completed_at) <= ?";
+        $params[] = $endDate;
+    }
+    
+    if (!empty($searchTerm)) {
+        $sql .= " AND (ta.student_name LIKE ? OR t.title LIKE ?)";
+        $params[] = "%$searchTerm%";
+        $params[] = "%$searchTerm%";
+    }
+    
+    $sql .= " ORDER BY ta.completed_at DESC, t.access_code";
+    
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
     $dbResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    writeLog("Anzahl gefundener Testergebnisse: " . count($dbResults));
     
-    // Debug-Logging für alle Datenbankeinträge
-    writeLog("Details der gefundenen Testergebnisse:");
+    $allResults = [];
     foreach ($dbResults as $result) {
-        writeLog(sprintf(
-            "Test: %s, Code: %s, Student: %s, Datei: %s",
-            $result['testTitle'],
-            $result['access_code'],
-            $result['studentName'],
-            $result['fileName']
-        ));
-    }
-    
-    foreach ($dbResults as $result) {
-        // Debug-Logging für XML-Pfad
         writeLog("XML-Pfad aus Datenbank: " . $result['fileName']);
         
         $allResults[] = [
@@ -101,14 +87,13 @@ try {
             'created_at' => $result['created_at']
         ];
         
-        // Debug-Logging für konstruierte Pfade
         writeLog("Konstruierte Pfade für " . $result['studentName'] . ":");
         writeLog(" - Ordner: " . $result['access_code'] . '_' . date('Y-m-d', strtotime($result['date'])));
         writeLog(" - Datei: " . basename($result['fileName']));
     }
     writeLog("Ergebnisse aus Datenbank geladen: " . count($allResults));
 
-    // Lade alle Tests aus der Datenbank
+    // Lade alle Tests für das Dropdown
     $allTestsQuery = $db->query("
         SELECT 
             t.test_id,
@@ -121,69 +106,31 @@ try {
         ORDER BY t.access_code
     ");
     $allTests = $allTestsQuery->fetchAll(PDO::FETCH_ASSOC);
+
+    // Bei AJAX-Request nur die Daten zurückgeben
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'results' => $allResults
+        ]);
+        exit;
+    }
+
 } catch (Exception $e) {
     writeLog("Fehler beim Laden aus der Datenbank: " . $e->getMessage());
-    $allResults = []; // Leeres Array bei Datenbankfehler
-}
-
-// Sortiere Ergebnisse nach Test und Datum
-usort($allResults, function($a, $b) {
-    // Zuerst nach Testtitel sortieren
-    $titleCompare = strcmp($a['testTitle'], $b['testTitle']);
-    if ($titleCompare !== 0) {
-        return $titleCompare;
-    }
-    // Bei gleichem Testtitel nach Datum sortieren (neueste zuerst)
-    return strtotime($b['date']) - strtotime($a['date']);
-});
-
-// Gruppiere Ergebnisse nach Test
-$groupedResults = [];
-foreach ($allResults as $result) {
-    $key = $result['testTitle'] . '_' . $result['accessCode'];
-    if (!isset($groupedResults[$key])) {
-        $groupedResults[$key] = [
-            'testTitle' => $result['testTitle'],
-            'accessCode' => $result['accessCode'],
-            'testDate' => $result['testDate'],
-            'results' => []
-        ];
-    }
-    $groupedResults[$key]['results'][] = $result;
-}
-
-// Sammle alle einzigartigen Namen und Daten
-$uniqueStudents = [];
-$testDates = [];
-$uniqueTests = [];
-
-foreach ($allResults as $result) {
-    $uniqueStudents[$result['studentName']] = true;
-    $testDates[$result['testDate']] = true;
-    
-    // Speichere nur den ersten Eintrag für jeden Test (der neueste aufgrund der SQL-Sortierung)
-    if (!isset($uniqueTests[$result['accessCode']])) {
-        $uniqueTests[$result['accessCode']] = [
-            'title' => $result['testTitle'],
-            'created_at' => $result['created_at']
-        ];
+    $allResults = [];
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+        exit;
     }
 }
 
-$uniqueStudents = array_keys($uniqueStudents);
-sort($uniqueStudents);
-$testDates = array_keys($testDates);
-sort($testDates);
-
-// Sortiere Tests nach Erstellungsdatum absteigend
-uasort($uniqueTests, function($a, $b) {
-    return strtotime($b['created_at']) - strtotime($a['created_at']);
-});
-
-// Konvertiere Daten in JSON für JavaScript
-$studentListJson = json_encode($uniqueStudents);
-$testDatesJson = json_encode($testDates);
-$uniqueTestsJson = json_encode($uniqueTests);
+if (!$isAjax):
 ?>
 
 <!-- Flatpickr für verbesserte Datumsauswahl -->
@@ -197,109 +144,61 @@ $uniqueTestsJson = json_encode($uniqueTests);
 
 <div class="container mt-4">
     <h2>Testergebnisse</h2>
-    <?php if (empty($groupedResults)): ?>
-        <div class="alert alert-info">
-            Keine Testergebnisse verfügbar.
-        </div>
-    <?php else: ?>
-        <!-- Filteroptionen -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label for="studentFilter" class="form-label">Schüler</label>
-                        <input type="text" class="form-control" id="studentFilter" 
-                               placeholder="Nach Schülername filtern..." 
-                               list="studentsList"
-                               autocomplete="off">
-                        <datalist id="studentsList">
-                            <?php foreach ($uniqueStudents as $student): ?>
-                                <option value="<?php echo htmlspecialchars($student); ?>">
-                            <?php endforeach; ?>
-                        </datalist>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="dateFilter" class="form-label">Datum</label>
-                        <input type="date" class="form-control" id="dateFilter">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="testFilterBtn" class="form-label">Test</label>
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="testFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                                Alle Tests
-                            </button>
-                            <ul class="dropdown-menu w-100" aria-labelledby="testFilterBtn">
-                                <li><a class="dropdown-item" href="#" data-value="" data-code="">Alle Tests</a></li>
-                                <?php foreach ($allTests as $test): ?>
-                                    <li>
-                                        <a class="dropdown-item <?php echo $test['attempt_count'] == 0 ? 'no-attempts' : ''; ?>" 
-                                           href="#" 
-                                           data-value="<?php echo htmlspecialchars($test['title']); ?>"
-                                           data-code="<?php echo htmlspecialchars($test['access_code']); ?>">
-                                            <div class="test-code"><?php echo htmlspecialchars($test['access_code']); ?></div>
-                                            <div class="test-title"><?php echo htmlspecialchars($test['title']); ?></div>
-                                        </a>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </div>
+    
+    <!-- Filter-Formular -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label for="testSelect" class="form-label">Test auswählen</label>
+                    <select class="form-select" id="testSelect" name="test">
+                        <option value="">Alle Tests</option>
+                        <?php foreach ($allTests as $test): ?>
+                            <option value="<?php echo htmlspecialchars($test['access_code']); ?>"
+                                    <?php echo ($selectedTest === $test['access_code']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($test['access_code'] . ' - ' . $test['title']); ?>
+                                (<?php echo $test['attempt_count']; ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
-            </div>
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label">Von Datum</label>
+                    <input type="date" class="form-control" id="startDate" name="start_date" 
+                           value="<?php echo $startDate; ?>">
+                </div>
+                <div class="col-md-3">
+                    <label for="endDate" class="form-label">Bis Datum</label>
+                    <input type="date" class="form-control" id="endDate" name="end_date" 
+                           value="<?php echo $endDate; ?>">
+                </div>
+                <div class="col-md-3">
+                    <label for="searchInput" class="form-label">Suche</label>
+                    <input type="text" class="form-control" id="searchInput" name="search" 
+                           placeholder="Name oder Titel..." value="<?php echo htmlspecialchars($searchTerm); ?>">
+                </div>
+            </form>
         </div>
+    </div>
 
-        <div id="filteredResults">
-            <?php foreach ($groupedResults as $group): ?>
-                <div class="card mb-4 result-group" 
-                     data-test-title="<?php echo htmlspecialchars($group['testTitle']); ?>"
-                     data-test-date="<?php echo htmlspecialchars($group['testDate']); ?>">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
-                            <?php echo htmlspecialchars($group['testTitle']); ?> 
-                            (<?php echo htmlspecialchars($group['testDate']); ?>)
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Schüler</th>
-                                        <th>Abgabezeitpunkt</th>
-                                        <th>Punkte</th>
-                                        <th>Prozent</th>
-                                        <th>Note</th>
-                                        <th>Aktionen</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($group['results'] as $result): ?>
-                                        <tr class="result-row" 
-                                            data-student="<?php echo htmlspecialchars($result['studentName']); ?>"
-                                            data-date="<?php echo htmlspecialchars($result['testDate']); ?>">
-                                            <td><?php echo htmlspecialchars($result['studentName']); ?></td>
-                                            <td><?php echo htmlspecialchars($result['date']); ?></td>
-                                            <td><?php echo htmlspecialchars($result['points_achieved']); ?>/<?php echo htmlspecialchars($result['points_maximum']); ?></td>
-                                            <td><?php echo htmlspecialchars(number_format($result['percentage'], 1)); ?>%</td>
-                                            <td><?php echo htmlspecialchars($result['grade']); ?></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-info view-result" 
-                                                        data-folder="<?php echo htmlspecialchars($result['accessCode'] . '_' . $result['testDate']); ?>"
-                                                        data-file="<?php echo htmlspecialchars($result['fileName']); ?>">
-                                                    Details
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+    <!-- Ergebnistabelle -->
+    <div class="table-responsive">
+        <table class="table table-striped" id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Test</th>
+                    <th>Name</th>
+                    <th>Datum</th>
+                    <th>Punkte</th>
+                    <th>Note</th>
+                    <th>Aktionen</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+                <!-- Wird durch JavaScript gefüllt -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Modal für Detailansicht -->
@@ -558,5 +457,80 @@ document.addEventListener('DOMContentLoaded', function() {
             applyFilters();
         });
     });
+
+    // Initial load
+    loadResults();
+    
+    // Event-Listener für Filter-Änderungen
+    document.getElementById('filterForm').addEventListener('change', function() {
+        loadResults();
+    });
+    
+    document.getElementById('searchInput').addEventListener('input', debounce(function() {
+        loadResults();
+    }, 300));
 });
-</script> 
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function loadResults() {
+    const form = document.getElementById('filterForm');
+    const formData = new FormData(form);
+    const queryString = new URLSearchParams(formData).toString();
+    
+    fetch(`?${queryString}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateResultsTable(data.results);
+        } else {
+            console.error('Fehler beim Laden der Ergebnisse:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Fehler beim Laden der Ergebnisse:', error);
+    });
+}
+
+function updateResultsTable(results) {
+    const tbody = document.getElementById('resultsBody');
+    tbody.innerHTML = '';
+    
+    results.forEach(result => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${result.testTitle} (${result.accessCode})</td>
+            <td>${result.studentName}</td>
+            <td>${result.date}</td>
+            <td>${result.points_achieved}/${result.points_maximum} (${result.percentage}%)</td>
+            <td>${result.grade}</td>
+            <td>
+                <button class="btn btn-sm btn-primary" onclick="showResults('${result.fileName}')">
+                    Anzeigen
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function showResults(filename) {
+    window.location.href = `show_results.php?file=${encodeURIComponent(filename)}`;
+}
+</script>
+
+<?php endif; ?> 

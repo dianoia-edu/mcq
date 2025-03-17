@@ -132,16 +132,36 @@ foreach ($answerXml->questions->question as $question) {
 // Erstelle den Ordnernamen basierend auf Zugangscode und Datum
 $date = date('Y-m-d');
 $folderName = $_SESSION['test_code'] . '_' . $date;
-$resultsDir = 'results/' . $folderName;
+$resultsDir = __DIR__ . '/results/' . $folderName;
 
-// Erstelle den Ordner, falls er nicht existiert
-if (!file_exists($resultsDir)) {
-    if (!mkdir($resultsDir, 0777, true)) {
-        error_log("Fehler beim Erstellen des Ergebnisordners: " . $resultsDir);
+// Stelle sicher, dass der Hauptordner 'results' existiert
+$mainResultsDir = __DIR__ . '/results';
+if (!file_exists($mainResultsDir)) {
+    if (!mkdir($mainResultsDir, 0777, true)) {
+        error_log("Fehler beim Erstellen des Hauptergebnisordners: " . $mainResultsDir);
+        error_log("PHP Fehler: " . error_get_last()['message']);
         $_SESSION['error'] = "Fehler beim Speichern des Tests. Bitte kontaktieren Sie den Administrator.";
         header("Location: index.php");
         exit();
     }
+    // Setze Berechtigungen explizit
+    chmod($mainResultsDir, 0777);
+}
+
+// Erstelle den Unterordner für den spezifischen Test
+if (!file_exists($resultsDir)) {
+    error_log("Versuche Ordner zu erstellen: " . $resultsDir);
+    if (!mkdir($resultsDir, 0777, true)) {
+        error_log("Fehler beim Erstellen des Ergebnisordners: " . $resultsDir);
+        error_log("PHP Fehler: " . error_get_last()['message']);
+        error_log("Aktuelle Berechtigungen des übergeordneten Ordners: " . decoct(fileperms($mainResultsDir)));
+        $_SESSION['error'] = "Fehler beim Speichern des Tests. Bitte kontaktieren Sie den Administrator.";
+        header("Location: index.php");
+        exit();
+    }
+    // Setze Berechtigungen explizit
+    chmod($resultsDir, 0777);
+    error_log("Ordner erfolgreich erstellt: " . $resultsDir);
 }
 
 // Erstelle den Dateinamen
@@ -159,6 +179,8 @@ $dom->loadXML($answerXml->asXML());
 error_log("Versuche XML-Datei zu speichern: " . $filepath);
 if (!$dom->save($filepath)) {
     error_log("Fehler beim Speichern der XML-Datei: " . $filepath);
+    error_log("PHP Fehler: " . error_get_last()['message']);
+    error_log("Aktuelle Berechtigungen des Ordners: " . decoct(fileperms($resultsDir)));
     $_SESSION['error'] = "Fehler beim Speichern des Tests.";
     header("Location: index.php");
     exit();
@@ -251,6 +273,11 @@ try {
     
     $testDb->saveTestAttempt($testData);
     error_log("Ergebnisse erfolgreich in der Datenbank gespeichert");
+
+    // Führe direkte Synchronisation durch
+    require_once __DIR__ . '/includes/teacher_dashboard/sync_database.php';
+    error_log("Datenbank wurde nach Testabschluss synchronisiert");
+
 } catch (Exception $e) {
     error_log("Fehler beim Speichern in der Datenbank: " . $e->getMessage());
     // Fahre trotz Datenbankfehler fort, da die XML-Datei bereits gespeichert wurde
