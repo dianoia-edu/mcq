@@ -107,6 +107,15 @@ $_SESSION["confirmationTime"] = time() + rand(30, 180);
 $_SESSION["original_questions"] = $questions;
 $_SESSION["questions"] = $shuffledQuestions;
 
+// Funktion für die Testmodus-Warnung
+function getTestModeWarning() {
+    global $config;
+    if (isset($config['testMode']) && $config['testMode']) {
+        return '<div class="test-mode-warning">⚠️ Testmodus aktiv</div>';
+    }
+    return '';
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -259,6 +268,17 @@ $_SESSION["questions"] = $shuffledQuestions;
         .student-name {
             color: #4b5563;
             font-size: 1.1rem;
+        }
+
+        .test-mode-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ffeeba;
+            border-radius: 0.25rem;
+            text-align: center;
+            font-weight: bold;
         }
     </style>
     <link rel="stylesheet" href="./styles.css">

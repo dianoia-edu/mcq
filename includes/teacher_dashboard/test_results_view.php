@@ -424,31 +424,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const testFilter = document.getElementById('testFilterBtn');
 
     // Verfügbare Daten aus PHP
-    const availableStudents = <?php echo $studentListJson; ?>;
-    const availableDates = <?php echo $testDatesJson; ?>;
-    const availableTests = <?php echo $uniqueTestsJson; ?>;
+    const availableStudents = <?php echo !empty($studentListJson) ? $studentListJson : '[]'; ?>;
+    const availableDates = <?php echo !empty($testDatesJson) ? $testDatesJson : '[]'; ?>;
+    const availableTests = <?php echo !empty($uniqueTestsJson) ? $uniqueTestsJson : '{}'; ?>;
 
     // Initialisiere Flatpickr für das Datumsfeld
-    const datePicker = flatpickr(dateFilter, {
-        dateFormat: "Y-m-d",
-        enable: availableDates,
-        inline: false,
-        monthSelectorType: "static",
-        locale: {
-            firstDayOfWeek: 1,
-            weekdays: {
-                shorthand: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
-                longhand: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
-            },
-            months: {
-                shorthand: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
-                longhand: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+    if (dateFilter) {
+        const datePicker = flatpickr(dateFilter, {
+            dateFormat: "Y-m-d",
+            enable: availableDates,
+            inline: false,
+            monthSelectorType: "static",
+            locale: "de",
+            onChange: function(selectedDates) {
+                if (typeof applyFilters === 'function') {
+                    applyFilters();
+                }
             }
-        },
-        onChange: function(selectedDates) {
-            applyFilters();
-        }
-    });
+        });
+    }
 
     // Autovervollständigung für Schülernamen
     studentFilter.addEventListener('input', function(e) {
