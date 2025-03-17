@@ -11,11 +11,18 @@ function writeLog($message) {
 // Lade die Ergebnisse aus der Datenbank
 $allResults = [];
 try {
+    writeLog("Starte Datenbankverbindung...");
     $db = DatabaseConfig::getInstance()->getConnection();
+    writeLog("Datenbankverbindung hergestellt");
     
     // Debug: Überprüfe direkt die tests-Tabelle
+    writeLog("Führe Test-Tabellen-Abfrage aus...");
     $testCheck = $db->query("SELECT * FROM tests");
+    if ($testCheck === false) {
+        writeLog("Fehler bei der Test-Tabellen-Abfrage: " . print_r($db->errorInfo(), true));
+    }
     $allTests = $testCheck->fetchAll(PDO::FETCH_ASSOC);
+    writeLog("Anzahl gefundener Tests: " . count($allTests));
     writeLog("Alle Tests in der Datenbank:");
     foreach ($allTests as $test) {
         writeLog(sprintf("ID: %d, Code: %s, Titel: %s", 
@@ -38,6 +45,8 @@ try {
         ));
     }
     
+    // Hauptabfrage für Testergebnisse
+    writeLog("Führe Hauptabfrage für Testergebnisse aus...");
     $stmt = $db->query("
         SELECT 
             t.access_code,
@@ -54,10 +63,16 @@ try {
         JOIN tests t ON ta.test_id = t.test_id
         ORDER BY t.created_at DESC, ta.completed_at DESC
     ");
+    
+    if ($stmt === false) {
+        writeLog("Fehler bei der Hauptabfrage: " . print_r($db->errorInfo(), true));
+    }
+    
     $dbResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    writeLog("Anzahl gefundener Testergebnisse: " . count($dbResults));
     
     // Debug-Logging für alle Datenbankeinträge
-    writeLog("Alle Datenbankeinträge:");
+    writeLog("Details der gefundenen Testergebnisse:");
     foreach ($dbResults as $result) {
         writeLog(sprintf(
             "Test: %s, Code: %s, Student: %s, Datei: %s",

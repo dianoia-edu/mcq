@@ -68,25 +68,34 @@ class DatabaseConfig {
     public function getConnection() {
         if ($this->connection === null) {
             try {
-                error_log("Versuche Verbindung herzustellen mit Host: " . $this->config['db_host'] . 
-                         ", Benutzer: " . $this->config['db_user'] . 
-                         ", Datenbank: " . $this->config['db_name']);
+                $this->writeLog("Versuche Datenbankverbindung herzustellen...");
+                $this->writeLog("Server Name: " . $_SERVER['SERVER_NAME']);
+                $this->writeLog("Verwende " . ($this->isProduction() ? "Produktions" : "Entwicklungs") . "-Konfiguration");
+                
+                $host = $this->isProduction() ? self::PROD_HOST : self::DEV_HOST;
+                $user = $this->isProduction() ? self::PROD_USER : self::DEV_USER;
+                $dbname = $this->isProduction() ? self::PROD_DB : self::DEV_DB;
+                
+                $this->writeLog("Verbindungsdetails: Host=" . $host . ", DB=" . $dbname . ", User=" . $user);
                 
                 $this->connection = new PDO(
-                    "mysql:host=" . $this->config['db_host'] . 
-                    ";dbname=" . $this->config['db_name'] . 
-                    ";charset=utf8mb4",
-                    $this->config['db_user'],
-                    $this->config['db_password']
+                    "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+                    $user,
+                    $this->isProduction() ? self::PROD_PASS : self::DEV_PASS
                 );
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-                error_log("Datenbankverbindung erfolgreich hergestellt");
+                $this->writeLog("Datenbankverbindung erfolgreich hergestellt");
             } catch (PDOException $e) {
-                error_log("Detaillierter Verbindungsfehler: " . $e->getMessage());
-                throw $e;
+                $this->writeLog("Fehler bei der Datenbankverbindung: " . $e->getMessage());
+                throw new Exception("Datenbankverbindung fehlgeschlagen: " . $e->getMessage());
             }
         }
         return $this->connection;
+    }
+    
+    private function writeLog($message) {
+        $logFile = __DIR__ . '/../logs/debug.log';
+        $timestamp = date('Y-m-d H:i:s');
+        file_put_contents($logFile, "[$timestamp] [DatabaseConfig] $message\n", FILE_APPEND);
     }
 } 
