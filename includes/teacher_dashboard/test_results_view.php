@@ -355,7 +355,18 @@ $uniqueTestsJson = json_encode($uniqueTests);
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Debug: test_results_view.php wird geladen - Version vom ' + new Date().toLocaleString('de-DE'));
     
+    // Prüfe, ob die erforderlichen Elemente existieren
     const resultDetailModal = document.getElementById('resultDetailModal');
+    const studentFilter = document.getElementById('studentFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const testFilter = document.getElementById('testFilterBtn');
+
+    // Nur fortfahren, wenn wir uns im Testergebnisse-Tab befinden
+    if (!resultDetailModal || !studentFilter || !dateFilter || !testFilter) {
+        console.log('Debug: Nicht im Testergebnisse-Tab, überspringe Initialisierung');
+        return;
+    }
+
     const modalInstance = new bootstrap.Modal(resultDetailModal);
     let lastFocusedElement = null;
 
@@ -364,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', async function() {
             const folder = this.dataset.folder;
             const file = this.dataset.file;
-            lastFocusedElement = this; // Speichere den Button für späteren Fokus
+            lastFocusedElement = this;
             
             console.log('Debug: Versuche Datei zu laden:', {
                 folder: folder,
@@ -372,11 +383,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 url: '../includes/teacher_dashboard/load_test_preview.php'
             });
             
-            // Zeige Modal
             modalInstance.show();
             
             try {
-                // Lade die XML-Datei und generiere die Vorschau
                 const response = await fetch('../includes/teacher_dashboard/load_test_preview.php', {
                     method: 'POST',
                     headers: {
@@ -394,50 +403,51 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error(data.error || 'Fehler beim Laden der Vorschau');
                 }
                 
-                // Aktualisiere Modal-Inhalt
                 const modalContent = document.getElementById('resultDetailContent');
-                modalContent.innerHTML = data.html;
+                if (modalContent) {
+                    modalContent.innerHTML = data.html;
+                }
                 
             } catch (error) {
                 console.error('Fehler:', error);
-                document.getElementById('resultDetailContent').innerHTML = `
-                    <div class="alert alert-danger">
-                        Fehler beim Laden der Vorschau: ${error.message}
-                    </div>
-                `;
+                const modalContent = document.getElementById('resultDetailContent');
+                if (modalContent) {
+                    modalContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            Fehler beim Laden der Vorschau: ${error.message}
+                        </div>
+                    `;
+                }
             }
         });
     });
 
     // Event-Listener für Modal-Events
     resultDetailModal.addEventListener('hidden.bs.modal', function () {
-        // Setze Fokus zurück auf den letzten Button
         if (lastFocusedElement) {
             lastFocusedElement.focus();
         }
-        // Leere den Modal-Inhalt
-        document.getElementById('resultDetailContent').innerHTML = `
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Lade...</span>
+        const modalContent = document.getElementById('resultDetailContent');
+        if (modalContent) {
+            modalContent.innerHTML = `
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Lade...</span>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
     });
 
-    // Verhindern, dass der Fokus im Modal bleibt, wenn es geschlossen wird
+    // Verhindern, dass der Fokus im Modal bleibt
     resultDetailModal.addEventListener('hide.bs.modal', function () {
         const focusedElement = document.activeElement;
-        if (this.contains(focusedElement)) {
+        if (this.contains(focusedElement) && lastFocusedElement) {
             lastFocusedElement.focus();
         }
     });
 
     // Filter-Funktionalität
-    const studentFilter = document.getElementById('studentFilter');
-    const dateFilter = document.getElementById('dateFilter');
-    const testFilter = document.getElementById('testFilterBtn');
-
     // Verfügbare Daten aus PHP
     const availableStudents = <?php echo !empty($studentListJson) ? $studentListJson : '[]'; ?>;
     const availableDates = <?php echo !empty($testDatesJson) ? $testDatesJson : '[]'; ?>;
