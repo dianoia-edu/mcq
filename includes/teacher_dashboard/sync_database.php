@@ -11,9 +11,16 @@ function writeLog($message) {
 
 try {
     $db = DatabaseConfig::getInstance()->getConnection();
+    writeLog("Datenbankverbindung hergestellt");
     
     // Sammle alle vorhandenen Test-Codes aus den XML-Dateien
     $resultsDir = __DIR__ . '/../../results';
+    writeLog("Suche in Verzeichnis: " . $resultsDir);
+    
+    if (!is_dir($resultsDir)) {
+        throw new Exception("Results-Verzeichnis nicht gefunden: " . $resultsDir);
+    }
+    
     $existingTestCodes = [];
     
     // Durchsuche alle Unterordner nach XML-Dateien
@@ -134,45 +141,68 @@ try {
 
     // 4. Füge neue XML-Dateien zur Datenbank hinzu
     $insertStmt = $db->prepare("
-        INSERT INTO test_attempts (test_id, student_name, completed_at, xml_file_path) 
-        VALUES (
+        INSERT INTO test_attempts (
+            test_id, 
+            student_name, 
+            completed_at, 
+            xml_file_path,
+            points_achieved,
+            points_maximum,
+            percentage,
+            grade
+        ) VALUES (
             (SELECT test_id FROM tests WHERE access_code = ?),
             ?,
             ?,
-            ?
+            ?,
+            0,  -- Standardwert für points_achieved
+            0,  -- Standardwert für points_maximum
+            0,  -- Standardwert für percentage
+            ''  -- Standardwert für grade
         )
     ");
 
+    if ($insertStmt === false) {
+        throw new PDOException("Fehler beim Vorbereiten des Insert-Statements: " . print_r($db->errorInfo(), true));
+    }
+
     foreach ($xmlFiles as $relativePath => $fullPath) {
-        // Prüfe ob die Datei bereits in der Datenbank ist
-        $checkStmt = $db->prepare("SELECT COUNT(*) FROM test_attempts WHERE xml_file_path LIKE ?");
-        $checkStmt->execute(['%' . $relativePath]);
-        
-        if ($checkStmt->fetchColumn() == 0) {
-            // Parse XML-Datei für Metadaten
-            $xml = simplexml_load_file($fullPath);
-            if ($xml === false) {
-                writeLog("Fehler beim Lesen der XML-Datei: " . $fullPath);
-                continue;
+        try {
+            // Prüfe ob die Datei bereits in der Datenbank ist
+            $checkStmt = $db->prepare("SELECT COUNT(*) FROM test_attempts WHERE xml_file_path LIKE ?");
+            if ($checkStmt === false) {
+                throw new PDOException("Fehler beim Vorbereiten des Check-Statements: " . print_r($db->errorInfo(), true));
             }
             
-            // Extrahiere Informationen aus dem Dateinamen
-            if (preg_match('/^([A-Z0-9]+)_(.+?)_(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})\.xml$/', basename($relativePath), $matches)) {
-                $accessCode = $matches[1];
-                $studentName = $matches[2];
-                $timestamp = str_replace('_', ' ', $matches[3]);
+            $checkStmt->execute(['%' . $relativePath]);
+            
+            if ($checkStmt->fetchColumn() == 0) {
+                // Parse XML-Datei für Metadaten
+                $xml = simplexml_load_file($fullPath);
+                if ($xml === false) {
+                    writeLog("Fehler beim Lesen der XML-Datei: " . $fullPath);
+                    continue;
+                }
                 
-                writeLog("Extrahierte Daten: Code=$accessCode, Name=$studentName, Zeit=$timestamp");
-                
-                try {
+                // Extrahiere Informationen aus dem Dateinamen
+                if (preg_match('/^([A-Z0-9]+)_(.+?)_(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})\.xml$/', basename($relativePath), $matches)) {
+                    $accessCode = $matches[1];
+                    $studentName = $matches[2];
+                    $timestamp = str_replace('_', ' ', $matches[3]);
+                    
+                    writeLog("Verarbeite Datei: Code=$accessCode, Name=$studentName, Zeit=$timestamp");
+                    
                     // Prüfe ob der Test existiert
                     $testCheck = $db->prepare("SELECT test_id FROM tests WHERE access_code = ?");
+                    if ($testCheck === false) {
+                        throw new PDOException("Fehler beim Vorbereiten des Test-Check-Statements: " . print_r($db->errorInfo(), true));
+                    }
+                    
                     $testCheck->execute([$accessCode]);
                     $testId = $testCheck->fetchColumn();
                     
                     if (!$testId) {
-                        writeLog("Test mit Code $accessCode nicht gefunden - erstelle neuen Test");
-                        // Erstelle einen neuen Test wenn nicht vorhanden
+                        writeLog("Erstelle neuen Test für Code: $accessCode");
                         $testId = 'test_' . uniqid();
                         $createTest = $db->prepare("
                             INSERT INTO tests (
@@ -186,26 +216,37 @@ try {
                                 ?, ?, ?, 0, 0, 'single'
                             )
                         ");
+                        
+                        if ($createTest === false) {
+                            throw new PDOException("Fehler beim Vorbereiten des Create-Test-Statements: " . print_r($db->errorInfo(), true));
+                        }
+                        
                         $createTest->execute([$testId, $accessCode, "Test " . $accessCode]);
-                        writeLog("Neuer Test erstellt: ID=$testId, Code=$accessCode");
-                    } else {
-                        writeLog("Bestehender Test gefunden: ID=$testId, Code=$accessCode");
                     }
                     
-                    $insertStmt->execute([
+                    $result = $insertStmt->execute([
                         $accessCode,
                         $studentName,
                         $timestamp,
                         'results/' . $relativePath
                     ]);
+                    
+                    if ($result === false) {
+                        throw new PDOException("Fehler beim Einfügen des Testversuchs: " . print_r($insertStmt->errorInfo(), true));
+                    }
+                    
                     $stats['added']++;
-                    writeLog("Neuer Eintrag: " . $relativePath);
-                } catch (Exception $e) {
-                    writeLog("Fehler beim Einfügen: " . $relativePath . " - " . $e->getMessage());
+                    writeLog("Neuer Eintrag erfolgreich hinzugefügt: " . $relativePath);
+                } else {
+                    writeLog("Ungültiges Dateiformat: " . basename($relativePath));
                 }
-            } else {
-                writeLog("Dateiname entspricht nicht dem erwarteten Format: " . basename($relativePath));
             }
+        } catch (PDOException $e) {
+            writeLog("Datenbank-Fehler bei Datei $relativePath: " . $e->getMessage());
+            continue;
+        } catch (Exception $e) {
+            writeLog("Allgemeiner Fehler bei Datei $relativePath: " . $e->getMessage());
+            continue;
         }
     }
 
@@ -219,10 +260,28 @@ try {
         'total' => $stats['total']
     ]);
 
-} catch (Exception $e) {
-    writeLog("Fehler bei der Synchronisation: " . $e->getMessage());
+} catch (PDOException $e) {
+    writeLog("Datenbank-Fehler bei der Synchronisation: " . $e->getMessage());
+    writeLog("SQL State: " . $e->getCode());
+    writeLog("Stack Trace: " . $e->getTraceAsString());
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error' => "Datenbank-Fehler: " . $e->getMessage(),
+        'details' => [
+            'code' => $e->getCode(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]
+    ]);
+} catch (Exception $e) {
+    writeLog("Allgemeiner Fehler bei der Synchronisation: " . $e->getMessage());
+    writeLog("Stack Trace: " . $e->getTraceAsString());
+    echo json_encode([
+        'success' => false,
+        'error' => "Fehler: " . $e->getMessage(),
+        'details' => [
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]
     ]);
 } 
