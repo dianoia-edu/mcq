@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Debug-Ausgabe direkt am Anfang
+// Debug-Ausgabe direkt am  Anfang
 echo "<!-- Debug: index.php wird geladen - " . date('Y-m-d H:i:s') . " -->";
 
 // Starte Output-Buffering
@@ -149,12 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
-// Funktion zum Extrahieren des Basis-Codes
-function getBaseCode($code) {
-    // Entferne alle Zahlen am Ende des Codes
-    $baseCode = preg_replace('/[0-9]+$/', '', $code);
-    return $baseCode;
-}
+
 
 // Funktion zum Überprüfen, ob ein Testcode existiert
 function testExists($code) {
