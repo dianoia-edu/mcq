@@ -13,6 +13,11 @@ try {
     $db = DatabaseConfig::getInstance()->getConnection();
     writeLog("Datenbankverbindung hergestellt");
     
+    // Reset der test_attempts Tabelle
+    writeLog("Lösche alle bestehenden Testversuche...");
+    $db->exec("DELETE FROM test_attempts");
+    writeLog("Testversuche gelöscht");
+    
     // Sammle alle vorhandenen Test-Codes aus den XML-Dateien
     $resultsDir = __DIR__ . '/../../results';
     writeLog("Suche in Verzeichnis: " . $resultsDir);
@@ -155,10 +160,10 @@ try {
             ?,
             ?,
             ?,
-            0,  -- Standardwert für points_achieved
-            0,  -- Standardwert für points_maximum
-            0,  -- Standardwert für percentage
-            ''  -- Standardwert für grade
+            ?,
+            ?,
+            ?,
+            ?
         )
     ");
 
@@ -191,6 +196,14 @@ try {
                     $timestamp = str_replace('_', ' ', $matches[3]);
                     
                     writeLog("Verarbeite Datei: Code=$accessCode, Name=$studentName, Zeit=$timestamp");
+                    
+                    // Extrahiere Punktzahlen und Note aus der XML-Datei
+                    $pointsAchieved = isset($xml->points_achieved) ? (int)$xml->points_achieved : 0;
+                    $pointsMaximum = isset($xml->points_maximum) ? (int)$xml->points_maximum : 0;
+                    $percentage = $pointsMaximum > 0 ? round(($pointsAchieved / $pointsMaximum) * 100, 2) : 0;
+                    $grade = isset($xml->grade) ? (string)$xml->grade : '';
+                    
+                    writeLog("Extrahierte Werte: Punkte=$pointsAchieved/$pointsMaximum, Prozent=$percentage%, Note=$grade");
                     
                     // Prüfe ob der Test existiert
                     $testCheck = $db->prepare("SELECT test_id FROM tests WHERE access_code = ?");
@@ -228,7 +241,11 @@ try {
                         $accessCode,
                         $studentName,
                         $timestamp,
-                        'results/' . $relativePath
+                        'results/' . $relativePath,
+                        $pointsAchieved,
+                        $pointsMaximum,
+                        $percentage,
+                        $grade
                     ]);
                     
                     if ($result === false) {
