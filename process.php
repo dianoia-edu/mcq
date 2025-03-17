@@ -275,8 +275,14 @@ try {
     error_log("Ergebnisse erfolgreich in der Datenbank gespeichert");
 
     // Führe direkte Synchronisation durch
-    require_once __DIR__ . '/includes/teacher_dashboard/sync_database.php';
-    error_log("Datenbank wurde nach Testabschluss synchronisiert");
+    try {
+        require_once __DIR__ . '/includes/teacher_dashboard/sync_database_helper.php';
+        syncDatabase();
+        error_log("Datenbank wurde nach Testabschluss synchronisiert");
+    } catch (Exception $syncError) {
+        error_log("Fehler bei der Synchronisation: " . $syncError->getMessage());
+        // Fahre fort, da die Hauptspeicherung erfolgreich war
+    }
 
 } catch (Exception $e) {
     error_log("Fehler beim Speichern in der Datenbank: " . $e->getMessage());

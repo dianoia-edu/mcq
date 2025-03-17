@@ -1,0 +1,57 @@
+#testFilter option {
+    white-space: pre;
+    font-family: Arial, sans-serif;
+}
+
+.test-code {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.test-title {
+    padding-left: 12px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.no-attempts {
+    color: #999 !important;
+}
+
+.no-attempts .test-title {
+    color: #999 !important;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-menu {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.result-group {
+    margin-bottom: 2rem;
+}
+
+.result-group .card-header {
+    background-color: #007bff;
+    color: white;
+}
+
+.result-group .table {
+    margin-bottom: 0;
+}
+
+.btn-info {
+    color: #fff;
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-info:hover {
+    color: #fff;
+    background-color: #138496;
+    border-color: #117a8b;
+} 
