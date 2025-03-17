@@ -1,6 +1,8 @@
 <?php
 ob_start();
 
+// Gemeinsame Funktionen einbinden
+require_once 'includes/functions/common_functions.php';
 require_once 'check_test_attempts.php';
 
 // Lade Konfiguration - Anpassung, da config.php nicht mehr existiert

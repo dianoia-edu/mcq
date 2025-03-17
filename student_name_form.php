@@ -5,6 +5,8 @@ ob_start();
 // Starte Session
 session_start();
 
+// Gemeinsame Funktionen einbinden
+require_once 'includes/functions/common_functions.php';
 require_once 'check_test_attempts.php';
 
 // Überprüfe, ob die notwendigen Session-Variablen gesetzt sind

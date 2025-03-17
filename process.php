@@ -8,6 +8,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
+require_once 'includes/functions/common_functions.php';
 require_once 'check_test_attempts.php';
 require_once 'auswertung.php';
 require_once 'includes/TestDatabase.php';

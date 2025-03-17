@@ -1,75 +1,45 @@
 <?php
-// Starte Session nur, wenn noch keine aktivgg  ist
+// Starte Session, falls noch nicht gestartet
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// require_once 'config.php'; wurde entfernt
-require_once 'includes/database_config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+
+// Gemeinsame Funktionen einbinden
+require_once 'includes/functions/common_functions.php';
 
 /**
- * Generiert einen eindeutigen Identifikator für einen Schüler
+ * Gibt eine eindeutige Client-ID zurück, basierend auf IP und User-Agent
  * 
- * @param string $studentName Der Name des Schülers
- * @return string Ein eindeutiger Identifikator
+ * @return string Die eindeutige Client-ID
  */
 function getClientIdentifier() {
-    // Kombiniere IP-Adresse und User-Agent für eindeutige Identifizierung
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
-    $identifier = hash('sha256', $ip . $userAgent);
-    error_log("Client Identifier generiert: " . substr($identifier, 0, 8) . "...");
-    return $identifier;
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    return md5($ip . $userAgent);
 }
 
 /**
- * Generiert einen eindeutigen Identifikator für einen Schüler basierend auf seinem Namen
+ * Gibt eine eindeutige Studenten-ID zurück, basierend auf dem Namen
  * 
- * @param string $studentName Der Name des Schülers
- * @return string Ein eindeutiger Identifikator
+ * @param string $studentName Der Name des Studenten
+ * @return string Die eindeutige Studenten-ID
  */
 function getStudentIdentifier($studentName) {
-    // Normalisiere den Namen (Kleinbuchstaben, Trim)
-    $normalizedName = strtolower(trim($studentName));
-    
-    // Erstelle einen Hash
-    $identifier = hash('sha256', $normalizedName);
-    error_log("Student Identifier generiert für '$studentName': " . substr($identifier, 0, 8) . "...");
-    return $identifier;
+    if (empty($studentName)) {
+        return getClientIdentifier();
+    }
+    return md5(strtolower(trim($studentName)));
 }
 
 /**
  * Generiert einen eindeutigen Cookie-Namen für einen Test
  * 
  * @param string $testCode Der Zugangscode des Tests
- * @return string Ein eindeutiger Cookie-Name
+ * @return string Der Cookie-Name
  */
 function getTestCookieName($testCode) {
-    return 'mcq_test_' . md5($testCode);
-}
-
-/**
- * Überprüft, ob ein Zugangscode im Admin-Modus ist
- * 
- * @param string $testCode Der Zugangscode des Tests
- * @return bool True wenn es sich um einen Admin-Zugangscode handelt
- */
-function isAdminCode($testCode) {
-    return str_ends_with($testCode, '-admin');
-}
-
-/**
- * Extrahiert den Basis-Zugangscode aus einem Admin-Code
- * 
- * @param string $testCode Der Zugangscode des Tests
- * @return string Der Basis-Zugangscode ohne "-admin"
- */
-function getBaseCode($testCode) {
-    if (isAdminCode($testCode)) {
-        return substr($testCode, 0, -6); // Entferne "-admin"
-    }
-    return $testCode;
+    $baseCode = getBaseCode($testCode);
+    return 'test_completed_' . md5($baseCode);
 }
 
 /**
