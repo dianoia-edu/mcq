@@ -55,3 +55,6 @@ vendor/
 composer.lock 
 /tests
 includes/database_config.php
+
+# Database configuration
+includes/database_config.php

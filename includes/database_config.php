@@ -8,18 +8,25 @@ class DatabaseConfig {
     private $config;
     
     private function __construct() {
+        // Debugging: Server-Informationen loggen
+        error_log("SERVER_NAME: " . ($_SERVER['SERVER_NAME'] ?? 'nicht gesetzt'));
+        error_log("HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'nicht gesetzt'));
+        
         // Prüfen, ob wir uns auf dem Produktionsserver befinden
-        $isProduction = ($_SERVER['SERVER_NAME'] ?? '') === 'mcq.medizin.uni-tuebingen.de';
+        $isProduction = ($_SERVER['SERVER_NAME'] ?? '') === 'www.dianoia-ai.de' || 
+                       ($_SERVER['HTTP_HOST'] ?? '') === 'dianoia-ai.de' ||
+                       file_exists('/var/www/production_flag');
         
         // Konfiguration basierend auf der Umgebung
         if ($isProduction) {
             // Produktionsumgebung
             $this->config = [
                 'db_host' => 'localhost',
-                'db_user' => 'mcquser',
-                'db_password' => 'IhrSicheresPasswort', // Hier das richtige Passwort eintragen
+                'db_user' => 'mcqadmin',
+                'db_password' => 'Ib1973g!np', // Hier das richtige Passwort eintragen
                 'db_name' => 'mcq_test_system'
             ];
+            error_log("Produktionsumgebung erkannt");
         } else {
             // Lokale Entwicklungsumgebung
             $this->config = [
@@ -28,11 +35,8 @@ class DatabaseConfig {
                 'db_password' => '',
                 'db_name' => 'mcq_test_system'
             ];
+            error_log("Entwicklungsumgebung erkannt");
         }
-        
-        // Protokollieren der verwendeten Umgebung (ohne sensible Daten)
-        error_log("Datenbankverbindung initialisiert für Umgebung: " . 
-                 ($isProduction ? 'Produktion' : 'Entwicklung'));
     }
     
     public static function getInstance() {
@@ -64,6 +68,10 @@ class DatabaseConfig {
     public function getConnection() {
         if ($this->connection === null) {
             try {
+                error_log("Versuche Verbindung herzustellen mit Host: " . $this->config['db_host'] . 
+                         ", Benutzer: " . $this->config['db_user'] . 
+                         ", Datenbank: " . $this->config['db_name']);
+                
                 $this->connection = new PDO(
                     "mysql:host=" . $this->config['db_host'] . 
                     ";dbname=" . $this->config['db_name'] . 
@@ -73,8 +81,9 @@ class DatabaseConfig {
                 );
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+                error_log("Datenbankverbindung erfolgreich hergestellt");
             } catch (PDOException $e) {
-                error_log("Verbindungsfehler: " . $e->getMessage());
+                error_log("Detaillierter Verbindungsfehler: " . $e->getMessage());
                 throw $e;
             }
         }
