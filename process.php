@@ -1,5 +1,5 @@
 <?php
-// Starte Output-Buffering
+// Starte  Output-Buffering
 ob_start();
 
 // Temporäre Debug-Ausgaben
@@ -196,79 +196,75 @@ error_log("Note berechnet: " . $grade);
 
 // Speichere die Ergebnisse in der Datenbank
 try {
-    error_log("Speichere Ergebnisse in der Datenbank");
+    require_once 'includes/TestDatabase.php';
     $testDb = new TestDatabase();
     
     // Bestimme den Antworttyp basierend auf den Fragen
-    $answerType = 'single';
-    $multipleChoiceFound = false;
-    $singleChoiceFound = false;
-    
-    foreach ($answerXml->questions->question as $question) {
-        $correctCount = 0;
-        foreach ($question->answers->answer as $answer) {
-            if ((int)$answer->correct === 1) {
-                $correctCount++;
-            }
-        }
-        if ($correctCount > 1) {
-            $multipleChoiceFound = true;
-        } else {
-            $singleChoiceFound = true;
+    $answerType = "multiple_choice";
+    if (isset($originalXml->questions->question[0]->type)) {
+        $firstQuestionType = (string)$originalXml->questions->question[0]->type;
+        if ($firstQuestionType === "text") {
+            $answerType = "text";
         }
     }
-    
-    if ($multipleChoiceFound && $singleChoiceFound) {
-        $answerType = 'mixed';
-    } elseif ($multipleChoiceFound) {
-        $answerType = 'multiple';
-    }
-    
-    // Konvertiere SimpleXMLElement zu Array für die Zählung
-    $questions = iterator_to_array($originalXml->questions->question);
-    $totalAnswers = 0;
-    foreach ($questions as $question) {
-        $totalAnswers += count($question->answers->answer);
-    }
-    
-    // Verwende den Basis-Code für die Datenbank
-    $baseCode = getBaseCode($_SESSION['test_code']);
     
     // Bereite die Testdaten vor
     $testData = [
-        'access_code' => $baseCode, // Speichere den Basis-Code
+        'access_code' => $_SESSION['test_code'],
         'title' => (string)$originalXml->title,
-        'question_count' => count($questions),
-        'answer_count' => $totalAnswers,
+        'question_count' => count($originalXml->questions->question),
+        'answer_count' => count($originalXml->questions->question[0]->answers->answer),
         'answer_type' => $answerType,
-        'student_name' => $_SESSION['student_name'] . (isAdminCode($_SESSION['test_code']) ? ' (Admin)' : ''),
+        'student_name' => $_SESSION['student_name'],
         'xml_file_path' => $filepath,
         'points_achieved' => $results['achieved'],
         'points_maximum' => $results['max'],
         'percentage' => $results['percentage'],
         'grade' => $grade,
-        'started_at' => $_SESSION['test_start_time'] ?? date('Y-m-d H:i:s')
+        'started_at' => $_SESSION['test_started_at'] ?? date('Y-m-d H:i:s')
     ];
     
-    $testDb->saveTestAttempt($testData);
-    error_log("Ergebnisse erfolgreich in der Datenbank gespeichert");
+    error_log("Speichere Testergebnis in der Datenbank: " . print_r($testData, true));
+    
+    // Teste die Datenbankverbindung
+    if ($testDb->testConnection()) {
+        error_log("Datenbankverbindung erfolgreich getestet");
+    } else {
+        error_log("Datenbankverbindung konnte nicht getestet werden");
+    }
+    
+    // Speichere den Testversuch
+    $success = $testDb->saveTestAttempt(
+        $_SESSION['test_code'],
+        $_SESSION['student_name'],
+        $filepath,
+        $results['achieved'],
+        $results['max'],
+        $results['percentage'],
+        $grade,
+        $_SESSION['test_started_at'] ?? date('Y-m-d H:i:s')
+    );
+    
+    if ($success) {
+        error_log("Testergebnis erfolgreich in der Datenbank gespeichert");
+    } else {
+        error_log("Fehler beim Speichern des Testergebnisses in der Datenbank");
+    }
 } catch (Exception $e) {
-    error_log("Fehler beim Speichern in der Datenbank: " . $e->getMessage());
-    // Fahre trotz Datenbankfehler fort, da die XML-Datei bereits gespeichert wurde
+    error_log("Fehler beim Speichern des Testergebnisses in der Datenbank: " . $e->getMessage() . "\n" . $e->getTraceAsString());
 }
 
-// Speichere die Ergebnisse in der Session
-error_log("Speichere Ergebnisse in der Session");
+// Speichere die Ergebnisse in der Session für die Ergebnisseite
 $_SESSION['test_results'] = [
-    'achieved' => $results['achieved'],
-    'max' => $results['max'],
+    'points_achieved' => $results['achieved'],
+    'points_maximum' => $results['max'],
     'percentage' => $results['percentage'],
-    'grade' => $grade
+    'grade' => $grade,
+    'completed_at' => date('Y-m-d H:i:s')
 ];
-error_log("Session nach Speichern der Ergebnisse: " . print_r($_SESSION, true));
 
-// Weiterleitung zur Ergebnisseite
-error_log("Weiterleitung zur Ergebnisseite");
+// Leite zur Ergebnisseite weiter
+error_log("Weiterleitung zur Ergebnisseite mit Testergebnissen in der Session: " . print_r($_SESSION['test_results'], true));
 header("Location: result.php");
 exit();
 

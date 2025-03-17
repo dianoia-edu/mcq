@@ -5,7 +5,7 @@ ob_start();
 require_once 'includes/functions/common_functions.php';
 require_once 'check_test_attempts.php';
 
-// Lade Konfiguration - Anpassung, da config.php nicht mehr existiert
+// Lade Konfiguration - Anpassung,  da config.php nicht mehr existiert
 // $config = loadConfig();
 
 // Überprüfe alle erforderlichen Session-Variablen
@@ -120,6 +120,9 @@ $_SESSION["questions"] = $shuffledQuestions;
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title><?php echo $testName; ?></title>
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Globale CSS-Datei -->
     <link href="css/global.css" rel="stylesheet">
@@ -270,7 +273,6 @@ $_SESSION["questions"] = $shuffledQuestions;
 </head>
 <body data-test-mode="<?php echo isset($config['testMode']) && $config['testMode'] ? 'true' : 'false'; ?>"
       data-disable-attention-button="<?php echo isset($config['disableAttentionButton']) && $config['disableAttentionButton'] ? 'true' : 'false'; ?>">
-    <?php echo getTestModeWarning(); ?>
     
     <div class="container">
         <div class="test-header">

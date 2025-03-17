@@ -2,6 +2,11 @@
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../includes/database_config.php';
 
+// Setze HTTP_HOST für CLI-Ausführung
+if (!isset($_SERVER['HTTP_HOST']) && php_sapi_name() === 'cli') {
+    $_SERVER['HTTP_HOST'] = 'localhost';
+}
+
 // Funktion zum Schreiben in die Log-Datei
 function writeLog($message) {
     $logFile = __DIR__ . '/../../logs/sync.log';
@@ -13,19 +18,35 @@ try {
     $db = DatabaseConfig::getInstance()->getConnection();
     
     // Sammle alle vorhandenen Test-Codes aus den XML-Dateien
-    $resultsDir = __DIR__ . '/../../results';
+    $resultsDir = __DIR__ . '/../../tests';
     $existingTestCodes = [];
+    $testMetadata = [];
     
-    // Durchsuche alle Unterordner nach XML-Dateien
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($resultsDir));
-    foreach ($iterator as $file) {
-        if ($file->isFile() && $file->getExtension() === 'xml') {
-            $filename = $file->getBasename();
+    // Durchsuche alle XML-Dateien im tests-Verzeichnis
+    if (is_dir($resultsDir)) {
+        $files = glob($resultsDir . '/*.xml');
+        foreach ($files as $file) {
+            $filename = basename($file);
             // Extrahiere den Test-Code aus dem Dateinamen (erstes Segment vor dem Unterstrich)
             if (preg_match('/^([A-Z0-9]+)_/', $filename, $matches)) {
-                $existingTestCodes[$matches[1]] = true;
+                $accessCode = $matches[1];
+                $existingTestCodes[$accessCode] = true;
+                
+                // Lese XML-Datei für Metadaten
+                $xml = @simplexml_load_file($file);
+                if ($xml !== false) {
+                    $testMetadata[$accessCode] = [
+                        'title' => (string)$xml->title,
+                        'question_count' => (int)$xml->question_count,
+                        'answer_count' => (int)$xml->answer_count,
+                        'answer_type' => (string)$xml->answer_type
+                    ];
+                    writeLog("Metadaten für Test $accessCode gelesen: " . json_encode($testMetadata[$accessCode]));
+                }
             }
         }
+    } else {
+        writeLog("Verzeichnis $resultsDir existiert nicht oder ist nicht lesbar");
     }
     
     writeLog("Gefundene Test-Codes in XML-Dateien: " . implode(", ", array_keys($existingTestCodes)));
@@ -63,132 +84,57 @@ try {
         writeLog("Gelöschte Tests: " . count($testsToDelete));
     }
     
-    // Füge KKW und KK3 Tests hinzu, wenn sie nicht existieren
+    // Füge Tests hinzu oder aktualisiere sie, wenn sie nicht existieren
     $testCheck = $db->prepare("SELECT test_id FROM tests WHERE access_code = ?");
     
-    $testsToAdd = [
-        'KKW' => 'Test KKW',
-        'KK3' => 'Test KK3'
-    ];
-    
-    foreach ($testsToAdd as $code => $title) {
-        $testCheck->execute([$code]);
-        if (!$testCheck->fetch()) {
-            $testId = 'test_' . uniqid();
-            $createTest = $db->prepare("INSERT INTO tests (test_id, access_code, title) VALUES (?, ?, ?)");
-            $createTest->execute([$testId, $code, $title]);
-            writeLog("Test hinzugefügt: ID=$testId, Code=$code, Title=$title");
+    foreach ($existingTestCodes as $accessCode => $value) {
+        $testCheck->execute([$accessCode]);
+        $existingTest = $testCheck->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$existingTest) {
+            // Test existiert nicht, füge ihn hinzu
+            if (isset($testMetadata[$accessCode])) {
+                $meta = $testMetadata[$accessCode];
+                $testId = $accessCode . '_' . uniqid();
+                
+                $createTest = $db->prepare("INSERT INTO tests (test_id, access_code, title, question_count, answer_count, answer_type) VALUES (?, ?, ?, ?, ?, ?)");
+                $createTest->execute([
+                    $testId, 
+                    $accessCode, 
+                    $meta['title'], 
+                    $meta['question_count'], 
+                    $meta['answer_count'], 
+                    $meta['answer_type']
+                ]);
+                writeLog("Test hinzugefügt: ID=$testId, Code=$accessCode, Title={$meta['title']}");
+            } else {
+                writeLog("Keine Metadaten für Test $accessCode gefunden, überspringe");
+            }
+        } else {
+            // Test existiert, aktualisiere ihn wenn nötig
+            if (isset($testMetadata[$accessCode])) {
+                $meta = $testMetadata[$accessCode];
+                $updateTest = $db->prepare("UPDATE tests SET title = ?, question_count = ?, answer_count = ?, answer_type = ? WHERE access_code = ?");
+                $updateTest->execute([
+                    $meta['title'], 
+                    $meta['question_count'], 
+                    $meta['answer_count'], 
+                    $meta['answer_type'],
+                    $accessCode
+                ]);
+                writeLog("Test aktualisiert: Code=$accessCode, Title={$meta['title']}");
+            }
         }
     }
     
     $stats = [
         'added' => 0,
-        'deleted' => 0,
+        'deleted' => count($testsToDelete),
         'total' => 0
     ];
 
-    // 1. Sammle alle XML-Dateien aus dem results-Ordner
-    $xmlFiles = [];
-    
-    // Durchsuche alle Unterordner nach XML-Dateien
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($resultsDir));
-    foreach ($iterator as $file) {
-        if ($file->isFile() && $file->getExtension() === 'xml') {
-            $relativePath = str_replace('\\', '/', substr($file->getPathname(), strlen($resultsDir) + 1));
-            $xmlFiles[$relativePath] = $file->getPathname();
-        }
-    }
-    
-    writeLog("Gefundene XML-Dateien: " . count($xmlFiles));
-
-    // 2. Hole alle Einträge aus der Datenbank
-    $stmt = $db->query("SELECT attempt_id, xml_file_path FROM test_attempts");
-    $dbEntries = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    writeLog("Datenbankeinträge: " . count($dbEntries));
-
-    // 3. Finde und lösche verwaiste Datenbankeinträge
-    foreach ($dbEntries as $entry) {
-        $xmlPath = $entry['xml_file_path'];
-        $relativePath = str_replace('\\', '/', substr($xmlPath, strpos($xmlPath, 'results/') + 8));
-        
-        if (!isset($xmlFiles[$relativePath])) {
-            // XML-Datei existiert nicht mehr, lösche Datenbankeintrag
-            $deleteStmt = $db->prepare("DELETE FROM test_attempts WHERE attempt_id = ?");
-            $deleteStmt->execute([$entry['attempt_id']]);
-            $stats['deleted']++;
-            writeLog("Gelöschter Eintrag: " . $xmlPath);
-        }
-    }
-
-    // 4. Füge neue XML-Dateien zur Datenbank hinzu
-    $insertStmt = $db->prepare("
-        INSERT INTO test_attempts (test_id, student_name, completed_at, xml_file_path) 
-        VALUES (
-            (SELECT test_id FROM tests WHERE access_code = ?),
-            ?,
-            ?,
-            ?
-        )
-    ");
-
-    foreach ($xmlFiles as $relativePath => $fullPath) {
-        // Prüfe ob die Datei bereits in der Datenbank ist
-        $checkStmt = $db->prepare("SELECT COUNT(*) FROM test_attempts WHERE xml_file_path LIKE ?");
-        $checkStmt->execute(['%' . $relativePath]);
-        
-        if ($checkStmt->fetchColumn() == 0) {
-            // Parse XML-Datei für Metadaten
-            $xml = simplexml_load_file($fullPath);
-            if ($xml === false) {
-                writeLog("Fehler beim Lesen der XML-Datei: " . $fullPath);
-                continue;
-            }
-            
-            // Extrahiere Informationen aus dem Dateinamen
-            if (preg_match('/^([A-Z0-9]+)_(.+?)_(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})\.xml$/', basename($relativePath), $matches)) {
-                $accessCode = $matches[1];
-                $studentName = $matches[2];
-                $timestamp = str_replace('_', ' ', $matches[3]);
-                
-                writeLog("Extrahierte Daten: Code=$accessCode, Name=$studentName, Zeit=$timestamp");
-                
-                try {
-                    // Prüfe ob der Test existiert
-                    $testCheck = $db->prepare("SELECT test_id FROM tests WHERE access_code = ?");
-                    $testCheck->execute([$accessCode]);
-                    $testId = $testCheck->fetchColumn();
-                    
-                    if (!$testId) {
-                        writeLog("Test mit Code $accessCode nicht gefunden - erstelle neuen Test");
-                        // Erstelle einen neuen Test wenn nicht vorhanden
-                        $testId = 'test_' . uniqid();
-                        $createTest = $db->prepare("INSERT INTO tests (test_id, access_code, title) VALUES (?, ?, ?)");
-                        $createTest->execute([$testId, $accessCode, "Test " . $accessCode]);
-                        writeLog("Neuer Test erstellt: ID=$testId, Code=$accessCode");
-                    } else {
-                        writeLog("Bestehender Test gefunden: ID=$testId, Code=$accessCode");
-                    }
-                    
-                    $insertStmt->execute([
-                        $accessCode,
-                        $studentName,
-                        $timestamp,
-                        'results/' . $relativePath
-                    ]);
-                    $stats['added']++;
-                    writeLog("Neuer Eintrag: " . $relativePath);
-                } catch (Exception $e) {
-                    writeLog("Fehler beim Einfügen: " . $relativePath . " - " . $e->getMessage());
-                }
-            } else {
-                writeLog("Dateiname entspricht nicht dem erwarteten Format: " . basename($relativePath));
-            }
-        }
-    }
-
-    // 5. Ermittle Gesamtanzahl der Datensätze
-    $stats['total'] = $db->query("SELECT COUNT(*) FROM test_attempts")->fetchColumn();
+    // Ermittle Gesamtanzahl der Tests
+    $stats['total'] = $db->query("SELECT COUNT(*) FROM tests")->fetchColumn();
 
     echo json_encode([
         'success' => true,

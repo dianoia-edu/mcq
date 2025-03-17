@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>72G</access_code>
+  <title>Der Kalte Krieg und sein Ende</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war die "Eiserne Vorhang" im Kontext des Kalten Krieges?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine militärische Operation der NATO</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Eine physische Barriere zwischen Ost- und Westberlin</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Eine metaphorische Bezeichnung für die Trennung zwischen Ost- und Westblock</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Ein Spionageprogramm der Sowjetunion</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher polnische Arbeiterführer spielte eine zentrale Rolle bei den Streiks in der Lenin-Werft in Danzig?</text>
+      <answers>
+        <answer nr="1">
+          <text>Karol Wojtyla</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Michail Gorbatschow</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Ronald Reagan</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Lech Wałęsa</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was versteht man unter "Perestroika" in der Politik Michail Gorbatschows?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die militärische Aufrüstung der Sowjetunion</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Umgestaltung von Gesellschaft und Wirtschaft</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Gründung neuer politischer Parteien</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Verstärkung der Zensur und Unterdrückung</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was bedeutete "Glasnost" für die Sowjetunion unter Gorbatschow?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine neue Form des Sozialismus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Einführung einer Marktwirtschaft</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Mehr Offenheit und Transparenz in Politik und Medien</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Der Austritt aus dem Warschauer Pakt</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Mit welchem US-Präsidenten einigte sich Michail Gorbatschow auf den Abbau von Mittelstreckenraketen in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Jimmy Carter</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Ronald Reagan</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>George H.W. Bush</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Bill Clinton</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Welche Doktrin wurde durch Gorbatschows Politik effektiv abgelöst, indem er den osteuropäischen Staaten mehr Autonomie gewährte?</text>
+      <answers>
+        <answer nr="1">
+          <text>Truman-Doktrin</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Marshall-Plan</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Breschnew-Doktrin</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Eisenhower-Doktrin</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Welche Bewegung erstritt in Polen das Recht auf eine freie und unabhängige Gewerkschaft?</text>
+      <answers>
+        <answer nr="1">
+          <text>Freiheitsliga</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Solidarność</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Demokratische Union</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Nationalfront</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was war das Ergebnis des Runden Tisches in Warschau 1989?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Gründung des Warschauer Paktes</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Der Beginn des Demokratisierungsprozesses in Polen</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Unterzeichnung des NATO-Beitrittsvertrags für Polen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Aufhebung des Kriegsrechts in Polen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>In welchem Monat und Jahr wurde die Charta von Paris unterzeichnet, die den Kalten Krieg in Europa offiziell beendete?</text>
+      <answers>
+        <answer nr="1">
+          <text>Dezember 1989</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>November 1990</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Oktober 1991</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>September 1992</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Welches Ereignis markierte das endgültige Ende der Sowjetunion im Jahr 1991?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Fall der Berliner Mauer</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Der Putsch gegen Michail Gorbatschow</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Auflösung des Warschauer Paktes</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Unabhängigkeitserklärungen mehrerer sowjetischer Republiken</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>test ipad</schuelername>
+  <abgabezeit>2025-03-16 19:51:51</abgabezeit>
+</test>
