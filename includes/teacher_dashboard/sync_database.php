@@ -75,7 +75,18 @@ try {
         $testCheck->execute([$code]);
         if (!$testCheck->fetch()) {
             $testId = 'test_' . uniqid();
-            $createTest = $db->prepare("INSERT INTO tests (test_id, access_code, title) VALUES (?, ?, ?)");
+            $createTest = $db->prepare("
+                INSERT INTO tests (
+                    test_id, 
+                    access_code, 
+                    title, 
+                    question_count, 
+                    answer_count, 
+                    answer_type
+                ) VALUES (
+                    ?, ?, ?, 0, 0, 'single'
+                )
+            ");
             $createTest->execute([$testId, $code, $title]);
             writeLog("Test hinzugefügt: ID=$testId, Code=$code, Title=$title");
         }
@@ -163,7 +174,18 @@ try {
                         writeLog("Test mit Code $accessCode nicht gefunden - erstelle neuen Test");
                         // Erstelle einen neuen Test wenn nicht vorhanden
                         $testId = 'test_' . uniqid();
-                        $createTest = $db->prepare("INSERT INTO tests (test_id, access_code, title) VALUES (?, ?, ?)");
+                        $createTest = $db->prepare("
+                            INSERT INTO tests (
+                                test_id, 
+                                access_code, 
+                                title, 
+                                question_count, 
+                                answer_count, 
+                                answer_type
+                            ) VALUES (
+                                ?, ?, ?, 0, 0, 'single'
+                            )
+                        ");
                         $createTest->execute([$testId, $accessCode, "Test " . $accessCode]);
                         writeLog("Neuer Test erstellt: ID=$testId, Code=$accessCode");
                     } else {
