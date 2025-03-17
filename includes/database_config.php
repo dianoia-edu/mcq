@@ -72,16 +72,16 @@ class DatabaseConfig {
                 $this->writeLog("Server Name: " . $_SERVER['SERVER_NAME']);
                 $this->writeLog("Verwende " . ($this->isProduction() ? "Produktions" : "Entwicklungs") . "-Konfiguration");
                 
-                $host = $this->isProduction() ? self::PROD_HOST : self::DEV_HOST;
-                $user = $this->isProduction() ? self::PROD_USER : self::DEV_USER;
-                $dbname = $this->isProduction() ? self::PROD_DB : self::DEV_DB;
-                
-                $this->writeLog("Verbindungsdetails: Host=" . $host . ", DB=" . $dbname . ", User=" . $user);
+                $this->writeLog("Verbindungsdetails: Host=" . $this->config['db_host'] . 
+                               ", DB=" . $this->config['db_name'] . 
+                               ", User=" . $this->config['db_user']);
                 
                 $this->connection = new PDO(
-                    "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-                    $user,
-                    $this->isProduction() ? self::PROD_PASS : self::DEV_PASS
+                    "mysql:host=" . $this->config['db_host'] . 
+                    ";dbname=" . $this->config['db_name'] . 
+                    ";charset=utf8mb4",
+                    $this->config['db_user'],
+                    $this->config['db_password']
                 );
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 $this->writeLog("Datenbankverbindung erfolgreich hergestellt");
@@ -97,5 +97,11 @@ class DatabaseConfig {
         $logFile = __DIR__ . '/../logs/debug.log';
         $timestamp = date('Y-m-d H:i:s');
         file_put_contents($logFile, "[$timestamp] [DatabaseConfig] $message\n", FILE_APPEND);
+    }
+
+    private function isProduction() {
+        return ($_SERVER['SERVER_NAME'] ?? '') === 'www.dianoia-ai.de' || 
+               ($_SERVER['HTTP_HOST'] ?? '') === 'dianoia-ai.de' ||
+               file_exists('/var/www/production_flag');
     }
 } 
