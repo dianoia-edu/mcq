@@ -33,6 +33,11 @@ try {
     // Stelle eine Verbindung zur Datenbank her
     $db = $dbConfig->getConnection();
     
+    // Prüfe, ob die Datenbankverbindung erfolgreich hergestellt wurde
+    if ($db === null) {
+        throw new Exception("Konnte keine Verbindung zur Datenbank herstellen. Bitte überprüfen Sie die Datenbankeinstellungen.");
+    }
+    
     // Erstelle die Tabellen
     
     // 1. Tests-Tabelle

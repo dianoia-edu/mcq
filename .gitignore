@@ -3,6 +3,9 @@ includes/config/openai_config.php
 config/config.php
 includes/database_config.php
 includes/config/youtube_config.php
+/includes/database_config.php
+/includes/config/youtube_config.php
+/includes/config
 
 # Allgemeine Dateien, die ignoriert werden sollten
 .DS_Store
@@ -22,42 +25,27 @@ includes/config/youtube_config.php
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs/*
+!logs/.gitkeep
 
 # Temporäre Dateien
 /tmp
 /temp
 *.tmp
 *.temp
+*.bak
 
 # IDE-spezifische Dateien
 .idea/
 .vscode/
 *.sublime-project
 *.sublime-workspace
-
-# IDE und Editor Dateien
-.vscode/
-.idea/
 *.swp
 *.swo
-
-# Logs
-logs/*
-!logs/.gitkeep
-
-# Konfigurationsdateien
-config/config.production.php
-
-# Temporäre Dateien
-*.bak
 
 # Composer
 vendor/
 composer.lock 
+
+# Tests
 /tests
-includes/database_config.php
-includes/config/youtube_config.php
-/includes/config
-includes/config/youtube_config.php
-includes/database_config.php
-includes/database_config.php

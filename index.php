@@ -1,11 +1,26 @@
 <?php
+// Aktiviere Fehlerberichterstattung für die Entwicklung
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Debug-Ausgabe direkt am Anfang
+echo "<!-- Debug: index.php wird geladen - " . date('Y-m-d H:i:s') . " -->";
+
 // Starte Output-Buffering
 ob_start();
 
 // Starte Session 
 session_start();
 
-require_once 'check_test_attempts.php';
+// Versuche, die erforderlichen Dateien einzubinden
+try {
+    require_once 'check_test_attempts.php';
+    echo "<!-- Debug: check_test_attempts.php erfolgreich eingebunden -->";
+} catch (Exception $e) {
+    echo "Fehler beim Einbinden von check_test_attempts.php: " . $e->getMessage();
+    error_log("Fehler beim Einbinden von check_test_attempts.php: " . $e->getMessage());
+}
 
 // Debug-Informationen für alle Anfragen
 error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
@@ -20,9 +35,57 @@ if (isset($_SESSION['test_results']) && $_SERVER['REQUEST_METHOD'] === 'GET' && 
     $_SESSION['show_results_once'] = $temp_results;
 }
 
+// Funktion zum Schreiben in die Log-Datei
+function writeLog($message) {
+    $logFile = __DIR__ . '/logs/debug.log';
+    $logDir = dirname($logFile);
+    
+    // Erstelle das Log-Verzeichnis, falls es nicht existiert
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0755, true);
+    }
+    
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
+}
+
+// Protokolliere den Seitenaufruf
+writeLog("index.php aufgerufen - " . $_SERVER['REQUEST_METHOD'] . " " . $_SERVER['REQUEST_URI']);
+
+// Prüfe, ob eine Fehlermeldung angezeigt werden soll
+$errorMessage = '';
+if (isset($_GET['error'])) {
+    switch ($_GET['error']) {
+        case 'invalid_code':
+            $errorMessage = 'Ungültiger Zugangscode. Bitte versuchen Sie es erneut.';
+            break;
+        case 'no_results':
+            $errorMessage = 'Keine Testergebnisse gefunden. Bitte versuchen Sie es erneut.';
+            break;
+        case 'db_error':
+            $errorMessage = 'Datenbankfehler. Bitte versuchen Sie es später erneut.';
+            break;
+        case 'missing_data':
+            $errorMessage = 'Fehlende Daten. Bitte versuchen Sie es erneut.';
+            break;
+        default:
+            $errorMessage = 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+    }
+    writeLog("Fehler angezeigt: " . $_GET['error'] . " - " . $errorMessage);
+}
+
+// Wenn ein Fehler in der Session gespeichert ist, diesen anzeigen und aus der Session entfernen
+if (isset($_SESSION['error'])) {
+    $errorMessage = $_SESSION['error'];
+    unset($_SESSION['error']);
+    writeLog("Fehler aus Session angezeigt: " . $errorMessage);
+}
+
 // Überprüfe POST-Anfrage
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    echo "<!-- Debug: POST-Anfrage erkannt -->";
     if (isset($_POST["accessCode"])) {
+        echo "<!-- Debug: accessCode gefunden: " . htmlspecialchars($_POST["accessCode"]) . " -->";
         // Lösche die alte Session beim Start eines neuen Tests
         session_destroy();
         session_start();
@@ -58,7 +121,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $errorMessage = "Der eingegebene Zugangscode ist ungültig. Bitte überprüfen Sie Ihre Eingabe.";
             $errorType = "danger";
         }
+    } elseif (isset($_POST["student_name"]) && isset($_POST["code"])) {
+        echo "<!-- Debug: student_name und code gefunden -->";
+        // Speichere den Namen und Code in der Session
+        $_SESSION['student_name'] = trim($_POST["student_name"]);
+        $_SESSION['test_code'] = trim($_POST["code"]);
+        $_SESSION['test_started_at'] = date('Y-m-d H:i:s');
+        
+        // Extrahiere den Basis-Code für die Dateisuche
+        $baseCode = getBaseCode($_SESSION['test_code']);
+        
+        // Suche nach der Testdatei
+        $files = glob("tests/" . $baseCode . "*.xml");
+        if (!empty($files)) {
+            $_SESSION['test_file'] = $files[0];
+            
+            // Weiterleitung zur Testseite
+            header("Location: test.php");
+            exit();
+        } else {
+            $errorMessage = "Der Test konnte nicht gefunden werden. Bitte versuchen Sie es erneut.";
+            $errorType = "danger";
+        }
     }
+}
+
+// Funktion zum Extrahieren des Basis-Codes
+function getBaseCode($code) {
+    // Entferne alle Zahlen am Ende des Codes
+    $baseCode = preg_replace('/[0-9]+$/', '', $code);
+    return $baseCode;
 }
 
 // Funktion zum Überprüfen, ob ein Testcode existiert
@@ -90,6 +182,7 @@ function testExists($code) {
 
 // Wenn ein Code übergeben wurde
 if (isset($_GET['code'])) {
+    echo "<!-- Debug: GET-Parameter 'code' gefunden: " . htmlspecialchars($_GET['code']) . " -->";
     // Lösche die alte Session beim direkten Aufruf eines Tests
     if (!isset($_POST['student_name'])) {
         session_destroy();
@@ -107,8 +200,10 @@ if (isset($_GET['code'])) {
     
     // Wenn der Test existiert
     if (testExists($code)) {
+        echo "<!-- Debug: Test existiert -->";
         // Wenn noch kein Name eingegeben wurde
         if (!isset($_SESSION['student_name'])) {
+            echo "<!-- Debug: Kein Schülername in der Session, zeige Namenseingabeformular -->";
             // Zeige das Namenseingabeformular
             ?>
             <!DOCTYPE html>
@@ -168,170 +263,81 @@ if (isset($_GET['code'])) {
             </html>
             <?php
         } else {
+            echo "<!-- Debug: Schülername in der Session gefunden, leite weiter zu test.php -->";
             // Wenn ein Name eingegeben wurde, zeige den Test
             $_SESSION['test_code'] = $code;
             $baseCode = getBaseCode($code);
             $_SESSION['test_file'] = glob("tests/" . $baseCode . "*.xml")[0];
-            ?>
-            <script>
-                console.log('Debug Information - Test Anzeige:');
-                console.log('Code:', '<?php echo htmlspecialchars($code); ?>');
-                console.log('Test File:', '<?php echo htmlspecialchars($_SESSION['test_file'] ?? 'Nicht gefunden'); ?>');
-                console.log('Session:', <?php echo json_encode($_SESSION); ?>);
-                console.log('Student Name:', '<?php echo htmlspecialchars($_SESSION['student_name'] ?? 'Nicht gesetzt'); ?>');
-            </script>
-            <?php
-            include 'test.php';
+            
+            // Weiterleitung zur Testseite
+            header("Location: test.php");
+            exit();
         }
     } else {
+        echo "<!-- Debug: Test existiert nicht -->";
         // Wenn der Test nicht existiert, zeige die Startseite mit Fehlermeldung
-        ?>
-        <!DOCTYPE html>
-        <html lang="de">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>MCQ Test System</title>
-            <!-- Favicon -->
-            <link rel="icon" href="/favicon.ico" type="image/x-icon">
-            <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-            <!-- Bootstrap CSS -->
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-            <!-- Globale CSS-Datei -->
-            <link href="css/global.css" rel="stylesheet">
-        </head>
-        <body class="bg-light">
-            <div class="container mt-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-6">
-                        <?php if (isset($errorMessage)): ?>
-                        <div class="alert alert-<?php echo isset($errorType) ? htmlspecialchars($errorType) : 'danger'; ?> alert-dismissible fade show" role="alert">
-                            <?php echo htmlspecialchars($errorMessage); ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <?php endif; ?>
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="text-center">MCQ Test System</h3>
-                            </div>
-                            <div class="card-body">
-                                <form action="index.php" method="POST">
-                                    <div class="mb-3">
-                                        <label for="accessCode" class="form-label">Bitte geben Sie Ihren Testcode ein:</label>
-                                        <input type="text" class="form-control" id="accessCode" name="accessCode" required>
-                                    </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary">Test starten</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-            <script>
-                console.log('Debug Information - Fehlerseite:');
-                console.log('Original Code:', '<?php echo htmlspecialchars($code); ?>');
-                console.log('Basis Code:', '<?php echo htmlspecialchars(getBaseCode($code)); ?>');
-                console.log('Such-Code:', '<?php echo htmlspecialchars(strtoupper(getBaseCode($code))); ?>');
-                console.log('Test File:', '<?php 
-                    $searchCode = strtoupper(getBaseCode($code));
-                    echo htmlspecialchars(glob("tests/" . $searchCode . "*.xml")[0] ?? 'Nicht gefunden'); 
-                ?>');
-                console.log('Session:', <?php echo json_encode($_SESSION); ?>);
-            </script>
-        </body>
-        </html>
-        <?php
-    }
-} 
-// Wenn ein Name über POST übermittelt wurde
-elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) && isset($_POST['code'])) {
-    error_log("Verarbeite Namenseingabe:");
-    error_log("POST Data: " . print_r($_POST, true));
-    error_log("Vorherige Session: " . print_r($_SESSION, true));
-    
-    $code = $_POST['code']; // Nicht direkt in Großbuchstaben umwandeln
-    $baseCode = getBaseCode($code); // Erst Basis-Code extrahieren
-    $searchCode = strtoupper($baseCode); // Dann in Großbuchstaben umwandeln
-    
-    error_log("Code-Verarbeitung bei Namenseingabe:");
-    error_log("Original Code: " . $code);
-    error_log("Basis Code: " . $baseCode);
-    error_log("Such-Code: " . $searchCode);
-    
-    $testFile = glob("tests/" . $searchCode . "*.xml")[0];
-    
-    if ($testFile) {
-        $_SESSION['student_name'] = $_POST['student_name'];
-        $_SESSION['test_code'] = $code; // Original-Code speichern
-        $_SESSION['test_file'] = $testFile;
-        
-        error_log("Neue Session: " . print_r($_SESSION, true));
-        error_log("Weiterleitung zum Test");
-        
-        include 'test.php';
-        exit;
-    } else {
-        $errorMessage = "Ungültiger Testcode";
+        $errorMessage = "Der eingegebene Zugangscode ist ungültig. Bitte überprüfen Sie Ihre Eingabe.";
+        $errorType = "danger";
     }
 }
-// Wenn kein Code übergeben wurde
-else {
-    ?>
-    <!DOCTYPE html>
-    <html lang="de">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MCQ Test System</title>
-        <!-- Favicon -->
-        <link rel="icon" href="/favicon.ico" type="image/x-icon">
-        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-        <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <!-- Globale CSS-Datei -->
-        <link href="css/global.css" rel="stylesheet">
-    </head>
-    <body class="bg-light">
-        <div class="container mt-5">
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <?php if (isset($errorMessage)): ?>
-                    <div class="alert alert-<?php echo isset($errorType) ? htmlspecialchars($errorType) : 'danger'; ?> alert-dismissible fade show" role="alert">
-                        <?php echo htmlspecialchars($errorMessage); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <?php endif; ?>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="text-center">MCQ Test System</h3>
-                        </div>
-                        <div class="card-body">
-                            <form action="index.php" method="POST">
-                                <div class="mb-3">
-                                    <label for="accessCode" class="form-label">Bitte geben Sie Ihren Testcode ein:</label>
-                                    <input type="text" class="form-control" id="accessCode" name="accessCode" required>
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">Test starten</button>
-                                </div>
-                            </form>
-                        </div>
+// Wenn kein Code übergeben wurde und keine POST-Anfrage vorliegt, zeige die Startseite
+if (!isset($_GET['code']) && $_SERVER["REQUEST_METHOD"] !== "POST") {
+    echo "<!-- Debug: Zeige Startseite -->";
+?>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Test System</title>
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Globale CSS-Datei -->
+    <link href="css/global.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">MCQ Test System</h3>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($errorMessage)): ?>
+                            <div class="alert alert-<?php echo isset($errorType) ? $errorType : 'danger'; ?> mb-3">
+                                <?php echo htmlspecialchars($errorMessage); ?>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <form action="index.php" method="POST">
+                            <div class="mb-3">
+                                <label for="accessCode" class="form-label">Zugangscode:</label>
+                                <input type="text" class="form-control" id="accessCode" name="accessCode" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Test starten</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            console.log('Debug Information - Startseite:');
-            console.log('Session:', <?php echo json_encode($_SESSION); ?>);
-        </script>
-    </body>
-    </html>
-    <?php
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        console.log('Debug Information - Startseite:');
+        console.log('Session:', <?php echo json_encode($_SESSION); ?>);
+        console.log('Error Message:', '<?php echo addslashes($errorMessage); ?>');
+        console.log('Error Type:', '<?php echo isset($errorType) ? $errorType : 'danger'; ?>');
+    </script>
+</body>
+</html>
+<?php
 }
 
 // Setze Header für keine Caching
