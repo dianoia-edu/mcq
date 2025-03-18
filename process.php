@@ -132,13 +132,21 @@ foreach ($answerXml->questions->question as $question) {
 // Erstelle den Ordnernamen basierend auf Zugangscode und Datum
 $date = date('Y-m-d');
 $folderName = $_SESSION['test_code'] . '_' . $date;
-$resultsDir = 'results/' . $folderName;
+
+// Verwende absolute Pfade statt relativer Pfade
+$rootPath = dirname(__FILE__); // Absoluter Pfad zum aktuellen Verzeichnis
+$mainResultsDir = $rootPath . '/results';
+$resultsDir = $mainResultsDir . '/' . $folderName;
+
+// Logge aktuelle Pfade und Berechtigungen für besseres Debugging
+error_log("Root-Verzeichnis: " . $rootPath);
+error_log("Hauptverzeichnis für Ergebnisse: " . $mainResultsDir);
+error_log("Spezifisches Results-Verzeichnis: " . $resultsDir);
 
 // Stelle sicher, dass der Hauptordner 'results' existiert
-$mainResultsDir = 'results';
 if (!file_exists($mainResultsDir)) {
     error_log("Versuche Hauptordner zu erstellen: " . $mainResultsDir);
-    if (!mkdir($mainResultsDir, 0777, true)) {
+    if (!mkdir($mainResultsDir, 0775, true)) {
         error_log("Fehler beim Erstellen des Hauptergebnisordners: " . $mainResultsDir);
         error_log("PHP Fehler: " . error_get_last()['message']);
         error_log("Aktuelles Arbeitsverzeichnis: " . getcwd());
@@ -146,15 +154,30 @@ if (!file_exists($mainResultsDir)) {
         header("Location: index.php");
         exit();
     }
-    // Setze Berechtigungen explizit
-    chmod($mainResultsDir, 0777);
+    // Setze Berechtigungen explizit - verwende 0775 statt 0777 für bessere Sicherheit
+    chmod($mainResultsDir, 0775);
     error_log("Hauptordner erfolgreich erstellt");
+}
+
+// Überprüfe, ob der Webserver Schreibrechte für den Hauptordner hat
+if (!is_writable($mainResultsDir)) {
+    error_log("WARNUNG: Hauptordner ist nicht beschreibbar: " . $mainResultsDir);
+    error_log("Versuche Berechtigungen zu setzen...");
+    chmod($mainResultsDir, 0775);
+    
+    // Überprüfe erneut nach Berechtigungsänderung
+    if (!is_writable($mainResultsDir)) {
+        error_log("FEHLER: Hauptordner ist immer noch nicht beschreibbar nach Berechtigungsänderung");
+        $_SESSION['error'] = "Fehler beim Speichern des Tests: Ordner nicht beschreibbar.";
+        header("Location: index.php");
+        exit();
+    }
 }
 
 // Erstelle den Unterordner für den spezifischen Test
 if (!file_exists($resultsDir)) {
     error_log("Versuche Ordner zu erstellen: " . $resultsDir);
-    if (!mkdir($resultsDir, 0777, true)) {
+    if (!mkdir($resultsDir, 0775, true)) {
         error_log("Fehler beim Erstellen des Ergebnisordners: " . $resultsDir);
         error_log("PHP Fehler: " . error_get_last()['message']);
         error_log("Aktuelles Arbeitsverzeichnis: " . getcwd());
@@ -163,9 +186,24 @@ if (!file_exists($resultsDir)) {
         header("Location: index.php");
         exit();
     }
-    // Setze Berechtigungen explizit
-    chmod($resultsDir, 0777);
+    // Setze Berechtigungen explizit - verwende 0775 statt 0777 für bessere Sicherheit
+    chmod($resultsDir, 0775);
     error_log("Ordner erfolgreich erstellt: " . $resultsDir);
+}
+
+// Überprüfe, ob der Webserver Schreibrechte für den spezifischen Ordner hat
+if (!is_writable($resultsDir)) {
+    error_log("WARNUNG: Ergebnisordner ist nicht beschreibbar: " . $resultsDir);
+    error_log("Versuche Berechtigungen zu setzen...");
+    chmod($resultsDir, 0775);
+    
+    // Überprüfe erneut nach Berechtigungsänderung
+    if (!is_writable($resultsDir)) {
+        error_log("FEHLER: Ergebnisordner ist immer noch nicht beschreibbar nach Berechtigungsänderung");
+        $_SESSION['error'] = "Fehler beim Speichern des Tests: Ordner nicht beschreibbar.";
+        header("Location: index.php");
+        exit();
+    }
 }
 
 // Erstelle den Dateinamen
@@ -179,20 +217,56 @@ $dom->preserveWhiteSpace = false;
 $dom->formatOutput = true;
 $dom->loadXML($answerXml->asXML());
 
-// Speichere die XML-Datei
+// Überprüfe, ob die Datei geschrieben werden kann
 error_log("Versuche XML-Datei zu speichern: " . $filepath);
 error_log("Aktuelles Arbeitsverzeichnis: " . getcwd());
 error_log("Dateiberechtigungen des Zielordners: " . decoct(fileperms($resultsDir)));
 
-if (!$dom->save($filepath)) {
+// Prüfe Schreibrechte vor dem Speichern
+if (!is_writable(dirname($filepath))) {
+    error_log("WARNUNG: Verzeichnis für XML-Datei ist nicht beschreibbar: " . dirname($filepath));
+    // Versuche, Berechtigungen zu setzen
+    chmod(dirname($filepath), 0775);
+    
+    if (!is_writable(dirname($filepath))) {
+        error_log("FEHLER: Verzeichnis bleibt nicht beschreibbar nach Berechtigungsänderung");
+        $_SESSION['error'] = "Fehler beim Speichern des Tests: Verzeichnis nicht beschreibbar.";
+        header("Location: index.php");
+        exit();
+    }
+}
+
+// Versuche die Datei zu speichern
+$saved = false;
+try {
+    $saved = $dom->save($filepath);
+} catch (Exception $e) {
+    error_log("Exception beim Speichern der XML-Datei: " . $e->getMessage());
+}
+
+if (!$saved) {
     error_log("Fehler beim Speichern der XML-Datei: " . $filepath);
     error_log("PHP Fehler: " . error_get_last()['message']);
     error_log("Aktuelle Berechtigungen des Ordners: " . decoct(fileperms($resultsDir)));
-    $_SESSION['error'] = "Fehler beim Speichern des Tests.";
-    header("Location: index.php");
-    exit();
+    
+    // Versuche einen alternativen Speicherweg mit file_put_contents
+    error_log("Versuche alternativen Speichermechanismus mit file_put_contents");
+    $xmlContent = $dom->saveXML();
+    if (file_put_contents($filepath, $xmlContent) === false) {
+        error_log("Auch file_put_contents ist fehlgeschlagen. Kann Test nicht speichern.");
+        $_SESSION['error'] = "Fehler beim Speichern des Tests.";
+        header("Location: index.php");
+        exit();
+    } else {
+        error_log("XML-Datei erfolgreich mit file_put_contents gespeichert");
+        // Setze Berechtigungen für die Datei
+        chmod($filepath, 0664);
+    }
+} else {
+    error_log("XML-Datei erfolgreich gespeichert mit DOM->save");
+    // Setze Berechtigungen für die Datei
+    chmod($filepath, 0664);
 }
-error_log("XML-Datei erfolgreich gespeichert");
 
 // Markiere den Test als absolviert
 error_log("Markiere Test als absolviert");

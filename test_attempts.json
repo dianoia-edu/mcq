@@ -244,5 +244,14 @@
             "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
             "is_admin": false
         }
+    ],
+    "68K": [
+        {
+            "date": "2025-03-18",
+            "student": "wsw",
+            "student_id": "6234de4a7bac5c883696ad0acdb03a446e2827baad27dbdec1f52933cd3a6fa1",
+            "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
+            "is_admin": false
+        }
     ]
 }

@@ -618,9 +618,9 @@ if (!$isAjax):
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
         </div>
 
                     <!-- Gruppensortierung -->
@@ -637,8 +637,8 @@ if (!$isAjax):
                         <div class="btn-group btn-group-sort" role="group">
                             <button type="button" class="btn btn-outline-secondary" data-sort-groups="testDate" data-sort-dir="desc">Datum ↓</button>
                             <button type="button" class="btn btn-outline-secondary" data-sort-groups="testDate" data-sort-dir="asc">↑</button>
-                        </div>
-                    </div>
+            </div>
+        </div>
 
                     <!-- Einfache Ergebnisse-Anzeige ohne eigene Tab-Navigation -->
         <div id="filteredResults">
@@ -705,8 +705,8 @@ if (!$isAjax):
                         <?php else: ?>
                             <div class="alert alert-info mt-3">
                                 <p>Keine Ergebnisse gefunden. Wenn Sie gerade einen Test abgeschlossen haben, wählen Sie bitte den Filter "Alle Tests".</p>
-                            </div>
-                        <?php endif; ?>
+        </div>
+    <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -922,7 +922,7 @@ function updateResults() {
     })
     .then(response => {
         console.log('Antwort erhalten, Status:', response.status);
-        if (!response.ok) {
+                if (!response.ok) {
             throw new Error('Netzwerkantwort nicht ok');
         }
         return response.json();
@@ -936,7 +936,7 @@ function updateResults() {
             console.log('Verfügbare Felder:', Object.keys(data.data[0]));
         }
         
-        if (!data.success) {
+                if (!data.success) {
             throw new Error(data.error || 'Unbekannter Fehler beim Laden der Daten');
         }
         
@@ -951,11 +951,11 @@ function updateResults() {
     .catch(error => {
         console.error('Fehler beim Laden der Ergebnisse:', error);
         container.innerHTML = `
-            <div class="alert alert-danger">
+                    <div class="alert alert-danger">
                 <strong>Fehler beim Laden der Ergebnisse:</strong> ${error.message}
                 <br><small>Bitte prüfen Sie die Konsole für weitere Details.</small>
-            </div>
-        `;
+                    </div>
+                `;
     });
 }
 
@@ -1127,25 +1127,25 @@ function showResults(filename) {
                         </div>
                     `;
                 }
-            });
-        
-        // Event-Listener für Modal-Events
-        resultDetailModal.addEventListener('hidden.bs.modal', function () {
-            // Setze Fokus zurück auf den letzten Button
-            if (lastFocusedElement) {
-                lastFocusedElement.focus();
-            }
+    });
+
+    // Event-Listener für Modal-Events
+    resultDetailModal.addEventListener('hidden.bs.modal', function () {
+        // Setze Fokus zurück auf den letzten Button
+        if (lastFocusedElement) {
+            lastFocusedElement.focus();
+        }
             
-            // Leere den Modal-Inhalt
+        // Leere den Modal-Inhalt
             const modalContent = document.getElementById('resultDetailContent');
             if (modalContent) {
                 modalContent.innerHTML = `
-                    <div class="d-flex justify-content-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Lade...</span>
-                        </div>
-                    </div>
-                `;
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Lade...</span>
+                </div>
+            </div>
+        `;
             }
         });
     } else {

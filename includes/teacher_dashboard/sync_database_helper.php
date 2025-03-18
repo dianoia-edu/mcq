@@ -5,10 +5,31 @@ function syncDatabase() {
     $db = DatabaseConfig::getInstance()->getConnection();
     
     // Sammle alle vorhandenen Test-Codes aus den XML-Dateien
-    $resultsDir = __DIR__ . '/../../results';
+    $rootPath = dirname(dirname(__DIR__)); // Navigiere zur Projektroot (2 Ebenen nach oben)
+    $resultsDir = $rootPath . '/results';
+    
+    error_log("Synchronisiere Datenbank - Verwende Results-Verzeichnis: " . $resultsDir);
     
     if (!is_dir($resultsDir)) {
-        throw new Exception("Results-Verzeichnis nicht gefunden: " . $resultsDir);
+        $errorMsg = "Results-Verzeichnis nicht gefunden: " . $resultsDir;
+        error_log($errorMsg);
+        
+        // Versuche, das Verzeichnis zu erstellen
+        if (!mkdir($resultsDir, 0775, true)) {
+            throw new Exception($errorMsg . " und konnte nicht erstellt werden");
+        }
+        error_log("Results-Verzeichnis wurde erstellt: " . $resultsDir);
+    }
+    
+    // Prüfe Berechtigungen
+    if (!is_readable($resultsDir)) {
+        $errorMsg = "Results-Verzeichnis ist nicht lesbar: " . $resultsDir;
+        error_log($errorMsg);
+        // Versuche Berechtigungen zu setzen
+        chmod($resultsDir, 0775);
+        if (!is_readable($resultsDir)) {
+            throw new Exception($errorMsg . " und Berechtigungen konnten nicht gesetzt werden");
+        }
     }
     
     // Hole alle existierenden Einträge aus der Datenbank

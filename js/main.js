@@ -1188,6 +1188,18 @@ function loadTestContent(testName) {
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(response.xml_content, "text/xml");
                 
+                // Extrahiere Titel und Zugangscode
+                const title = xmlDoc.getElementsByTagName("title")[0].textContent;
+                const accessCode = xmlDoc.getElementsByTagName("access_code")[0].textContent;
+                
+                // Setze Titel und Zugangscode in die Eingabefelder
+                $('#testTitle').val(title);
+                $('#accessCode').val(accessCode);
+                
+                // Setze den aktuellen Dateinamen
+                window.currentTestFilename = testName;
+                console.log("Test geladen - currentTestFilename gesetzt auf:", testName);
+                
                 // Extrahiere Fragen und Antworten
                 const questions = xmlDoc.getElementsByTagName("question");
                 
@@ -1723,69 +1735,40 @@ function markAsChanged() {
     updateButtonVisibility();
 }
 
-// Funktion zum Aktualisieren der Button-Sichtbarkeit
+// Funktion zur Aktualisierung der Button-Sichtbarkeit
 function updateButtonVisibility() {
-    // Zeige/verstecke die oberen Buttons je nach Test-Auswahl
-    if (currentTestFilename) {
-        $('.button-container').show();
+    const hasTest = $('#testSelector').val() !== '';
+    const hasQuestions = $('#questionsContainer .question-card').length > 0;
+    const hasAccessCode = $('#accessCode').val().trim().length === 3;
+    
+    // Debug-Logging
+    console.log('updateButtonVisibility called:', {
+        hasTest,
+        hasQuestions,
+        questionsCount: $('#questionsContainer .question-card').length,
+        hasAccessCode,
+        accessCodeValue: $('#accessCode').val().trim(),
+        isCurrentTestFilename: !!currentTestFilename
+    });
+    
+    // Speichern-Button: Aktiviert, wenn Fragen vorhanden sind
+    $('#saveTestBtn').prop('disabled', !hasQuestions);
+    
+    // Wenn ein Test geladen ist (über das Dropdown oder beim Bearbeiten nach Generator), 
+    // sollen QR-Code und Löschen immer aktiv sein
+    if (hasTest || currentTestFilename) {
+        $('#deleteTestBtn').prop('disabled', false);
+        $('#showQrCodeBtn').prop('disabled', false);
     } else {
-        // Verstecke die obere Button-Leiste, wenn kein Test geladen ist
-        $('.button-container').first().hide();
+        // Sonst nur aktivieren, wenn neue Fragen und ein Zugangscode vorhanden sind
+        const showButtons = hasQuestions && hasAccessCode;
+        $('#deleteTestBtn').prop('disabled', !showButtons);
+        $('#showQrCodeBtn').prop('disabled', !showButtons);
     }
     
-    // Der Reset-Button ist immer sichtbar im Editor
-    $('.button-container #resetBtn').show();
-    
-    // Aktiviere/deaktiviere den Löschen-Button je nach Änderungsstatus
-    if (testHasChanges) {
-        // Deaktiviere alle Löschen-Buttons und ändere ihre Farbe zu grau
-        $('.button-container #deleteTestBtn').prop('disabled', true);
-        $('.button-container #deleteTestBtn').attr('title', 'Speichern Sie zuerst Ihre Änderungen');
-        $('.button-container #deleteTestBtn').removeClass('btn-success').addClass('btn-secondary');
-        
-        // Deaktiviere auch den QR-Code-Button
-        $('.button-container #showQrCodeBtn').prop('disabled', true);
-        $('.button-container #showQrCodeBtn').attr('title', 'Speichern Sie zuerst Ihre Änderungen');
-        $('.button-container #showQrCodeBtn').removeClass('btn-success').addClass('btn-secondary');
-        
-        // Aktiviere den Speichern-Button und setze ihn auf grün
-        $('.button-container #saveTestBtn').prop('disabled', false);
-        $('.button-container #saveTestBtn').removeClass('btn-primary').addClass('btn-success');
-    } else {
-        // Aktiviere/deaktiviere alle Löschen-Buttons basierend auf currentTestFilename
-        $('.button-container #deleteTestBtn').prop('disabled', !currentTestFilename);
-        $('.button-container #deleteTestBtn').attr('title', currentTestFilename ? 'Test löschen' : 'Kein Test zum Löschen ausgewählt');
-        
-        // Aktiviere/deaktiviere auch den QR-Code-Button
-        $('.button-container #showQrCodeBtn').prop('disabled', !currentTestFilename);
-        $('.button-container #showQrCodeBtn').attr('title', currentTestFilename ? 'QR-Code anzeigen' : 'Kein Test ausgewählt');
-        
-        // Wenn der Button aktiviert ist, setze die Farbe auf grün, sonst auf grau
-        if (currentTestFilename) {
-            $('.button-container #deleteTestBtn').removeClass('btn-secondary').addClass('btn-success');
-            $('.button-container #showQrCodeBtn').removeClass('btn-secondary').addClass('btn-success');
-            
-            // Setze den Speichern-Button auf grau, wenn keine Änderungen vorliegen
-            $('.button-container #saveTestBtn').prop('disabled', true);
-            $('.button-container #saveTestBtn').removeClass('btn-success').addClass('btn-secondary');
-        } else {
-            $('.button-container #deleteTestBtn').removeClass('btn-success').addClass('btn-secondary');
-            $('.button-container #showQrCodeBtn').removeClass('btn-success').addClass('btn-secondary');
-            
-            // Setze den Speichern-Button auf grau, wenn kein Test geladen ist
-            $('.button-container #saveTestBtn').prop('disabled', true);
-            $('.button-container #saveTestBtn').removeClass('btn-success').addClass('btn-secondary');
-        }
-    }
-    
-    // Vorschau-Button ist immer grau, außer wenn Fragen vorhanden sind
-    if ($('#questionsContainer .question-card').length > 0) {
-        $('.button-container #previewTestBtn').prop('disabled', false);
-        $('.button-container #previewTestBtn').removeClass('btn-secondary').addClass('btn-success');
-    } else {
-        $('.button-container #previewTestBtn').prop('disabled', true);
-        $('.button-container #previewTestBtn').removeClass('btn-success').addClass('btn-secondary');
-    }
+    // Vorschau-Button ist immer aktiv und grün
+    $('#previewTestBtn').prop('disabled', false);
+    $('#previewTestBtn').removeClass('btn-secondary').addClass('btn-success');
 }
 
 function deleteTest() {
@@ -1891,12 +1874,6 @@ function resetTestEditor() {
 
 // Funktion zum Anzeigen des QR-Codes
 function showQrCode(automatisch = false, modalType = 'editor') {
-    // Im Editor-Modus prüfen wir, ob ein Test geladen ist
-    if (modalType === 'editor' && !currentTestFilename) {
-        alert('Bitte wählen Sie zuerst einen Test aus.');
-        return;
-    }
-    
     // Hole den Zugangscode - im Generator-Kontext aus der Response
     let accessCode = '';
     let title = '';
