@@ -8,7 +8,7 @@ function writeLog($message) {
     file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
 
-// Prüfe ob es sich um einen AJAX-Request handelt
+// Überprüfe, ob es sich um eine AJAX-Anfrage handelt
 $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 
@@ -125,7 +125,6 @@ try {
     ");
     $allTests = $allTestsQuery->fetchAll(PDO::FETCH_ASSOC);
 
-    // Bei AJAX-Request nur die Daten zurückgeben
     if ($isAjax) {
         header('Content-Type: application/json');
         echo json_encode([
@@ -275,24 +274,32 @@ document.addEventListener('DOMContentLoaded', function() {
     flatpickr("#dateFilter", {
         dateFormat: "Y-m-d",
         locale: "de",
-        allowInput: true
+        allowInput: true,
+        onChange: function(selectedDates) {
+            updateResults();
+        }
     });
 
     // Event-Listener für Filter
-    document.getElementById('studentFilter').addEventListener('input', debounce(updateResults, 300));
-    document.getElementById('dateFilter').addEventListener('change', updateResults);
+    document.getElementById('studentFilter').addEventListener('input', debounce(function() {
+        updateResults();
+    }, 300));
     
     // Event-Listener für Test-Dropdown
     document.querySelectorAll('.dropdown-item').forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
+            // Entferne active-Klasse von allen Items
+            document.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+            // Füge active-Klasse zum geklickten Item hinzu
+            this.classList.add('active');
             document.getElementById('testFilterBtn').textContent = this.querySelector('.test-title')?.textContent || 'Alle Tests';
             updateResults();
         });
     });
 
     // Initial load
-    loadResults();
+    updateResults();
 });
 
 function debounce(func, wait) {
@@ -307,15 +314,16 @@ function debounce(func, wait) {
     };
 }
 
-function loadResults() {
+function updateResults() {
     const studentFilter = document.getElementById('studentFilter').value;
     const dateFilter = document.getElementById('dateFilter').value;
-    const selectedTest = document.querySelector('.dropdown-item.active')?.dataset?.code || '';
+    const activeTest = document.querySelector('.dropdown-item.active');
+    const selectedTest = activeTest ? activeTest.dataset.code : '';
     
     const queryParams = new URLSearchParams({
-        search: studentFilter,
-        start_date: dateFilter,
-        test: selectedTest
+        search: studentFilter || '',
+        start_date: dateFilter || '',
+        test: selectedTest || ''
     });
     
     fetch(`?${queryParams.toString()}`, {
@@ -339,6 +347,11 @@ function loadResults() {
 function updateResultsDisplay(results) {
     const container = document.getElementById('filteredResults');
     container.innerHTML = '';
+
+    if (results.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">Keine Ergebnisse gefunden.</div>';
+        return;
+    }
 
     // Gruppiere Ergebnisse nach Test
     const groupedResults = {};

@@ -132,20 +132,23 @@ foreach ($answerXml->questions->question as $question) {
 // Erstelle den Ordnernamen basierend auf Zugangscode und Datum
 $date = date('Y-m-d');
 $folderName = $_SESSION['test_code'] . '_' . $date;
-$resultsDir = __DIR__ . '/results/' . $folderName;
+$resultsDir = 'results/' . $folderName;
 
 // Stelle sicher, dass der Hauptordner 'results' existiert
-$mainResultsDir = __DIR__ . '/results';
+$mainResultsDir = 'results';
 if (!file_exists($mainResultsDir)) {
+    error_log("Versuche Hauptordner zu erstellen: " . $mainResultsDir);
     if (!mkdir($mainResultsDir, 0777, true)) {
         error_log("Fehler beim Erstellen des Hauptergebnisordners: " . $mainResultsDir);
         error_log("PHP Fehler: " . error_get_last()['message']);
+        error_log("Aktuelles Arbeitsverzeichnis: " . getcwd());
         $_SESSION['error'] = "Fehler beim Speichern des Tests. Bitte kontaktieren Sie den Administrator.";
         header("Location: index.php");
         exit();
     }
     // Setze Berechtigungen explizit
     chmod($mainResultsDir, 0777);
+    error_log("Hauptordner erfolgreich erstellt");
 }
 
 // Erstelle den Unterordner für den spezifischen Test
@@ -154,6 +157,7 @@ if (!file_exists($resultsDir)) {
     if (!mkdir($resultsDir, 0777, true)) {
         error_log("Fehler beim Erstellen des Ergebnisordners: " . $resultsDir);
         error_log("PHP Fehler: " . error_get_last()['message']);
+        error_log("Aktuelles Arbeitsverzeichnis: " . getcwd());
         error_log("Aktuelle Berechtigungen des übergeordneten Ordners: " . decoct(fileperms($mainResultsDir)));
         $_SESSION['error'] = "Fehler beim Speichern des Tests. Bitte kontaktieren Sie den Administrator.";
         header("Location: index.php");
@@ -177,6 +181,9 @@ $dom->loadXML($answerXml->asXML());
 
 // Speichere die XML-Datei
 error_log("Versuche XML-Datei zu speichern: " . $filepath);
+error_log("Aktuelles Arbeitsverzeichnis: " . getcwd());
+error_log("Dateiberechtigungen des Zielordners: " . decoct(fileperms($resultsDir)));
+
 if (!$dom->save($filepath)) {
     error_log("Fehler beim Speichern der XML-Datei: " . $filepath);
     error_log("PHP Fehler: " . error_get_last()['message']);
@@ -276,11 +283,15 @@ try {
 
     // Führe direkte Synchronisation durch
     try {
+        error_log("Starte direkte Datenbanksynchronisation");
         require_once __DIR__ . '/includes/teacher_dashboard/sync_database_helper.php';
+        
+        // Dies muss ein direkter Funktionsaufruf sein, keine include
         syncDatabase();
-        error_log("Datenbank wurde nach Testabschluss synchronisiert");
+        
+        error_log("Datenbank wurde nach Testabschluss erfolgreich synchronisiert");
     } catch (Exception $syncError) {
-        error_log("Fehler bei der Synchronisation: " . $syncError->getMessage());
+        error_log("Fehler bei der Synchronisation: " . $syncError->getMessage() . "\n" . $syncError->getTraceAsString());
         // Fahre fort, da die Hauptspeicherung erfolgreich war
     }
 

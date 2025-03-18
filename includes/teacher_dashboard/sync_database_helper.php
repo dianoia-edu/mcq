@@ -11,21 +11,17 @@ function syncDatabase() {
         throw new Exception("Results-Verzeichnis nicht gefunden: " . $resultsDir);
     }
     
-    $existingTestCodes = [];
-    
-    // Durchsuche alle Unterordner nach XML-Dateien
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($resultsDir));
-    foreach ($iterator as $file) {
-        if ($file->isFile() && $file->getExtension() === 'xml') {
-            $filename = $file->getBasename();
-            if (preg_match('/^([A-Z0-9]+)_/', $filename, $matches)) {
-                $existingTestCodes[$matches[1]] = true;
-            }
-        }
-    }
+    // Hole alle existierenden Einträge aus der Datenbank
+    $stmt = $db->query("SELECT attempt_id, xml_file_path FROM test_attempts");
+    $dbEntries = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Sammle alle XML-Dateien
     $xmlFiles = [];
+    
+    // Erstelle Iterator nur einmal
+    $dirIterator = new RecursiveDirectoryIterator($resultsDir, RecursiveDirectoryIterator::SKIP_DOTS);
+    $iterator = new RecursiveIteratorIterator($dirIterator);
+    
     foreach ($iterator as $file) {
         if ($file->isFile() && $file->getExtension() === 'xml') {
             $relativePath = str_replace('\\', '/', substr($file->getPathname(), strlen($resultsDir) + 1));
@@ -33,9 +29,8 @@ function syncDatabase() {
         }
     }
     
-    // Hole alle existierenden Einträge aus der Datenbank
-    $stmt = $db->query("SELECT attempt_id, xml_file_path FROM test_attempts");
-    $dbEntries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Logge Anzahl der gefundenen XML-Dateien
+    error_log("Gefundene XML-Dateien: " . count($xmlFiles));
     
     // Füge neue XML-Dateien zur Datenbank hinzu
     $insertStmt = $db->prepare("
@@ -71,12 +66,20 @@ function syncDatabase() {
         }
         
         if (!$exists) {
+            error_log("Verarbeite neue XML-Datei: " . $relativePath);
+            
             // Lade XML und extrahiere Informationen
             $xml = simplexml_load_file($fullPath);
-            if ($xml === false) continue;
+            if ($xml === false) {
+                error_log("Konnte XML nicht laden: " . $fullPath);
+                continue;
+            }
             
             // Extrahiere den Zugangscode aus dem Dateinamen
-            if (!preg_match('/^([A-Z0-9]+)_/', basename($relativePath), $matches)) continue;
+            if (!preg_match('/^([A-Z0-9]+)_/', basename($relativePath), $matches)) {
+                error_log("Kein gültiger Zugangscode in Dateiname gefunden: " . basename($relativePath));
+                continue;
+            }
             $accessCode = $matches[1];
             
             // Extrahiere den Schülernamen
@@ -88,10 +91,15 @@ function syncDatabase() {
             // Berechne Punkte und Note
             require_once __DIR__ . '/../../auswertung.php';
             $results = evaluateTest($fullPath);
-            if ($results === false) continue;
+            if ($results === false) {
+                error_log("Konnte Ergebnisse nicht berechnen: " . $fullPath);
+                continue;
+            }
             
             $schema = loadGradeSchema();
             $grade = calculateGrade($results['percentage'], $schema);
+            
+            error_log("Füge neuen Eintrag hinzu: " . $accessCode . ", " . $studentName . ", " . $results['achieved'] . "/" . $results['max']);
             
             // Füge den Eintrag zur Datenbank hinzu
             try {
@@ -105,6 +113,7 @@ function syncDatabase() {
                     $results['percentage'],
                     $grade
                 ]);
+                error_log("Eintrag erfolgreich hinzugefügt");
             } catch (Exception $e) {
                 error_log("Fehler beim Einfügen von " . $relativePath . ": " . $e->getMessage());
             }
