@@ -88,8 +88,7 @@ try {
             ta.points_achieved,
             ta.points_maximum,
             ta.percentage,
-            ta.grade,
-            ta.created_at
+            ta.grade
         FROM test_attempts ta
         JOIN tests t ON ta.test_id = t.test_id
         WHERE 1=1
@@ -145,8 +144,7 @@ try {
             'points_achieved' => $result['points_achieved'],
             'points_maximum' => $result['points_maximum'],
             'percentage' => $result['percentage'],
-            'grade' => $result['grade'],
-            'created_at' => $result['created_at']
+            'grade' => $result['grade']
         ];
         
         writeLog("Konstruierte Pfade für " . $result['studentName'] . ":");
@@ -251,7 +249,7 @@ foreach ($allResults as $result) {
     if (!isset($uniqueTests[$result['accessCode']])) {
         $uniqueTests[$result['accessCode']] = [
             'title' => $result['testTitle'],
-            'created_at' => $result['created_at']
+            'created_at' => $result['date']
         ];
     }
 }
