@@ -294,6 +294,7 @@ if (!$isAjax):
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         .test-code {
             font-weight: bold;
@@ -337,109 +338,142 @@ if (!$isAjax):
 <div class="container mt-4">
     <h2>Testergebnisse</h2>
     
-    <?php if (empty($allTests)): ?>
-        <div class="alert alert-info">
-            Keine Testergebnisse verfügbar.
-        </div>
-    <?php else: ?>
-        <!-- Filteroptionen -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label for="studentFilter" class="form-label">Schüler</label>
-                        <input type="text" class="form-control" id="studentFilter" 
-                               placeholder="Nach Schülername filtern..." 
-                               list="studentsList"
-                               autocomplete="off">
-                        <datalist id="studentsList">
-                            <?php foreach ($uniqueStudents as $student): ?>
-                                <option value="<?php echo htmlspecialchars($student); ?>">
-                            <?php endforeach; ?>
-                        </datalist>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="dateFilter" class="form-label">Datum</label>
-                        <input type="text" class="form-control" id="dateFilter">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="testFilterBtn" class="form-label">Test</label>
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="testFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                                Alle Tests
-                            </button>
-                            <ul class="dropdown-menu w-100" aria-labelledby="testFilterBtn">
-                                <li><a class="dropdown-item active" href="#" data-value="" data-code="">Alle Tests</a></li>
-                                <?php foreach ($allTests as $test): ?>
-                                    <li>
-                                        <a class="dropdown-item <?php echo $test['attempt_count'] == 0 ? 'no-attempts' : ''; ?>" 
-                                           href="#" 
-                                           data-value="<?php echo htmlspecialchars($test['title']); ?>"
-                                           data-code="<?php echo htmlspecialchars($test['access_code']); ?>">
-                                            <div class="test-code"><?php echo htmlspecialchars($test['access_code']); ?></div>
-                                            <div class="test-title"><?php echo htmlspecialchars($test['title']); ?></div>
-                                        </a>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Tab-Navigation -->
+    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button" role="tab" aria-controls="results" aria-selected="true">
+                Testergebnisse
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config" type="button" role="tab" aria-controls="config" aria-selected="false">
+                Konfiguration
+            </button>
+        </li>
+    </ul>
 
-        <div id="filteredResults">
-            <!-- Hier werden die gefilterten Ergebnisse angezeigt -->
-            <?php if (!empty($groupedResults)): ?>
-                <?php foreach ($groupedResults as $group): ?>
-                    <div class="card mb-4 result-group">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">
-                                [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
-                                <?php echo htmlspecialchars($group['testTitle']); ?>
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Schüler</th>
-                                            <th>Abgabezeitpunkt</th>
-                                            <th>Punkte</th>
-                                            <th>Prozent</th>
-                                            <th>Note</th>
-                                            <th>Aktionen</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($group['results'] as $result): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($result['studentName']); ?></td>
-                                                <td><?php echo htmlspecialchars($result['date']); ?></td>
-                                                <td><?php echo htmlspecialchars($result['points_achieved']); ?>/<?php echo htmlspecialchars($result['points_maximum']); ?></td>
-                                                <td><?php echo htmlspecialchars($result['percentage']); ?>%</td>
-                                                <td><?php echo htmlspecialchars($result['grade']); ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-info" onclick="showResults('<?php echo htmlspecialchars($result['fileName']); ?>')">
-                                                        Details
-                                                    </button>
-                                                </td>
-                                            </tr>
+    <!-- Tab-Inhalte -->
+    <div class="tab-content" id="myTabContent">
+        <!-- Testergebnisse Tab -->
+        <div class="tab-pane fade show active" id="results" role="tabpanel" aria-labelledby="results-tab">
+            <?php if (empty($allTests)): ?>
+                <div class="alert alert-info">
+                    Keine Testergebnisse verfügbar.
+                </div>
+            <?php else: ?>
+                <!-- Filteroptionen -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="studentFilter" class="form-label">Schüler</label>
+                                <input type="text" class="form-control" id="studentFilter" 
+                                       placeholder="Nach Schülername filtern..." 
+                                       list="studentsList"
+                                       autocomplete="off">
+                                <datalist id="studentsList">
+                                    <?php foreach ($uniqueStudents as $student): ?>
+                                        <option value="<?php echo htmlspecialchars($student); ?>">
+                                    <?php endforeach; ?>
+                                </datalist>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dateFilter" class="form-label">Datum</label>
+                                <input type="text" class="form-control" id="dateFilter">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="testFilterBtn" class="form-label">Test</label>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="testFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Alle Tests
+                                    </button>
+                                    <ul class="dropdown-menu w-100" aria-labelledby="testFilterBtn">
+                                        <li><a class="dropdown-item active" href="#" data-value="" data-code="">Alle Tests</a></li>
+                                        <?php foreach ($allTests as $test): ?>
+                                            <li>
+                                                <a class="dropdown-item <?php echo $test['attempt_count'] == 0 ? 'no-attempts' : ''; ?>" 
+                                                   href="#" 
+                                                   data-value="<?php echo htmlspecialchars($test['title']); ?>"
+                                                   data-code="<?php echo htmlspecialchars($test['access_code']); ?>">
+                                                    <div class="test-code"><?php echo htmlspecialchars($test['access_code']); ?></div>
+                                                    <div class="test-title"><?php echo htmlspecialchars($test['title']); ?></div>
+                                                </a>
+                                            </li>
                                         <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="alert alert-info mt-3">
-                    <p>Keine Ergebnisse gefunden. Wenn Sie gerade einen Test abgeschlossen haben, wählen Sie bitte den Filter "Alle Tests".</p>
+                </div>
+
+                <div id="filteredResults">
+                    <!-- Hier werden die gefilterten Ergebnisse angezeigt -->
+                    <?php if (!empty($groupedResults)): ?>
+                        <?php foreach ($groupedResults as $group): ?>
+                            <div class="card mb-4 result-group">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
+                                        <?php echo htmlspecialchars($group['testTitle']); ?>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Schüler</th>
+                                                    <th>Abgabezeitpunkt</th>
+                                                    <th>Punkte</th>
+                                                    <th>Prozent</th>
+                                                    <th>Note</th>
+                                                    <th>Aktionen</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($group['results'] as $result): ?>
+                                                    <tr>
+                                                        <td><?php echo htmlspecialchars($result['studentName']); ?></td>
+                                                        <td><?php echo htmlspecialchars($result['date']); ?></td>
+                                                        <td><?php echo htmlspecialchars($result['points_achieved']); ?>/<?php echo htmlspecialchars($result['points_maximum']); ?></td>
+                                                        <td><?php echo htmlspecialchars($result['percentage']); ?>%</td>
+                                                        <td><?php echo htmlspecialchars($result['grade']); ?></td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-info" onclick="showResults('<?php echo htmlspecialchars($result['fileName']); ?>')">
+                                                                Details
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="alert alert-info mt-3">
+                            <p>Keine Ergebnisse gefunden. Wenn Sie gerade einen Test abgeschlossen haben, wählen Sie bitte den Filter "Alle Tests".</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
         </div>
-    <?php endif; ?>
+
+        <!-- Konfiguration Tab -->
+        <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Datenbank-Synchronisation</h5>
+                    <p class="card-text">Synchronisieren Sie die Datenbank mit den XML-Dateien im results-Ordner.</p>
+                    <form action="sync_database.php" method="post">
+                        <button type="submit" class="btn btn-primary">Synchronisiere Datenbank</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
