@@ -12,10 +12,27 @@ function writeLog($message) {
 $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 
+writeLog("Request-Typ: " . ($isAjax ? "AJAX" : "Normal HTML"));
+writeLog("GET-Parameter: " . print_r($_GET, true));
+
 // Lade die Ergebnisse aus der Datenbank
 $allResults = [];
 try {
+    writeLog("Stelle Verbindung zur Datenbank her");
     $db = DatabaseConfig::getInstance()->getConnection();
+    
+    // Prüfe die Verbindung
+    try {
+        $testQuery = $db->query("SELECT 1");
+        if ($testQuery) {
+            writeLog("Datenbankverbindung erfolgreich getestet");
+        } else {
+            writeLog("Datenbankverbindungstest fehlgeschlagen");
+        }
+    } catch (Exception $e) {
+        writeLog("Fehler beim Testen der Datenbankverbindung: " . $e->getMessage());
+    }
+    
     writeLog("Datenbankverbindung hergestellt");
 
     // Hole Filter-Parameter
@@ -60,33 +77,41 @@ try {
     ";
     
     $params = [];
-    
+    writeLog("Erstelle SQL-Abfrage mit Filtern");
+
     if (!empty($selectedTest)) {
         $sql .= " AND t.access_code = ?";
         $params[] = $selectedTest;
+        writeLog("Filter: Test = " . $selectedTest);
     }
     
     if (!empty($startDate)) {
         $sql .= " AND DATE(ta.completed_at) >= ?";
         $params[] = $startDate;
+        writeLog("Filter: Startdatum = " . $startDate);
     }
     
     if (!empty($endDate)) {
         $sql .= " AND DATE(ta.completed_at) <= ?";
         $params[] = $endDate;
+        writeLog("Filter: Enddatum = " . $endDate);
     }
     
     if (!empty($searchTerm)) {
         $sql .= " AND (ta.student_name LIKE ? OR t.title LIKE ?)";
         $params[] = "%$searchTerm%";
         $params[] = "%$searchTerm%";
+        writeLog("Filter: Suchbegriff = " . $searchTerm);
     }
     
     $sql .= " ORDER BY ta.completed_at DESC, t.access_code";
+    writeLog("Vollständige SQL-Abfrage: " . $sql);
+    writeLog("Parameter: " . print_r($params, true));
     
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
     $dbResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    writeLog("Abfrage ausgeführt, " . count($dbResults) . " Ergebnisse gefunden");
     
     foreach ($dbResults as $result) {
         writeLog("XML-Pfad aus Datenbank: " . $result['fileName']);
@@ -96,7 +121,7 @@ try {
             'studentName' => $result['studentName'],
             'date' => date('d.m.Y H:i', strtotime($result['date'])),
             'accessCode' => $result['access_code'],
-            'fileName' => basename($result['fileName']),
+            'fileName' => $result['fileName'],
             'testDate' => date('Y-m-d', strtotime($result['date'])),
             'points_achieved' => $result['points_achieved'],
             'points_maximum' => $result['points_maximum'],
@@ -126,6 +151,7 @@ try {
     $allTests = $allTestsQuery->fetchAll(PDO::FETCH_ASSOC);
 
     if ($isAjax) {
+        writeLog("Sende AJAX-Antwort mit " . count($allResults) . " Ergebnissen");
         header('Content-Type: application/json');
         echo json_encode([
             'success' => true,
@@ -208,11 +234,59 @@ $uniqueTestsJson = json_encode($uniqueTests);
 if (!$isAjax):
 ?>
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testergebnisse</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <style>
+        .test-code {
+            font-weight: bold;
+            color: #0d6efd;
+            display: inline-block;
+        }
+        .test-title {
+            margin-left: 5px;
+            display: inline-block;
+        }
+        .no-attempts {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .dropdown-menu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            white-space: normal;
+        }
+        .result-group .card-header {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .btn-info {
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+            color: #000;
+        }
+        .btn-info:hover {
+            background-color: #31d2f2;
+            border-color: #25cff2;
+            color: #000;
+        }
+    </style>
+</head>
+
 <!-- HTML und JavaScript Code -->
 <div class="container mt-4">
     <h2>Testergebnisse</h2>
     
-    <?php if (empty($groupedResults)): ?>
+    <?php if (empty($allTests)): ?>
         <div class="alert alert-info">
             Keine Testergebnisse verfügbar.
         </div>
@@ -244,7 +318,7 @@ if (!$isAjax):
                                 Alle Tests
                             </button>
                             <ul class="dropdown-menu w-100" aria-labelledby="testFilterBtn">
-                                <li><a class="dropdown-item" href="#" data-value="" data-code="">Alle Tests</a></li>
+                                <li><a class="dropdown-item active" href="#" data-value="" data-code="">Alle Tests</a></li>
                                 <?php foreach ($allTests as $test): ?>
                                     <li>
                                         <a class="dropdown-item <?php echo $test['attempt_count'] == 0 ? 'no-attempts' : ''; ?>" 
@@ -270,18 +344,22 @@ if (!$isAjax):
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM geladen, initialisiere Filterkomponenten');
+    
     // Initialisiere Flatpickr
     flatpickr("#dateFilter", {
         dateFormat: "Y-m-d",
         locale: "de",
         allowInput: true,
         onChange: function(selectedDates) {
+            console.log('Datum geändert:', selectedDates);
             updateResults();
         }
     });
 
     // Event-Listener für Filter
     document.getElementById('studentFilter').addEventListener('input', debounce(function() {
+        console.log('Schülerfilter geändert:', this.value);
         updateResults();
     }, 300));
     
@@ -289,16 +367,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.dropdown-item').forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
+            console.log('Test ausgewählt:', this.dataset.code);
+            
             // Entferne active-Klasse von allen Items
             document.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+            
             // Füge active-Klasse zum geklickten Item hinzu
             this.classList.add('active');
+            
             document.getElementById('testFilterBtn').textContent = this.querySelector('.test-title')?.textContent || 'Alle Tests';
             updateResults();
         });
     });
 
     // Initial load
+    console.log('Lade initiale Ergebnisse');
     updateResults();
 });
 
@@ -320,35 +403,54 @@ function updateResults() {
     const activeTest = document.querySelector('.dropdown-item.active');
     const selectedTest = activeTest ? activeTest.dataset.code : '';
     
+    console.log('Update Ergebnisse mit Filtern:', {
+        student: studentFilter,
+        date: dateFilter,
+        test: selectedTest
+    });
+    
     const queryParams = new URLSearchParams({
         search: studentFilter || '',
         start_date: dateFilter || '',
         test: selectedTest || ''
     });
     
+    console.log('Sende AJAX-Anfrage:', '?' + queryParams.toString());
+    
     fetch(`?${queryParams.toString()}`, {
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Antwort erhalten, Status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Daten erhalten:', data);
         if (data.success) {
             updateResultsDisplay(data.results);
         } else {
             console.error('Fehler beim Laden der Ergebnisse:', data.error);
+            document.getElementById('filteredResults').innerHTML = 
+                '<div class="alert alert-danger">Fehler beim Laden der Ergebnisse: ' + data.error + '</div>';
         }
     })
     .catch(error => {
         console.error('Fehler beim Laden der Ergebnisse:', error);
+        document.getElementById('filteredResults').innerHTML = 
+            '<div class="alert alert-danger">Fehler beim Laden der Ergebnisse: ' + error.message + '</div>';
     });
 }
 
 function updateResultsDisplay(results) {
+    console.log('Aktualisiere Ergebnisanzeige mit', results.length, 'Ergebnissen');
+    
     const container = document.getElementById('filteredResults');
     container.innerHTML = '';
 
     if (results.length === 0) {
+        console.log('Keine Ergebnisse gefunden');
         container.innerHTML = '<div class="alert alert-info">Keine Ergebnisse gefunden.</div>';
         return;
     }
@@ -367,9 +469,13 @@ function updateResultsDisplay(results) {
         }
         groupedResults[key].results.push(result);
     });
+    
+    console.log('Gruppierte Ergebnisse:', Object.keys(groupedResults).length, 'Gruppen');
 
     // Erstelle HTML für jede Gruppe
     Object.values(groupedResults).forEach(group => {
+        console.log('Erstelle Gruppe für:', group.testTitle, 'mit', group.results.length, 'Ergebnissen');
+        
         const card = document.createElement('div');
         card.className = 'card mb-4 result-group';
         card.innerHTML = `
@@ -414,9 +520,12 @@ function updateResultsDisplay(results) {
         `;
         container.appendChild(card);
     });
+    
+    console.log('Ergebnisanzeige aktualisiert');
 }
 
 function showResults(filename) {
+    console.log('Zeige Details für:', filename);
     window.location.href = `show_results.php?file=${encodeURIComponent(filename)}`;
 }
 </script>
