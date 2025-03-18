@@ -15,6 +15,12 @@ $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
 writeLog("Request-Typ: " . ($isAjax ? "AJAX" : "Normal HTML"));
 writeLog("GET-Parameter: " . print_r($_GET, true));
 
+// Bei AJAX-Anfragen keine HTML-Ausgabe erzeugen
+if ($isAjax) {
+    // Vermeide PHP-Warnungen und Fehler in der Ausgabe
+    ob_start(); 
+}
+
 // Lade die Ergebnisse aus der Datenbank
 $allResults = [];
 try {
@@ -151,6 +157,9 @@ try {
     $allTests = $allTestsQuery->fetchAll(PDO::FETCH_ASSOC);
 
     if ($isAjax) {
+        // Verwerfe alle bisherigen Ausgaben
+        ob_end_clean();
+        
         writeLog("Sende AJAX-Antwort mit " . count($allResults) . " Ergebnissen");
         
         // Ausführlichere Debug-Ausgabe
@@ -405,6 +414,8 @@ if (!$isAjax):
     <?php endif; ?>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM geladen, initialisiere Filterkomponenten');
@@ -510,6 +521,10 @@ function updateResults() {
     console.log('Basis-URL:', currentUrl);
     console.log('Sende AJAX-Anfrage:', currentUrl + '?' + queryParams.toString());
     
+    // Zeige Ladestatus an
+    const container = document.getElementById('filteredResults');
+    container.innerHTML = '<div class="alert alert-info">Ergebnisse werden geladen...</div>';
+    
     // Zufälliger Cache-Buster
     queryParams.append('_', new Date().getTime());
     
@@ -524,7 +539,18 @@ function updateResults() {
         if (!response.ok) {
             throw new Error('Netzwerkantwort nicht ok');
         }
-        return response.json();
+        
+        // Versuche den Response-Text zu loggen
+        return response.text().then(text => {
+            console.log('Antwort-Text (erste 100 Zeichen):', text.substring(0, 100));
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('JSON-Parse-Fehler:', e);
+                console.error('Erhaltener Text statt JSON:', text.substring(0, 300));
+                throw new Error('Ungültiges JSON in der Antwort: ' + e.message);
+            }
+        });
     })
     .then(data => {
         console.log('Daten erhalten:', data);
