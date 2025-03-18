@@ -452,6 +452,22 @@ if (!$isAjax):
             display: inline-block;
             margin: 0 !important;
         }
+        /* Formatierung der Noten */
+        .grade-good {
+            font-weight: bold;
+            color: #28a745;
+            font-size: 1.2em;
+        }
+        .grade-medium {
+            color: #fd7e14;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .grade-bad {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
         /* Deaktivierte Tage im Datepicker anpassen */
         .flatpickr-day.flatpickr-disabled, 
         .flatpickr-day.flatpickr-disabled:hover {
@@ -609,7 +625,20 @@ if (!$isAjax):
                                             <td><?php echo htmlspecialchars($result['date']); ?></td>
                                             <td><?php echo htmlspecialchars($result['points_achieved']); ?>/<?php echo htmlspecialchars($result['points_maximum']); ?></td>
                                                             <td><?php echo htmlspecialchars($result['percentage']); ?>%</td>
-                                            <td><?php echo htmlspecialchars($result['grade']); ?></td>
+                                            <td>
+                                                <?php 
+                                                $grade = $result['grade'];
+                                                $gradeClass = '';
+                                                if ($grade == '1' || $grade == '2') {
+                                                    $gradeClass = 'grade-good';
+                                                } else if ($grade == '3' || $grade == '4') {
+                                                    $gradeClass = 'grade-medium';
+                                                } else if ($grade == '5' || $grade == '6') {
+                                                    $gradeClass = 'grade-bad';
+                                                }
+                                                ?>
+                                                <span class="<?php echo $gradeClass; ?>"><?php echo htmlspecialchars($grade); ?></span>
+                                            </td>
                                             <td class="text-start">
                                                 <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('<?php echo htmlspecialchars($result['fileName']); ?>')">
                                                     Details
@@ -955,7 +984,9 @@ function updateResultsDisplay(results) {
                     <td>${result.date || 'Unbekannt'}</td>
                     <td>${result.points_achieved || 0}/${result.points_maximum || 0}</td>
                     <td>${result.percentage || 0}%</td>
-                    <td>${result.grade || '-'}</td>
+                    <td>
+                        ${formatGrade(result.grade || '-')}
+                    </td>
                     <td class="text-start">
                         <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('${result.fileName || ''}')">
                             Details
@@ -1061,6 +1092,19 @@ function formatDate(dateString) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = String(date.getFullYear()).slice(2);
     return `${day}.${month}.${year}`;
+}
+
+// Hilfsfunktion zur Notenformatierung
+function formatGrade(grade) {
+    if (grade === '1' || grade === '2') {
+        return `<span class="grade-good">${grade}</span>`;
+    } else if (grade === '3' || grade === '4') {
+        return `<span class="grade-medium">${grade}</span>`;
+    } else if (grade === '5' || grade === '6') {
+        return `<span class="grade-bad">${grade}</span>`;
+    } else {
+        return grade;
+    }
 }
 </script> 
 
