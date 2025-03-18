@@ -152,11 +152,25 @@ try {
 
     if ($isAjax) {
         writeLog("Sende AJAX-Antwort mit " . count($allResults) . " Ergebnissen");
+        
+        // Ausführlichere Debug-Ausgabe
+        if (count($allResults) > 0) {
+            writeLog("Beispielergebnis: " . print_r($allResults[0], true));
+        }
+        
+        // Cache-Header deaktivieren
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Content-Type: application/json');
-        echo json_encode([
+        
+        $response = [
             'success' => true,
-            'results' => $allResults
-        ]);
+            'results' => $allResults,
+            'count' => count($allResults),
+            'timestamp' => time()
+        ];
+        
+        echo json_encode($response);
         exit;
     }
 
@@ -338,6 +352,55 @@ if (!$isAjax):
         </div>
 
         <div id="filteredResults">
+            <!-- Hier werden die gefilterten Ergebnisse angezeigt -->
+            <?php if (!empty($groupedResults)): ?>
+                <?php foreach ($groupedResults as $group): ?>
+                    <div class="card mb-4 result-group">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
+                                <?php echo htmlspecialchars($group['testTitle']); ?>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Schüler</th>
+                                            <th>Abgabezeitpunkt</th>
+                                            <th>Punkte</th>
+                                            <th>Prozent</th>
+                                            <th>Note</th>
+                                            <th>Aktionen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($group['results'] as $result): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($result['studentName']); ?></td>
+                                                <td><?php echo htmlspecialchars($result['date']); ?></td>
+                                                <td><?php echo htmlspecialchars($result['points_achieved']); ?>/<?php echo htmlspecialchars($result['points_maximum']); ?></td>
+                                                <td><?php echo htmlspecialchars($result['percentage']); ?>%</td>
+                                                <td><?php echo htmlspecialchars($result['grade']); ?></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info" onclick="showResults('<?php echo htmlspecialchars($result['fileName']); ?>')">
+                                                        Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="alert alert-info mt-3">
+                    <p>Keine Ergebnisse gefunden. Wenn Sie gerade einen Test abgeschlossen haben, wählen Sie bitte den Filter "Alle Tests".</p>
+                </div>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>
@@ -346,39 +409,66 @@ if (!$isAjax):
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM geladen, initialisiere Filterkomponenten');
     
+    // Prüfe, ob die erforderlichen Elemente existieren
+    const studentFilter = document.getElementById('studentFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
+    
+    if (!studentFilter || !dateFilter) {
+        console.error('Filter-Elemente nicht gefunden!');
+        return;
+    }
+    
+    console.log('Filter-Elemente gefunden, initialisiere...');
+    
     // Initialisiere Flatpickr
-    flatpickr("#dateFilter", {
-        dateFormat: "Y-m-d",
-        locale: "de",
-        allowInput: true,
-        onChange: function(selectedDates) {
-            console.log('Datum geändert:', selectedDates);
-            updateResults();
-        }
-    });
+    if (typeof flatpickr === 'function') {
+        flatpickr("#dateFilter", {
+            dateFormat: "Y-m-d",
+            locale: "de",
+            allowInput: true,
+            onChange: function(selectedDates) {
+                console.log('Datum geändert:', selectedDates);
+                updateResults();
+            }
+        });
+        console.log('Flatpickr initialisiert');
+    } else {
+        console.error('Flatpickr nicht gefunden!');
+    }
 
     // Event-Listener für Filter
-    document.getElementById('studentFilter').addEventListener('input', debounce(function() {
+    studentFilter.addEventListener('input', debounce(function() {
         console.log('Schülerfilter geändert:', this.value);
         updateResults();
     }, 300));
     
     // Event-Listener für Test-Dropdown
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Test ausgewählt:', this.dataset.code);
-            
-            // Entferne active-Klasse von allen Items
-            document.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
-            
-            // Füge active-Klasse zum geklickten Item hinzu
-            this.classList.add('active');
-            
-            document.getElementById('testFilterBtn').textContent = this.querySelector('.test-title')?.textContent || 'Alle Tests';
-            updateResults();
+    if (dropdownItems.length > 0) {
+        console.log('Dropdown-Items gefunden:', dropdownItems.length);
+        
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Test ausgewählt:', this.dataset.code);
+                
+                // Entferne active-Klasse von allen Items
+                document.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+                
+                // Füge active-Klasse zum geklickten Item hinzu
+                this.classList.add('active');
+                
+                const testFilterBtn = document.getElementById('testFilterBtn');
+                if (testFilterBtn) {
+                    testFilterBtn.textContent = this.querySelector('.test-title')?.textContent || 'Alle Tests';
+                }
+                
+                updateResults();
+            });
         });
-    });
+    } else {
+        console.error('Keine Dropdown-Items gefunden!');
+    }
 
     // Initial load
     console.log('Lade initiale Ergebnisse');
@@ -415,15 +505,25 @@ function updateResults() {
         test: selectedTest || ''
     });
     
-    console.log('Sende AJAX-Anfrage:', '?' + queryParams.toString());
+    // Aktuelle URL und Pfad
+    const currentUrl = window.location.href.split('?')[0];
+    console.log('Basis-URL:', currentUrl);
+    console.log('Sende AJAX-Anfrage:', currentUrl + '?' + queryParams.toString());
     
-    fetch(`?${queryParams.toString()}`, {
+    // Zufälliger Cache-Buster
+    queryParams.append('_', new Date().getTime());
+    
+    fetch(currentUrl + '?' + queryParams.toString(), {
         headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache'
         }
     })
     .then(response => {
         console.log('Antwort erhalten, Status:', response.status);
+        if (!response.ok) {
+            throw new Error('Netzwerkantwort nicht ok');
+        }
         return response.json();
     })
     .then(data => {
@@ -449,21 +549,30 @@ function updateResultsDisplay(results) {
     const container = document.getElementById('filteredResults');
     container.innerHTML = '';
 
-    if (results.length === 0) {
+    if (!results || results.length === 0) {
         console.log('Keine Ergebnisse gefunden');
         container.innerHTML = '<div class="alert alert-info">Keine Ergebnisse gefunden.</div>';
         return;
     }
 
+    // Debug-Ausgabe aller Ergebnisse
+    console.log('Erhaltene Ergebnisse:', results);
+
     // Gruppiere Ergebnisse nach Test
     const groupedResults = {};
     results.forEach(result => {
+        // Überprüfe, ob alle erforderlichen Eigenschaften vorhanden sind
+        if (!result.testTitle || !result.accessCode) {
+            console.error('Ungültiges Ergebnisobjekt:', result);
+            return;
+        }
+
         const key = `${result.testTitle}_${result.accessCode}`;
         if (!groupedResults[key]) {
             groupedResults[key] = {
                 testTitle: result.testTitle,
                 accessCode: result.accessCode,
-                testDate: result.testDate,
+                testDate: result.testDate || '',
                 results: []
             };
         }
@@ -501,13 +610,13 @@ function updateResultsDisplay(results) {
                         <tbody>
                             ${group.results.map(result => `
                                 <tr>
-                                    <td>${result.studentName}</td>
-                                    <td>${result.date}</td>
-                                    <td>${result.points_achieved}/${result.points_maximum}</td>
-                                    <td>${result.percentage}%</td>
-                                    <td>${result.grade}</td>
+                                    <td>${result.studentName || ''}</td>
+                                    <td>${result.date || ''}</td>
+                                    <td>${result.points_achieved || 0}/${result.points_maximum || 0}</td>
+                                    <td>${result.percentage || 0}%</td>
+                                    <td>${result.grade || ''}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-info" onclick="showResults('${result.fileName}')">
+                                        <button class="btn btn-sm btn-info" onclick="showResults('${result.fileName || ''}')">
                                             Details
                                         </button>
                                     </td>
