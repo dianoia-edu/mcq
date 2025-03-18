@@ -29,7 +29,7 @@ if (!file_exists($_SESSION["test_file"])) {
 if (hasCompletedTestToday($_SESSION["test_code"], $_SESSION["student_name"])) {
     $_SESSION["error"] = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
     header("Location: index.php");
-    exit;
+    exit();
 }
 
 // Setze Header für keine Caching
@@ -310,11 +310,14 @@ function getTestModeWarning() {
                                         <input type="radio" 
                                                name="answer_<?php echo $question['nr']; ?>" 
                                                value="<?php echo $answer['nr']; ?>" 
-                                               required>
+                                               id="q<?php echo $qIndex; ?>_a<?php echo $aIndex; ?>"
+                                               class="question-input">
                                     <?php else: ?>
                                         <input type="checkbox" 
                                                name="answer_<?php echo $question['nr']; ?>[]" 
-                                               value="<?php echo $answer['nr']; ?>">
+                                               value="<?php echo $answer['nr']; ?>"
+                                               id="q<?php echo $qIndex; ?>_a<?php echo $aIndex; ?>"
+                                               class="question-input">
                                     <?php endif; ?>
                                     <label for="q<?php echo $qIndex; ?>_a<?php echo $aIndex; ?>">
                                         <?php echo htmlspecialchars($answer["text"]); ?>
@@ -327,7 +330,27 @@ function getTestModeWarning() {
             <?php endforeach; ?>
             
             <div class="form-actions">
-                <button type="submit" class="btn-submit">Test abschließen</button>
+                <button type="button" id="submitButton" class="btn-submit">Test abschließen</button>
+            </div>
+            
+            <!-- Warnung Modal -->
+            <div class="modal fade" id="warningModal" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title" id="warningModalLabel">Warnung - Nicht alle Fragen beantwortet</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Sie haben nicht alle Fragen beantwortet. Möchten Sie den Test trotzdem abschicken?</p>
+                            <p id="unansweredQuestions"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zurück zum Test</button>
+                            <button type="button" class="btn btn-warning" id="confirmSubmit">Ja, Test abschicken</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
@@ -335,12 +358,79 @@ function getTestModeWarning() {
         <?php echo "Letzte Änderung: " . date('d.m.Y H:i:s', filemtime(__FILE__)); ?>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Debug-Informationen
         console.log('Debug Information - Test Anzeige:');
         console.log('Test Name:', '<?php echo htmlspecialchars($testName); ?>');
         console.log('Student Name:', '<?php echo htmlspecialchars($studentName); ?>');
         console.log('Questions:', <?php echo json_encode($shuffledQuestions); ?>);
+        
+        // Formular-Validierung
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('testForm');
+            const submitButton = document.getElementById('submitButton');
+            const confirmSubmitButton = document.getElementById('confirmSubmit');
+            let warningModal;
+            
+            // Bootstrap-Modal initialisieren
+            try {
+                warningModal = new bootstrap.Modal(document.getElementById('warningModal'));
+            } catch (e) {
+                console.error('Fehler beim Initialisieren des Modals:', e);
+            }
+            
+            // Prüfen, ob alle Fragen beantwortet wurden
+            function checkAllQuestionsAnswered() {
+                const questionContainers = document.querySelectorAll('.question-container');
+                let unansweredQuestions = [];
+                
+                questionContainers.forEach((container, index) => {
+                    const inputs = container.querySelectorAll('.question-input:checked');
+                    if (inputs.length === 0) {
+                        unansweredQuestions.push(index + 1);
+                    }
+                });
+                
+                return {
+                    allAnswered: unansweredQuestions.length === 0,
+                    unanswered: unansweredQuestions
+                };
+            }
+            
+            // Submit-Button Klick-Event
+            submitButton.addEventListener('click', function() {
+                const result = checkAllQuestionsAnswered();
+                
+                if (result.allAnswered) {
+                    // Alle Fragen beantwortet - Formular absenden
+                    form.submit();
+                } else {
+                    // Nicht alle Fragen beantwortet - Warnung anzeigen
+                    const unansweredElement = document.getElementById('unansweredQuestions');
+                    unansweredElement.textContent = `Nicht beantwortete Fragen: ${result.unanswered.join(', ')}`;
+                    
+                    // Modal anzeigen
+                    if (warningModal) {
+                        warningModal.show();
+                    } else {
+                        // Fallback, falls Modal nicht funktioniert
+                        if (confirm('Sie haben nicht alle Fragen beantwortet. Möchten Sie den Test trotzdem abschicken?')) {
+                            form.submit();
+                        }
+                    }
+                }
+            });
+            
+            // Bestätigungs-Button im Modal
+            confirmSubmitButton.addEventListener('click', function() {
+                if (warningModal) {
+                    warningModal.hide();
+                }
+                // Formular absenden auch wenn nicht alle Fragen beantwortet wurden
+                form.submit();
+            });
+        });
     </script>
 </body>
 </html>

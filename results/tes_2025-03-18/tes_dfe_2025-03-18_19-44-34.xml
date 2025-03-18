@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<test>
+  <title>Die Aufkl&#xE4;rung in Europa und ihre Folgen</title>
+  <access_code>tes</access_code>
+  <question_count>1</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war eine langfristige Auswirkung der Aufkl&#xE4;rung auf die europ&#xE4;ische Gesellschaftsstruktur?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine R&#xFC;ckkehr zu st&#xE4;rker hierarchisch geordneten Gesellschaftsformen.</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Eine Beibehaltung des Feudalsystems ohne wesentliche &#xC4;nderungen.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Der &#xDC;bergang zu einer b&#xFC;rgerlichen Ordnung, basierend auf Besitz, Bildung und Leistung.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Die vollst&#xE4;ndige Eliminierung sozialer Unterschiede und Klassen.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>dfe</schuelername>
+  <abgabezeit>2025-03-18 19:44:34</abgabezeit>
+</test>

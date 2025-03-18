@@ -21,48 +21,106 @@ if (isset($_POST['back_to_home'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testergebnis</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .result-card {
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .result-value {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        .grade-display {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .grade-1, .grade-2 {
+            color: #28a745; /* Grün für gute Noten */
+        }
+        .grade-3, .grade-4 {
+            color: #fd7e14; /* Orange für mittlere Noten */
+        }
+        .grade-5, .grade-6 {
+            color: #dc3545; /* Rot für schlechte Noten */
+        }
+        .home-button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            margin-top: 30px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .home-button:hover {
+            transform: scale(1.05);
+        }
+        .congratulation {
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
+    <div class="container py-5">
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h3 class="text-center mb-0">Ihre Testergebnisse</h3>
+            <div class="col-lg-8">
+                <div class="card result-card mb-4">
+                    <div class="card-header bg-primary text-white py-4">
+                        <h2 class="text-center mb-0">Dein Testergebnis</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="text-center mb-3">
+                    <div class="card-body p-5">
+                        <div class="text-center congratulation">
                             <div class="display-1 text-success mb-3">✓</div>
-                            <h4>Test erfolgreich abgeschlossen!</h4>
-                            <p>Vielen Dank für Ihre Teilnahme, <?php echo htmlspecialchars($_SESSION['student_name']); ?>.</p>
+                            <h3>Test erfolgreich abgeschlossen!</h3>
+                            <p class="lead">Vielen Dank für deine Teilnahme, <strong><?php echo htmlspecialchars($_SESSION['student_name']); ?></strong>.</p>
                         </div>
-                        <div class="result-box bg-light p-3 rounded">
-                            <h5 class="text-center mb-3">Ihre Ergebnisse</h5>
-                            <div class="row text-center">
-                                <div class="col-md-6 mb-3">
-                                    <p class="mb-1">Erreichte Punkte:</p>
-                                    <h3 class="text-primary">
-                                        <?php echo $_SESSION['test_results']['achieved']; ?> von <?php echo $_SESSION['test_results']['max']; ?>
-                                    </h3>
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="card h-100 bg-light">
+                                    <div class="card-body text-center p-4">
+                                        <h4 class="text-primary mb-3">Erreichte Punkte</h4>
+                                        <div class="result-value">
+                                            <?php echo $_SESSION['test_results']['achieved']; ?> / <?php echo $_SESSION['test_results']['max']; ?>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <p class="mb-1">Prozent:</p>
-                                    <h3 class="text-primary">
-                                        <?php echo $_SESSION['test_results']['percentage']; ?>%
-                                    </h3>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 bg-light">
+                                    <div class="card-body text-center p-4">
+                                        <h4 class="text-primary mb-3">Prozent</h4>
+                                        <div class="result-value">
+                                            <?php echo $_SESSION['test_results']['percentage']; ?>%
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-12">
-                                    <p class="mb-1">Note:</p>
-                                    <h2 class="text-danger">
-                                        <?php echo $_SESSION['test_results']['grade']; ?>
-                                    </h2>
-                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4 p-4 bg-light rounded">
+                            <h4 class="text-center mb-3">Deine Note</h4>
+                            <?php 
+                            $grade = $_SESSION['test_results']['grade'];
+                            $gradeClass = '';
+                            if ($grade == '1' || $grade == '2') {
+                                $gradeClass = 'grade-1';
+                            } else if ($grade == '3' || $grade == '4') {
+                                $gradeClass = 'grade-3';
+                            } else if ($grade == '5' || $grade == '6') {
+                                $gradeClass = 'grade-5';
+                            }
+                            ?>
+                            <div class="grade-display <?php echo $gradeClass; ?>">
+                                <?php echo $_SESSION['test_results']['grade']; ?>
                             </div>
                         </div>
                         
                         <div class="text-center mt-4">
                             <form method="post">
-                                <button type="submit" name="back_to_home" class="btn btn-primary">Zurück zur Startseite</button>
+                                <button type="submit" name="back_to_home" class="btn btn-primary btn-lg home-button">
+                                    <i class="bi bi-house-door me-2"></i>Zurück zur Startseite
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -71,5 +129,6 @@ if (isset($_POST['back_to_home'])) {
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </body>
 </html> 

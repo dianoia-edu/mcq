@@ -7,7 +7,7 @@
  * Extrahiert den Basis-Zugangscode
  * 
  * @param string $testCode Der Zugangscode des Tests
- * @return string Der Basis-Zugangscode ohne "-admin" und ohne Zahlen am Ende
+ * @return string Der Basis-Zugangscode ohne "-admin"
  */
 function getBaseCode($testCode) {
     // Entferne zuerst den Admin-Teil, falls vorhanden
@@ -15,8 +15,8 @@ function getBaseCode($testCode) {
         $testCode = substr($testCode, 0, -6); // Entferne "-admin"
     }
     
-    // Entferne dann alle Zahlen am Ende des Codes
-    return preg_replace('/[0-9]+$/', '', $testCode);
+    // Keine Zahlen mehr entfernen - wir behalten den vollständigen Code
+    return $testCode;
 }
 
 /**

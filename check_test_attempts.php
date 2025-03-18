@@ -8,6 +8,8 @@ require_once 'includes/database_config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Debug-Funktion wurde entfernt
+
 /**
  * Generiert einen eindeutigen Identifikator für einen Schüler
  * 

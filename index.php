@@ -47,10 +47,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         
         // Test-Zugangscode prüfen
-        $testFile = "tests/" . $baseCode . "*.xml";
-        $files = glob($testFile);
+        $searchCode = $baseCode;
+        // Finde die Testdatei anhand der ersten 3 Zeichen des Dateinamens
+        $allFiles = glob("tests/*.xml");
+        $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
+            $filename = basename($file);
+            $fileCode = substr($filename, 0, 3);
+            return ($fileCode === $searchCode);
+        });
         
-        if (!empty($files)) {
+        if (!empty($testFiles)) {
             // Test existiert
             header("Location: index.php?code=" . urlencode($accessCode));
             exit();
@@ -65,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 function testExists($code) {
     // Extrahiere den Basis-Code für die Dateisuche
     $baseCode = getBaseCode($code); // Erst Basis-Code extrahieren
-    $searchCode = strtoupper($baseCode); // Dann in Großbuchstaben umwandeln
+    $searchCode = $baseCode; // Case-sensitive
     
     error_log("Test-Existenz-Prüfung:");
     error_log("Original Code: " . $code);
@@ -76,11 +82,18 @@ function testExists($code) {
     $allFiles = glob("tests/*.xml");
     error_log("Alle XML-Dateien: " . print_r($allFiles, true));
     
-    // Filtere nach dem Basis-Zugangscode
+    // Filtere nach dem Basis-Zugangscode (erste 3 Zeichen des Dateinamens)
     $matchingFiles = array_filter($allFiles, function($file) use ($searchCode) {
-        $filename = strtoupper(basename($file));
-        $matches = strpos($filename, $searchCode) === 0;
-        error_log("Prüfe Datei: $filename - Such-Code: $searchCode - Match: " . ($matches ? "ja" : "nein"));
+        $filename = basename($file);
+        // Extrahiere die ersten 3 Zeichen des Dateinamens
+        $fileCode = substr($filename, 0, 3);
+        
+        error_log("Prüfe Datei: $filename - Code in Datei: $fileCode - Such-Code: $searchCode");
+        
+        // Vergleiche die ersten 3 Zeichen mit dem Suchcode
+        $matches = ($fileCode === $searchCode);
+        
+        error_log("Match-Ergebnis für $filename: " . ($matches ? "ja" : "nein"));
         return $matches;
     });
     
@@ -98,7 +111,7 @@ if (isset($_GET['code'])) {
     
     $code = $_GET['code']; // Nicht direkt in Großbuchstaben umwandeln
     $baseCode = getBaseCode($code); // Erst Basis-Code extrahieren
-    $searchCode = strtoupper($baseCode); // Dann in Großbuchstaben umwandeln
+    $searchCode = $baseCode; // Nicht in Großbuchstaben umwandeln
     
     error_log("Code-Verarbeitung:");
     error_log("Original Code: " . $code);
@@ -165,7 +178,17 @@ if (isset($_GET['code'])) {
             // Wenn ein Name eingegeben wurde, zeige den Test
             $_SESSION['test_code'] = $code;
             $baseCode = getBaseCode($code);
-            $_SESSION['test_file'] = glob("tests/" . $baseCode . "*.xml")[0];
+            $searchCode = $baseCode;
+            
+            // Finde die Testdatei anhand der ersten 3 Zeichen des Dateinamens
+            $allFiles = glob("tests/*.xml");
+            $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
+                $filename = basename($file);
+                $fileCode = substr($filename, 0, 3);
+                return ($fileCode === $searchCode);
+            });
+            
+            $_SESSION['test_file'] = !empty($testFiles) ? reset($testFiles) : null;
             ?>
             <script>
                 console.log('Debug Information - Test Anzeige:');
@@ -175,7 +198,47 @@ if (isset($_GET['code'])) {
                 console.log('Student Name:', '<?php echo htmlspecialchars($_SESSION['student_name'] ?? 'Nicht gesetzt'); ?>');
             </script>
             <?php
-            include 'test.php';
+            if ($_SESSION['test_file']) {
+                error_log("Versuche test.php einzubinden (get) - Pfad: " . $_SESSION['test_file']);
+                error_log("Datei existiert: " . (file_exists($_SESSION['test_file']) ? "Ja" : "Nein"));
+                
+                // Starte Output-Buffering für die Fehlersuche
+                ob_start();
+                include 'test.php';
+                $output = ob_get_clean();
+                
+                // Prüfe, ob die Ausgabe leer ist
+                if (empty(trim($output))) {
+                    error_log("WARNUNG: test.php hat keine Ausgabe erzeugt bei 'Wenn ein Name eingegeben wurde'!");
+                    ?>
+                    <!DOCTYPE html>
+                    <html lang="de">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Fehler beim Laden des Tests</title>
+                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    </head>
+                    <body class="bg-light">
+                        <div class="container mt-5">
+                            <div class="alert alert-danger">
+                                <h4>Fehler beim Laden des Tests</h4>
+                                <p>Es ist ein Problem beim Laden des Tests aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie den Administrator.</p>
+                                <p>Test-Datei: <?php echo htmlspecialchars($_SESSION['test_file']); ?></p>
+                                <p>Zugangscode: <?php echo htmlspecialchars($code); ?></p>
+                                <a href="index.php" class="btn btn-primary">Zurück zur Startseite</a>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    <?php
+                } else {
+                    echo $output;
+                }
+            } else {
+                echo '<div class="container mt-5"><div class="alert alert-danger">Der angegebene Test konnte nicht gefunden werden. Bitte überprüfen Sie den Zugangscode.</div>';
+                echo '<a href="index.php" class="btn btn-primary">Zurück zur Startseite</a></div>';
+            }
         }
     } else {
         // Wenn der Test nicht existiert, zeige die Startseite mit Fehlermeldung
@@ -222,9 +285,9 @@ if (isset($_GET['code'])) {
                 console.log('Debug Information - Fehlerseite:');
                 console.log('Original Code:', '<?php echo htmlspecialchars($code); ?>');
                 console.log('Basis Code:', '<?php echo htmlspecialchars(getBaseCode($code)); ?>');
-                console.log('Such-Code:', '<?php echo htmlspecialchars(strtoupper(getBaseCode($code))); ?>');
+                console.log('Such-Code:', '<?php echo htmlspecialchars(getBaseCode($code)); ?>');
                 console.log('Test File:', '<?php 
-                    $searchCode = strtoupper(getBaseCode($code));
+                    $searchCode = getBaseCode($code);
                     echo htmlspecialchars(glob("tests/" . $searchCode . "*.xml")[0] ?? 'Nicht gefunden'); 
                 ?>');
                 console.log('Session:', <?php echo json_encode($_SESSION); ?>);
@@ -240,16 +303,24 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) &
     error_log("POST Data: " . print_r($_POST, true));
     error_log("Vorherige Session: " . print_r($_SESSION, true));
     
-    $code = $_POST['code']; // Nicht direkt in Großbuchstaben umwandeln
+    $code = $_POST['code']; // Nicht umwandeln
     $baseCode = getBaseCode($code); // Erst Basis-Code extrahieren
-    $searchCode = strtoupper($baseCode); // Dann in Großbuchstaben umwandeln
+    $searchCode = $baseCode; // Nicht in Großbuchstaben umwandeln
     
     error_log("Code-Verarbeitung bei Namenseingabe:");
     error_log("Original Code: " . $code);
     error_log("Basis Code: " . $baseCode);
     error_log("Such-Code: " . $searchCode);
     
-    $testFile = glob("tests/" . $searchCode . "*.xml")[0];
+    // Finde die Testdatei anhand der ersten 3 Zeichen des Dateinamens
+    $allFiles = glob("tests/*.xml");
+    $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
+        $filename = basename($file);
+        $fileCode = substr($filename, 0, 3);
+        return ($fileCode === $searchCode);
+    });
+    
+    $testFile = !empty($testFiles) ? reset($testFiles) : null;
     
     if ($testFile) {
         $_SESSION['student_name'] = $_POST['student_name'];
@@ -257,9 +328,44 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) &
         $_SESSION['test_file'] = $testFile;
         
         error_log("Neue Session: " . print_r($_SESSION, true));
+        error_log("Test-Datei gefunden: " . $testFile);
+        error_log("Student Name: " . $_SESSION['student_name']);
+        error_log("Test Code: " . $_SESSION['test_code']);
         error_log("Weiterleitung zum Test");
+        error_log("Versuche test.php einzubinden (post) - Pfad: " . $testFile);
+        error_log("Datei existiert: " . (file_exists($testFile) ? "Ja" : "Nein"));
         
+        // Starte Output-Buffering für die Fehlersuche
+        ob_start();
         include 'test.php';
+        $output = ob_get_clean();
+        
+        // Prüfe, ob die Ausgabe leer ist
+        if (empty(trim($output))) {
+            error_log("WARNUNG: test.php hat keine Ausgabe erzeugt!");
+            echo '<!DOCTYPE html>
+            <html lang="de">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Fehler beim Laden des Tests</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            </head>
+            <body class="bg-light">
+                <div class="container mt-5">
+                    <div class="alert alert-danger">
+                        <h4>Fehler beim Laden des Tests</h4>
+                        <p>Es ist ein Problem beim Laden des Tests aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie den Administrator.</p>
+                        <p>Test-Datei: ' . htmlspecialchars($testFile) . '</p>
+                        <p>Zugangscode: ' . htmlspecialchars($code) . '</p>
+                        <a href="index.php" class="btn btn-primary">Zurück zur Startseite</a>
+                    </div>
+                </div>
+            </body>
+            </html>';
+        } else {
+            echo $output;
+        }
         exit;
     } else {
         $errorMessage = "Ungültiger Testcode";
