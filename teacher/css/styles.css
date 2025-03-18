@@ -1,0 +1,7 @@
+/* 
+ * Diese Datei existiert nur, um 404-Fehler zu vermeiden. 
+ * Die eigentliche CSS-Datei befindet sich unter ../css/styles.css
+ */
+
+/* Importiere die eigentliche Styles-Datei */
+@import url('../../css/styles.css'); 

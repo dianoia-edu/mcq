@@ -98,6 +98,41 @@ echo "-->\n";
 <head>
     <meta charset="UTF-8">
     <title>Lehrer-Dashboard</title>
+    <script>
+    // SOFORTIGE DEBUG-AUSGABE
+    console.log('DIREKTE DEBUG AUSGABE - ' + new Date().toLocaleString());
+    
+    // Tab-Funktion vor HTML-Code definieren
+    function activateTab(tabId) {
+        console.log('Aktiviere Tab:', tabId);
+        
+        // Alle Tabs deaktivieren
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Alle Tab-Inhalte ausblenden
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.remove('active');
+            pane.style.display = 'none';
+        });
+        
+        // Gewählten Tab aktivieren
+        document.getElementById('tab-' + tabId).classList.add('active');
+        
+        // Gewählten Tab-Inhalt anzeigen
+        const tabContent = document.getElementById(tabId);
+        tabContent.classList.add('active');
+        tabContent.style.display = 'block';
+        
+        // URL aktualisieren
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tabId);
+        window.history.pushState({}, '', url);
+        
+        console.log('Tab aktiviert:', tabId);
+    }
+    </script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -154,14 +189,14 @@ echo "-->\n";
         <!-- Timestamp Block End -->
 
         <div class="nav-tabs">
-            <a href="#" class="tab active" data-target="#generator">Test-Generator</a>
-            <a href="#" class="tab" data-target="#editor">Test-Editor</a>
-            <a href="#" class="tab" data-target="#testResults">Testergebnisse</a>
-            <a href="#" class="tab" data-target="#configuration">Konfiguration</a>
+            <a href="#" class="tab" id="tab-generator" onclick="activateTab('generator')">Test-Generator</a>
+            <a href="#" class="tab" id="tab-editor" onclick="activateTab('editor')">Test-Editor</a>
+            <a href="#" class="tab" id="tab-testResults" onclick="activateTab('testResults')">Testergebnisse</a>
+            <a href="#" class="tab" id="tab-configuration" onclick="activateTab('configuration')">Konfiguration</a>
         </div>
 
         <div class="tab-content">
-            <div id="generator" class="tab-pane active">
+            <div id="generator" class="tab-pane">
                 <?php include(dirname(__DIR__) . '/includes/teacher_dashboard/test_generator_view.php'); ?>
             </div>
             
@@ -196,18 +231,30 @@ echo "-->\n";
 
     <script src="../js/main.js"></script>
     <script>
-        // Füge automatisch eine Frage mit 4 Antworten hinzu, wenn der Test-Editor leer ist
-        $(document).ready(function() {
-            // Wenn der Test-Editor Tab aktiviert wird und keine Fragen vorhanden sind
-            $('.tab[data-target="#editor"]').on('click', function() {
-                if ($('#questionsContainer .question-card').length === 0 && $('#testSelector').val() === '') {
-            // Wenn der Test-Editor Tab aktiviert wird und keine Fragen vorhanden sind
-            $('.tab[data-target="#editor"]').on('click', function() {
-                if ($('#questionsContainer .question-card').length === 0 && $('#testSelector').val() === '') {
-                    // Füge eine Frage hinzu
-                    addQuestion();
-                }
-            });
+        // Initial den richtigen Tab aktivieren
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM geladen, initialisiere Tabs');
+            
+            // Prüfe URL-Parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            
+            if (tabParam && document.getElementById(tabParam)) {
+                console.log('Aktiviere Tab aus URL:', tabParam);
+                activateTab(tabParam);
+            } else {
+                console.log('Aktiviere Standard-Tab: generator');
+                activateTab('generator');
+            }
+            
+            // Wenn der Editor-Tab aktiviert wird und keine Fragen vorhanden sind
+            if (tabParam === 'editor' && 
+                document.querySelectorAll('#questionsContainer .question-card').length === 0 && 
+                document.getElementById('testSelector').value === '') {
+                console.log('Füge Standardfrage hinzu');
+                addQuestion();
+            }
         });
+    </script>
 </body>
 </html>

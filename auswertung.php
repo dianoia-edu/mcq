@@ -3,14 +3,38 @@ require_once 'includes/database_config.php';
 
 // Funktion zum Laden des Notenschemas
 function loadGradeSchema() {
-    $schemaFile = 'notenschema.txt';
-    if (!file_exists($schemaFile)) {
-        error_log("Notenschema nicht gefunden: " . $schemaFile);
-        return false;
+    // Probiere verschiedene relative Pfade
+    $possiblePaths = [
+        'notenschema.txt',                       // Im gleichen Verzeichnis
+        __DIR__ . '/notenschema.txt',            // Im gleichen Verzeichnis (absolut)
+        dirname(__DIR__) . '/notenschema.txt',   // Im übergeordneten Verzeichnis
+        dirname(dirname(__DIR__)) . '/notenschema.txt' // Im Stammverzeichnis
+    ];
+    
+    $schemaFile = null;
+    foreach ($possiblePaths as $path) {
+        if (file_exists($path)) {
+            $schemaFile = $path;
+            error_log("Notenschema gefunden: " . $path);
+            break;
+        }
+    }
+    
+    if ($schemaFile === null) {
+        error_log("Notenschema nicht gefunden in: " . implode(", ", $possiblePaths) . ", verwende Standard-Notenschema");
+        // Standard-Notenschema als Fallback
+        return getDefaultGradeSchema();
     }
 
     $schema = [];
     $lines = file($schemaFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    
+    if ($lines === false) {
+        error_log("Fehler beim Lesen der Notenschema-Datei: " . $schemaFile . ", verwende Standard-Notenschema");
+        // Standard-Notenschema als Fallback
+        return getDefaultGradeSchema();
+    }
+    
     foreach ($lines as $line) {
         $parts = explode(':', $line);
         if (count($parts) === 2) {
@@ -18,6 +42,13 @@ function loadGradeSchema() {
             $minPercentage = (float)trim($parts[1]);
             $schema[] = ['grade' => $grade, 'minPercentage' => $minPercentage];
         }
+    }
+
+    // Überprüfe, ob das Schema leer ist
+    if (empty($schema)) {
+        error_log("Notenschema enthält keine gültigen Einträge: " . $schemaFile . ", verwende Standard-Notenschema");
+        // Standard-Notenschema als Fallback
+        return getDefaultGradeSchema();
     }
 
     // Sortiere nach Prozentsatz absteigend
@@ -28,8 +59,27 @@ function loadGradeSchema() {
     return $schema;
 }
 
+// Hilfsfunktion für das Standard-Notenschema
+function getDefaultGradeSchema() {
+    return [
+        ['grade' => '1', 'minPercentage' => 90],
+        ['grade' => '2', 'minPercentage' => 80],
+        ['grade' => '3', 'minPercentage' => 70],
+        ['grade' => '4', 'minPercentage' => 60], 
+        ['grade' => '5', 'minPercentage' => 50],
+        ['grade' => '6', 'minPercentage' => 0]
+    ];
+}
+
 // Funktion zur Berechnung der Note basierend auf dem Prozentsatz
 function calculateGrade($percentage, $schema) {
+    // Sicherheitsüberprüfung für das Schema
+    if (!is_array($schema) || empty($schema)) {
+        error_log("Ungültiges Notenschema, verwende Standard-Notenschema");
+        // Standard-Notenschema als Fallback
+        $schema = getDefaultGradeSchema();
+    }
+    
     foreach ($schema as $entry) {
         if ($percentage >= $entry['minPercentage']) {
             return $entry['grade'];
@@ -150,6 +200,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_results') {
     }
     exit;
 }
+
+// Prüfe, ob nur die Funktionen benötigt werden
+if (!defined('FUNCTIONS_ONLY')) {
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -196,7 +249,67 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_results') {
     function loadResults() {
         console.log('Debug: auswertung.php wird geladen - Version vom ' + new Date().toLocaleString('de-DE'));
         
-        fetch('auswertung.php?action=get_results')
+        // Debug-Ausgaben für Tab-Navigation
+        console.log('==== AUSWERTUNG.PHP DEBUG ====');
+        console.log('Analysiere die DOM-Struktur:');
+        console.log('Tab-Container existiert:', !!document.querySelector('.nav-tabs'));
+        console.log('Tabs gefunden:', document.querySelectorAll('.tab').length);
+        
+        if (document.querySelectorAll('.tab').length > 0) {
+            console.log('Tab-Elemente:');
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                console.log(`Tab ${i+1}:`, tab.textContent, 'target:', tab.getAttribute('data-target'), 'active:', tab.classList.contains('active'));
+            });
+        }
+        
+        console.log('Tab-Panes gefunden:', document.querySelectorAll('.tab-pane').length);
+        if (document.querySelectorAll('.tab-pane').length > 0) {
+            console.log('Tab-Pane Elemente:');
+            document.querySelectorAll('.tab-pane').forEach((pane, i) => {
+                console.log(`Pane ${i+1}:`, pane.id, 'display:', window.getComputedStyle(pane).display, 'active:', pane.classList.contains('active'));
+            });
+        }
+        
+        // Tab-Event-Listener hinzufügen, falls sie fehlen
+        document.querySelectorAll('.tab').forEach(tab => {
+            // Entferne vorhandene Event-Listener
+            const newTab = tab.cloneNode(true);
+            tab.parentNode.replaceChild(newTab, tab);
+            
+            // Füge neuen Event-Listener hinzu
+            newTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('Tab clicked:', this.getAttribute('data-target'));
+                
+                // Aktiviere den Tab
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Zeige den zugehörigen Tab-Pane
+                const target = this.getAttribute('data-target');
+                if (target) {
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                        pane.style.display = 'none';
+                    });
+                    
+                    const targetPane = document.querySelector(target);
+                    if (targetPane) {
+                        targetPane.classList.add('active');
+                        targetPane.style.display = 'block';
+                        console.log('Activated pane:', target);
+                    } else {
+                        console.error('Target pane not found:', target);
+                    }
+                }
+            });
+        });
+        
+        console.log('================================');
+        
+        fetch('/mcq-test-system/teacher/load_test_results.php')
             .then(response => response.json())
             .then(response => {
                 if (!response.success) {
@@ -233,7 +346,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_results') {
                         <h2>${group.title} (${testCode})</h2>
                         <div class="test-stats">
                             <p>Gesamtversuche: ${group.attempts_count || 0}</p>
-                            <p>Durchschnittliche Leistung: ${group.average_percentage ? group.average_percentage.toFixed(1) + '%' : 'N/A'}</p>
+                            <p>Durchschnittliche Leistung: ${group.average_percentage !== null && group.average_percentage !== undefined ? parseFloat(group.average_percentage).toFixed(1) + '%' : 'N/A'}</p>
                         </div>
                     `;
                     
@@ -243,8 +356,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_results') {
                         resultDiv.innerHTML = `
                             <h3>${attempt.student_name}</h3>
                             <p>Datum: ${new Date(attempt.date).toLocaleString('de-DE')}</p>
-                            <p>Punkte: ${attempt.achieved_points} von ${attempt.max_points}</p>
-                            <p>Prozent: ${attempt.percentage}%</p>
+                            <p>Punkte: ${attempt.achieved_points}/${attempt.max_points} (${attempt.percentage}%)</p>
                             <p>Note: ${attempt.grade}</p>
                         `;
                         testDiv.appendChild(resultDiv);
@@ -255,17 +367,41 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_results') {
             })
             .catch(error => {
                 console.error('Fehler beim Laden der Ergebnisse:', error);
-                const resultsList = document.getElementById('results-list');
-                resultsList.innerHTML = `
-                    <div class="error-message">
-                        Fehler beim Laden der Ergebnisse. Bitte versuchen Sie es später erneut.
-                    </div>
-                `;
+                document.getElementById('results-list').innerHTML = 
+                    `<div class="error-message">Fehler beim Laden der Ergebnisse: ${error.message}</div>`;
             });
     }
 
-    // Lade die Ergebnisse beim Start
-    document.addEventListener('DOMContentLoaded', loadResults);
+    // Führe den Code aus, sobald das DOM geladen ist
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded in auswertung.php');
+        loadResults();
+        
+        // Überprüfe, ob jQuery verfügbar ist
+        if (typeof jQuery !== 'undefined') {
+            console.log('jQuery ist verfügbar, Version:', jQuery.fn.jquery);
+            
+            // Füge Tab-Event-Handler mit jQuery hinzu
+            $('.tab').on('click', function(e) {
+                e.preventDefault();
+                console.log('jQuery Tab-Click auf:', $(this).data('target'));
+                
+                // Aktiviere den Tab
+                $('.tab').removeClass('active');
+                $(this).addClass('active');
+                
+                // Zeige den zugehörigen Tab-Pane
+                const target = $(this).data('target');
+                $('.tab-pane').removeClass('active').hide();
+                $(target).addClass('active').show();
+            });
+        } else {
+            console.log('jQuery ist nicht verfügbar');
+        }
+    });
     </script>
 </body>
-</html> 
+</html>
+<?php
+} // Ende der FUNCTIONS_ONLY-Überprüfung
+?> 

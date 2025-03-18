@@ -17,6 +17,17 @@ function writeLog($message) {
 
 writeLog("load_test_results.php aufgerufen");
 
+// Prüfe, ob es sich um eine AJAX-Anfrage handelt
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+writeLog("Anfrage-Typ: " . ($isAjax ? "AJAX" : "Normaler Aufruf"));
+
+// Wenn es keine AJAX-Anfrage ist, gib eine freundliche Meldung aus
+if (!$isAjax) {
+    writeLog("Nicht-AJAX-Aufruf von load_test_results.php - Abbruch");
+    echo '<div class="alert alert-warning">Diese Seite kann nur über AJAX aufgerufen werden.</div>';
+    exit;
+}
+
 // Lade die Datenbankkonfiguration
 require_once dirname(__DIR__) . '/includes/database_config.php';
 
@@ -25,7 +36,15 @@ $allResults = [];
 try {
     $db = DatabaseConfig::getInstance()->getConnection();
     
-    $stmt = $db->query("
+    // Hole Filter-Parameter
+    $selectedTest = isset($_GET['test']) ? $_GET['test'] : '';
+    $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+    $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
+    
+    writeLog("Filter-Parameter erhalten: Test='$selectedTest', Datum='$startDate', Suche='$searchTerm'");
+    
+    // Vorbereiten der SQL-Abfrage mit Filterparametern
+    $sql = "
         SELECT 
             t.access_code,
             t.title as testTitle,
@@ -43,11 +62,40 @@ try {
         FROM test_attempts ta
         JOIN tests t ON ta.test_id = t.test_id
         LEFT JOIN test_statistics ts ON t.test_id = ts.test_id
-        ORDER BY t.title ASC, ta.completed_at DESC
-    ");
+        WHERE 1=1
+    ";
+    
+    $params = [];
+    
+    // Füge Filter hinzu
+    if (!empty($selectedTest)) {
+        $sql .= " AND t.access_code = ?";
+        $params[] = $selectedTest;
+        writeLog("Filter hinzugefügt: Test = $selectedTest");
+    }
+    
+    if (!empty($startDate)) {
+        $sql .= " AND DATE(ta.completed_at) = ?";
+        $params[] = $startDate;
+        writeLog("Filter hinzugefügt: Datum = $startDate");
+    }
+    
+    if (!empty($searchTerm)) {
+        $sql .= " AND (ta.student_name LIKE ? OR t.title LIKE ?)";
+        $params[] = "%$searchTerm%";
+        $params[] = "%$searchTerm%";
+        writeLog("Filter hinzugefügt: Suche = $searchTerm");
+    }
+    
+    $sql .= " ORDER BY t.title ASC, ta.completed_at DESC";
+    writeLog("Vollständige SQL-Abfrage: $sql");
+    writeLog("SQL-Parameter: " . print_r($params, true));
+    
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
     
     $allResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    writeLog("Anzahl der geladenen Testergebnisse: " . count($allResults));
+    writeLog("Anzahl der gefilterten Testergebnisse: " . count($allResults));
     
     // Lade alle Tests für den Filter
     $testStmt = $db->query("
@@ -115,6 +163,52 @@ sort($testDates);
 $studentListJson = json_encode($uniqueStudents);
 $testDatesJson = json_encode($testDates);
 $uniqueTestsJson = json_encode($allTests);
+
+// Formatiere die Ergebnisse für die Rückgabe in JSON
+$dataArray = [];
+foreach ($allResults as $result) {
+    // Formatiere das Datum für die Ausgabe
+    $completedDate = !empty($result['date']) ? new DateTime($result['date']) : null;
+    $testDate = !empty($result['created_at']) ? new DateTime($result['created_at']) : null;
+
+    $formattedData = [
+        'accessCode' => $result['access_code'],
+        'testTitle' => $result['testTitle'],
+        'studentName' => $result['studentName'],
+        'date' => $completedDate ? $completedDate->format('Y-m-d H:i:s') : '',
+        'testDate' => $testDate ? $testDate->format('Y-m-d') : '',
+        'points_achieved' => (int)$result['points_achieved'],
+        'points_maximum' => (int)$result['points_maximum'],
+        'percentage' => (float)$result['percentage'],
+        'grade' => $result['grade'],
+        'fileName' => $result['fileName'],
+        'created_at' => $testDate ? $testDate->format('Y-m-d') : ''
+    ];
+
+    $dataArray[] = $formattedData;
+}
+
+$responseData = [
+    'success' => true,
+    'data' => $dataArray,
+    'count' => count($dataArray),
+    'timestamp' => time()
+];
+
+// Bereinige etwaige bisherige Ausgaben
+while (ob_get_level()) ob_end_clean();
+
+// Setze die JSON-Header
+header('Content-Type: application/json');
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+
+// Gib die Ergebnisse als JSON zurück und beende die Ausführung
+writeLog("Sende JSON-Antwort mit " . count($dataArray) . " Ergebnissen");
+echo json_encode($responseData);
+exit();
+
+// Der folgende Code wird nicht mehr ausgeführt
 
 // Beginne mit der HTML-Ausgabe
 ?>

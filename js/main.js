@@ -8,7 +8,10 @@ $(document).ready(function() {
     
     // Tab-Funktionalität
     function initializeTabs() {
-        console.log('Initializing tabs...');
+        console.log('Initializing tabs in main.js... DEAKTIVIERT - verwende direkte Tab-Funktionalität');
+        
+        // Diese Funktion ist deaktiviert, da wir jetzt direkte Tab-Funktionalität in teacher_dashboard.php verwenden
+        return;
         
         // Standardmäßig den Generator-Tab aktivieren, falls kein Tab in der URL angegeben ist
         const urlParams = new URLSearchParams(window.location.search);
@@ -34,11 +37,24 @@ $(document).ready(function() {
             $('#generator').addClass('active').show();
         }
         
-        // Tab-Click-Handler
+        // Tab-Click-Handler - verbesserte Version mit mehr Debugging und Fehlerbehandlung
         $('.tab').on('click', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Verhindere Event-Bubbling
+            
             const target = $(this).data('target');
-            console.log('Tab clicked:', target);
+            console.log('Tab clicked:', target, 'Element:', this);
+            
+            if (!target) {
+                console.error('Tab clicked but no target specified');
+                return;
+            }
+            
+            // Prüfe, ob das Ziel existiert
+            if ($(target).length === 0) {
+                console.error('Target element not found:', target);
+                return;
+            }
             
             // Aktiven Tab markieren
             $('.tab').removeClass('active');
@@ -53,7 +69,21 @@ $(document).ready(function() {
             newUrl.searchParams.set('tab', target.replace('#', ''));
             window.history.pushState({}, '', newUrl);
             
-            console.log('Tab content visibility updated');
+            console.log('Tab content visibility updated. Active tab is now:', target);
+            
+            // Löse ein Event aus, um andere Komponenten zu informieren
+            $(document).trigger('tabChanged', [target]);
+        });
+        
+        // Debug: Liste alle Tab-Elemente auf
+        console.log('Available tabs:');
+        $('.tab').each(function() {
+            console.log(' - Target:', $(this).data('target'), 'Text:', $(this).text());
+        });
+        
+        console.log('Available tab panes:');
+        $('.tab-pane').each(function() {
+            console.log(' - ID:', this.id, 'Visible:', $(this).is(':visible'));
         });
     }
     

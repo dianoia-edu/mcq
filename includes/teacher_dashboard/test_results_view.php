@@ -67,15 +67,29 @@ try {
     
     writeLog("Datenbankverbindung hergestellt");
 
+    // Prüfe, ob die created_at-Spalte in der tests-Tabelle existiert
+    try {
+        $tableCheckQuery = $db->query("SHOW COLUMNS FROM tests LIKE 'created_at'");
+        $hasCreatedAtColumn = $tableCheckQuery->rowCount() > 0;
+        writeLog("created_at-Spalte in der tests-Tabelle " . ($hasCreatedAtColumn ? "gefunden" : "NICHT GEFUNDEN"));
+        
+        if (!$hasCreatedAtColumn) {
+            writeLog("WICHTIG: Die created_at-Spalte fehlt in der tests-Tabelle. Es wird ein Standardwert verwendet.");
+        }
+    } catch (Exception $e) {
+        writeLog("Fehler beim Prüfen der Tabellenspalten: " . $e->getMessage());
+        $hasCreatedAtColumn = false;
+    }
+    
     // Hole Filter-Parameter
     $selectedTest = $_GET['test'] ?? '';
     $startDate = $_GET['start_date'] ?? '';
     $endDate = $_GET['end_date'] ?? '';
     $searchTerm = $_GET['search'] ?? '';
-
+    
     // Debug: Überprüfe direkt die tests-Tabelle
     writeLog("Führe Test-Tabellen-Abfrage aus...");
-    $testCheck = $db->query("SELECT * FROM tests");
+    $testCheck = $db->query("SELECT test_id, access_code, title, created_at FROM tests");
     if ($testCheck === false) {
         writeLog("Fehler bei der Test-Tabellen-Abfrage: " . print_r($db->errorInfo(), true));
     }
@@ -83,11 +97,17 @@ try {
     writeLog("Anzahl gefundener Tests: " . count($allTests));
     writeLog("Alle Tests in der Datenbank:");
     foreach ($allTests as $test) {
-        writeLog(sprintf("ID: %d, Code: %s, Titel: %s", 
+        writeLog(sprintf("ID: %d, Code: %s, Titel: %s, Created At: %s", 
             $test['test_id'], 
             $test['access_code'], 
-            $test['title']
+            $test['title'],
+            isset($test['created_at']) ? $test['created_at'] : 'NICHT VORHANDEN'
         ));
+        
+        // Wenn created_at nicht vorhanden ist, setze einen Standardwert
+        if (!isset($test['created_at'])) {
+            $test['created_at'] = date('Y-m-d H:i:s'); // Aktuelles Datum als Fallback
+        }
     }
 
     // Baue die SQL-Query
@@ -97,6 +117,7 @@ try {
             ta.student_name as studentName,
             ta.completed_at as date,
             t.access_code,
+            " . ($hasCreatedAtColumn ? "t.created_at," : "") . "
             ta.xml_file_path as fileName,
             ta.points_achieved,
             ta.points_maximum,
@@ -144,6 +165,15 @@ try {
     $dbResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
     writeLog("Abfrage ausgeführt, " . count($dbResults) . " Ergebnisse gefunden");
     
+    // Hilfsfunktion zum sicheren Abrufen des created_at-Felds
+    function getCreatedAt($result) {
+        if (isset($result['created_at']) && !empty($result['created_at'])) {
+            return $result['created_at'];
+        } else {
+            return date('Y-m-d H:i:s'); // Aktuelles Datum als Fallback
+        }
+    }
+    
     foreach ($dbResults as $result) {
         writeLog("XML-Pfad aus Datenbank: " . $result['fileName']);
         
@@ -153,6 +183,7 @@ try {
             'date' => date('d.m.Y H:i', strtotime($result['date'])),
             'accessCode' => $result['access_code'],
             'fileName' => $result['fileName'],
+            'created_at' => getCreatedAt($result),
             'testDate' => date('Y-m-d', strtotime($result['date'])),
             'points_achieved' => $result['points_achieved'],
             'points_maximum' => $result['points_maximum'],
@@ -167,18 +198,34 @@ try {
     writeLog("Ergebnisse aus Datenbank geladen: " . count($allResults));
 
     // Lade alle Tests aus der Datenbank
-    $allTestsQuery = $db->query("
+    $sql = "
         SELECT 
             t.test_id,
             t.access_code,
             t.title,
+            " . ($hasCreatedAtColumn ? "t.created_at," : "") . "
             COUNT(ta.attempt_id) as attempt_count
         FROM tests t
         LEFT JOIN test_attempts ta ON t.test_id = ta.test_id
-        GROUP BY t.test_id, t.access_code, t.title
+        GROUP BY t.test_id, t.access_code, t.title" . ($hasCreatedAtColumn ? ", t.created_at" : "") . "
         ORDER BY t.access_code
-    ");
+    ";
+    writeLog("SQL für Testliste: " . $sql);
+    
+    $allTestsQuery = $db->query($sql);
     $allTests = $allTestsQuery->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Standardwert für created_at setzen, falls nicht vorhanden
+    foreach ($allTests as &$test) {
+        if (!isset($test['created_at']) || empty($test['created_at'])) {
+            $test['created_at'] = date('Y-m-d H:i:s'); // Aktuelles Datum als Fallback
+            $testId = array_key_exists('test_id', $test) ? $test['test_id'] : 'unbekannt';
+            writeLog("Test ohne created_at gefunden (ID: {$testId}), Standardwert gesetzt: " . $test['created_at']);
+        } else {
+            $testId = array_key_exists('test_id', $test) ? $test['test_id'] : 'unbekannt';
+            writeLog("Test mit created_at gefunden (ID: {$testId}): " . $test['created_at']);
+        }
+    }
 
     if ($isAjax) {
         // Verwerfe alle bisherigen Ausgaben
@@ -274,13 +321,28 @@ sort($testDates);
 
 // Sortiere Tests nach Erstellungsdatum absteigend
 uasort($uniqueTests, function($a, $b) {
-    return strtotime($b['created_at']) - strtotime($a['created_at']);
+    // Sichere Abfrage des created_at-Felds
+    $dateA = array_key_exists('created_at', $a) && !empty($a['created_at']) ? $a['created_at'] : '1970-01-01';
+    $dateB = array_key_exists('created_at', $b) && !empty($b['created_at']) ? $b['created_at'] : '1970-01-01';
+    
+    // Debug-Ausgabe
+    writeLog("Test A (ID: " . (array_key_exists('test_id', $a) ? $a['test_id'] : 'unbekannt') . 
+           ", Name: " . (array_key_exists('title', $a) ? $a['title'] : 'unbekannt') . 
+           "): created_at = $dateA");
+    writeLog("Test B (ID: " . (array_key_exists('test_id', $b) ? $b['test_id'] : 'unbekannt') . 
+           ", Name: " . (array_key_exists('title', $b) ? $b['title'] : 'unbekannt') . 
+           "): created_at = $dateB");
+    
+    return strtotime($dateB) - strtotime($dateA);
 });
 
 // Konvertiere Daten in JSON für JavaScript
 $studentListJson = json_encode($uniqueStudents);
 $testDatesJson = json_encode($testDates);
 $uniqueTestsJson = json_encode($uniqueTests);
+
+// JSON-Liste der verfügbaren Daten für Flatpickr
+$availableDatesJson = json_encode($testDates);
 
 if (!$isAjax):
 ?>
@@ -292,10 +354,12 @@ if (!$isAjax):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testergebnisse</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
+        /* Entferne alle Tab-spezifischen Styles */
+        /* Behalte nur die notwendigen Styles für Filter und Ergebnisse */
         .test-code {
             font-weight: bold;
             color: #0d6efd;
@@ -306,8 +370,16 @@ if (!$isAjax):
             display: inline-block;
         }
         .no-attempts {
-            color: #6c757d;
+            color: #adb5bd;
             font-style: italic;
+            opacity: 0.7;
+            cursor: not-allowed;
+            position: relative;
+        }
+        .no-attempts .test-code,
+        .no-attempts .test-title,
+        .no-attempts .text-muted {
+            color: #adb5bd !important;
         }
         .dropdown-menu {
             max-height: 300px;
@@ -321,6 +393,24 @@ if (!$isAjax):
             background-color: #0d6efd;
             color: white;
         }
+        /* Einheitliche Tabellenformatierung für alle Ergebnisgruppen */
+        .result-group table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        .result-group th, .result-group td {
+            vertical-align: middle !important;
+            padding: 0.75rem !important;
+            box-sizing: border-box;
+        }
+        .result-group th:nth-child(1), .result-group td:nth-child(1) { width: 20%; } /* Schüler */
+        .result-group th:nth-child(2), .result-group td:nth-child(2) { width: 20%; } /* Abgabezeitpunkt */
+        .result-group th:nth-child(3), .result-group td:nth-child(3) { width: 12%; text-align: center; } /* Punkte */
+        .result-group th:nth-child(4), .result-group td:nth-child(4) { width: 12%; text-align: center; } /* Prozent */
+        .result-group th:nth-child(5), .result-group td:nth-child(5) { width: 12%; text-align: center; } /* Note */
+        .result-group th:nth-child(6), .result-group td:nth-child(6) { width: 24%; text-align: left; } /* Aktionen */
+        /* Ende der Tabellenformatierung */
         .btn-info {
             background-color: #0dcaf0;
             border-color: #0dcaf0;
@@ -331,169 +421,233 @@ if (!$isAjax):
             border-color: #25cff2;
             color: #000;
         }
-        
-        /* Tab-Styles kompatibel mit dem Haupt-Dashboard */
-        .nav-tabs {
-            border-bottom: 1px solid #dee2e6;
-            margin-bottom: 20px;
+        /* Tooltip für Tests ohne Ergebnisse */
+        .no-attempts:hover::after {
+            content: "Keine Ergebnisse verfügbar";
+            position: absolute;
+            background-color: #343a40;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 1000;
+            right: 20px;
+            white-space: nowrap;
         }
-        .tab {
+        /* Max-Höhe für Dropdown-Menü mit Scrollbar */
+        .dropdown-menu.test-dropdown {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        /* Stil für das Datum in der Testliste */
+        .test-date {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+        /* Einheitliche Ausrichtung und Breite für Details-Buttons */
+        .btn-action {
+            width: 100px;
+            text-align: center !important;
             display: inline-block;
-            padding: 10px 20px;
-            margin-right: 5px;
-            text-decoration: none;
-            color: #495057;
-            border: 1px solid transparent;
-            border-radius: 4px 4px 0 0;
-            position: relative;
-            top: 1px;
+            margin: 0 !important;
         }
-        .tab:hover {
-            color: #0d6efd;
-            border-color: #e9ecef #e9ecef #dee2e6;
-            text-decoration: none;
+        /* Deaktivierte Tage im Datepicker anpassen */
+        .flatpickr-day.flatpickr-disabled, 
+        .flatpickr-day.flatpickr-disabled:hover {
+            color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
         }
-        .tab.active {
-            color: #0d6efd;
-            background-color: #fff;
-            border-color: #dee2e6 #dee2e6 #fff;
-        }
-        .tab-pane {
-            display: none;
-            padding: 20px 0;
-        }
-        .tab-pane.active {
-            display: block;
+        .flatpickr-day.flatpickr-disabled:hover::after {
+            content: "Keine Tests an diesem Tag";
+            position: absolute;
+            background-color: #343a40;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 100;
         }
     </style>
 </head>
 
-<!-- HTML und JavaScript Code -->
-<div class="container mt-4">
-    <h2>Testergebnisse</h2>
-    
-    <!-- Tab-Navigation im eigenen Format -->
-    <div class="nav-tabs">
-        <a href="#" class="tab active" data-target="#results">Testergebnisse</a>
-        <a href="#" class="tab" data-target="#config">Konfiguration</a>
-    </div>
-
-    <div class="tab-content">
-        <div id="results" class="tab-pane active">
-            <?php if (empty($allTests)): ?>
-                <div class="alert alert-info">
-                    Keine Testergebnisse verfügbar.
-                </div>
-            <?php else: ?>
-                <!-- Filteroptionen -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label for="studentFilter" class="form-label">Schüler</label>
-                                <input type="text" class="form-control" id="studentFilter" 
-                                       placeholder="Nach Schülername filtern..." 
-                                       list="studentsList"
-                                       autocomplete="off">
-                                <datalist id="studentsList">
-                                    <?php foreach ($uniqueStudents as $student): ?>
-                                        <option value="<?php echo htmlspecialchars($student); ?>">
-                                    <?php endforeach; ?>
-                                </datalist>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="dateFilter" class="form-label">Datum</label>
-                                <input type="text" class="form-control" id="dateFilter">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="testFilterBtn" class="form-label">Test</label>
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="testFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Alle Tests
-                                    </button>
-                                    <ul class="dropdown-menu w-100" aria-labelledby="testFilterBtn">
-                                        <li><a class="dropdown-item active" href="#" data-value="" data-code="">Alle Tests</a></li>
-                                        <?php foreach ($allTests as $test): ?>
+<!-- HTML-Struktur ohne eigene Tab-Navigation -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Testauswertung</h3>
+        </div>
+            <div class="card-body">
+                    <!-- Filter-Bereich -->
+                    <div class="filter-section mb-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="studentFilter" class="form-label">Schüler</label>
+                        <input type="text" class="form-control" id="studentFilter" 
+                               placeholder="Nach Schülername filtern..." 
+                               list="studentsList"
+                               autocomplete="off">
+                        <datalist id="studentsList">
+                            <?php foreach ($uniqueStudents as $student): ?>
+                                <option value="<?php echo htmlspecialchars($student); ?>">
+                            <?php endforeach; ?>
+                        </datalist>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="dateFilter" class="form-label">Datum</label>
+                                <input type="text" class="form-control" id="dateFilter" autocomplete="off">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="testFilterBtn" class="form-label">Test</label>
+                                <div class="dropdown mb-3">
+                                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="testFilterBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                Alle Tests
+                            </button>
+                                    <ul class="dropdown-menu test-dropdown" aria-labelledby="testFilterBtn">
+                                        <li><a class="dropdown-item active" href="#" data-code="">Alle Tests</a></li>
+                                        <?php 
+                                        // Sortiere Tests nach Erstellungsdatum absteigend
+                                        writeLog("Sortiere Tests für Dropdown-Liste...");
+                                        usort($allTests, function($a, $b) {
+                                            // Sichere Abfrage des created_at-Felds
+                                            $dateA = array_key_exists('created_at', $a) && !empty($a['created_at']) ? $a['created_at'] : '1970-01-01';
+                                            $dateB = array_key_exists('created_at', $b) && !empty($b['created_at']) ? $b['created_at'] : '1970-01-01';
+                                            
+                                            // Debug-Ausgabe
+                                            writeLog("Test A (ID: " . (array_key_exists('test_id', $a) ? $a['test_id'] : 'unbekannt') . 
+                                                   ", Name: " . (array_key_exists('title', $a) ? $a['title'] : 'unbekannt') . 
+                                                   "): created_at = $dateA");
+                                            writeLog("Test B (ID: " . (array_key_exists('test_id', $b) ? $b['test_id'] : 'unbekannt') . 
+                                                   ", Name: " . (array_key_exists('title', $b) ? $b['title'] : 'unbekannt') . 
+                                                   "): created_at = $dateB");
+                                            
+                                            return strtotime($dateB) - strtotime($dateA);
+                                        });
+                                        writeLog("Tests sortiert, Anzahl: " . count($allTests));
+                                        
+                                        foreach ($allTests as $test): 
+                                            $hasResults = array_key_exists('attempt_count', $test) ? $test['attempt_count'] > 0 : false;
+                                            $itemClass = $hasResults ? 'dropdown-item' : 'dropdown-item no-attempts';
+                                            
+                                            // Sicherstellen, dass alle benötigten Schlüssel existieren
+                                            $title = array_key_exists('title', $test) ? $test['title'] : 'Unbekannter Test';
+                                            $accessCode = array_key_exists('access_code', $test) ? $test['access_code'] : 'Unbekannt';
+                                            
+                                            // Datum formatieren aus created_at
+                                            $testDate = '';
+                                            if (array_key_exists('created_at', $test) && !empty($test['created_at'])) {
+                                                $testDate = date('d.m.y', strtotime($test['created_at']));
+                                            }
+                                        ?>
                                             <li>
-                                                <a class="dropdown-item <?php echo $test['attempt_count'] == 0 ? 'no-attempts' : ''; ?>" 
-                                                   href="#" 
-                                                   data-value="<?php echo htmlspecialchars($test['title']); ?>"
-                                                   data-code="<?php echo htmlspecialchars($test['access_code']); ?>">
-                                                    <div class="test-code"><?php echo htmlspecialchars($test['access_code']); ?></div>
-                                                    <div class="test-title"><?php echo htmlspecialchars($test['title']); ?></div>
-                                                </a>
-                                            </li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>
-                            </div>
+                                                <a class="<?php echo $itemClass; ?>" 
+                                           href="#" 
+                                                   <?php if ($hasResults): ?>
+                                                   data-value="<?php echo htmlspecialchars($title); ?>"
+                                                   data-code="<?php echo htmlspecialchars($accessCode); ?>"
+                                                   <?php else: ?>
+                                                   style="pointer-events: none; cursor: default;"
+                                                   <?php endif; ?>>
+                                                    <div class="test-code"><?php echo htmlspecialchars($accessCode); ?></div>
+                                                    <div class="test-title">
+                                                        <?php echo htmlspecialchars($title); ?>
+                                                        <?php if (!empty($testDate)): ?>
+                                                        <span class="test-date">(<?php echo $testDate; ?>)</span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <?php if (!$hasResults): ?>
+                                                    <div class="text-muted small">(Keine Ergebnisse)</div>
+                                                    <?php endif; ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                    <!-- Einfache Ergebnisse-Anzeige ohne eigene Tab-Navigation -->
+        <div id="filteredResults">
+                        <!-- Hier werden die gefilterten Ergebnisse angezeigt -->
+                        <?php if (!empty($groupedResults)): ?>
+            <?php foreach ($groupedResults as $group): ?>
+                                <div class="card mb-4 result-group">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
+                            <?php echo htmlspecialchars($group['testTitle']); ?> 
+                                            <?php if (!empty($group['testDate'])): ?>
+                                                (<?php echo date('d.m.y', strtotime($group['testDate'])); ?>)
+                                            <?php endif; ?>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Schüler</th>
+                                        <th>Abgabezeitpunkt</th>
+                                        <th>Punkte</th>
+                                        <th>Prozent</th>
+                                        <th>Note</th>
+                                        <th class="text-start">Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($group['results'] as $result): ?>
+                                                        <tr>
+                                            <td><?php echo htmlspecialchars($result['studentName']); ?></td>
+                                            <td><?php echo htmlspecialchars($result['date']); ?></td>
+                                            <td><?php echo htmlspecialchars($result['points_achieved']); ?>/<?php echo htmlspecialchars($result['points_maximum']); ?></td>
+                                                            <td><?php echo htmlspecialchars($result['percentage']); ?>%</td>
+                                            <td><?php echo htmlspecialchars($result['grade']); ?></td>
+                                            <td class="text-start">
+                                                <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('<?php echo htmlspecialchars($result['fileName']); ?>')">
+                                                    Details
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-
-                <div id="filteredResults">
-                    <!-- Hier werden die gefilterten Ergebnisse angezeigt -->
-                    <?php if (!empty($groupedResults)): ?>
-                        <?php foreach ($groupedResults as $group): ?>
-                            <div class="card mb-4 result-group">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">
-                                        [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
-                                        <?php echo htmlspecialchars($group['testTitle']); ?>
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Schüler</th>
-                                                    <th>Abgabezeitpunkt</th>
-                                                    <th>Punkte</th>
-                                                    <th>Prozent</th>
-                                                    <th>Note</th>
-                                                    <th>Aktionen</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($group['results'] as $result): ?>
-                                                    <tr>
-                                                        <td><?php echo htmlspecialchars($result['studentName']); ?></td>
-                                                        <td><?php echo htmlspecialchars($result['date']); ?></td>
-                                                        <td><?php echo htmlspecialchars($result['points_achieved']); ?>/<?php echo htmlspecialchars($result['points_maximum']); ?></td>
-                                                        <td><?php echo htmlspecialchars($result['percentage']); ?>%</td>
-                                                        <td><?php echo htmlspecialchars($result['grade']); ?></td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-info" onclick="showResults('<?php echo htmlspecialchars($result['fileName']); ?>')">
-                                                                Details
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="alert alert-info mt-3">
+                                <p>Keine Ergebnisse gefunden. Wenn Sie gerade einen Test abgeschlossen haben, wählen Sie bitte den Filter "Alle Tests".</p>
                             </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="alert alert-info mt-3">
-                            <p>Keine Ergebnisse gefunden. Wenn Sie gerade einen Test abgeschlossen haben, wählen Sie bitte den Filter "Alle Tests".</p>
-                        </div>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            <?php endif; ?>
+            </div>
         </div>
+    </div>
+</div>
 
-        <!-- Konfiguration Tab -->
-        <div id="config" class="tab-pane">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Datenbank-Synchronisation</h5>
-                    <p class="card-text">Synchronisieren Sie die Datenbank mit den XML-Dateien im results-Ordner.</p>
-                    <form action="sync_database.php" method="post">
-                        <button type="submit" class="btn btn-primary">Synchronisiere Datenbank</button>
-                    </form>
+<!-- Modal für Detailansicht -->
+<div class="modal fade" id="resultDetailModal" tabindex="-1" aria-labelledby="resultDetailModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="resultDetailModalLabel">Testergebnis Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body" id="resultDetailContent">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Lade...</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -503,33 +657,19 @@ if (!$isAjax):
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Eigene Tab-Navigation
-    const tabs = document.querySelectorAll('.nav-tabs .tab');
-    
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Entferne active-Klasse von allen Tabs
-            tabs.forEach(t => t.classList.remove('active'));
-            
-            // Verstecke alle Tab-Inhalte
-            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-            
-            // Setze aktiven Tab und zeige Inhalt
-            this.classList.add('active');
-            const target = document.querySelector(this.getAttribute('data-target'));
-            if (target) {
-                target.classList.add('active');
-            }
-            
-            // Verhindern, dass das Event nach oben propagiert
-            e.stopPropagation();
-        });
-    });
+// Debug-Ausgaben für Tab-Navigation
+console.log('==== TEST_RESULTS_VIEW DEBUG ====');
+console.log('DOM Content loaded in test_results_view.php');
+console.log('Parent Tab-Container:', document.querySelector('.tab-content'));
+console.log('Current Tab-Pane:', document.querySelector('#testResults'));
+console.log('Tab-Pane visible?', document.querySelector('#testResults')?.style.display);
+console.log('Tab is active?', document.querySelector('.tab[data-target="#testResults"]')?.classList.contains('active'));
+console.log('================================');
 
-    // Rest des bestehenden DOMContentLoaded-Codes
+document.addEventListener('DOMContentLoaded', function() {
+    // Entfernung der eigenen Tab-Navigation
+    // Behalte nur Filter-Funktionalität
+    
     console.log('DOM geladen, initialisiere Filterkomponenten');
     
     // Prüfe, ob die erforderlichen Elemente existieren
@@ -546,13 +686,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialisiere Flatpickr
     if (typeof flatpickr === 'function') {
+        // Verfügbare Daten aus dem PHP-Backend
+        const availableDates = <?php echo $availableDatesJson; ?>;
+        console.log('Verfügbare Daten für Datepicker:', availableDates);
+        
         flatpickr("#dateFilter", {
             dateFormat: "Y-m-d",
             locale: "de",
             allowInput: true,
-            onChange: function(selectedDates) {
+            disableMobile: true,
+            // Aktiviere nur die Tage, an denen Tests vorhanden sind
+            enable: availableDates,
+            // Zeige Info, wenn ein deaktivierter Tag gewählt wird
+            onValueUpdate: function(selectedDates, dateStr) {
                 console.log('Datum geändert:', selectedDates);
-                updateResults();
+                if (selectedDates.length > 0) {
+                    updateResults();
+                }
             }
         });
         console.log('Flatpickr initialisiert');
@@ -571,8 +721,21 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Dropdown-Items gefunden:', dropdownItems.length);
         
         dropdownItems.forEach(item => {
+            // Überspringe Tests ohne Ergebnisse (sie haben kein data-code Attribut)
+            if (!item.dataset.code && item.classList.contains('no-attempts')) {
+                console.log('Überspringe Test ohne Ergebnisse:', item.textContent.trim());
+                return; // Überspringe diesen Test
+            }
+            
             item.addEventListener('click', function(e) {
                 e.preventDefault();
+                
+                // Wenn es kein data-code Attribut gibt, handelt es sich um einen Test ohne Ergebnisse
+                if (!this.dataset.code && this.classList.contains('no-attempts')) {
+                    console.log('Test ohne Ergebnisse, ignoriere Klick');
+                    return;
+                }
+                
                 console.log('Test ausgewählt:', this.dataset.code);
                 
                 // Entferne active-Klasse von allen Items
@@ -628,8 +791,8 @@ function updateResults() {
         test: selectedTest || ''
     });
     
-    // Verwende die dedizierte AJAX-Endpunkt-Datei
-    const ajaxUrl = '../includes/teacher_dashboard/get_test_results.php';
+    // Verwende die dedizierte AJAX-Endpunkt-Datei mit absolutem Pfad
+    const ajaxUrl = '/mcq-test-system/teacher/load_test_results.php';
     console.log('Sende AJAX-Anfrage an:', ajaxUrl);
     
     // Zeige Ladestatus an
@@ -650,71 +813,97 @@ function updateResults() {
         if (!response.ok) {
             throw new Error('Netzwerkantwort nicht ok');
         }
-        
-        // Versuche den Response-Text zu loggen
-        return response.text().then(text => {
-            try {
-                if (text.trim().startsWith('<')) {
-                    console.error('HTML-Antwort erhalten statt JSON:', text.substring(0, 300));
-                    throw new Error('Ungültiges JSON in der Antwort: HTML erhalten statt JSON');
-                }
-                
-                console.log('Antwort-Text (erste 100 Zeichen):', text.substring(0, 100));
-                return JSON.parse(text);
-            } catch (e) {
-                console.error('JSON-Parse-Fehler:', e);
-                console.error('Erhaltener Text statt JSON:', text.substring(0, 300));
-                throw new Error('Ungültiges JSON in der Antwort: ' + e.message);
-            }
-        });
+        return response.json();
     })
     .then(data => {
-        console.log('Daten erhalten:', data);
-        if (data.success) {
-            updateResultsDisplay(data.results);
-        } else {
-            console.error('Fehler beim Laden der Ergebnisse:', data.error);
-            document.getElementById('filteredResults').innerHTML = 
-                '<div class="alert alert-danger">Fehler beim Laden der Ergebnisse: ' + data.error + '</div>';
+        console.log('Vollständige AJAX-Antwort erhalten:', data);
+        
+        // Detaillierte Debug-Ausgabe der Datenstruktur
+        if (data.data && data.data.length > 0) {
+            console.log('Beispiel-Datensatz:', JSON.stringify(data.data[0], null, 2));
+            console.log('Verfügbare Felder:', Object.keys(data.data[0]));
         }
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Unbekannter Fehler beim Laden der Daten');
+        }
+        
+        // Überprüfe, ob Ergebnisse vorhanden sind
+        if (!data.data || data.data.length === 0) {
+            container.innerHTML = '<div class="alert alert-info">Keine Ergebnisse gefunden.</div>';
+            return;
+        }
+        
+        updateResultsDisplay(data.data);
     })
     .catch(error => {
         console.error('Fehler beim Laden der Ergebnisse:', error);
-        document.getElementById('filteredResults').innerHTML = 
-            '<div class="alert alert-danger">Fehler beim Laden der Ergebnisse: ' + error.message + '</div>';
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Fehler beim Laden der Ergebnisse:</strong> ${error.message}
+                <br><small>Bitte prüfen Sie die Konsole für weitere Details.</small>
+            </div>
+        `;
     });
 }
 
+// Hilfsfunktion zum Aktualisieren der Ergebnisanzeige
 function updateResultsDisplay(results) {
     console.log('Aktualisiere Ergebnisanzeige mit', results.length, 'Ergebnissen');
     
-    const container = document.getElementById('filteredResults');
-    container.innerHTML = '';
-
-    if (!results || results.length === 0) {
-        console.log('Keine Ergebnisse gefunden');
-        container.innerHTML = '<div class="alert alert-info">Keine Ergebnisse gefunden.</div>';
-        return;
+    // Feldnamen-Mapping zwischen Backend und Frontend
+    const fieldMapping = {
+        // Backend-Name -> Frontend-Name
+        'test_title': 'testTitle',
+        'title': 'testTitle',
+        'test_code': 'accessCode',
+        'access_code': 'accessCode',
+        'student_name': 'studentName',
+        'completed_at': 'date',
+        'xml_file_path': 'fileName',
+        'points_achieved': 'points_achieved',
+        'points_maximum': 'points_maximum'
+    };
+    
+    // Daten transformieren, um einheitliche Feldnamen zu verwenden
+    const transformedResults = results.map(item => {
+        const transformed = {};
+        Object.keys(item).forEach(key => {
+            const mappedKey = fieldMapping[key] || key;
+            
+            // Datumsformatierung für date-Feld
+            if (key === 'completed_at' || key === 'date') {
+                if (item[key]) {
+                    // Formatiere Datum als dd.mm.yy
+                    const date = new Date(item[key]);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = String(date.getFullYear()).slice(2);
+                    transformed[mappedKey] = `${day}.${month}.${year} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+                } else {
+                    transformed[mappedKey] = item[key];
+                }
+            } else {
+                transformed[mappedKey] = item[key];
+            }
+        });
+        return transformed;
+    });
+    
+    console.log('Transformierte Ergebnisse:', transformedResults.length);
+    if (transformedResults.length > 0) {
+        console.log('Beispiel transformiertes Ergebnis:', JSON.stringify(transformedResults[0], null, 2));
     }
-
-    // Debug-Ausgabe aller Ergebnisse
-    console.log('Erhaltene Ergebnisse:', results);
-
+    
     // Gruppiere Ergebnisse nach Test
     const groupedResults = {};
-    results.forEach(result => {
-        // Überprüfe, ob alle erforderlichen Eigenschaften vorhanden sind
-        if (!result.testTitle || !result.accessCode) {
-            console.error('Ungültiges Ergebnisobjekt:', result);
-            return;
-        }
-
-        const key = `${result.testTitle}_${result.accessCode}`;
+    transformedResults.forEach(result => {
+        const key = result.testTitle + '_' + result.accessCode;
         if (!groupedResults[key]) {
             groupedResults[key] = {
                 testTitle: result.testTitle,
                 accessCode: result.accessCode,
-                testDate: result.testDate || '',
+                testDate: result.testDate || result.created_at || '',
                 results: []
             };
         }
@@ -722,64 +911,158 @@ function updateResultsDisplay(results) {
     });
     
     console.log('Gruppierte Ergebnisse:', Object.keys(groupedResults).length, 'Gruppen');
-
-    // Erstelle HTML für jede Gruppe
+    
+    // Ergebnisse anzeigen
+    const container = document.getElementById('filteredResults');
+    
+    if (Object.keys(groupedResults).length === 0) {
+        container.innerHTML = '<div class="alert alert-info">Keine Ergebnisse gefunden.</div>';
+        return;
+    }
+    
+    let html = '';
+    
+    // Zeige Ergebnisse gruppiert nach Test an
     Object.values(groupedResults).forEach(group => {
-        console.log('Erstelle Gruppe für:', group.testTitle, 'mit', group.results.length, 'Ergebnissen');
-        
-        const card = document.createElement('div');
-        card.className = 'card mb-4 result-group';
-        card.innerHTML = `
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    [${group.accessCode}] - 
-                    ${group.testTitle}
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Schüler</th>
-                                <th>Abgabezeitpunkt</th>
-                                <th>Punkte</th>
-                                <th>Prozent</th>
-                                <th>Note</th>
-                                <th>Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${group.results.map(result => `
-                                <tr>
-                                    <td>${result.studentName || ''}</td>
-                                    <td>${result.date || ''}</td>
-                                    <td>${result.points_achieved || 0}/${result.points_maximum || 0}</td>
-                                    <td>${result.percentage || 0}%</td>
-                                    <td>${result.grade || ''}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info" onclick="showResults('${result.fileName || ''}')">
-                                            Details
-                                        </button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+        html += `
+            <div class="card mb-4 result-group">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        [${group.accessCode}] - 
+                        ${group.testTitle}
+                        ${group.testDate ? ' (' + formatDate(group.testDate) + ')' : ''}
+                    </h5>
                 </div>
-            </div>
-        `;
-        container.appendChild(card);
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Schüler</th>
+                                    <th>Abgabezeitpunkt</th>
+                                    <th>Punkte</th>
+                                    <th>Prozent</th>
+                                    <th>Note</th>
+                                    <th class="text-start">Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+        
+        group.results.forEach(result => {
+            html += `
+                <tr>
+                    <td>${result.studentName || 'Unbekannt'}</td>
+                    <td>${result.date || 'Unbekannt'}</td>
+                    <td>${result.points_achieved || 0}/${result.points_maximum || 0}</td>
+                    <td>${result.percentage || 0}%</td>
+                    <td>${result.grade || '-'}</td>
+                    <td class="text-start">
+                        <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('${result.fileName || ''}')">
+                            Details
+                        </button>
+                    </td>
+                </tr>`;
+        });
+        
+        html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
     });
     
+    container.innerHTML = html;
     console.log('Ergebnisanzeige aktualisiert');
 }
 
 function showResults(filename) {
     console.log('Zeige Details für:', filename);
-    window.location.href = `show_results.php?file=${encodeURIComponent(filename)}`;
+    
+    // Speichere das aktuelle Element für späteren Fokus
+    let lastFocusedElement = document.activeElement;
+    
+    // Hole Modal und stelle Bootstrap-Modal-Instanz her
+    const resultDetailModal = document.getElementById('resultDetailModal');
+    let modalInstance;
+    
+    if (resultDetailModal) {
+        modalInstance = new bootstrap.Modal(resultDetailModal);
+        
+        // Zeige das Modal
+        modalInstance.show();
+        
+        // Lade die Detailansicht mit korrektem Pfad
+        fetch(`../includes/teacher_dashboard/show_results.php?file=${encodeURIComponent(filename)}&format=ajax`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Netzwerkantwort war nicht ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById('resultDetailContent').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Fehler beim Laden der Details:', error);
+                const modalContent = document.getElementById('resultDetailContent');
+                if (modalContent) {
+                    modalContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            Fehler beim Laden der Testergebnis-Details: ${error.message}
+                        </div>
+                    `;
+                }
+            });
+        
+        // Event-Listener für Modal-Events
+        resultDetailModal.addEventListener('hidden.bs.modal', function () {
+            // Setze Fokus zurück auf den letzten Button
+            if (lastFocusedElement) {
+                lastFocusedElement.focus();
+            }
+            
+            // Leere den Modal-Inhalt
+            const modalContent = document.getElementById('resultDetailContent');
+            if (modalContent) {
+                modalContent.innerHTML = `
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Lade...</span>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    } else {
+        // Fallback, wenn Modal nicht verfügbar ist
+        window.location.href = `../../includes/teacher_dashboard/show_results.php?file=${encodeURIComponent(filename)}`;
+    }
 }
-</script>
+
+// Debug-Event-Listener für Tab-Änderungen
+$(document).on('tabChanged', function(e, target) {
+    console.log('Tab changed event received in test_results_view.php');
+    console.log('Target:', target);
+    console.log('Is testResults visible?', $('#testResults').is(':visible'));
+    console.log('testResults display style:', $('#testResults').css('display'));
+    
+    // Prüfe, ob wir neu laden müssen
+    if (target === '#testResults' && $('#testResults').is(':visible')) {
+        console.log('testResults Tab ist aktiv, aktualisiere Ergebnisse');
+        updateResults();
+    }
+});
+
+// Hilfsfunktion zur Datumsformatierung
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(2);
+    return `${day}.${month}.${year}`;
+}
+</script> 
 
 </body>
 </html>

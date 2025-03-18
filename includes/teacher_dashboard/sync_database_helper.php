@@ -89,6 +89,10 @@ function syncDatabase() {
             $completedAt = isset($xml->abgabezeit) ? (string)$xml->abgabezeit : date('Y-m-d H:i:s', filemtime($fullPath));
             
             // Berechne Punkte und Note
+            // Definiere Konstante, um das HTML und JavaScript in auswertung.php zu überspringen
+            if (!defined('FUNCTIONS_ONLY')) {
+                define('FUNCTIONS_ONLY', true);
+            }
             require_once __DIR__ . '/../../auswertung.php';
             $results = evaluateTest($fullPath);
             if ($results === false) {
@@ -96,10 +100,25 @@ function syncDatabase() {
                 continue;
             }
             
-            $schema = loadGradeSchema();
-            $grade = calculateGrade($results['percentage'], $schema);
+            try {
+                error_log("Lade Notenschema für Datei: " . $fullPath);
+                $schema = loadGradeSchema();
+                error_log("Notenschema geladen: " . (is_array($schema) ? count($schema) . " Einträge" : "Fehler - kein Array"));
+                
+                if (is_array($schema) && !empty($schema)) {
+                    $grade = calculateGrade($results['percentage'], $schema);
+                    error_log("Note berechnet: " . $grade . " für " . $results['percentage'] . "%");
+                } else {
+                    // Fallback für den Fall, dass das Schema nicht geladen werden kann
+                    $grade = "?";
+                    error_log("Konnte Note nicht berechnen, verwende Platzhalter");
+                }
+            } catch (Exception $e) {
+                error_log("Fehler bei der Notenberechnung: " . $e->getMessage());
+                $grade = "?";
+            }
             
-            error_log("Füge neuen Eintrag hinzu: " . $accessCode . ", " . $studentName . ", " . $results['achieved'] . "/" . $results['max']);
+            error_log("Füge neuen Eintrag hinzu: " . $accessCode . ", " . $studentName . ", " . $results['achieved'] . "/" . $results['max'] . ", Note: " . $grade);
             
             // Füge den Eintrag zur Datenbank hinzu
             try {
