@@ -480,6 +480,17 @@ if (!$isAjax):
 <script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialisiere Bootstrap Tabs
+    var triggerTabList = [].slice.call(document.querySelectorAll('#myTab button'));
+    triggerTabList.forEach(function(triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl);
+        triggerEl.addEventListener('click', function(event) {
+            event.preventDefault();
+            tabTrigger.show();
+        });
+    });
+
+    // Rest des bestehenden DOMContentLoaded-Codes
     console.log('DOM geladen, initialisiere Filterkomponenten');
     
     // Prüfe, ob die erforderlichen Elemente existieren
@@ -731,4 +742,7 @@ function showResults(filename) {
 }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
 <?php endif; ?> 
