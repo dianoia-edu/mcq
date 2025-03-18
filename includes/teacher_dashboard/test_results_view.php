@@ -331,6 +331,40 @@ if (!$isAjax):
             border-color: #25cff2;
             color: #000;
         }
+        
+        /* Tab-Styles kompatibel mit dem Haupt-Dashboard */
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .tab {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 5px;
+            text-decoration: none;
+            color: #495057;
+            border: 1px solid transparent;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            top: 1px;
+        }
+        .tab:hover {
+            color: #0d6efd;
+            border-color: #e9ecef #e9ecef #dee2e6;
+            text-decoration: none;
+        }
+        .tab.active {
+            color: #0d6efd;
+            background-color: #fff;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+        .tab-pane {
+            display: none;
+            padding: 20px 0;
+        }
+        .tab-pane.active {
+            display: block;
+        }
     </style>
 </head>
 
@@ -338,24 +372,14 @@ if (!$isAjax):
 <div class="container mt-4">
     <h2>Testergebnisse</h2>
     
-    <!-- Tab-Navigation -->
-    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button" role="tab" aria-controls="results" aria-selected="true">
-                Testergebnisse
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config" type="button" role="tab" aria-controls="config" aria-selected="false">
-                Konfiguration
-            </button>
-        </li>
-    </ul>
+    <!-- Tab-Navigation im eigenen Format -->
+    <div class="nav-tabs">
+        <a href="#" class="tab active" data-target="#results">Testergebnisse</a>
+        <a href="#" class="tab" data-target="#config">Konfiguration</a>
+    </div>
 
-    <!-- Tab-Inhalte -->
-    <div class="tab-content" id="myTabContent">
-        <!-- Testergebnisse Tab -->
-        <div class="tab-pane fade show active" id="results" role="tabpanel" aria-labelledby="results-tab">
+    <div class="tab-content">
+        <div id="results" class="tab-pane active">
             <?php if (empty($allTests)): ?>
                 <div class="alert alert-info">
                     Keine Testergebnisse verfügbar.
@@ -462,7 +486,7 @@ if (!$isAjax):
         </div>
 
         <!-- Konfiguration Tab -->
-        <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
+        <div id="config" class="tab-pane">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Datenbank-Synchronisation</h5>
@@ -480,15 +504,28 @@ if (!$isAjax):
 <script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialisiere nur die Bootstrap Tabs innerhalb der Testergebnisse
-    var triggerTabList = [].slice.call(document.querySelectorAll('#myTab button'));
-    triggerTabList.forEach(function(triggerEl) {
-        var tabTrigger = new bootstrap.Tab(triggerEl);
-        triggerEl.addEventListener('click', function(event) {
-            event.preventDefault();
-            // Verhindere, dass Event nach oben propagiert wird
-            event.stopPropagation();
-            tabTrigger.show();
+    // Eigene Tab-Navigation
+    const tabs = document.querySelectorAll('.nav-tabs .tab');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Entferne active-Klasse von allen Tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            // Verstecke alle Tab-Inhalte
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            
+            // Setze aktiven Tab und zeige Inhalt
+            this.classList.add('active');
+            const target = document.querySelector(this.getAttribute('data-target'));
+            if (target) {
+                target.classList.add('active');
+            }
+            
+            // Verhindern, dass das Event nach oben propagiert
+            e.stopPropagation();
         });
     });
 
