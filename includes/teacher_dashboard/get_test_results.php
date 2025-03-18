@@ -11,6 +11,17 @@ function writeLog($message) {
 
 writeLog("=== Start get_test_results.php ===");
 
+// Synchronisiere zuerst die Datenbank, bevor Ergebnisse geladen werden
+writeLog("Automatische Synchronisation der Datenbank wird durchgeführt");
+try {
+    require_once __DIR__ . '/sync_database_helper.php';
+    syncDatabase();
+    writeLog("Automatische Synchronisation erfolgreich abgeschlossen");
+} catch (Exception $e) {
+    writeLog("Fehler bei der automatischen Synchronisation: " . $e->getMessage());
+    // Fahre trotz Fehler fort
+}
+
 // Bei AJAX-Anfragen immer nur JSON zurückgeben
 header('Content-Type: application/json');
 header('Cache-Control: no-cache, must-revalidate');

@@ -24,6 +24,19 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
 
 require_once __DIR__ . '/../../includes/database_config.php';
 
+// Synchronisiere zuerst die Datenbank, bevor Ergebnisse geladen werden
+if (!$isAjax) {
+    writeLog("Automatische Synchronisation der Datenbank wird durchgeführt");
+    try {
+        require_once __DIR__ . '/sync_database_helper.php';
+        syncDatabase();
+        writeLog("Automatische Synchronisation erfolgreich abgeschlossen");
+    } catch (Exception $e) {
+        writeLog("Fehler bei der automatischen Synchronisation: " . $e->getMessage());
+        // Fahre trotz Fehler fort
+    }
+}
+
 // Funktion zum Schreiben von Debug-Logs
 function writeLog($message) {
     $logFile = __DIR__ . '/../../logs/debug.log';
