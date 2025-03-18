@@ -468,6 +468,39 @@ if (!$isAjax):
             font-weight: bold;
             font-size: 1.2em;
         }
+        /* Sortierungsstile */
+        .sort-header {
+            cursor: pointer;
+            position: relative;
+        }
+        .sort-header::after {
+            content: "⇅";
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.5;
+            font-size: 0.8em;
+        }
+        .sort-header.sort-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        .sort-header.sort-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+        .group-sort-container {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .group-sort-label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .btn-group-sort .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
         /* Deaktivierte Tage im Datepicker anpassen */
         .flatpickr-day.flatpickr-disabled, 
         .flatpickr-day.flatpickr-disabled:hover {
@@ -590,6 +623,23 @@ if (!$isAjax):
             </div>
         </div>
 
+                    <!-- Gruppensortierung -->
+                    <div class="group-sort-container">
+                        <span class="group-sort-label">Gruppensortierung:</span>
+                        <div class="btn-group btn-group-sort me-2" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" data-sort-groups="accessCode" data-sort-dir="asc">Code ↑</button>
+                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="accessCode" data-sort-dir="desc">↓</button>
+                        </div>
+                        <div class="btn-group btn-group-sort me-2" role="group">
+                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="testTitle" data-sort-dir="asc">Titel ↑</button>
+                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="testTitle" data-sort-dir="desc">↓</button>
+                        </div>
+                        <div class="btn-group btn-group-sort" role="group">
+                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="testDate" data-sort-dir="desc">Datum ↓</button>
+                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="testDate" data-sort-dir="asc">↑</button>
+                        </div>
+                    </div>
+
                     <!-- Einfache Ergebnisse-Anzeige ohne eigene Tab-Navigation -->
         <div id="filteredResults">
                         <!-- Hier werden die gefilterten Ergebnisse angezeigt -->
@@ -610,11 +660,11 @@ if (!$isAjax):
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Schüler</th>
-                                        <th>Abgabezeitpunkt</th>
-                                        <th>Punkte</th>
-                                        <th>Prozent</th>
-                                        <th>Note</th>
+                                        <th class="sort-header" data-sort="studentName">Schüler</th>
+                                        <th class="sort-header" data-sort="date">Abgabezeitpunkt</th>
+                                        <th class="sort-header" data-sort="points">Punkte</th>
+                                        <th class="sort-header" data-sort="percentage">Prozent</th>
+                                        <th class="sort-header" data-sort="grade">Note</th>
                                         <th class="text-start">Aktionen</th>
                                     </tr>
                                 </thead>
@@ -788,6 +838,39 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial load
     console.log('Lade initiale Ergebnisse');
     updateResults();
+
+    // Initialisiere Gruppensortierung
+    initGroupSorting();
+    
+    // Event-Delegation für Tabellensortierung
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('sort-header') || e.target.closest('.sort-header')) {
+            const header = e.target.classList.contains('sort-header') ? e.target : e.target.closest('.sort-header');
+            const table = header.closest('table');
+            const sortField = header.dataset.sort;
+            
+            // Entferne vorherige Sortierklassen
+            table.querySelectorAll('.sort-header').forEach(h => {
+                if (h !== header) {
+                    h.classList.remove('sort-asc', 'sort-desc');
+                }
+            });
+            
+            // Bestimme Sortierrichtung
+            let sortDirection = 'asc';
+            if (header.classList.contains('sort-asc')) {
+                sortDirection = 'desc';
+                header.classList.remove('sort-asc');
+                header.classList.add('sort-desc');
+            } else {
+                header.classList.remove('sort-desc');
+                header.classList.add('sort-asc');
+            }
+            
+            // Sortiere Tabelle
+            sortTable(table, sortField, sortDirection);
+        }
+    });
 });
 
 function debounce(func, wait) {
@@ -967,11 +1050,11 @@ function updateResultsDisplay(results) {
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Schüler</th>
-                                    <th>Abgabezeitpunkt</th>
-                                    <th>Punkte</th>
-                                    <th>Prozent</th>
-                                    <th>Note</th>
+                                    <th class="sort-header" data-sort="studentName">Schüler</th>
+                                    <th class="sort-header" data-sort="date">Abgabezeitpunkt</th>
+                                    <th class="sort-header" data-sort="points">Punkte</th>
+                                    <th class="sort-header" data-sort="percentage">Prozent</th>
+                                    <th class="sort-header" data-sort="grade">Note</th>
                                     <th class="text-start">Aktionen</th>
                                 </tr>
                             </thead>
@@ -1105,6 +1188,126 @@ function formatGrade(grade) {
     } else {
         return grade;
     }
+}
+
+// Hilfsfunktion zur Tabellensortierung
+function sortTable(table, field, direction) {
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort((a, b) => {
+        let valA, valB;
+        
+        if (field === 'studentName' || field === 'date') {
+            valA = a.cells[field === 'studentName' ? 0 : 1].textContent.trim();
+            valB = b.cells[field === 'studentName' ? 0 : 1].textContent.trim();
+        } else if (field === 'points') {
+            // Extrahiere den ersten Teil (erreichte Punkte)
+            valA = parseInt(a.cells[2].textContent.split('/')[0]);
+            valB = parseInt(b.cells[2].textContent.split('/')[0]);
+        } else if (field === 'percentage') {
+            valA = parseFloat(a.cells[3].textContent);
+            valB = parseFloat(b.cells[3].textContent);
+        } else if (field === 'grade') {
+            valA = a.cells[4].textContent.trim();
+            valB = b.cells[4].textContent.trim();
+            
+            // Berücksichtige, dass Note 1 besser ist als Note 6
+            if (!isNaN(valA) && !isNaN(valB)) {
+                valA = parseInt(valA);
+                valB = parseInt(valB);
+                return direction === 'asc' ? valA - valB : valB - valA;
+            }
+        }
+        
+        // Standardsortierung
+        if (direction === 'asc') {
+            return valA > valB ? 1 : -1;
+        } else {
+            return valA < valB ? 1 : -1;
+        }
+    });
+    
+    // Aktualisiere DOM
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Initialisiere Gruppensortierung
+function initGroupSorting() {
+    const sortButtons = document.querySelectorAll('.btn-group-sort .btn');
+    if (sortButtons.length === 0) return;
+    
+    sortButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Entferne active-Klasse von allen Buttons
+            sortButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Setze active-Klasse für geklickten Button
+            this.classList.add('active');
+            
+            // Sortiere Gruppen
+            const field = this.dataset.sortGroups;
+            const direction = this.dataset.sortDir;
+            sortGroups(field, direction);
+        });
+    });
+    
+    // Initiale Sortierung
+    sortGroups('accessCode', 'asc');
+}
+
+// Sortiere Gruppen
+function sortGroups(field, direction) {
+    const container = document.getElementById('filteredResults');
+    const groups = Array.from(container.querySelectorAll('.result-group'));
+    
+    groups.sort((a, b) => {
+        let valA, valB;
+        
+        if (field === 'accessCode') {
+            // Extrahiere den Zugangscode aus dem Header
+            const headerA = a.querySelector('.card-header h5').textContent;
+            const headerB = b.querySelector('.card-header h5').textContent;
+            valA = headerA.match(/\[(.*?)\]/)[1].trim();
+            valB = headerB.match(/\[(.*?)\]/)[1].trim();
+        } else if (field === 'testTitle') {
+            // Extrahiere den Testtitel aus dem Header
+            const headerA = a.querySelector('.card-header h5').textContent;
+            const headerB = b.querySelector('.card-header h5').textContent;
+            valA = headerA.split('-')[1].split('(')[0].trim();
+            valB = headerB.split('-')[1].split('(')[0].trim();
+        } else if (field === 'testDate') {
+            // Extrahiere das Datum aus dem Header (falls vorhanden)
+            const headerA = a.querySelector('.card-header h5').textContent;
+            const headerB = b.querySelector('.card-header h5').textContent;
+            
+            // Suche nach Datum in Klammern, z.B. (01.02.23)
+            const dateMatchA = headerA.match(/\((\d{2}\.\d{2}\.\d{2})\)/);
+            const dateMatchB = headerB.match(/\((\d{2}\.\d{2}\.\d{2})\)/);
+            
+            valA = dateMatchA ? dateMatchA[1] : '01.01.00';
+            valB = dateMatchB ? dateMatchB[1] : '01.01.00';
+            
+            // Konvertiere zu Datum für besseren Vergleich
+            const [dayA, monthA, yearA] = valA.split('.');
+            const [dayB, monthB, yearB] = valB.split('.');
+            
+            const dateA = new Date(`20${yearA}`, parseInt(monthA) - 1, parseInt(dayA));
+            const dateB = new Date(`20${yearB}`, parseInt(monthB) - 1, parseInt(dayB));
+            
+            return direction === 'asc' ? dateA - dateB : dateB - dateA;
+        }
+        
+        // Standardsortierung
+        if (direction === 'asc') {
+            return valA > valB ? 1 : -1;
+        } else {
+            return valA < valB ? 1 : -1;
+        }
+    });
+    
+    // Aktualisiere DOM
+    groups.forEach(group => container.appendChild(group));
 }
 </script> 
 
