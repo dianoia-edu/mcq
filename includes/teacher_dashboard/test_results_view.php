@@ -1,4 +1,27 @@
 <?php
+// Überprüfen Sie, ob dies eine AJAX-Anfrage ist und geben Sie nur JSON zurück
+// Dies sollte vor allen anderen Anweisungen stehen
+if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    
+    // Alle bisherigen Ausgabe-Puffer entfernen
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
+    // Starte einen neuen sauberen Puffer
+    ob_start();
+    
+    // Setze Header für reines JSON
+    header('Content-Type: application/json');
+    header('Cache-Control: no-cache, must-revalidate');
+    
+    // AJAX-Verarbeitung später im Code
+    $isAjax = true;
+} else {
+    $isAjax = false;
+}
+
 require_once __DIR__ . '/../../includes/database_config.php';
 
 // Funktion zum Schreiben von Debug-Logs
@@ -8,18 +31,8 @@ function writeLog($message) {
     file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
 
-// Überprüfe, ob es sich um eine AJAX-Anfrage handelt
-$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-          strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-
 writeLog("Request-Typ: " . ($isAjax ? "AJAX" : "Normal HTML"));
 writeLog("GET-Parameter: " . print_r($_GET, true));
-
-// Bei AJAX-Anfragen keine HTML-Ausgabe erzeugen
-if ($isAjax) {
-    // Vermeide PHP-Warnungen und Fehler in der Ausgabe
-    ob_start(); 
-}
 
 // Lade die Ergebnisse aus der Datenbank
 $allResults = [];
@@ -158,7 +171,9 @@ try {
 
     if ($isAjax) {
         // Verwerfe alle bisherigen Ausgaben
-        ob_end_clean();
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
         
         writeLog("Sende AJAX-Antwort mit " . count($allResults) . " Ergebnissen");
         
@@ -168,9 +183,9 @@ try {
         }
         
         // Cache-Header deaktivieren
+        header('Content-Type: application/json');
         header('Cache-Control: no-cache, must-revalidate');
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-        header('Content-Type: application/json');
         
         $response = [
             'success' => true,
@@ -180,7 +195,9 @@ try {
         ];
         
         echo json_encode($response);
-        exit;
+        
+        // Beende die Ausführung vollständig
+        exit();
     }
 
 } catch (Exception $e) {
@@ -516,10 +533,9 @@ function updateResults() {
         test: selectedTest || ''
     });
     
-    // Aktuelle URL und Pfad
-    const currentUrl = window.location.href.split('?')[0];
-    console.log('Basis-URL:', currentUrl);
-    console.log('Sende AJAX-Anfrage:', currentUrl + '?' + queryParams.toString());
+    // Verwende die dedizierte AJAX-Endpunkt-Datei
+    const ajaxUrl = '../includes/teacher_dashboard/get_test_results.php';
+    console.log('Sende AJAX-Anfrage an:', ajaxUrl);
     
     // Zeige Ladestatus an
     const container = document.getElementById('filteredResults');
@@ -528,7 +544,7 @@ function updateResults() {
     // Zufälliger Cache-Buster
     queryParams.append('_', new Date().getTime());
     
-    fetch(currentUrl + '?' + queryParams.toString(), {
+    fetch(ajaxUrl + '?' + queryParams.toString(), {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Cache-Control': 'no-cache'
@@ -542,8 +558,13 @@ function updateResults() {
         
         // Versuche den Response-Text zu loggen
         return response.text().then(text => {
-            console.log('Antwort-Text (erste 100 Zeichen):', text.substring(0, 100));
             try {
+                if (text.trim().startsWith('<')) {
+                    console.error('HTML-Antwort erhalten statt JSON:', text.substring(0, 300));
+                    throw new Error('Ungültiges JSON in der Antwort: HTML erhalten statt JSON');
+                }
+                
+                console.log('Antwort-Text (erste 100 Zeichen):', text.substring(0, 100));
                 return JSON.parse(text);
             } catch (e) {
                 console.error('JSON-Parse-Fehler:', e);
