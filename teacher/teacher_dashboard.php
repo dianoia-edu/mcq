@@ -244,73 +244,6 @@ echo "-->\n";
             if (tabParam && document.getElementById(tabParam)) {
                 console.log('Aktiviere Tab aus URL:', tabParam);
                 activateTab(tabParam);
-                
-                // Synchronisationslogik für den Testergebnisse-Tab
-                if (tabParam === 'testResults') {
-                    console.log('Testergebnisse-Tab aufgerufen, starte Synchronisierung');
-                    
-                    // Konstruiere den API-Pfad - Verwende Forward-Slashes statt Backslashes
-                    const apiUrl = window.location.origin + '/mcq-test-system/includes/teacher_dashboard/sync_database_helper.php';
-                    console.log('Synchronisations-URL:', apiUrl);
-                    
-                    // Zeige Ladeindikator
-                    const resultsTab = document.getElementById('testResults');
-                    if (resultsTab) {
-                        const loadingDiv = document.createElement('div');
-                        loadingDiv.className = 'sync-loading-indicator';
-                        loadingDiv.innerHTML = `
-                            <div class="d-flex justify-content-center my-5">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Datenbank wird synchronisiert...</span>
-                                </div>
-                                <span class="ms-3">Datenbank wird synchronisiert...</span>
-                            </div>
-                        `;
-                        resultsTab.prepend(loadingDiv);
-                    }
-                    
-                    // Führe AJAX-Anfrage zur Synchronisation durch
-                    fetch(apiUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: 'action=sync',
-                        credentials: 'same-origin'
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        console.log('Synchronisation abgeschlossen:', data);
-                        
-                        // Entferne Ladeindikator
-                        const loadingIndicator = document.querySelector('.sync-loading-indicator');
-                        if (loadingIndicator) {
-                            loadingIndicator.remove();
-                        }
-                        
-                        // Aktualisiere die Testergebnisansicht, wenn updateResults verfügbar ist
-                        if (typeof updateResults === 'function') {
-                            console.log('Funktion updateResults gefunden, aktualisiere Ergebnisse');
-                            updateResults();
-                        }
-                        // WICHTIG: Entferne den reload, um Endlosschleifen zu vermeiden
-                    })
-                    .catch(error => {
-                        console.error('Fehler bei der Synchronisation:', error);
-                        
-                        // Entferne Ladeindikator und zeige Fehlermeldung
-                        const loadingIndicator = document.querySelector('.sync-loading-indicator');
-                        if (loadingIndicator) {
-                            loadingIndicator.innerHTML = `
-                                <div class="alert alert-danger my-4">
-                                    <i class="bi bi-exclamation-triangle me-2"></i> 
-                                    Fehler bei der Synchronisierung: ${error.message}
-                                </div>
-                            `;
-                        }
-                    });
-                }
             } else {
                 console.log('Aktiviere Standard-Tab: generator');
                 activateTab('generator');
@@ -334,40 +267,74 @@ echo "-->\n";
                     if (targetId === 'testResults') {
                         console.log('Testergebnisse-Tab wurde aktiviert, starte Synchronisation');
                         
-                        // Korrekter absoluter Pfad zur API - Verwende Forward-Slashes
-                        const apiUrl = window.location.origin + '/mcq-test-system/includes/teacher_dashboard/sync_database_helper.php';
+                        // Zeige Bootstrap-Meldung, dass Daten aktualisiert werden
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-info alert-dismissible fade show position-fixed top-50 start-50 translate-middle';
+                        alertDiv.style.zIndex = '9999';
+                        alertDiv.innerHTML = `
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">Wird geladen...</span>
+                                </div>
+                                <strong>Datenbank wird synchronisiert...</strong>
+                            </div>
+                            <div class="mt-2">Die Seite wird nach Abschluss automatisch neu geladen.</div>
+                        `;
+                        document.body.appendChild(alertDiv);
+                        
+                        // Korrekter absoluter Pfad zur API
+                        const apiUrl = window.location.origin + '/mcq-test-system/includes/teacher_dashboard/sync_database.php';
                         console.log('Synchronisations-URL:', apiUrl);
                         
                         // Führe AJAX-Anfrage zur Synchronisation durch
                         fetch(apiUrl, {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'Content-Type': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
                             },
-                            body: 'action=sync',
                             credentials: 'same-origin'
                         })
-                        .then(response => response.text())
+                        .then(response => response.json())
                         .then(data => {
                             console.log('Synchronisation abgeschlossen:', data);
                             
-                            // Aktualisiere die Testergebnisansicht
-                            if (typeof updateResults === 'function') {
-                                console.log('Aktualisiere Testergebnisse');
-                                updateResults({});
-                            }
-                            // WICHTIG: Entferne den reload, um Endlosschleifen zu vermeiden
+                            // Aktualisiere die Meldung
+                            alertDiv.innerHTML = `
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <strong>Synchronisierung abgeschlossen!</strong>
+                                </div>
+                                <div class="mt-2">Seite wird neu geladen...</div>
+                            `;
+                            
+                            // Warte kurz, dann lade die Seite neu
+                            setTimeout(() => {
+                                // Lade die Seite neu mit dem Tab-Parameter
+                                window.location.reload();
+                            }, 1000);
                         })
                         .catch(error => {
                             console.error('Fehler bei der Synchronisation:', error);
+                            
+                            // Zeige Fehlermeldung
+                            alertDiv.innerHTML = `
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                                    <strong>Fehler bei der Synchronisierung:</strong>
+                                </div>
+                                <div class="mt-2">${error.message}</div>
+                                <div class="mt-2">
+                                    <button class="btn btn-primary btn-sm" onclick="window.location.reload()">
+                                        Seite neu laden
+                                    </button>
+                                </div>
+                            `;
                         });
                     }
                     
-                    // Aktualisiere URL und sende Tab-Changed-Event
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('tab', targetId);
-                    window.history.pushState({}, '', url);
+                    // Aktualisiere URL und aktiviere Tab
+                    activateTab(targetId);
                     
                     // Löse ein Event aus für andere Komponenten
                     $(document).trigger('tabChanged', ['#' + targetId]);
