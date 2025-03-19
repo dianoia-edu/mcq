@@ -270,13 +270,14 @@ if (!$saved) {
 
 // Markiere den Test als absolviert
 error_log("Markiere Test als absolviert");
-if (!markTestAsCompleted($_SESSION['test_code'], $_SESSION['student_name'])) {
-    error_log("Fehler beim Markieren des Tests als abgeschlossen");
-    $_SESSION['error'] = "Fehler beim Speichern des Teststatus.";
-    header("Location: index.php");
-    exit();
+$markResult = markTestAsCompleted($_SESSION['test_code'], $_SESSION['student_name']);
+if (!$markResult) {
+    error_log("Warnung: Test konnte nicht als absolviert markiert werden, fahre trotzdem fort");
+    // Füge einen Hinweis zur Sitzung hinzu, aber leite nicht um
+    $_SESSION['warning'] = "Hinweis: Der Teststatus konnte nicht gespeichert werden. Die Testergebnisse wurden jedoch erfasst.";
+    // Kein Redirect und kein exit() - wir setzen die Verarbeitung fort
 }
-error_log("Test erfolgreich als absolviert markiert");
+error_log("Testmarkierung abgeschlossen, fahre mit Auswertung fort");
 
 // Führe die Auswertung anhand der gespeicherten XML-Datei durch
 error_log("Starte Testauswertung anhand der gespeicherten XML-Datei");
