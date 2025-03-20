@@ -132,19 +132,11 @@ function evaluateTest($xmlFile) {
             }
         }
         
-        // Berechne Punkte für diese Frage
-        // Neue Logik für Fragen mit mehreren richtigen Antworten:
-        // - Wenn falsche Antworten gewählt wurden, werden die Punkte reduziert
-        // - Pro Frage gibt es keine Minuspunkte
-        // - Bei einer falschen Antwort wird ein Punkt abgezogen
-        $questionPoints = 0;
-        if ($wrongChosen === 0) {
-            // Keine falschen Antworten gewählt -> alle richtigen Antworten zählen
-            $questionPoints = $correctChosen;
-        } else {
-            // Bei falschen Antworten: Ziehe einen Punkt pro falscher Antwort ab
-            $questionPoints = max(0, $correctChosen - $wrongChosen);
-        }
+        // Berechne Punkte für diese Frage:
+        // - Für jede richtige Antwort gibt es einen Punkt
+        // - Für jede falsche Antwort gibt es einen Punkt Abzug
+        // - Die Mindestpunktzahl pro Frage ist 0
+        $questionPoints = max(0, $correctChosen - $wrongChosen);
         
         $achievedPoints += $questionPoints;
         

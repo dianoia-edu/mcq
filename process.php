@@ -83,8 +83,8 @@ foreach ($_POST as $key => $value) {
         // Wenn es sich um eine Checkbox-Antwort handelt (Array)
         if (is_array($value)) {
             foreach ($value as $answerIndex) {
-                // Validiere die Antwortnummer
-                if (!is_numeric($answerIndex) || $answerIndex < 0) {
+                // Validiere die Antwortnummer - erlaube sowohl Zahlen als auch Buchstaben
+                if (!is_numeric($answerIndex) && !preg_match('/^[A-Z]$/', $answerIndex)) {
                     error_log("Ungültige Checkbox-Antwort: " . $answerIndex);
                     continue;
                 }
@@ -102,7 +102,7 @@ foreach ($_POST as $key => $value) {
             }
         } else {
             // Wenn es sich um eine Radio-Button-Antwort handelt
-            if (!is_numeric($value) && !preg_match('/^[A-D]$/', $value)) {
+            if (!is_numeric($value) && !preg_match('/^[A-Z]$/', $value)) {
                 error_log("Ungültige Radio-Antwort: " . $value);
                 continue;
             }

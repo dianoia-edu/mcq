@@ -21,6 +21,48 @@
         {
             "date": "2025-03-06",
             "student": "sus1"
+        },
+        {
+            "date": "2025-03-20",
+            "student": "test multi auswertung",
+            "student_id": "cc777f6d3df3171970f1e001d8eb446465ed2babfb28a0b5713b83b82db19fa2",
+            "client_id": "15ab4db2f1bbdc39f223f88516d769a684e6e758ff7695d54807e1d9039e482f",
+            "is_admin": false
+        },
+        {
+            "date": "2025-03-20",
+            "student": "admin 111",
+            "student_id": "720e0610226b108cfef42d132290a907f62985712b417782492a303bd36f21fb",
+            "client_id": "15ab4db2f1bbdc39f223f88516d769a684e6e758ff7695d54807e1d9039e482f",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-20",
+            "student": "admin test 2",
+            "student_id": "06930029ddfd87b30da7654fffb426ffd5b936a834d63a3dca25902d3e63ecf3",
+            "client_id": "15ab4db2f1bbdc39f223f88516d769a684e6e758ff7695d54807e1d9039e482f",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-20",
+            "student": "test 3",
+            "student_id": "f8c02a45667e1390e9702876dd4dc6c0066e49b5cdaa6ec1c83e7d88be92e2e2",
+            "client_id": "15ab4db2f1bbdc39f223f88516d769a684e6e758ff7695d54807e1d9039e482f",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-20",
+            "student": "test 4",
+            "student_id": "797c3856fd505a28f0af3360081d2ff8ff2b2c3e2a096b6469d35815e76c3515",
+            "client_id": "15ab4db2f1bbdc39f223f88516d769a684e6e758ff7695d54807e1d9039e482f",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-20",
+            "student": "admin 5",
+            "student_id": "6061b931da2d3b6c8c30f89ce7cfbda2c4f7a079ec3a37730bb8f8fe29b6d954",
+            "client_id": "15ab4db2f1bbdc39f223f88516d769a684e6e758ff7695d54807e1d9039e482f",
+            "is_admin": true
         }
     ],
     "222": [

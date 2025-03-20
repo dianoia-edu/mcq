@@ -238,7 +238,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-warning" id="confirmOverwrite">Überschreiben</button>
+                <button type="button" class="btn btn-danger" id="confirmOverwriteBtn">Test überschreiben</button>
+                <!-- Debug-Button für Tests -->
+                <button type="button" class="btn btn-info" id="debugOverwriteBtn">Debug Info</button>
             </div>
         </div>
     </div>
@@ -374,11 +376,66 @@ function updateButtonVisibility() {
     $('#deleteTestBtn').prop('disabled', !showButtons);
 }
 
+// Funktion zum Sammeln der Fragen und Antworten aus dem Formular
+function collectQuestions() {
+    const questions = [];
+    
+    $('#questionsContainer .question-card').each(function() {
+        const questionText = $(this).find('.question-text').val().trim();
+        if (!questionText) {
+            return true; // continue
+        }
+        
+        const answers = [];
+        let correctCount = 0;
+        let hasValidAnswers = true;
+        
+        $(this).find('.answer-item').each(function() {
+            const answerText = $(this).find('.answer-text').val().trim();
+            const isCorrect = $(this).find('.answer-correct').is(':checked');
+            
+            if (!answerText) {
+                hasValidAnswers = false;
+                return false; // break
+            }
+            
+            answers.push({
+                text: answerText,
+                correct: isCorrect
+            });
+            
+            if (isCorrect) {
+                correctCount++;
+            }
+        });
+        
+        if (correctCount === 0 || !hasValidAnswers) {
+            return true; // continue
+        }
+        
+        questions.push({
+            text: questionText,
+            answers: answers
+        });
+    });
+    
+    return questions;
+}
+
+// Füge Debug-Option für Tests hinzu
+window.DEBUG_TEST_EDITOR = true;
+
 // Funktion zum Speichern des Tests
 function saveTest(forceOverwrite = false) {
     // Validiere Formular
     const title = $('#testTitle').val().trim();
     const accessCode = $('#accessCode').val().trim();
+    
+    if (window.DEBUG_TEST_EDITOR) {
+        console.log('saveTest called with forceOverwrite =', forceOverwrite);
+        console.log('Title:', title);
+        console.log('Access Code:', accessCode);
+    }
     
     if (!title || !accessCode) {
         alert('Bitte füllen Sie Titel und Zugangscode aus.');
@@ -396,88 +453,92 @@ function saveTest(forceOverwrite = false) {
         return;
     }
     
-    // Prüfe, ob der Zugangscode bereits existiert (außer bei dem aktuell bearbeiteten Test)
-    let existingTest = null;
-    const currentTestCode = window.currentTestFilename ? window.currentTestFilename.split('_')[0] : null;
+    // Sammle Daten aus dem Formular
+    const questions = collectQuestions();
     
+    if (window.DEBUG_TEST_EDITOR) {
+        console.log('Collected questions:', questions);
+    }
+    
+    if (!questions || questions.length === 0) {
+        alert('Bitte stellen Sie sicher, dass mindestens eine Frage vollständig ausgefüllt ist (mit Text und mindestens einer richtigen Antwort).');
+        return;
+    }
+    
+    // Prüfe, ob der Zugangscode bereits existiert (außer bei dem aktuell bearbeiteten Test)
     if (!forceOverwrite) {
+        let existingTest = null;
+        // Verwende den vollständigen Dateinamen für die Prüfung
+        const currentTestCode = window.currentTestFilename || null;
+        
+        if (window.DEBUG_TEST_EDITOR) {
+            console.log('Aktuelle Test-ID:', currentTestCode);
+            console.log('Neuer Zugangscode:', accessCode);
+        }
+        
+        // Client-seitige Überprüfung auf doppelte Tests
         $('#testSelector option').each(function() {
-            const optionCode = $(this).data('access-code');
-            if (optionCode && optionCode === accessCode && optionCode !== currentTestCode) {
+            // Hol den Zugangscode direkt aus dem data-Attribut
+            const filename = $(this).val();
+            const optionAccessCode = String($(this).data('access-code') || '');
+            const accessCodeStr = String(accessCode);
+            
+            if (window.DEBUG_TEST_EDITOR) {
+                console.log('Vergleiche:', {
+                    optionAccessCode: optionAccessCode,
+                    newAccessCode: accessCodeStr,
+                    filename: filename,
+                    // Strict comparison
+                    vergleich: optionAccessCode === accessCodeStr,
+                    // Zeige was == vs === ergibt
+                    looseCompare: optionAccessCode == accessCodeStr,
+                    strictCompare: optionAccessCode === accessCodeStr,
+                    types: {
+                        optionType: typeof optionAccessCode,
+                        accessCodeType: typeof accessCodeStr
+                    }
+                });
+            }
+            
+            // Strenger String-Vergleich nach Typkonvertierung
+            if (optionAccessCode !== '' && 
+                optionAccessCode === accessCodeStr && 
+                window.currentTestFilename !== filename) {
+                
+                if (window.DEBUG_TEST_EDITOR) {
+                    console.log('!!! DUPLIKAT GEFUNDEN !!!', {
+                        accessCode: optionAccessCode,
+                        title: $(this).data('title'),
+                        filename: filename
+                    });
+                }
+                
                 existingTest = {
-                    code: optionCode,
+                    code: optionAccessCode,
                     title: $(this).data('title'),
-                    filename: $(this).val()
+                    filename: filename
                 };
                 return false;
             }
         });
         
         if (existingTest) {
+            console.log('Client-side check found existing test:', existingTest);
             // Zeige das Überschreiben-Modal
             $('#existingAccessCode').text(existingTest.code);
             $('#existingTitle').text(existingTest.title);
             $('#newTitle').text(title);
             
-            const overwriteModal = new bootstrap.Modal(document.getElementById('overwriteConfirmModal'));
-            overwriteModal.show();
+            try {
+                const overwriteModal = new bootstrap.Modal(document.getElementById('overwriteConfirmModal'));
+                overwriteModal.show();
+            } catch (e) {
+                console.error('Error showing modal:', e);
+                // Fallback für ältere Bootstrap-Versionen
+                $('#overwriteConfirmModal').modal('show');
+            }
             return;
         }
-    }
-    
-    // Sammle Daten aus dem Formular
-    const questions = [];
-    let answerType = 'single';
-    let hasValidQuestions = false;
-    
-    $('#questionsContainer .question-card').each(function() {
-        const questionText = $(this).find('.question-text').val().trim();
-        if (!questionText) {
-            return true;
-        }
-        
-        const answers = [];
-        let correctCount = 0;
-        let hasValidAnswers = true;
-        
-        $(this).find('.answer-item').each(function() {
-            const answerText = $(this).find('.answer-text').val().trim();
-            const isCorrect = $(this).find('.answer-correct').is(':checked');
-            
-            if (!answerText) {
-                hasValidAnswers = false;
-                return false;
-            }
-            
-            answers.push({
-                text: answerText,
-                correct: isCorrect
-            });
-            
-            if (isCorrect) {
-                correctCount++;
-            }
-        });
-        
-        if (correctCount === 0 || !hasValidAnswers) {
-            return true;
-        }
-        
-        if (correctCount > 1) {
-            answerType = 'multiple';
-        }
-        
-        questions.push({
-            text: questionText,
-            answers: answers
-        });
-        
-        hasValidQuestions = true;
-    });
-    
-    if (!hasValidQuestions || questions.length === 0) {
-        alert('Bitte stellen Sie sicher, dass mindestens eine Frage vollständig ausgefüllt ist (mit Text und mindestens einer richtigen Antwort).');
-        return;
     }
     
     // Sende Daten an den Server
@@ -488,10 +549,13 @@ function saveTest(forceOverwrite = false) {
             title: title,
             access_code: accessCode,
             questions: JSON.stringify(questions),
-            answer_type: answerType,
-            current_filename: window.currentTestFilename || ''
+            current_filename: window.currentTestFilename || '',
+            force_overwrite: forceOverwrite ? 'true' : 'false'
         },
+        dataType: 'json',
         success: function(response) {
+            console.log('Save test response:', response); // Debug-Log
+            
             if (response.success) {
                 // Aktualisiere den currentTestFilename
                 window.currentTestFilename = response.filename;
@@ -524,12 +588,52 @@ function saveTest(forceOverwrite = false) {
                 
                 // Zeige QR-Code mit der globalen Funktion aus main.js
                 showQrCode(false, 'editor');
+            } else if (response.need_confirmation) {
+                console.log('Need confirmation for overwrite'); // Debug-Log
+                
+                // Zeige das Überschreiben-Modal
+                $('#existingAccessCode').text(response.existing_test.access_code);
+                $('#existingTitle').text(response.existing_test.title);
+                $('#newTitle').text(title);
+                
+                try {
+                    // Setze Debug-Informationen
+                    if (window.DEBUG_TEST_EDITOR) {
+                        console.log('Showing overwrite confirmation modal for:');
+                        console.log('Existing test:', response.existing_test);
+                        console.log('New title:', title);
+                    }
+                    
+                    // Versuche das Modal mit Bootstrap 5 zu öffnen
+                    const overwriteModal = new bootstrap.Modal(document.getElementById('overwriteConfirmModal'));
+                    overwriteModal.show();
+                } catch (e) {
+                    console.error('Error showing modal with Bootstrap 5:', e);
+                    
+                    try {
+                        // Fallback für Bootstrap 4
+                        $('#overwriteConfirmModal').modal('show');
+                    } catch (e2) {
+                        console.error('Error showing modal with jQuery fallback:', e2);
+                        
+                        // Absolute Notfall-Fallback: direktes Überschreiben nach Bestätigung
+                        if (confirm(`Es existiert bereits ein Test mit dem Zugangscode "${response.existing_test.access_code}" und dem Titel "${response.existing_test.title}". Möchten Sie diesen Test mit "${title}" überschreiben?`)) {
+                            saveTest(true); // Rufe saveTest mit force_overwrite=true auf
+                        }
+                    }
+                }
             } else {
-                alert('Fehler beim Speichern: ' + response.error);
+                alert('Fehler beim Speichern: ' + (response.message || response.error || 'Unbekannter Fehler'));
             }
         },
         error: function(xhr, status, error) {
-            alert('Fehler beim Speichern: ' + error);
+            console.error('Error saving test:', error, xhr.responseText); // Debug-Log
+            try {
+                const response = JSON.parse(xhr.responseText);
+                alert('Fehler beim Speichern: ' + (response.message || response.error || error));
+            } catch (e) {
+                alert('Fehler beim Speichern: ' + error);
+            }
         }
     });
 }
@@ -590,10 +694,53 @@ $(document).ready(function() {
     });
     
     // Event-Handler für das Überschreiben-Modal
-    $('#confirmOverwrite').on('click', function() {
+    $('#confirmOverwriteBtn').on('click', function() {
+        console.log('Overwrite confirmed, saving test with force_overwrite=true');
+        
+        // Explizit als boolean true setzen, damit es korrekt übertragen wird
+        window.forceOverwriteConfirmed = true;
+        
+        // Modal schließen
         const modal = bootstrap.Modal.getInstance(document.getElementById('overwriteConfirmModal'));
-        modal.hide();
-        saveTest(true);
+        if (modal) {
+            modal.hide();
+        } else {
+            $('#overwriteConfirmModal').modal('hide');
+        }
+        
+        // Test mit force_overwrite=true speichern
+        const title = $('#testTitle').val().trim();
+        const accessCode = $('#accessCode').val().trim();
+        
+        console.log('Sending save request with force_overwrite=true');
+        
+        // Direkt AJAX-Aufruf statt saveTest-Funktion, um Probleme zu vermeiden
+        $.ajax({
+            url: 'save_test.php',
+            type: 'POST',
+            data: {
+                title: title,
+                access_code: accessCode,
+                questions: JSON.stringify(collectQuestions()),
+                current_filename: window.currentTestFilename || '',
+                force_overwrite: 'true'  // Explizit als String 'true' senden
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log('Overwrite response:', response);
+                if (response.success) {
+                    window.currentTestFilename = response.filename;
+                    showSuccessMessage('Test wurde erfolgreich gespeichert!');
+                    updateButtonVisibility();
+                } else {
+                    alert('Fehler beim Speichern: ' + (response.message || response.error || 'Unbekannter Fehler'));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error during overwrite:', error, xhr.responseText);
+                alert('Fehler beim Speichern: ' + error);
+            }
+        });
     });
 
     // Event-Handler für den Import-Button
@@ -702,6 +849,65 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Füge Debug-Button-Handler hinzu
+    $('#debugOverwriteBtn').on('click', function() {
+        console.log('DEBUG INFO:');
+        console.log('Current force_overwrite state:', window.forceOverwriteConfirmed);
+        console.log('Current test filename:', window.currentTestFilename);
+        
+        // Überprüfe alle Zugangscodes im Dropdown und deren Typen
+        const allCodes = [];
+        let accessCodeMatch = false;
+        const newAccessCode = $('#accessCode').val().trim();
+        
+        $('#testSelector option').each(function() {
+            const optCode = $(this).data('access-code');
+            const fileName = $(this).val();
+            const isMatch = optCode === newAccessCode;
+            
+            if (isMatch) accessCodeMatch = true;
+            
+            allCodes.push({
+                code: optCode,
+                title: $(this).data('title'),
+                filename: fileName,
+                isCurrentTest: window.currentTestFilename === fileName,
+                matchesNewCode: isMatch,
+                codeType: typeof optCode,
+                newCodeType: typeof newAccessCode
+            });
+        });
+        
+        console.log('All tests in dropdown:', allCodes);
+        console.log('Found match:', accessCodeMatch);
+        
+        // Zeige Debug-Infos in einem Alert
+        alert(`Debug Info:
+        - Access Code: "${newAccessCode}" (${typeof newAccessCode})
+        - forceOverwriteConfirmed: ${window.forceOverwriteConfirmed}
+        - currentTestFilename: ${window.currentTestFilename}
+        - Tests im Dropdown: ${allCodes.length}
+        - Matching test found: ${accessCodeMatch}
+        `);
+    });
+
+    // Füge beim Dokumentenstart eine Debug-Funktion zum Inspizieren der Tests hinzu
+    console.group('Geladene Tests');
+    $('#testSelector option').each(function() {
+        const value = $(this).val();
+        if (value) {  // Überspringe den "Neuen Test erstellen" Eintrag
+            console.log({
+                text: $(this).text(),
+                value: value,
+                accessCode: $(this).data('access-code'),
+                title: $(this).data('title'),
+                accessCodeType: typeof $(this).data('access-code'),
+                html: $(this).prop('outerHTML')
+            });
+        }
+    });
+    console.groupEnd();
 });
 
 <?php if (isset($selectedTest)): ?>
@@ -845,5 +1051,11 @@ function generatePreview(questions) {
     
     html += '</div>';
     return html;
+}
+
+// Direkte Funktion für das Überschreiben bestätigen
+function confirmOverwriteTest() {
+    // Diese Funktion wird nicht mehr verwendet
+    console.log('Die alte confirmOverwriteTest() wurde aufgerufen, sollte aber durch den jQuery-Handler ersetzt werden');
 }
 </script> 

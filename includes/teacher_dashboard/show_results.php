@@ -74,6 +74,7 @@ function processFile($file) {
         
         // Wenn die Datei direkt gefunden wurde, lade sie
         if ($fileFound) {
+            writeLog("Versuche XML-Datei zu laden von: " . $foundFullPath);
             $xml = simplexml_load_file($foundFullPath);
             if ($xml) {
                 writeLog("XML-Datei direkt geladen");
@@ -192,36 +193,96 @@ function processFile($file) {
 
 // Funktion zur Anzeige der Testergebnisse
 function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
+    // Debug-Info
+    writeLog("====== ANZEIGE TESTERGEBNISSE ======");
+    
+    /*
+     * Punkteberechnung und Farbkodierung:
+     * - Für jede richtige Antwort: +1 Punkt
+     * - Für jede falsche Antwort: -1 Punkt (Minimum 0)
+     * - Farbkodierung:
+     *   - Grün: Alle möglichen Punkte erreicht (100%)
+     *   - Rot: Keine Punkte erreicht (0%)
+     *   - Orange: Teilweise Punkte erreicht (1% - 99%)
+     */
+    
     // Grundlegende Informationen extrahieren
     $testTitle = isset($xml->title) ? (string)$xml->title : 'Unbekannter Test';
     $accessCode = isset($xml->access_code) ? (string)$xml->access_code : '';
     
+    writeLog("Test: $testTitle, Code: $accessCode, Schüler: $studentName");
+    
     // Score und Bewertung berechnen
-    $correctAnswers = 0;
-    $totalQuestions = 0;
+    $totalPoints = 0;           // Maximale Punktzahl
+    $achievedPoints = 0;        // Erreichte Punktzahl
+    $questionPoints = [];       // Punkte pro Frage [erreicht, maximal]
     
     if (isset($xml->questions->question)) {
-        $totalQuestions = count($xml->questions->question);
-        
-        foreach ($xml->questions->question as $question) {
-            $isCorrect = true;
+        foreach ($xml->questions->question as $qIndex => $question) {
+            $questionNumber = isset($question['nr']) ? (string)$question['nr'] : ((int)$qIndex + 1);
+            writeLog("Verarbeite Frage $questionNumber");
+            
+            $correctAnswersTotal = 0;   // Gesamtzahl richtiger Antworten in dieser Frage
+            $correctChosen = 0;         // Anzahl richtig gewählter Antworten
+            $wrongChosen = 0;           // Anzahl falsch gewählter Antworten
+            $totalAnswers = 0;          // Gesamtzahl der Antworten
+            
+            // Zähle die richtigen Antwortmöglichkeiten und Gesamtanzahl
             foreach ($question->answers->answer as $answer) {
-                $correct = (string)$answer->correct === '1';
-                $schuelerantwort = (string)$answer->schuelerantwort === '1';
-                
-                if ($correct !== $schuelerantwort) {
-                    $isCorrect = false;
-                    break;
+                $totalAnswers++;
+                if ((int)$answer->correct === 1) {
+                    $correctAnswersTotal++;
                 }
             }
             
-            if ($isCorrect) {
-                $correctAnswers++;
+            writeLog("  Gesamtzahl richtiger Antworten: $correctAnswersTotal");
+            
+            // Zähle richtig/falsch gewählte Antworten
+            foreach ($question->answers->answer as $answer) {
+                $isCorrect = (int)$answer->correct === 1;
+                $wasChosen = (int)$answer->schuelerantwort === 1;
+                
+                writeLog("  Antwort: correct=" . ($isCorrect ? "1" : "0") . ", schuelerantwort=" . ($wasChosen ? "1" : "0"));
+                
+                if ($isCorrect && $wasChosen) {
+                    // Richtige Antwort wurde gewählt
+                    $correctChosen++;
+                } elseif (!$isCorrect && $wasChosen) {
+                    // Falsche Antwort wurde gewählt
+                    $wrongChosen++;
+                }
             }
+            
+            writeLog("  Gewählte richtige Antworten: $correctChosen");
+            writeLog("  Gewählte falsche Antworten: $wrongChosen");
+            
+            // Maximale Punkte für diese Frage ist die Anzahl der richtigen Antworten
+            $questionMaxPoints = $correctAnswersTotal;
+            
+            // Punkte für diese Frage berechnen (für jede richtige +1, für jede falsche -1, min. 0)
+            $questionAchievedPoints = max(0, $correctChosen - $wrongChosen);
+            
+            writeLog("  Erreichte Punkte: $questionAchievedPoints/$questionMaxPoints");
+            
+            // Speichere die Punkte für diese Frage
+            $questionPoints[$qIndex] = [
+                'achieved' => $questionAchievedPoints,
+                'max' => $questionMaxPoints,
+                'correctTotal' => $correctAnswersTotal,
+                'correctChosen' => $correctChosen,
+                'wrongChosen' => $wrongChosen,
+                'isSingleChoice' => ($correctAnswersTotal === 1),
+                'xmlNr' => $questionNumber // Speichere die XML Fragennummer
+            ];
+            
+            // Füge zur Gesamtpunktzahl hinzu
+            $totalPoints += $questionMaxPoints;
+            $achievedPoints += $questionAchievedPoints;
         }
     }
     
-    $percentage = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100) : 0;
+    $percentage = $totalPoints > 0 ? round(($achievedPoints / $totalPoints) * 100) : 0;
+    writeLog("Gesamtergebnis: $achievedPoints von $totalPoints Punkten ($percentage%)");
     
     // Wenn keine Note gesetzt ist oder sie leer ist, berechne sie basierend auf dem Prozentsatz
     if (empty($grade) || $grade === '-') {
@@ -252,7 +313,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
     echo "<p><strong>Schüler:</strong> " . htmlspecialchars($studentName) . "</p>";
     echo "</div>";
     echo "<div class='col-md-6 text-md-end'>";
-    echo "<p><strong>Punkte:</strong> $correctAnswers/$totalQuestions</p>";
+    echo "<p><strong>Punkte:</strong> $achievedPoints/$totalPoints</p>";
     echo "<p><strong>Prozent:</strong> $percentage%</p>";
     echo "<p><strong>Note:</strong> " . htmlspecialchars($grade) . "</p>";
     echo "</div>";
@@ -262,30 +323,113 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
     
     // Fragen und Antworten anzeigen
     if (isset($xml->questions->question)) {
-        foreach ($xml->questions->question as $i => $question) {
-            // Extrahiere die tatsächliche Fragennummer aus dem XML
-            $questionNumber = isset($question['nr']) ? (string)$question['nr'] : ((int)$i + 1);
+        foreach ($xml->questions->question as $qIndex => $question) {
+            $questionNumber = isset($question['nr']) ? (string)$question['nr'] : ((int)$qIndex + 1);
             $questionText = isset($question->text) ? (string)$question->text : 'Keine Fragentext';
             
-            // Prüfe, ob alle Antworten korrekt sind
-            $isQuestionCorrect = true;
-            foreach ($question->answers->answer as $answer) {
-                $correct = (string)$answer->correct === '1';
-                $schuelerantwort = (string)$answer->schuelerantwort === '1';
-                
-                if ($correct !== $schuelerantwort) {
-                    $isQuestionCorrect = false;
-                    break;
+            writeLog("Frage in Anzeige-Schleife: XML-Nummer $questionNumber, Schleifenindex $qIndex");
+            
+            // Jetzt suchen wir nach der passenden Fragennummer im questionPoints-Array
+            $pointsIndex = $qIndex; // Standardwert ist der Schleifenindex
+            
+            // Überprüfe, ob die Nummern nicht übereinstimmen
+            if (isset($questionPoints[$qIndex]['xmlNr']) && $questionPoints[$qIndex]['xmlNr'] != $questionNumber) {
+                // Suche die richtige Frage im Array
+                foreach ($questionPoints as $idx => $points) {
+                    if (isset($points['xmlNr']) && $points['xmlNr'] == $questionNumber) {
+                        $pointsIndex = $idx;
+                        writeLog("  Korrigiere Index für Frage $questionNumber von $qIndex zu $pointsIndex");
+                        break;
+                    }
                 }
             }
             
-            // CSS-Klasse je nach Korrektheit - dezentere Farben
-            $headerBgColor = $isQuestionCorrect ? '#28a745' : '#dc3545';
-            $headerStyle = 'background-color: ' . $headerBgColor . '; opacity: 0.7; color: white;';
+            // Direkt auf die Werte aus dem ursprünglichen Array zugreifen, aber mit dem korrekten Index
+            $achievedQPoints = isset($questionPoints[$pointsIndex]['achieved']) ? $questionPoints[$pointsIndex]['achieved'] : 0;
+            $maxQPoints = isset($questionPoints[$pointsIndex]['max']) ? $questionPoints[$pointsIndex]['max'] : 0;
+            $isSingleChoice = isset($questionPoints[$pointsIndex]['isSingleChoice']) ? $questionPoints[$pointsIndex]['isSingleChoice'] : true;
+            $correctChosen = isset($questionPoints[$pointsIndex]['correctChosen']) ? $questionPoints[$pointsIndex]['correctChosen'] : 0;
+            $correctTotal = isset($questionPoints[$pointsIndex]['correctTotal']) ? $questionPoints[$pointsIndex]['correctTotal'] : 0;
+            $wrongChosen = isset($questionPoints[$pointsIndex]['wrongChosen']) ? $questionPoints[$pointsIndex]['wrongChosen'] : 0;
             
-            echo "<div class='card mb-3 " . ($isQuestionCorrect ? 'border-success' : 'border-danger') . "'>";
+            // Debug-Ausgabe der Fragenindizes und -nummern
+            writeLog("  Fragendaten: XML-Nummer=$questionNumber, ArrayIndex=$pointsIndex, ErreichtePunkte=$achievedQPoints/$maxQPoints");
+            
+            // Neuberechnung der Punkte im Anzeigemodus, um Konsistenz mit auswertung.php zu gewährleisten
+            // Diese Zeilen sicherstellen, dass die Anzeige mit der Auswertung übereinstimmt
+            $correctChosen = 0;
+            $wrongChosen = 0;
+            $correctTotal = 0;
+            
+            // Berechne die Punkte erneut, genau wie in auswertung.php
+            foreach ($question->answers->answer as $answer) {
+                $isCorrect = (int)$answer->correct === 1;
+                $wasChosen = (int)$answer->schuelerantwort === 1;
+                
+                if ($isCorrect) {
+                    $correctTotal++;
+                }
+                
+                if ($isCorrect && $wasChosen) {
+                    $correctChosen++;
+                } elseif (!$isCorrect && $wasChosen) {
+                    $wrongChosen++;
+                }
+            }
+            
+            $maxQPoints = $correctTotal;
+            $achievedQPoints = max(0, $correctChosen - $wrongChosen);
+            
+            writeLog("  NEUBERECHNUNG: XML-Nummer=$questionNumber, ErreichtePunkte=$achievedQPoints/$maxQPoints");
+            
+            // Bestimme die Farbcodierung basierend auf dem Ergebnis
+            if ($achievedQPoints == $maxQPoints && $maxQPoints > 0) {
+                // Alle richtigen Antworten ausgewählt und keine falschen - Grün
+                $headerBgColor = '#28a745';
+                $borderClass = 'border-success';
+                $cardStyle = 'border: 3px solid #28a745 !important;';
+            } elseif ($achievedQPoints == 0) {
+                // Keine Punkte - Rot
+                $headerBgColor = '#dc3545';
+                $borderClass = 'border-danger';
+                $cardStyle = 'border: 3px solid #dc3545 !important;';
+            } else {
+                // Teilweise Punkte - Orange
+                $headerBgColor = '#fd7e14'; // Orange-Farbe
+                $borderClass = 'border-warning';
+                $cardStyle = 'border: 3px solid #fd7e14 !important;';
+            }
+            
+            $headerStyle = 'background-color: ' . $headerBgColor . ' !important; opacity: 0.9 !important; color: white !important;';
+            
+            echo "<div class='card mb-3 $borderClass' style='$cardStyle'>";
             echo "<div class='card-header' style='$headerStyle'>";
-            echo "<h5 class='mb-0'>Frage $questionNumber: " . ($isQuestionCorrect ? '1' : '0') . "/1 Punkte</h5>";
+            
+            // Debug-Ausgabe für Browser-Konsole
+            echo "<script>
+                console.log('===== FRAGE " . $questionNumber . " DETAILS =====');
+                console.log('XML-Daten:', {
+                    'QuestionNumber': '" . $questionNumber . "',
+                    'QuestionText': '" . addslashes($questionText) . "'
+                });
+                console.log('Berechnete Punkte:', {
+                    'Erreichte Punkte': " . json_encode($achievedQPoints) . ",
+                    'Maximale Punkte': " . json_encode($maxQPoints) . ",
+                    'Korrekte Antworten gesamt': " . json_encode($correctTotal) . ",
+                    'Richtig gewählte Antworten': " . json_encode($correctChosen) . ",
+                    'Falsch gewählte Antworten': " . json_encode($wrongChosen) . ",
+                    'Single-Choice': " . json_encode($isSingleChoice ? 'Ja' : 'Nein') . "
+                });
+                console.log('Anzeige-Stil:', {
+                    'Farbe': '" . ($achievedQPoints == $maxQPoints && $maxQPoints > 0 ? 'Grün (volle Punktzahl)' : 
+                        ($achievedQPoints == 0 ? 'Rot (keine Punkte)' : 'Orange (teilweise Punkte)')) . "',
+                    'Header-Stil': '" . addslashes($headerStyle) . "',
+                    'Border-Klasse': '" . $borderClass . "'
+                });
+                console.log('HTML-Überschrift: \"Frage " . $questionNumber . ": " . $achievedQPoints . "/" . $maxQPoints . " Punkte\"');
+            </script>";
+            
+            echo "<h5 class='mb-0'>Frage $questionNumber: $achievedQPoints/$maxQPoints Punkte</h5>";
             echo "</div>";
             echo "<div class='card-body'>";
             
@@ -296,6 +440,14 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             if (isset($question->answers->answer)) {
                 echo "<div class='list-group mt-3'>";
                 echo "<h6>Antwortmöglichkeiten:</h6>";
+                
+                // Info über Multiple-Choice anzeigen, wenn mehr als eine richtige Antwort möglich ist
+                if (!$isSingleChoice) {
+                    echo "<div class='alert alert-info mb-3' style='font-size: 0.9em;'>
+                            <i class='bi bi-info-circle'></i> 
+                            Diese Frage hat mehrere richtige Antworten ($correctTotal).
+                          </div>";
+                }
                 
                 foreach ($question->answers->answer as $answer) {
                     $answerText = isset($answer->text) ? (string)$answer->text : 'Keine Antworttext';

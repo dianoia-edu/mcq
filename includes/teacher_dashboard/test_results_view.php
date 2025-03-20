@@ -290,8 +290,16 @@ foreach ($allResults as $result) {
             'testTitle' => $result['testTitle'],
             'accessCode' => $result['accessCode'],
             'testDate' => $result['testDate'],
+            'lastTestDate' => $result['date'],
             'results' => []
         ];
+    } else {
+        // Aktualisiere das Datum des letzten Tests, wenn das aktuelle Ergebnis neuer ist
+        $currentDate = strtotime($result['date']);
+        $lastDate = strtotime($groupedResults[$key]['lastTestDate']);
+        if ($currentDate > $lastDate) {
+            $groupedResults[$key]['lastTestDate'] = $result['date'];
+        }
     }
     $groupedResults[$key]['results'][] = $result;
 }
@@ -627,7 +635,7 @@ if (!$isAjax):
                     <div class="group-sort-container">
                         <span class="group-sort-label">Gruppensortierung:</span>
                         <div class="btn-group btn-group-sort me-2" role="group">
-                            <button type="button" class="btn btn-outline-secondary active" data-sort-groups="accessCode" data-sort-dir="asc">Code ↑</button>
+                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="accessCode" data-sort-dir="asc">Code ↑</button>
                             <button type="button" class="btn btn-outline-secondary" data-sort-groups="accessCode" data-sort-dir="desc">↓</button>
                         </div>
                         <div class="btn-group btn-group-sort me-2" role="group">
@@ -635,8 +643,8 @@ if (!$isAjax):
                             <button type="button" class="btn btn-outline-secondary" data-sort-groups="testTitle" data-sort-dir="desc">↓</button>
                         </div>
                         <div class="btn-group btn-group-sort" role="group">
-                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="testDate" data-sort-dir="desc">Datum ↓</button>
-                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="testDate" data-sort-dir="asc">↑</button>
+                            <button type="button" class="btn btn-outline-secondary active" data-sort-groups="testDate" data-sort-dir="desc">Neueste Tests ↓</button>
+                            <button type="button" class="btn btn-outline-secondary" data-sort-groups="testDate" data-sort-dir="asc">Älteste Tests ↑</button>
             </div>
         </div>
 
@@ -652,6 +660,14 @@ if (!$isAjax):
                             <?php echo htmlspecialchars($group['testTitle']); ?> 
                                             <?php if (!empty($group['testDate'])): ?>
                                                 (<?php echo date('d.m.y', strtotime($group['testDate'])); ?>)
+                                            <?php endif; ?>
+                                            <?php if (!empty($group['lastTestDate'])): ?>
+                                                <?php 
+                                                    $lastTestTimestamp = strtotime($group['lastTestDate']);
+                                                    if ($lastTestTimestamp !== false): 
+                                                ?>
+                                                | Letzter Test: <?php echo date('d.m.y H:i', $lastTestTimestamp); ?>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                         </h5>
                     </div>
@@ -1016,8 +1032,16 @@ function updateResultsDisplay(results) {
                 testTitle: result.testTitle,
                 accessCode: result.accessCode,
                 testDate: result.testDate || result.created_at || '',
+                lastTestDate: result.date,
                 results: []
             };
+        } else {
+            // Aktualisiere das Datum des letzten Tests, wenn das aktuelle Ergebnis neuer ist
+            const currentDate = new Date(result.date);
+            const lastDate = new Date(groupedResults[key].lastTestDate);
+            if (currentDate > lastDate) {
+                groupedResults[key].lastTestDate = result.date;
+            }
         }
         groupedResults[key].results.push(result);
     });
@@ -1043,6 +1067,10 @@ function updateResultsDisplay(results) {
                         [${group.accessCode}] - 
                         ${group.testTitle}
                         ${group.testDate ? ' (' + formatDate(group.testDate) + ')' : ''}
+                        ${group.lastTestDate ? (() => {
+                            const formattedDate = formatDateTime(group.lastTestDate);
+                            return formattedDate ? ' | Letzter Test: ' + formattedDate : '';
+                        })() : ''}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -1130,6 +1158,69 @@ function showResults(filename) {
             })
             .then(html => {
                 document.getElementById('resultDetailContent').innerHTML = html;
+                
+                // Nach dem Laden der Inhalte die Punkte und Header analysieren
+                setTimeout(() => {
+                    const questionCards = document.querySelectorAll('#resultDetailContent .card');
+                    console.log('Gefundene Fragen-Karten:', questionCards.length);
+                    
+                    questionCards.forEach((card, index) => {
+                        // Finde den Header und die Punkte-Anzeige
+                        const header = card.querySelector('.card-header');
+                        const pointsDisplay = card.querySelector('.card-header h5');
+                        
+                        if (!header || !pointsDisplay) {
+                            console.log(`Frage ${index+1}: Header oder Punktanzeige nicht gefunden`);
+                            return;
+                        }
+                        
+                        // Extrahiere den Text aus der Überschrift
+                        const headerText = pointsDisplay.textContent;
+                        
+                        // Extrahiere die Fragennummer und Punkte
+                        const questionMatch = headerText.match(/Frage (\d+):/);
+                        const pointsMatch = headerText.match(/(\d+)\/(\d+)/);
+                        
+                        let questionNumber = index + 1;
+                        let achievedPoints = 0;
+                        let maxPoints = 0;
+                        
+                        if (questionMatch && questionMatch.length >= 2) {
+                            questionNumber = parseInt(questionMatch[1], 10);
+                        }
+                        
+                        if (pointsMatch && pointsMatch.length >= 3) {
+                            achievedPoints = parseInt(pointsMatch[1], 10);
+                            maxPoints = parseInt(pointsMatch[2], 10);
+                        }
+                        
+                        // Extrahiere den Stil
+                        const headerStyle = header.getAttribute('style') || '';
+                        const borderStyle = card.getAttribute('style') || '';
+                        
+                        // Bestimme die Farbe basierend auf dem Stil
+                        let color = 'unbekannt';
+                        if (headerStyle.includes('#28a745')) {
+                            color = 'grün (alle Punkte)';
+                        } else if (headerStyle.includes('#dc3545')) {
+                            color = 'rot (keine Punkte)';
+                        } else if (headerStyle.includes('#fd7e14')) {
+                            color = 'orange (teilweise Punkte)';
+                        }
+                        
+                        // Gib detaillierte Informationen aus
+                        console.log(`Frage ${index+1}:`, {
+                            'Text': headerText,
+                            'Extrahierte Fragennummer': questionNumber,
+                            'Position in DOM': index+1,
+                            'Erreichte Punkte': achievedPoints,
+                            'Maximale Punkte': maxPoints,
+                            'Farbe': color,
+                            'Header-Stil': headerStyle,
+                            'Border-Stil': borderStyle
+                        });
+                    });
+                }, 100);
             })
             .catch(error => {
                 console.error('Fehler beim Laden der Details:', error);
@@ -1141,25 +1232,25 @@ function showResults(filename) {
                         </div>
                     `;
                 }
-    });
+            });
 
-    // Event-Listener für Modal-Events
-    resultDetailModal.addEventListener('hidden.bs.modal', function () {
-        // Setze Fokus zurück auf den letzten Button
-        if (lastFocusedElement) {
-            lastFocusedElement.focus();
-        }
-            
-        // Leere den Modal-Inhalt
+        // Event-Listener für Modal-Events
+        resultDetailModal.addEventListener('hidden.bs.modal', function () {
+            // Setze Fokus zurück auf den letzten Button
+            if (lastFocusedElement) {
+                lastFocusedElement.focus();
+            }
+                
+            // Leere den Modal-Inhalt
             const modalContent = document.getElementById('resultDetailContent');
             if (modalContent) {
                 modalContent.innerHTML = `
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Lade...</span>
-                </div>
-            </div>
-        `;
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Lade...</span>
+                        </div>
+                    </div>
+                `;
             }
         });
     } else {
@@ -1184,11 +1275,56 @@ $(document).on('tabChanged', function(e, target) {
 
 // Hilfsfunktion zur Datumsformatierung
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(2);
-    return `${day}.${month}.${year}`;
+    try {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        // Prüfe, ob das Datum gültig ist
+        if (isNaN(date.getTime())) return '';
+        
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(2);
+        return `${day}.${month}.${year}`;
+    } catch (e) {
+        console.error('Fehler bei der Datumsformatierung:', e, dateString);
+        return '';
+    }
+}
+
+// Hilfsfunktion zur Datums- und Uhrzeitformatierung
+function formatDateTime(dateTimeString) {
+    try {
+        // Wenn kein Datum übergeben wurde oder es ein ungültiger String ist
+        if (!dateTimeString || typeof dateTimeString !== 'string') {
+            return '';
+        }
+        
+        // Wenn das Datum bereits im Format "DD.MM.YY HH:MM" ist
+        if (dateTimeString.match(/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/)) {
+            return dateTimeString;
+        }
+        
+        // Versuche Standardkonvertierung
+        const date = new Date(dateTimeString);
+        
+        // Prüfe, ob das Datum gültig ist
+        if (isNaN(date.getTime())) {
+            console.warn('Ungültiges Datum:', dateTimeString);
+            return '';
+        }
+        
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(2);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        return `${day}.${month}.${year} ${hours}:${minutes}`;
+    } catch (e) {
+        console.error('Fehler bei der Datums- und Uhrzeitformatierung:', e, dateTimeString);
+        return '';
+    }
 }
 
 // Hilfsfunktion zur Notenformatierung
@@ -1266,8 +1402,20 @@ function initGroupSorting() {
         });
     });
     
-    // Initiale Sortierung
-    sortGroups('accessCode', 'asc');
+    // Standardmäßig nach dem letzten Testdatum absteigend sortieren
+    // Suche den Button für "Neueste Tests" und setze ihn als aktiv
+    const newestTestsButton = document.querySelector('[data-sort-groups="testDate"][data-sort-dir="desc"]');
+    if (newestTestsButton) {
+        // Entferne active-Klasse von allen Buttons
+        sortButtons.forEach(btn => btn.classList.remove('active'));
+        // Setze active-Klasse für den Button "Neueste Tests"
+        newestTestsButton.classList.add('active');
+        // Führe die Sortierung durch
+        sortGroups('testDate', 'desc');
+    } else {
+        // Fallback zur vorherigen Standardsortierung, falls der Button nicht gefunden wird
+        sortGroups('accessCode', 'asc');
+    }
 }
 
 // Sortiere Gruppen
@@ -1282,34 +1430,88 @@ function sortGroups(field, direction) {
             // Extrahiere den Zugangscode aus dem Header
             const headerA = a.querySelector('.card-header h5').textContent;
             const headerB = b.querySelector('.card-header h5').textContent;
-            valA = headerA.match(/\[(.*?)\]/)[1].trim();
-            valB = headerB.match(/\[(.*?)\]/)[1].trim();
+            const matchA = headerA.match(/\[(.*?)\]/);
+            const matchB = headerB.match(/\[(.*?)\]/);
+            
+            valA = matchA && matchA.length > 1 ? matchA[1].trim() : '';
+            valB = matchB && matchB.length > 1 ? matchB[1].trim() : '';
         } else if (field === 'testTitle') {
             // Extrahiere den Testtitel aus dem Header
             const headerA = a.querySelector('.card-header h5').textContent;
             const headerB = b.querySelector('.card-header h5').textContent;
-            valA = headerA.split('-')[1].split('(')[0].trim();
-            valB = headerB.split('-')[1].split('(')[0].trim();
+            
+            const partsA = headerA.split('-');
+            const partsB = headerB.split('-');
+            
+            valA = partsA.length > 1 ? partsA[1].split('(')[0].trim() : '';
+            valB = partsB.length > 1 ? partsB[1].split('(')[0].trim() : '';
         } else if (field === 'testDate') {
-            // Extrahiere das Datum aus dem Header (falls vorhanden)
+            // Suche nach dem letzten Testdatum in der Überschrift
             const headerA = a.querySelector('.card-header h5').textContent;
             const headerB = b.querySelector('.card-header h5').textContent;
             
-            // Suche nach Datum in Klammern, z.B. (01.02.23)
-            const dateMatchA = headerA.match(/\((\d{2}\.\d{2}\.\d{2})\)/);
-            const dateMatchB = headerB.match(/\((\d{2}\.\d{2}\.\d{2})\)/);
+            // Suche nach "Letzter Test: 01.02.23 12:34" im Format
+            const dateMatchA = headerA.match(/Letzter Test: (\d{2}\.\d{2}\.\d{2} \d{2}:\d{2})/);
+            const dateMatchB = headerB.match(/Letzter Test: (\d{2}\.\d{2}\.\d{2} \d{2}:\d{2})/);
             
-            valA = dateMatchA ? dateMatchA[1] : '01.01.00';
-            valB = dateMatchB ? dateMatchB[1] : '01.01.00';
+            if (dateMatchA && dateMatchB) {
+                try {
+                    // Wenn beide Daten gefunden wurden, konvertiere sie für den Vergleich
+                    const [dayA, monthA, yearA] = dateMatchA[1].substring(0, 8).split('.');
+                    const [hoursA, minutesA] = dateMatchA[1].substring(9).split(':');
+                    
+                    const [dayB, monthB, yearB] = dateMatchB[1].substring(0, 8).split('.');
+                    const [hoursB, minutesB] = dateMatchB[1].substring(9).split(':');
+                    
+                    // Prüfe, ob alle Datumskomponenten gültige Zahlen sind
+                    if (dayA && monthA && yearA && hoursA && minutesA && 
+                        dayB && monthB && yearB && hoursB && minutesB) {
+                        
+                        const dateA = new Date(`20${yearA}`, parseInt(monthA) - 1, parseInt(dayA), parseInt(hoursA), parseInt(minutesA));
+                        const dateB = new Date(`20${yearB}`, parseInt(monthB) - 1, parseInt(dayB), parseInt(hoursB), parseInt(minutesB));
+                        
+                        // Zusätzliche Prüfung, ob die Datumskonvertierung gültige Objekte erzeugt hat
+                        if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+                            return direction === 'asc' ? dateA - dateB : dateB - dateA;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Fehler beim Sortieren nach Testdatum:', e);
+                }
+            } else if (dateMatchA && !dateMatchB) {
+                // Wenn nur in der ersten Gruppe ein Datum gefunden wurde
+                return direction === 'asc' ? 1 : -1;
+            } else if (!dateMatchA && dateMatchB) {
+                // Wenn nur in der zweiten Gruppe ein Datum gefunden wurde
+                return direction === 'asc' ? -1 : 1;
+            }
             
-            // Konvertiere zu Datum für besseren Vergleich
-            const [dayA, monthA, yearA] = valA.split('.');
-            const [dayB, monthB, yearB] = valB.split('.');
+            // Wenn keine speziellen Daten gefunden wurden, fallback auf Erstellungsdatum
+            const creationDateMatchA = headerA.match(/\((\d{2}\.\d{2}\.\d{2})\)/);
+            const creationDateMatchB = headerB.match(/\((\d{2}\.\d{2}\.\d{2})\)/);
             
-            const dateA = new Date(`20${yearA}`, parseInt(monthA) - 1, parseInt(dayA));
-            const dateB = new Date(`20${yearB}`, parseInt(monthB) - 1, parseInt(dayB));
+            valA = creationDateMatchA && creationDateMatchA.length > 1 ? creationDateMatchA[1] : '01.01.00';
+            valB = creationDateMatchB && creationDateMatchB.length > 1 ? creationDateMatchB[1] : '01.01.00';
             
-            return direction === 'asc' ? dateA - dateB : dateB - dateA;
+            try {
+                // Konvertiere zu Datum für besseren Vergleich
+                const [dayA, monthA, yearA] = valA.split('.');
+                const [dayB, monthB, yearB] = valB.split('.');
+                
+                if (dayA && monthA && yearA && dayB && monthB && yearB) {
+                    const dateA = new Date(`20${yearA}`, parseInt(monthA) - 1, parseInt(dayA));
+                    const dateB = new Date(`20${yearB}`, parseInt(monthB) - 1, parseInt(dayB));
+                    
+                    if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+                        return direction === 'asc' ? dateA - dateB : dateB - dateA;
+                    }
+                }
+            } catch (e) {
+                console.error('Fehler beim Sortieren nach Erstellungsdatum:', e);
+            }
+            
+            // Fallback, wenn die Datumskonvertierung fehlschlägt
+            return direction === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
         }
         
         // Standardsortierung
