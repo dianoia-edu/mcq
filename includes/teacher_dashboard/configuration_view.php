@@ -39,13 +39,85 @@
                     <li>Keine verwaisten Datenbankeinträge ohne zugehörige XML-Datei existieren</li>
                 </ul>
             </p>
-            <button id="syncDatabaseBtn" class="btn btn-primary">
-                <i class="bi bi-arrow-repeat"></i> Datenbank synchronisieren
-            </button>
+            <div class="d-flex gap-2">
+                <button id="syncDatabaseBtn" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat"></i> Datenbank synchronisieren
+                </button>
+                <button id="manageTestResultsBtn" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#testResultsManagerModal">
+                    <i class="bi bi-gear"></i> Testergebnisse verwalten
+                </button>
+            </div>
             <div id="syncProgress" class="progress mt-3 d-none">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
             </div>
             <div id="syncResult" class="mt-3"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für Test-Ergebnis-Verwaltung -->
+<div class="modal fade" id="testResultsManagerModal" tabindex="-1" aria-labelledby="testResultsManagerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="testResultsManagerModalLabel">Verwaltung der Testergebnisse</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <button id="refreshTestDataBtn" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-arrow-clockwise"></i> Daten aktualisieren
+                        </button>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button id="selectAllBtn" class="btn btn-sm btn-outline-secondary">Alle auswählen</button>
+                        <button id="deselectAllBtn" class="btn btn-sm btn-outline-secondary">Auswahl aufheben</button>
+                    </div>
+                </div>
+                
+                <div id="testResultsTableContainer" class="table-responsive">
+                    <div class="d-flex justify-content-center my-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Lade Daten...</span>
+                        </div>
+                        <span class="ms-3">Daten werden geladen...</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-info-circle-fill me-2"></i> Legende:
+                    <ul class="mb-0 mt-2">
+                        <li><span class="badge bg-success">Beide</span> - Datei existiert im results-Ordner und ist in der Datenbank eingetragen</li>
+                        <li><span class="badge bg-warning">Nur XML</span> - Datei existiert nur im results-Ordner, ist nicht in der Datenbank eingetragen</li>
+                        <li><span class="badge bg-danger">Nur DB</span> - Datei ist nur in der Datenbank eingetragen, existiert nicht im results-Ordner</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex w-100 justify-content-between">
+                    <div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="deleteFilesCheckbox">
+                            <label class="form-check-label" for="deleteFilesCheckbox">
+                                Auch XML-Dateien löschen
+                            </label>
+                        </div>
+                        <div class="form-check form-switch mt-1">
+                            <input class="form-check-input" type="checkbox" id="deleteEmptyDirsCheckbox">
+                            <label class="form-check-label" for="deleteEmptyDirsCheckbox">
+                                Leere Ordner nach dem Löschen entfernen
+                            </label>
+                        </div>
+                        <button id="deleteSelectedBtn" class="btn btn-danger mt-2" disabled>
+                            <i class="bi bi-trash"></i> Ausgewählte Einträge löschen
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -110,5 +182,299 @@ $(document).ready(function() {
         // Hier können Sie die Logik zum Speichern der Konfiguration implementieren
         alert('Einstellungen wurden gespeichert');
     });
+    
+    // Event-Handler für die Test-Ergebnis-Verwaltung
+    $('#manageTestResultsBtn, #refreshTestDataBtn').on('click', function() {
+        loadTestResultsData();
+    });
+    
+    // Auswahl aller Checkboxen
+    $('#selectAllBtn').on('click', function() {
+        $('.test-result-checkbox').prop('checked', true);
+        updateDeleteButtonState();
+    });
+    
+    // Aufheben aller Auswahlen
+    $('#deselectAllBtn').on('click', function() {
+        $('.test-result-checkbox').prop('checked', false);
+        updateDeleteButtonState();
+    });
+    
+    // Löschen der ausgewählten Einträge
+    $('#deleteSelectedBtn').on('click', function() {
+        const selectedItems = $('.test-result-checkbox:checked');
+        
+        if (selectedItems.length === 0) {
+            return;
+        }
+        
+        if (!confirm(`Sind Sie sicher, dass Sie ${selectedItems.length} ausgewählte Einträge löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+            return;
+        }
+        
+        const itemsToDelete = [];
+        selectedItems.each(function() {
+            itemsToDelete.push({
+                id: $(this).data('id'),
+                type: $(this).data('type'), // 'xml', 'db', oder 'both'
+                test_id: $(this).data('test-id'),
+                file_path: $(this).data('file-path')
+            });
+        });
+        
+        // Debug: Zeige die zu löschenden Einträge
+        console.log("Zu löschende Einträge:", itemsToDelete);
+        
+        // Button deaktivieren und Ladeindikator anzeigen
+        const btn = $(this);
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Löschen...');
+        
+        // Starte Löschvorgang
+        $.ajax({
+            url: '../includes/teacher_dashboard/delete_test_results.php',
+            method: 'POST',
+            data: JSON.stringify({
+                entries: itemsToDelete,
+                delete_files: $('#deleteFilesCheckbox').prop('checked'),
+                delete_empty_dirs: $('#deleteEmptyDirsCheckbox').prop('checked')
+            }),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.success) {
+                    // Aktualisiere die Tabelle nach dem Löschen
+                    loadTestResultsData();
+                    
+                    // Zeige Erfolgsmeldung
+                    alert(`Einträge wurden erfolgreich gelöscht: ${response.stats.db_deleted} aus der Datenbank, ${response.stats.files_deleted} Dateien${response.stats.dirs_deleted ? ', ' + response.stats.dirs_deleted + ' leere Ordner' : ''}.`);
+                } else {
+                    alert(`Fehler beim Löschen: ${response.error}`);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX-Fehler:", status, error);
+                alert('Es ist ein unerwarteter Fehler aufgetreten: ' + error);
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="bi bi-trash"></i> Ausgewählte Einträge löschen');
+            }
+        });
+    });
+    
+    // Event-Delegation für Checkbox-Änderungen
+    $(document).on('change', '.test-result-checkbox', function() {
+        updateDeleteButtonState();
+    });
+    
+    // Aktualisiert den Zustand des Löschen-Buttons basierend auf ausgewählten Checkboxen
+    function updateDeleteButtonState() {
+        const selectedItems = $('.test-result-checkbox:checked').length;
+        const $deleteBtn = $('#deleteSelectedBtn');
+        
+        if (selectedItems > 0) {
+            $deleteBtn.prop('disabled', false)
+                .html(`<i class="bi bi-trash"></i> ${selectedItems} Einträge löschen`);
+        } else {
+            $deleteBtn.prop('disabled', true)
+                .html('<i class="bi bi-trash"></i> Ausgewählte Einträge löschen');
+        }
+    }
+    
+    // Lädt die Testergebnisdaten und zeigt sie in der Tabelle an
+    function loadTestResultsData() {
+        const $container = $('#testResultsTableContainer');
+        
+        // Zeige Ladeindikator
+        $container.html(`
+            <div class="d-flex justify-content-center my-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Lade Daten...</span>
+                </div>
+                <span class="ms-3">Daten werden geladen...</span>
+            </div>
+        `);
+        
+        // Lade Daten über AJAX
+        $.ajax({
+            url: '../includes/teacher_dashboard/get_test_results_data.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    const data = response.data;
+                    
+                    if (data.length === 0) {
+                        $container.html(`
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle-fill me-2"></i> Keine Testergebnisse gefunden.
+                            </div>
+                        `);
+                        return;
+                    }
+                    
+                    // Gruppiere Daten nach Test
+                    const groupedData = {};
+                    data.forEach(item => {
+                        const testKey = item.access_code;
+                        if (!groupedData[testKey]) {
+                            groupedData[testKey] = {
+                                title: item.title || `Test ${item.access_code}`,
+                                access_code: item.access_code,
+                                items: []
+                            };
+                        }
+                        groupedData[testKey].items.push(item);
+                    });
+                    
+                    // Erstelle Tabelle
+                    let html = `
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 30px;">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="checkAll">
+                                        </div>
+                                    </th>
+                                    <th>Test</th>
+                                    <th>Student</th>
+                                    <th>Datum</th>
+                                    <th>Ergebnis</th>
+                                    <th>Note</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    // Sortiere Tests nach Zugangscodoe
+                    const sortedTests = Object.keys(groupedData).sort();
+                    
+                    sortedTests.forEach(testKey => {
+                        const test = groupedData[testKey];
+                        
+                        // Füge Testgruppen-Header hinzu
+                        html += `
+                            <tr class="table-active">
+                                <td colspan="7">
+                                    <strong>${escapeHtml(test.title)}</strong>
+                                    <span class="badge bg-secondary ms-2">${test.access_code}</span>
+                                    <span class="badge bg-primary ms-2">${test.items.length} Ergebnisse</span>
+                                </td>
+                            </tr>
+                        `;
+                        
+                        // Sortiere Einträge nach Datum (neueste zuerst)
+                        test.items.sort((a, b) => {
+                            return new Date(b.completed_at) - new Date(a.completed_at);
+                        });
+                        
+                        // Füge jeden Eintrag hinzu
+                        test.items.forEach((item, index) => {
+                            const rowId = `result-${testKey}-${index}`;
+                            const statusBadge = getStatusBadge(item.status);
+                            
+                            html += `
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input test-result-checkbox" 
+                                                id="${rowId}" 
+                                                data-id="${item.id || ''}"
+                                                data-type="${item.status}"
+                                                data-test-id="${item.test_id || ''}"
+                                                data-file-path="${escapeHtml(item.xml_file_path || '')}">
+                                        </div>
+                                    </td>
+                                    <td>${escapeHtml(test.title)}</td>
+                                    <td>${escapeHtml(item.student_name)}</td>
+                                    <td>${formatDateTime(item.completed_at)}</td>
+                                    <td>
+                                        ${item.points_achieved}/${item.points_maximum}
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                style="width: ${item.percentage}%;" 
+                                                aria-valuenow="${item.percentage}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100"></div>
+                                        </div>
+                                    </td>
+                                    <td>${escapeHtml(item.grade || '-')}</td>
+                                    <td>${statusBadge}</td>
+                                </tr>
+                            `;
+                        });
+                    });
+                    
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+                    
+                    $container.html(html);
+                    
+                    // Event-Handler für "Alle auswählen" Checkbox
+                    $('#checkAll').on('change', function() {
+                        $('.test-result-checkbox').prop('checked', $(this).is(':checked'));
+                        updateDeleteButtonState();
+                    });
+                    
+                } else {
+                    $container.html(`
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Fehler beim Laden der Daten: ${response.error || 'Unbekannter Fehler'}
+                        </div>
+                    `);
+                }
+            },
+            error: function(xhr, status, error) {
+                $container.html(`
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Fehler beim Laden der Daten: ${error || 'Verbindungsfehler'}
+                    </div>
+                `);
+            }
+        });
+    }
+    
+    // Helper-Funktion: Formatiert Datum und Uhrzeit
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '-';
+        
+        const date = new Date(dateTimeStr.replace(' ', 'T'));
+        if (isNaN(date.getTime())) return dateTimeStr;
+        
+        return date.toLocaleString('de-DE', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    // Helper-Funktion: HTML escapen
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+    
+    // Helper-Funktion: Gibt das passende Badge für den Status zurück
+    function getStatusBadge(status) {
+        switch (status) {
+            case 'both':
+                return '<span class="badge bg-success">Beide</span>';
+            case 'db':
+                return '<span class="badge bg-danger">Nur DB</span>';
+            case 'xml':
+                return '<span class="badge bg-warning">Nur XML</span>';
+            default:
+                return '<span class="badge bg-secondary">Unbekannt</span>';
+        }
+    }
 });
 </script> 

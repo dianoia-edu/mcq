@@ -1,262 +1,262 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <test>
-  <access_code>LC5</access_code>
-  <title>Der Kalte Krieg und sein Ende</title>
+  <access_code>FM6</access_code>
+  <title>Grundlagen des Bikepacking mit einem Gravelrad</title>
   <question_count>10</question_count>
   <answer_count>4</answer_count>
   <answer_type>single</answer_type>
   <questions>
     <question nr="1">
-      <text>Was war die "Eiserne Vorhang" im Kontext des Kalten Krieges?</text>
+      <text>Welches Element ist für die Sicherheit bei einer Bikepacking-Tour nach Einbruch der Dunkelheit unerlässlich?</text>
       <answers>
         <answer nr="1">
-          <text>Eine physische Barriere zwischen Ost- und Westdeutschland</text>
+          <text>Handyhalterung</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Eine metaphorische Bezeichnung für die Trennung zwischen dem kommunistischen Osten und dem kapitalistischen Westen</text>
+          <text>Beleuchtung</text>
           <correct>1</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>Ein Spionagenetzwerk der Sowjetunion</text>
+          <text>Fahrradcomputer</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>Ein militärisches Bündnis unter Führung der USA</text>
+          <text>Rahmentasche</text>
           <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="2">
-      <text>Welche Rolle spielte Lech Wałęsa während des Streiks in der Lenin-Werft in Danzig?</text>
+      <text>Was ist ein Multitool und warum sollte es auf einer Bikepacking-Tour mitgeführt werden?</text>
       <answers>
         <answer nr="1">
-          <text>Er war ein Priester, der den Arbeitern die Beichte abnahm.</text>
+          <text>Ein Gerät zur Messung des Reifendrucks</text>
           <correct>0</correct>
-          <schuelerantwort>0</schuelerantwort>
+          <schuelerantwort>1</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Er war ein sowjetischer Diplomat, der verhandelte.</text>
+          <text>Eine Halterung für das Smartphone</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>Er war einer der Streikführer und später Präsident von Polen.</text>
+          <text>Ein Werkzeugset für Reparaturen und Einstellungen am Fahrrad</text>
           <correct>1</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>Er war ein Reporter, der über den Streik berichtete.</text>
+          <text>Ein Gerät zur Navigation</text>
           <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="3">
-      <text>Was versteht man unter "Perestroika" in der Politik Michail Gorbatschows?</text>
+      <text>Warum ist es wichtig, eine Luftpumpe mit Manometer bei einer Tour mitzuführen?</text>
       <answers>
         <answer nr="1">
-          <text>Die Stärkung des militärischen Apparats</text>
+          <text>Um das Fahrradgewicht zu erhöhen</text>
           <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Die Umgestaltung von Gesellschaft und Wirtschaft</text>
+          <text>Um den Reifendruck präzise einstellen zu können</text>
           <correct>1</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>Die Gründung neuer politischer Parteien</text>
+          <text>Als Ersatz für einen Fahrradcomputer</text>
           <correct>0</correct>
-          <schuelerantwort>0</schuelerantwort>
+          <schuelerantwort>1</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>Die Rückkehr zu strengerem Stalinismus</text>
+          <text>Zum Aufblasen von Badesachen</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="4">
-      <text>Was bedeutet "Glasnost" im Rahmen von Gorbatschows Reformen?</text>
+      <text>Was ist der Vorteil einer Handyhalterung während einer Bikepacking-Tour?</text>
       <answers>
         <answer nr="1">
-          <text>Wirtschaftliche Liberalisierung</text>
+          <text>Sie dient als Ersatz für einen Fahrradcomputer</text>
           <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Offenheit und Transparenz in der politischen Arbeit</text>
+          <text>Sie ermöglicht es, die Route während der Fahrt abzurufen</text>
           <correct>1</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>Geheimdienstreform</text>
+          <text>Sie kann als Werkzeug zum Reifenwechsel verwendet werden</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>Militärische Entspannungspolitik</text>
+          <text>Sie schützt das Handy vor Wasser</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="5">
-      <text>In welchem Jahr wurde Michail Gorbatschow zum Generalsekretär der KPdSU gewählt?</text>
+      <text>Wofür ist es besonders sinnvoll, eine Rahmentasche zu verwenden?</text>
       <answers>
         <answer nr="1">
-          <text>1980</text>
+          <text>Zum Transport von leicht zugänglichen Snacks wie Riegeln und Gels</text>
           <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>1982</text>
+          <text>Zur Aufbewahrung von Badesachen und einem Handtuch</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>1985</text>
+          <text>Zum Verstauen von Werkzeug und anderem schweren Equipment</text>
           <correct>1</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>1989</text>
+          <text>Als Ersatz für eine Luftpumpe</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="6">
-      <text>Welcher Konflikt erwies sich für die Sowjetunion als kostspielig und zermürbend, was zur Krise beitrug?</text>
+      <text>Was sollte man bei der Auswahl eines Schlosses für eine Bikepacking-Tour beachten?</text>
       <answers>
         <answer nr="1">
-          <text>Der Vietnamkrieg</text>
-          <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <text>Es sollte leicht und klein sein</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Der Koreakrieg</text>
+          <text>Es muss wasserdicht sein</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>Der Krieg in Afghanistan</text>
-          <correct>1</correct>
+          <text>Es sollte als Handyhalterung dienen können</text>
+          <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>Der Iran-Irak-Krieg</text>
+          <text>Es muss in der Lage sein, den Reifendruck zu messen</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="7">
-      <text>Welches Ereignis markierte das Ende des Wettrüstens zwischen den USA und der Sowjetunion?</text>
+      <text>Warum sind wasserdichte Packtaschen für eine Bikepacking-Tour empfehlenswert?</text>
       <answers>
         <answer nr="1">
-          <text>Die Unterzeichnung des START-Vertrags</text>
-          <correct>0</correct>
+          <text>Sie schützen die Ausrüstung vor Regen und Feuchtigkeit</text>
+          <correct>1</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Die Kubakrise</text>
+          <text>Sie können als Schwimmhilfe verwendet werden</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>Die Unterzeichnung des INF-Vertrags</text>
-          <correct>1</correct>
+          <text>Sie erleichtern die Navigation</text>
+          <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>Die Berliner Luftbrücke</text>
+          <text>Sie ersetzen die Notwendigkeit eines Multitools</text>
           <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="8">
-      <text>Was bedeutete die Aufgabe der Breschnew-Doktrin durch Gorbatschow für die Staaten des Warschauer Paktes?</text>
+      <text>Welches Zubehör wird empfohlen, wenn man tubeless fährt und warum?</text>
       <answers>
         <answer nr="1">
-          <text>Sie mussten ihre Bündnistreue zur Sowjetunion verstärken.</text>
+          <text>Eine zusätzliche Luftpumpe, um Luftmatratzen aufzublasen</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Sie durften eigene politische und wirtschaftliche Wege beschreiten.</text>
+          <text>Ein Reparaturkit für tubeless Reifen, um Pannen zu beheben</text>
           <correct>1</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>Sie wurden zu direkten Demokratien umgewandelt.</text>
+          <text>Ein extra Schlauch, obwohl er nicht benötigt wird</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>Sie traten dem NATO-Bündnis bei.</text>
+          <text>Spezielle Riegel oder Gels für tubeless Reifen</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="9">
-      <text>Wie unterstützte die katholische Kirche die Gewerkschaftsbewegung Solidarność in Polen?</text>
+      <text>Wie sollte man seine Ausrüstung auf dem Fahrrad verteilen, um optimale Balance zu erreichen?</text>
       <answers>
         <answer nr="1">
-          <text>Durch finanzielle Zuwendungen an die Gewerkschaftsführer</text>
+          <text>Schwere Gegenstände sollten im Rucksack getragen werden</text>
           <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
+          <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Indem sie als eine oppositionelle Kraft gegen das kommunistische Regime auftrat</text>
-          <correct>1</correct>
+          <text>Alles Schwere sollte in der Lenkertasche verstaut werden</text>
+          <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="3">
-          <text>Durch den Bau von Gewerkschaftsbüros auf Kirchengelände</text>
-          <correct>0</correct>
+          <text>Schwere Gegenstände sollten hinten und leichtere vorne platziert werden</text>
+          <correct>1</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="4">
-          <text>Durch öffentliche Verurteilung von Streiks und Protesten</text>
+          <text>Die Verteilung des Gewichts ist irrelevant</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
     <question nr="10">
-      <text>Wann erklärte die Charta von Paris den Ost-West-Konflikt in Europa für offiziell beendet?</text>
+      <text>Was ist ein wichtiger Aspekt beim Packen einer Lenkertasche für eine längere Bikepacking-Tour?</text>
       <answers>
         <answer nr="1">
-          <text>Im November 1989</text>
+          <text>Nur Werkzeuge sollten in der Lenkertasche transportiert werden</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
         <answer nr="2">
-          <text>Im Juli 1991</text>
-          <correct>0</correct>
-          <schuelerantwort>1</schuelerantwort>
-        </answer>
-        <answer nr="3">
-          <text>Im November 1990</text>
+          <text>Kleidung sollte in der Lenkertasche verstaut werden, da sie schnell zugänglich sein muss</text>
           <correct>1</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
+        <answer nr="3">
+          <text>Essen und Trinken sollten ausschließlich in der Lenkertasche transportiert werden</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
         <answer nr="4">
-          <text>Im Dezember 1992</text>
+          <text>Die Lenkertasche sollte ausschließlich für schwere Gegenstände genutzt werden</text>
           <correct>0</correct>
           <schuelerantwort>0</schuelerantwort>
         </answer>
       </answers>
     </question>
   </questions>
-  <schuelername>test lokal</schuelername>
-  <abgabezeit>2025-03-16 19:33:55</abgabezeit>
+  <schuelername>fm6</schuelername>
+  <abgabezeit>2025-03-20 14:14:17</abgabezeit>
 </test>

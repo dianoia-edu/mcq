@@ -13,11 +13,6 @@ try {
     $db = DatabaseConfig::getInstance()->getConnection();
     writeLog("Datenbankverbindung hergestellt");
     
-    // Reset der test_attempts Tabelle
-    writeLog("Lösche alle bestehenden Testversuche...");
-    $db->exec("DELETE FROM test_attempts");
-    writeLog("Testversuche gelöscht");
-    
     // Sammle alle vorhandenen Test-Codes aus den XML-Dateien
     $resultsDir = __DIR__ . '/../../results';
     writeLog("Suche in Verzeichnis: " . $resultsDir);
@@ -128,23 +123,28 @@ try {
     $stmt = $db->query("SELECT attempt_id, xml_file_path FROM test_attempts");
     $dbEntries = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+    // Erstelle ein Array mit allen XML-Pfaden, die bereits in der Datenbank sind
+    $existingXmlPaths = [];
+    foreach ($dbEntries as $entry) {
+        // Normalisiere den Pfad für den Vergleich
+        $relativePath = str_replace('\\', '/', substr($entry['xml_file_path'], strpos($entry['xml_file_path'], 'results/') + 8));
+        $existingXmlPaths[$relativePath] = $entry['attempt_id'];
+    }
+    
     writeLog("Datenbankeinträge: " . count($dbEntries));
 
-    // 3. Finde und lösche verwaiste Datenbankeinträge
-    foreach ($dbEntries as $entry) {
-        $xmlPath = $entry['xml_file_path'];
-        $relativePath = str_replace('\\', '/', substr($xmlPath, strpos($xmlPath, 'results/') + 8));
-        
+    // 3. Finde und lösche verwaiste Datenbankeinträge (XML-Dateien, die nicht mehr existieren)
+    foreach ($existingXmlPaths as $relativePath => $attemptId) {
         if (!isset($xmlFiles[$relativePath])) {
             // XML-Datei existiert nicht mehr, lösche Datenbankeintrag
             $deleteStmt = $db->prepare("DELETE FROM test_attempts WHERE attempt_id = ?");
-            $deleteStmt->execute([$entry['attempt_id']]);
+            $deleteStmt->execute([$attemptId]);
             $stats['deleted']++;
-            writeLog("Gelöschter Eintrag: " . $xmlPath);
+            writeLog("Gelöschter Eintrag: " . $relativePath . " (ID: " . $attemptId . ")");
         }
     }
 
-    // 4. Füge neue XML-Dateien zur Datenbank hinzu
+    // 4. Füge nur neue XML-Dateien zur Datenbank hinzu
     $insertStmt = $db->prepare("
         INSERT INTO test_attempts (
             test_id, 
@@ -174,14 +174,8 @@ try {
     foreach ($xmlFiles as $relativePath => $fullPath) {
         try {
             // Prüfe ob die Datei bereits in der Datenbank ist
-            $checkStmt = $db->prepare("SELECT COUNT(*) FROM test_attempts WHERE xml_file_path LIKE ?");
-            if ($checkStmt === false) {
-                throw new PDOException("Fehler beim Vorbereiten des Check-Statements: " . print_r($db->errorInfo(), true));
-            }
-            
-            $checkStmt->execute(['%' . $relativePath]);
-            
-            if ($checkStmt->fetchColumn() == 0) {
+            if (!isset($existingXmlPaths[$relativePath])) {
+                // XML-Datei ist neu, füge sie zur Datenbank hinzu
                 // Parse XML-Datei für Metadaten
                 $xml = simplexml_load_file($fullPath);
                 if ($xml === false) {
@@ -195,7 +189,7 @@ try {
                     $studentName = $matches[2];
                     $timestamp = str_replace('_', ' ', $matches[3]);
                     
-                    writeLog("Verarbeite Datei: Code=$accessCode, Name=$studentName, Zeit=$timestamp");
+                    writeLog("Verarbeite neue Datei: Code=$accessCode, Name=$studentName, Zeit=$timestamp");
                     
                     // Extrahiere Punktzahlen und Note aus der XML-Datei
                     $pointsAchieved = isset($xml->points_achieved) ? (int)$xml->points_achieved : 0;
@@ -248,57 +242,46 @@ try {
                         $grade
                     ]);
                     
-                    if ($result === false) {
-                        throw new PDOException("Fehler beim Einfügen des Testversuchs: " . print_r($insertStmt->errorInfo(), true));
+                    if ($result) {
+                        $stats['added']++;
+                        writeLog("Neuer Eintrag hinzugefügt: " . $relativePath);
+                    } else {
+                        writeLog("Fehler beim Hinzufügen: " . print_r($insertStmt->errorInfo(), true));
                     }
-                    
-                    $stats['added']++;
-                    writeLog("Neuer Eintrag erfolgreich hinzugefügt: " . $relativePath);
                 } else {
-                    writeLog("Ungültiges Dateiformat: " . basename($relativePath));
+                    writeLog("Ungültiges Dateinamensformat: " . basename($relativePath));
                 }
+            } else {
+                writeLog("Datei bereits in der Datenbank: " . $relativePath);
             }
-        } catch (PDOException $e) {
-            writeLog("Datenbank-Fehler bei Datei $relativePath: " . $e->getMessage());
-            continue;
         } catch (Exception $e) {
-            writeLog("Allgemeiner Fehler bei Datei $relativePath: " . $e->getMessage());
-            continue;
+            writeLog("Fehler bei der Verarbeitung von " . $relativePath . ": " . $e->getMessage());
         }
     }
-
-    // 5. Ermittle Gesamtanzahl der Datensätze
-    $stats['total'] = $db->query("SELECT COUNT(*) FROM test_attempts")->fetchColumn();
-
-    echo json_encode([
+    
+    // Hole die Gesamtzahl der Einträge
+    $countStmt = $db->query("SELECT COUNT(*) FROM test_attempts");
+    $stats['total'] = $countStmt->fetchColumn();
+    
+    // Erfolgreiche Antwort senden
+    $response = [
         'success' => true,
         'added' => $stats['added'],
         'deleted' => $stats['deleted'],
-        'total' => $stats['total']
-    ]);
-
-} catch (PDOException $e) {
-    writeLog("Datenbank-Fehler bei der Synchronisation: " . $e->getMessage());
-    writeLog("SQL State: " . $e->getCode());
-    writeLog("Stack Trace: " . $e->getTraceAsString());
-    echo json_encode([
-        'success' => false,
-        'error' => "Datenbank-Fehler: " . $e->getMessage(),
-        'details' => [
-            'code' => $e->getCode(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine()
-        ]
-    ]);
+        'total' => $stats['total'],
+        'message' => "Synchronisation abgeschlossen: {$stats['added']} hinzugefügt, {$stats['deleted']} gelöscht, {$stats['total']} gesamt."
+    ];
+    
+    echo json_encode($response);
+    writeLog("Synchronisation abgeschlossen: {$stats['added']} hinzugefügt, {$stats['deleted']} gelöscht, {$stats['total']} gesamt.");
+    
 } catch (Exception $e) {
-    writeLog("Allgemeiner Fehler bei der Synchronisation: " . $e->getMessage());
-    writeLog("Stack Trace: " . $e->getTraceAsString());
-    echo json_encode([
+    // Fehlermeldung senden
+    $response = [
         'success' => false,
-        'error' => "Fehler: " . $e->getMessage(),
-        'details' => [
-            'file' => $e->getFile(),
-            'line' => $e->getLine()
-        ]
-    ]);
+        'error' => $e->getMessage()
+    ];
+    
+    echo json_encode($response);
+    writeLog("Fehler bei der Synchronisation: " . $e->getMessage());
 } 

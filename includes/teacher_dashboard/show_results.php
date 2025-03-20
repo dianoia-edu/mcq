@@ -47,9 +47,64 @@ function processFile($file) {
         $db = DatabaseConfig::getInstance()->getConnection();
         writeLog("Datenbankverbindung hergestellt");
         
+        // Normalisiere den Pfad für den Datenbankvergleich (ersetze Backslashes mit Forward Slashes)
+        $normalizedFile = str_replace('\\', '/', $file);
+        writeLog("Normalisierter Pfad für DB-Suche: " . $normalizedFile);
+        
+        // Versuche zunächst, die Datei direkt zu finden
+        $possiblePaths = [
+            $normalizedFile,                               // Direkt wie überliefert
+            __DIR__ . '/../../' . ltrim($normalizedFile, '/'),  // Vollständiger Pfad relativ zum Skript
+            'results/' . basename(dirname($normalizedFile)) . '/' . basename($normalizedFile) // Relativer Pfad mit Basisverzeichnis
+        ];
+        
+        writeLog("Versuche direkt verschiedene Pfade zur Datei:");
+        $fileFound = false;
+        $foundFullPath = '';
+        
+        foreach ($possiblePaths as $testPath) {
+            writeLog("Teste Pfad: " . $testPath);
+            if (file_exists($testPath)) {
+                $fileFound = true;
+                $foundFullPath = $testPath;
+                writeLog("Datei gefunden unter: " . $foundFullPath);
+                break;
+            }
+        }
+        
+        // Wenn die Datei direkt gefunden wurde, lade sie
+        if ($fileFound) {
+            $xml = simplexml_load_file($foundFullPath);
+            if ($xml) {
+                writeLog("XML-Datei direkt geladen");
+                // Versuche Schülernamen aus dem Dateinamen zu extrahieren
+                $studentName = 'Unbekannt';
+                if (preg_match('/_([^_]+)_\d{4}-\d{2}-\d{2}/', $normalizedFile, $matches)) {
+                    $studentName = str_replace('_', ' ', $matches[1]);
+                    writeLog("Extrahierter Schülername aus Dateinamen: " . $studentName);
+                }
+                
+                // Hole Note aus DB, falls vorhanden
+                $stmt = $db->prepare("SELECT ta.grade, ta.student_name FROM test_attempts ta WHERE ta.xml_file_path LIKE ?");
+                $stmt->execute(['%' . basename($normalizedFile) . '%']);
+                $dbResult = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                $grade = isset($dbResult['grade']) ? $dbResult['grade'] : '-';
+                if (isset($dbResult['student_name']) && !empty($dbResult['student_name'])) {
+                    $studentName = $dbResult['student_name'];
+                }
+                
+                displayTestResults($xml, $studentName, $grade);
+                return;
+            } else {
+                writeLog("Fehler beim Parsen der direkt gefundenen XML-Datei");
+            }
+        }
+        
         // Dateiinformationen aus der Datenbank holen
+        writeLog("Suche in Datenbank nach Dateinamen: " . basename($normalizedFile));
         $stmt = $db->prepare("SELECT ta.xml_file_path, ta.grade, ta.student_name FROM test_attempts ta WHERE ta.xml_file_path LIKE ?");
-        $stmt->execute(['%' . $file . '%']);
+        $stmt->execute(['%' . basename($normalizedFile) . '%']);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($result) {
@@ -58,12 +113,15 @@ function processFile($file) {
             // Debug-Information zur Note hinzufügen
             writeLog("Gefundene Daten: XML-Pfad=" . $xmlPath . ", Note=" . $grade . ", DB-Schülername=" . (isset($result['student_name']) ? $result['student_name'] : 'nicht gesetzt'));
             
+            // Stelle sicher, dass der Pfad für Windows korrekt normalisiert ist
+            $xmlPath = str_replace('\\', '/', $xmlPath);
+            
             // Baue den vollständigen Pfad
-            $fullPath = __DIR__ . '/../../' . $xmlPath;
-            writeLog("Vollständiger Pfad: " . $fullPath);
+            $fullPath = __DIR__ . '/../../' . ltrim($xmlPath, '/');
+            writeLog("Vollständiger Pfad aus Datenbank: " . $fullPath);
             
             if (file_exists($fullPath)) {
-                writeLog("Datei existiert");
+                writeLog("Datei existiert in Datenbank-Pfad");
                 
                 // XML-Datei laden und verarbeiten
                 $xml = simplexml_load_file($fullPath);
@@ -89,12 +147,42 @@ function processFile($file) {
                     echo "<div class='alert alert-danger'>Fehler beim Parsen der XML-Datei</div>";
                 }
             } else {
-                writeLog("Datei existiert nicht: " . $fullPath);
-                echo "<div class='alert alert-danger'>Die Ergebnisdatei wurde nicht gefunden</div>";
+                writeLog("Datei existiert nicht unter DB-Pfad: " . $fullPath);
+                
+                if ($fileFound) {
+                    // Wenn die Datei vorher direkt gefunden wurde, versuche sie nochmal zu laden
+                    writeLog("Verwende alternativ direkt gefundenen Pfad: " . $foundFullPath);
+                    $xml = simplexml_load_file($foundFullPath);
+                    if ($xml) {
+                        $studentName = isset($result['student_name']) ? $result['student_name'] : 'Unbekannt';
+                        displayTestResults($xml, $studentName, $grade);
+                    } else {
+                        echo "<div class='alert alert-danger'>Die Ergebnisdatei wurde nicht gefunden</div>";
+                    }
+                } else {
+                    echo "<div class='alert alert-danger'>Die Ergebnisdatei wurde nicht gefunden</div>";
+                }
             }
         } else {
-            writeLog("Kein Datensatz in der Datenbank gefunden");
-            echo "<div class='alert alert-danger'>Keine Informationen zu diesem Test in der Datenbank gefunden</div>";
+            writeLog("Kein Datensatz in der Datenbank gefunden für: " . basename($normalizedFile));
+            
+            if ($fileFound) {
+                // Wenn die Datei direkt gefunden wurde, verwende sie trotzdem
+                writeLog("Kein DB-Eintrag, aber Datei wurde direkt gefunden unter: " . $foundFullPath);
+                $xml = simplexml_load_file($foundFullPath);
+                if ($xml) {
+                    // Versuche Schülernamen aus dem Dateinamen zu extrahieren
+                    $studentName = 'Unbekannt';
+                    if (preg_match('/_([^_]+)_\d{4}-\d{2}-\d{2}/', $normalizedFile, $matches)) {
+                        $studentName = str_replace('_', ' ', $matches[1]);
+                    }
+                    displayTestResults($xml, $studentName, '-');
+                } else {
+                    echo "<div class='alert alert-danger'>Keine Informationen zu diesem Test in der Datenbank gefunden<br>Datei: " . htmlspecialchars($normalizedFile) . "</div>";
+                }
+            } else {
+                echo "<div class='alert alert-danger'>Keine Informationen zu diesem Test in der Datenbank gefunden<br>Datei: " . htmlspecialchars($normalizedFile) . "</div>";
+            }
         }
     } catch (Exception $e) {
         writeLog("Datenbankfehler: " . $e->getMessage());

@@ -305,5 +305,14 @@
             "client_id": "15ab4db2f1bbdc39f223f88516d769a684e6e758ff7695d54807e1d9039e482f",
             "is_admin": false
         }
+    ],
+    "FM6": [
+        {
+            "date": "2025-03-20",
+            "student": "fm6",
+            "student_id": "ead9da25b13de4926996f3d9b9ce1b3b42102fa7ff234da09f1106ee871be05b",
+            "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
+            "is_admin": false
+        }
     ]
 }

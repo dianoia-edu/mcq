@@ -690,7 +690,7 @@ if (!$isAjax):
                                                 <span class="<?php echo $gradeClass; ?>"><?php echo htmlspecialchars($grade); ?></span>
                                             </td>
                                             <td class="text-start">
-                                                <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('<?php echo htmlspecialchars($result['fileName']); ?>')">
+                                                <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('<?php echo htmlspecialchars(str_replace('\\', '/', $result['fileName'])); ?>')">
                                                     Details
                                                 </button>
                                             </td>
@@ -1071,7 +1071,7 @@ function updateResultsDisplay(results) {
                         ${formatGrade(result.grade || '-')}
                     </td>
                     <td class="text-start">
-                        <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('${result.fileName || ''}')">
+                        <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('${(result.fileName || '').replace(/\\/g, '/')}')">
                             Details
                         </button>
                     </td>
@@ -1092,6 +1092,20 @@ function updateResultsDisplay(results) {
 
 function showResults(filename) {
     console.log('Zeige Details für:', filename);
+    
+    // Normalisiere den Pfad für Windows (ersetze Backslashes durch Forward Slashes)
+    filename = filename.replace(/\\/g, '/');
+    
+    // Entferne absoluten Pfadteil, falls vorhanden
+    // Falls der Pfad mit dem Projektverzeichnis beginnt, entferne diesen Teil
+    const basePath = '/xampp/htdocs/mcq-test-system/';
+    if (filename.includes(basePath)) {
+        filename = filename.substring(filename.indexOf(basePath) + basePath.length);
+    } else if (filename.includes('C:/xampp/htdocs/mcq-test-system/')) {
+        filename = filename.replace('C:/xampp/htdocs/mcq-test-system/', '');
+    }
+    
+    console.log('Normalisierter Pfad:', filename);
     
     // Speichere das aktuelle Element für späteren Fokus
     let lastFocusedElement = document.activeElement;
