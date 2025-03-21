@@ -3,60 +3,85 @@ require_once 'includes/database_config.php';
 
 // Funktion zum Laden des Notenschemas
 function loadGradeSchema() {
-    // Probiere verschiedene relative Pfade
-    $possiblePaths = [
-        'notenschema.txt',                       // Im gleichen Verzeichnis
-        __DIR__ . '/notenschema.txt',            // Im gleichen Verzeichnis (absolut)
-        dirname(__DIR__) . '/notenschema.txt',   // Im übergeordneten Verzeichnis
-        dirname(dirname(__DIR__)) . '/notenschema.txt' // Im Stammverzeichnis
-    ];
+    $activeSchemaFile = __DIR__ . '/config/active_schema.txt';
+    $schemaDir = __DIR__ . '/config/grading-schemas';
     
-    $schemaFile = null;
-    foreach ($possiblePaths as $path) {
-        if (file_exists($path)) {
-            $schemaFile = $path;
-            error_log("Notenschema gefunden: " . $path);
-            break;
+    // Prüfe, ob es ein aktives Schema gibt
+    if (file_exists($activeSchemaFile)) {
+        $activeSchemaId = trim(file_get_contents($activeSchemaFile));
+        $schemaFile = $schemaDir . '/' . $activeSchemaId . '.txt';
+        
+        if (file_exists($schemaFile)) {
+            error_log("Verwende aktives Notenschema: " . $activeSchemaId);
+            
+            $schema = [];
+            $lines = file($schemaFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            
+            if ($lines !== false) {
+                foreach ($lines as $line) {
+                    $parts = explode(':', $line);
+                    if (count($parts) === 2) {
+                        $grade = trim($parts[0]);
+                        $minPercentage = (float)trim($parts[1]);
+                        $schema[] = ['grade' => $grade, 'minPercentage' => $minPercentage];
+                    }
+                }
+                
+                // Überprüfe, ob das Schema leer ist
+                if (!empty($schema)) {
+                    // Sortiere nach Prozentsatz absteigend
+                    usort($schema, function($a, $b) {
+                        return $b['minPercentage'] <=> $a['minPercentage'];
+                    });
+                    
+                    return $schema;
+                }
+            }
         }
     }
     
-    if ($schemaFile === null) {
-        error_log("Notenschema nicht gefunden in: " . implode(", ", $possiblePaths) . ", verwende Standard-Notenschema");
-        // Standard-Notenschema als Fallback
-        return getDefaultGradeSchema();
-    }
-
-    $schema = [];
-    $lines = file($schemaFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    
-    if ($lines === false) {
-        error_log("Fehler beim Lesen der Notenschema-Datei: " . $schemaFile . ", verwende Standard-Notenschema");
-        // Standard-Notenschema als Fallback
-        return getDefaultGradeSchema();
-    }
-    
-    foreach ($lines as $line) {
-        $parts = explode(':', $line);
-        if (count($parts) === 2) {
-            $grade = trim($parts[0]);
-            $minPercentage = (float)trim($parts[1]);
-            $schema[] = ['grade' => $grade, 'minPercentage' => $minPercentage];
+    // Fallback: Versuche, das erste verfügbare Schema aus dem Ordner zu laden
+    if (is_dir($schemaDir)) {
+        $files = scandir($schemaDir);
+        foreach ($files as $file) {
+            if ($file != "." && $file != ".." && pathinfo($file, PATHINFO_EXTENSION) === 'txt') {
+                $schemaFile = $schemaDir . '/' . $file;
+                error_log("Verwende Fallback-Notenschema: " . $file);
+                
+                $schema = [];
+                $lines = file($schemaFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                
+                if ($lines !== false) {
+                    foreach ($lines as $line) {
+                        $parts = explode(':', $line);
+                        if (count($parts) === 2) {
+                            $grade = trim($parts[0]);
+                            $minPercentage = (float)trim($parts[1]);
+                            $schema[] = ['grade' => $grade, 'minPercentage' => $minPercentage];
+                        }
+                    }
+                    
+                    // Überprüfe, ob das Schema leer ist
+                    if (!empty($schema)) {
+                        // Sortiere nach Prozentsatz absteigend
+                        usort($schema, function($a, $b) {
+                            return $b['minPercentage'] <=> $a['minPercentage'];
+                        });
+                        
+                        // Speichere dieses Schema als aktives Schema für zukünftige Verwendung
+                        $activeSchemaId = pathinfo($file, PATHINFO_FILENAME);
+                        file_put_contents($activeSchemaFile, $activeSchemaId);
+                        
+                        return $schema;
+                    }
+                }
+            }
         }
     }
-
-    // Überprüfe, ob das Schema leer ist
-    if (empty($schema)) {
-        error_log("Notenschema enthält keine gültigen Einträge: " . $schemaFile . ", verwende Standard-Notenschema");
-        // Standard-Notenschema als Fallback
-        return getDefaultGradeSchema();
-    }
-
-    // Sortiere nach Prozentsatz absteigend
-    usort($schema, function($a, $b) {
-        return $b['minPercentage'] <=> $a['minPercentage'];
-    });
-
-    return $schema;
+    
+    // Wenn alle Versuche fehlschlagen, verwende das Standard-Notenschema
+    error_log("Konnte kein Notenschema laden, verwende Standard-Notenschema");
+    return getDefaultGradeSchema();
 }
 
 // Hilfsfunktion für das Standard-Notenschema

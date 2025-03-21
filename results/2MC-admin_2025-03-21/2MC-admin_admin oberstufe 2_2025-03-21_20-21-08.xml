@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<test>
+  <title>Bikepacking Essentials: Wissenstest f&#xFC;r Einsteiger und Fortgeschrittene</title>
+  <access_code>2MC</access_code>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was versteht man unter Bikepacking?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine Art des Rennradfahrens auf speziellen Strecken</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Das Reisen mit dem Fahrrad und &#xDC;bernachten in Hotels</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>r Das Radfahren mit minimalistischer Ausr&#xFC;stung f&#xFC;r Mehrtagestouren</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Eine Wettkampfdisziplin im Mountainbiking</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welche Eigenschaft ist bei Bikepacking-Taschen besonders wichtig?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie sollten leicht sein und wenig Platz beanspruchen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>r Sie m&#xFC;ssen wasserdicht sein, um den Inhalt zu sch&#xFC;tzen</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Sie sollten aus recyceltem Material hergestellt sein</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Sie m&#xFC;ssen in leuchtenden Farben gehalten sein f&#xFC;r bessere Sichtbarkeit</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was ist ein Vorteil von Taschen mit Rollverschluss beim Bikepacking?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie sind einfacher zu reparieren</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>r Sie bieten eine flexible Gr&#xF6;&#xDF;enanpassung</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Sie sind g&#xFC;nstiger als andere Verschlusssysteme</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Sie k&#xF6;nnen als Schwimmhilfe verwendet werden</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Warum sollte man beim Bikepacking auf eine gute Gewichtsverteilung achten?</text>
+      <answers>
+        <answer nr="A">
+          <text>Um die Geschwindigkeit zu erh&#xF6;hen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Um das Fahrrad besser sichtbar zu machen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>r Um die Fahrdynamik und das Handling zu verbessern</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Um die Bremsleistung zu maximieren</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Wof&#xFC;r ist es ratsam, eine Rahmenschutzfolie am Fahrrad anzubringen?</text>
+      <answers>
+        <answer nr="A">
+          <text>Um das Fahrrad vor UV-Strahlung zu sch&#xFC;tzen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>r Um das Fahrrad vor Schmutz und Abrieb zu bewahren</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Um das Fahrrad leichter reinigen zu k&#xF6;nnen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Um die Farbe des Rahmens zu ver&#xE4;ndern</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was sollte man bei der Auswahl einer Lenkertasche beachten?</text>
+      <answers>
+        <answer nr="A">
+          <text>Dass sie genug Platz f&#xFC;r einen Laptop bietet</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>r Dass sie nicht das Lenken oder die Bremsfunktion beeintr&#xE4;chtigt</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Dass sie &#xFC;ber ein integriertes GPS-System verf&#xFC;gt</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Dass sie als Helm getragen werden kann</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Warum ist es nicht empfehlenswert, schwere Gegenst&#xE4;nde in einer Satteltasche weit oben oder au&#xDF;en zu platzieren?</text>
+      <answers>
+        <answer nr="A">
+          <text>Es kann den Luftwiderstand erh&#xF6;hen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>r Es kann die Balance des Fahrrads negativ beeinflussen</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Es kann dazu f&#xFC;hren, dass die Tasche schneller verschlei&#xDF;t</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Es kann das Risiko eines Diebstahls erh&#xF6;hen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Wieso ist es wichtig, dass Bikepacking-Taschen eine einfache Montage erm&#xF6;glichen?</text>
+      <answers>
+        <answer nr="A">
+          <text>Damit sie auch als Rucksack verwendet werden k&#xF6;nnen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Damit sie im Notfall schnell als Erste-Hilfe-Kit dienen k&#xF6;nnen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>r Damit der Auf- und Abbau auf Tour unkompliziert und zeitsparend ist</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Damit sie leichter verkauft werden k&#xF6;nnen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Was ist ein h&#xE4;ufiges Problem bei der Verwendung einer Rahmentasche in Bezug auf Trinkflaschenhalter?</text>
+      <answers>
+        <answer nr="A">
+          <text>r Die Halterung f&#xFC;r Trinkflaschen wird blockiert und erschwert den Zugriff</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Die Trinkflaschen k&#xF6;nnen den Rahmen zerkratzen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Die Trinkflaschenhalterung wird durch das Gewicht der Tasche besch&#xE4;digt</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Die Trinkflaschen k&#xF6;nnen sich durch die Rahmentasche verformen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Wie sollte man seine Ausr&#xFC;stung im Rahmen des Bikepackings organisieren?</text>
+      <answers>
+        <answer nr="A">
+          <text>Nach Farbe sortiert, um ein &#xE4;sthetisches Gesamtbild zu erzeugen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Nach Gewicht sortiert, mit schweren Gegenst&#xE4;nden oben in der Tasche</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Nach Zugriffsh&#xE4;ufigkeit sortiert, mit selten ben&#xF6;tigten Gegenst&#xE4;nden leicht zug&#xE4;nglich</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>r Nach Kategorien sortiert, mit klarer Trennung zwischen Tagesbedarf und seltenem Bedarf</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>admin oberstufe 2</schuelername>
+  <abgabezeit>2025-03-21 20:21:08</abgabezeit>
+</test>

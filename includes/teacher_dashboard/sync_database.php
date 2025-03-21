@@ -27,7 +27,7 @@ function performEvaluation($fullPath) {
         $pointsMaximum = $results['max'];
         $percentage = $results['percentage'];
         
-        // Berechne Note anhand des Notenschemas
+        // Berechne Note anhand des aktiven Notenschemas
         $schema = loadGradeSchema();
         $grade = calculateGrade($percentage, $schema);
         
@@ -206,16 +206,16 @@ try {
                 
                 // Erstelle Testdatensatz mit eindeutiger ID
                 $testId = $code . '_' . uniqid();
-                $createTest = $db->prepare("
-                    INSERT INTO tests (
-                        test_id,
-                        access_code,
-                        title,
-                        question_count,
-                        answer_count,
+            $createTest = $db->prepare("
+                INSERT INTO tests (
+                    test_id, 
+                    access_code, 
+                    title, 
+                    question_count, 
+                    answer_count, 
                         answer_type,
                         created_at
-                    ) VALUES (
+                ) VALUES (
                         ?, ?, ?, ?, ?, ?, ?
                     )
                 ");
@@ -329,7 +329,7 @@ try {
         'updated' => $reevaluatedCount,
         'total' => 0
     ];
-    
+
     // JSON-Antwort vorbereiten und zurückgeben
     echo json_encode([
         'success' => true,
@@ -494,9 +494,9 @@ function processTestFolder($db, $folderPath, $code, $testId) {
                         writeLog("Aktualisiere Testversuch ID=$attemptId mit korrekten Werten");
                         
                         $updateStmt->execute([
-                            $pointsAchieved,
-                            $pointsMaximum,
-                            $percentage,
+                        $pointsAchieved,
+                        $pointsMaximum,
+                        $percentage,
                             $grade,
                             $attemptId
                         ]);

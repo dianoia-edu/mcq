@@ -53,6 +53,37 @@
             <div id="syncResult" class="mt-3"></div>
         </div>
     </div>
+
+    <!-- Notenschema -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            Notenschema
+        </div>
+        <div class="card-body">
+            <p class="mb-3">
+                Wählen Sie das zu verwendende Notenschema für die Auswertung von Tests aus. 
+                Das Schema wird automatisch beim Auswählen aktiviert.
+            </p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="gradeSchema" class="form-label">Notenschema auswählen</label>
+                        <select class="form-select" id="gradeSchema">
+                            <!-- Wird dynamisch befüllt -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mt-3">
+                        <div id="schemaStatus" class="mb-2"></div>
+                        <div id="currentSchema" class="table-responsive">
+                            <!-- Wird dynamisch befüllt -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal für Test-Ergebnis-Verwaltung -->
@@ -124,6 +155,11 @@
 
 <script>
 $(document).ready(function() {
+    console.log('Konfigurationsseite geladen');
+    
+    // Initial laden
+    loadGradeSchemas();
+
     // Event-Handler für die Datenbank-Synchronisation
     $('#syncDatabaseBtn').on('click', function() {
         const btn = $(this);
@@ -188,95 +224,160 @@ $(document).ready(function() {
         loadTestResultsData();
     });
     
-    // Auswahl aller Checkboxen
-    $('#selectAllBtn').on('click', function() {
-        $('.test-result-checkbox').prop('checked', true);
-        updateDeleteButtonState();
-    });
-    
-    // Aufheben aller Auswahlen
-    $('#deselectAllBtn').on('click', function() {
-        $('.test-result-checkbox').prop('checked', false);
-        updateDeleteButtonState();
-    });
-    
-    // Löschen der ausgewählten Einträge
-    $('#deleteSelectedBtn').on('click', function() {
-        const selectedItems = $('.test-result-checkbox:checked');
+    // Notenschema-Funktionalität
+    // Lade die verfügbaren Notenschema-Dateien
+    function loadGradeSchemas() {
+        console.log('Lade verfügbare Notenschemas...');
         
-        if (selectedItems.length === 0) {
-            return;
-        }
+        // Füge Cache-Buster hinzu
+        const timestamp = new Date().getTime();
         
-        if (!confirm(`Sind Sie sicher, dass Sie ${selectedItems.length} ausgewählte Einträge löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
-            return;
-        }
-        
-        const itemsToDelete = [];
-        selectedItems.each(function() {
-            itemsToDelete.push({
-                id: $(this).data('id'),
-                type: $(this).data('type'), // 'xml', 'db', oder 'both'
-                test_id: $(this).data('test-id'),
-                file_path: $(this).data('file-path')
-            });
-        });
-        
-        // Debug: Zeige die zu löschenden Einträge
-        console.log("Zu löschende Einträge:", itemsToDelete);
-        
-        // Button deaktivieren und Ladeindikator anzeigen
-        const btn = $(this);
-        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Löschen...');
-        
-        // Starte Löschvorgang
         $.ajax({
-            url: '../includes/teacher_dashboard/delete_test_results.php',
-            method: 'POST',
-            data: JSON.stringify({
-                entries: itemsToDelete,
-                delete_files: $('#deleteFilesCheckbox').prop('checked'),
-                delete_empty_dirs: $('#deleteEmptyDirsCheckbox').prop('checked')
-            }),
-            contentType: 'application/json',
+            url: '../includes/teacher_dashboard/get_grade_schemas.php',
+            method: 'GET',
+            data: { _t: timestamp }, // Cache-Buster
+            dataType: 'json',
+            cache: false,
             success: function(response) {
-                if (response.success) {
-                    // Aktualisiere die Tabelle nach dem Löschen
-                    loadTestResultsData();
+                const select = $('#gradeSchema');
+                select.empty();
+                
+                if (response.success && response.schemas.length > 0) {
+                    console.log('Geladene Schemas:', response.schemas);
+                    console.log('Aktives Schema:', response.activeSchema);
                     
-                    // Zeige Erfolgsmeldung
-                    alert(`Einträge wurden erfolgreich gelöscht: ${response.stats.db_deleted} aus der Datenbank, ${response.stats.files_deleted} Dateien${response.stats.dirs_deleted ? ', ' + response.stats.dirs_deleted + ' leere Ordner' : ''}.`);
+                    // Sortiere Schemas nach Nummer
+                    response.schemas.sort((a, b) => {
+                        const numA = parseInt(a.id.split('_')[0]);
+                        const numB = parseInt(b.id.split('_')[0]);
+                        return numA - numB;
+                    });
+                    
+                    // Füge Optionen hinzu
+                    response.schemas.forEach(schema => {
+                        const option = $('<option></option>')
+                            .attr('value', schema.id)
+                            .text(schema.name)
+                            .data('file', schema.file);
+                        
+                        // Markiere aktives Schema
+                        if (schema.active) {
+                            option.prop('selected', true);
+                            console.log('Option als ausgewählt markiert:', schema.id);
+                        }
+                        
+                        select.append(option);
+                    });
+                    
+                    // Zeige das aktuelle Schema an
+                    if (response.activeSchema && response.activeSchema.entries) {
+                        console.log('Zeige aktives Schema an mit ' + response.activeSchema.entries.length + ' Einträgen');
+                        
+                        // Erzwinge Neuzeichnung mit einer Kopie
+                        const schemaCopy = JSON.parse(JSON.stringify(response.activeSchema));
+                        displayCurrentSchema(schemaCopy);
+                    } else {
+                        console.error('Kein aktives Schema in der Antwort gefunden!');
+                        
+                        // Fallback: Versuche, das Schema des ausgewählten Elements zu laden
+                        const selectedId = select.val();
+                        console.log('Fallback: Versuche Schema zu laden für ID:', selectedId);
+                        
+                        // Lade Schema explizit
+                        $.ajax({
+                            url: '../includes/teacher_dashboard/set_active_schema.php',
+                            method: 'POST',
+                            data: { 
+                                schema_id: selectedId,
+                                _t: new Date().getTime() // Cache-Buster
+                            },
+                            dataType: 'json',
+                            cache: false,
+                            success: function(activateResponse) {
+                                console.log('Explizit geladenes Schema:', activateResponse);
+                                if (activateResponse.success && activateResponse.schema) {
+                                    // Erzwinge Neuzeichnung mit einer Kopie
+                                    const schemaCopy = JSON.parse(JSON.stringify(activateResponse.schema));
+                                    displayCurrentSchema(schemaCopy);
+                                } else {
+                                    $('#currentSchema').html('<div class="alert alert-warning">Schema konnte nicht geladen werden</div>');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX-Fehler beim Nachladen:', status, error);
+                                console.error('Server-Antwort:', xhr.responseText);
+                                $('#currentSchema').html('<div class="alert alert-danger">Fehler beim Laden des Schemas</div>');
+                            }
+                        });
+                    }
                 } else {
-                    alert(`Fehler beim Löschen: ${response.error}`);
+                    select.append($('<option></option>').text('Keine Schemas gefunden'));
+                    $('#currentSchema').html('<div class="alert alert-warning">Keine Notenschema-Dateien gefunden</div>');
                 }
             },
             error: function(xhr, status, error) {
-                console.error("AJAX-Fehler:", status, error);
-                alert('Es ist ein unerwarteter Fehler aufgetreten: ' + error);
-            },
-            complete: function() {
-                btn.prop('disabled', false).html('<i class="bi bi-trash"></i> Ausgewählte Einträge löschen');
+                console.error('AJAX-Fehler:', status, error);
+                console.error('Server-Antwort:', xhr.responseText);
+                $('#currentSchema').html('<div class="alert alert-danger">Fehler beim Laden der Notenschema-Dateien</div>');
             }
         });
-    });
+    }
     
-    // Event-Delegation für Checkbox-Änderungen
-    $(document).on('change', '.test-result-checkbox', function() {
-        updateDeleteButtonState();
-    });
-    
-    // Aktualisiert den Zustand des Löschen-Buttons basierend auf ausgewählten Checkboxen
-    function updateDeleteButtonState() {
-        const selectedItems = $('.test-result-checkbox:checked').length;
-        const $deleteBtn = $('#deleteSelectedBtn');
+    // Stelle das aktuelle Notenschema dar
+    function displayCurrentSchema(schema) {
+        console.log('Zeige Schema an:', schema);
         
-        if (selectedItems > 0) {
-            $deleteBtn.prop('disabled', false)
-                .html(`<i class="bi bi-trash"></i> ${selectedItems} Einträge löschen`);
-        } else {
-            $deleteBtn.prop('disabled', true)
-                .html('<i class="bi bi-trash"></i> Ausgewählte Einträge löschen');
+        // Überprüfe, ob Einträge vorhanden sind
+        if (!schema || !schema.entries || schema.entries.length === 0) {
+            console.error('Keine Einträge im Schema gefunden!');
+            $('#currentSchema').html('<div class="alert alert-warning">Schema enthält keine Einträge</div>');
+            return;
         }
+        
+        // Sortiere die Einträge nach Threshold (absteigend)
+        schema.entries.sort((a, b) => b.threshold - a.threshold);
+        console.log('Sortierte Einträge:', schema.entries);
+        
+        // Debug: Schema-ID ausgeben
+        console.log('Schema-ID:', schema.id);
+        console.log('Schema-Name:', schema.name);
+        console.log('Schema-Datei:', schema.file);
+        
+        let tableHTML = `
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">
+                    <strong>Aktuelles Notenschema: ${schema.name}</strong>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Note</th>
+                                <th>Mindestpunktzahl (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        // Füge die Einträge hinzu
+        schema.entries.forEach((entry, index) => {
+            console.log(`Eintrag ${index}: Note ${entry.grade}, Schwelle ${entry.threshold}%`);
+            tableHTML += `
+                <tr>
+                    <td>${entry.grade}</td>
+                    <td>${entry.threshold}%</td>
+                </tr>
+            `;
+        });
+        
+        tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        
+        $('#currentSchema').html(tableHTML);
     }
     
     // Lädt die Testergebnisdaten und zeigt sie in der Tabelle an
@@ -474,6 +575,159 @@ $(document).ready(function() {
                 return '<span class="badge bg-warning">Nur XML</span>';
             default:
                 return '<span class="badge bg-secondary">Unbekannt</span>';
+        }
+    }
+    
+    // Aktiviere ein Notenschema
+    $('#gradeSchema').on('change', function() {
+        const schemaId = $(this).val();
+        const schemaName = $(this).find('option:selected').text();
+        
+        console.log('Schema geändert zu:', schemaId, schemaName);
+        $('#schemaStatus').html('<div class="alert alert-info">Schema wird aktiviert...</div>');
+        
+        // Füge Cache-Buster hinzu
+        const timestamp = new Date().getTime();
+        
+        $.ajax({
+            url: '../includes/teacher_dashboard/set_active_schema.php',
+            method: 'POST',
+            data: { 
+                schema_id: schemaId,
+                _t: timestamp // Cache-Buster
+            },
+            dataType: 'json',
+            cache: false,
+            success: function(response) {
+                console.log('Server-Antwort erhalten:', response);
+                if (response.success) {
+                    $('#schemaStatus').html(`
+                        <div class="alert alert-success">
+                            Schema "${schemaName}" wurde aktiviert
+                        </div>
+                    `);
+                    
+                    // Stelle sicher, dass das Schema-Objekt mit Einträgen vorhanden ist
+                    if (response.schema && response.schema.entries) {
+                        console.log('Zeige Schema an mit ' + response.schema.entries.length + ' Einträgen');
+                        console.log('Schema-Einträge:', response.schema.entries);
+                        
+                        // Erzwinge Neuzeichnung, indem wir eine Kopie des Objekts verwenden
+                        const schemaCopy = JSON.parse(JSON.stringify(response.schema));
+                        displayCurrentSchema(schemaCopy);
+                    } else {
+                        console.error('Fehler: Ungültige Schema-Daten empfangen', response);
+                        $('#currentSchema').html('<div class="alert alert-warning">Schema-Daten konnten nicht geladen werden</div>');
+                    }
+                } else {
+                    $('#schemaStatus').html(`
+                        <div class="alert alert-danger">
+                            Fehler beim Aktivieren des Schemas: ${response.error || 'Unbekannter Fehler'}
+                        </div>
+                    `);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX-Fehler:', status, error);
+                console.error('Server-Antwort:', xhr.responseText);
+                
+                $('#schemaStatus').html(`
+                    <div class="alert alert-danger">
+                        Fehler bei der Kommunikation mit dem Server: ${error}
+                    </div>
+                `);
+            }
+        });
+    });
+
+    // Auswahl aller Checkboxen
+    $('#selectAllBtn').on('click', function() {
+        $('.test-result-checkbox').prop('checked', true);
+        updateDeleteButtonState();
+    });
+    
+    // Aufheben aller Auswahlen
+    $('#deselectAllBtn').on('click', function() {
+        $('.test-result-checkbox').prop('checked', false);
+        updateDeleteButtonState();
+    });
+    
+    // Löschen der ausgewählten Einträge
+    $('#deleteSelectedBtn').on('click', function() {
+        const selectedItems = $('.test-result-checkbox:checked');
+        
+        if (selectedItems.length === 0) {
+            return;
+        }
+        
+        if (!confirm(`Sind Sie sicher, dass Sie ${selectedItems.length} ausgewählte Einträge löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+            return;
+        }
+        
+        const itemsToDelete = [];
+        selectedItems.each(function() {
+            itemsToDelete.push({
+                id: $(this).data('id'),
+                type: $(this).data('type'), // 'xml', 'db', oder 'both'
+                test_id: $(this).data('test-id'),
+                file_path: $(this).data('file-path')
+            });
+        });
+        
+        // Debug: Zeige die zu löschenden Einträge
+        console.log("Zu löschende Einträge:", itemsToDelete);
+        
+        // Button deaktivieren und Ladeindikator anzeigen
+        const btn = $(this);
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Löschen...');
+        
+        // Starte Löschvorgang
+        $.ajax({
+            url: '../includes/teacher_dashboard/delete_test_results.php',
+            method: 'POST',
+            data: JSON.stringify({
+                entries: itemsToDelete,
+                delete_files: $('#deleteFilesCheckbox').prop('checked'),
+                delete_empty_dirs: $('#deleteEmptyDirsCheckbox').prop('checked')
+            }),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.success) {
+                    // Aktualisiere die Tabelle nach dem Löschen
+                    loadTestResultsData();
+                    
+                    // Zeige Erfolgsmeldung
+                    alert(`Einträge wurden erfolgreich gelöscht: ${response.stats.db_deleted} aus der Datenbank, ${response.stats.files_deleted} Dateien${response.stats.dirs_deleted ? ', ' + response.stats.dirs_deleted + ' leere Ordner' : ''}.`);
+                } else {
+                    alert(`Fehler beim Löschen: ${response.error}`);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX-Fehler:", status, error);
+                alert('Es ist ein unerwarteter Fehler aufgetreten: ' + error);
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="bi bi-trash"></i> Ausgewählte Einträge löschen');
+            }
+        });
+    });
+    
+    // Event-Delegation für Checkbox-Änderungen
+    $(document).on('change', '.test-result-checkbox', function() {
+        updateDeleteButtonState();
+    });
+    
+    // Aktualisiert den Zustand des Löschen-Buttons basierend auf ausgewählten Checkboxen
+    function updateDeleteButtonState() {
+        const selectedItems = $('.test-result-checkbox:checked').length;
+        const $deleteBtn = $('#deleteSelectedBtn');
+        
+        if (selectedItems > 0) {
+            $deleteBtn.prop('disabled', false)
+                .html(`<i class="bi bi-trash"></i> ${selectedItems} Einträge löschen`);
+        } else {
+            $deleteBtn.prop('disabled', true)
+                .html('<i class="bi bi-trash"></i> Ausgewählte Einträge löschen');
         }
     }
 });

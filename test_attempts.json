@@ -310,6 +310,48 @@
             "student_id": "881616aa24fd58b9cd4e92db9f321a77e29c06e949d1f52fc22b381bdb2cd7f2",
             "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
             "is_admin": false
+        },
+        {
+            "date": "2025-03-21",
+            "student": "admin streng 10 p",
+            "student_id": "4807e6ff699d8df52629c7b546c7b3eb5976e3e1dc03762bbfda06937aa30dbb",
+            "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-21",
+            "student": "admin streng 9 punkte",
+            "student_id": "453d4229433d2d08480446efe84b9e241cf097b1d15d96b65f29d33faa8a9cde",
+            "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-21",
+            "student": "admin mittel 9",
+            "student_id": "59a9ff1164dcbbb0a558ca8ae70983d17ae6b63aa46043b0fa4aaf0e598c1abd",
+            "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-21",
+            "student": "admin mittel 8",
+            "student_id": "efa31cad4e510acf4b9f55961103e98d4f3232de29f1ade520a07bd52def3fb7",
+            "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-21",
+            "student": "admin oberstufe ",
+            "student_id": "ac4cafaab52f725df663ddc3dbb81b268322410196504d2bae7aac9f2e4ba9f3",
+            "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
+            "is_admin": true
+        },
+        {
+            "date": "2025-03-21",
+            "student": "admin oberstufe 2",
+            "student_id": "7b263e30cec52255101d4c66818cdb43dbd8e289d604820f9230b6729d201a05",
+            "client_id": "01dbe1d034b169a92fb739ddd5c0cd0973dd45ac0b0e1abb669fc7ab633794fd",
+            "is_admin": true
         }
     ],
     "2MZ": [
