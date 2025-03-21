@@ -256,18 +256,79 @@ try {
         }
     }
     
-    // Rest des vorhandenen Codes folgt...
-    // Statistik sammeln, verwaiste Einträge löschen, usw.
+    // Nachdem alle Tests und Testversuche verarbeitet wurden, suche nach Testversuchen mit points_maximum = 0
+    // und werte diese neu aus
+    writeLog("Suche nach Testversuchen mit fehlenden oder ungültigen Punktzahlen...");
     
+    $zeroPointsQuery = $db->query("
+        SELECT ta.attempt_id, ta.xml_file_path, ta.test_id, t.access_code
+        FROM test_attempts ta
+        JOIN tests t ON ta.test_id = t.test_id
+        WHERE ta.points_maximum = 0 OR ta.points_achieved = 0 OR ta.percentage = 0
+    ");
+    
+    $zeroPointAttempts = $zeroPointsQuery->fetchAll(PDO::FETCH_ASSOC);
+    $reevaluatedCount = 0;
+    
+    writeLog("Gefunden: " . count($zeroPointAttempts) . " Testversuche mit fehlenden oder ungültigen Punktzahlen");
+    
+    $updateStmt = $db->prepare("
+        UPDATE test_attempts 
+        SET points_achieved = ?, points_maximum = ?, percentage = ?, grade = ? 
+        WHERE attempt_id = ?
+    ");
+    
+    foreach ($zeroPointAttempts as $attempt) {
+        $xmlPath = $attempt['xml_file_path'];
+        $fullPath = __DIR__ . '/../../' . $xmlPath;
+        $attemptId = $attempt['attempt_id'];
+        $testId = $attempt['test_id'];
+        $accessCode = $attempt['access_code'];
+        
+        writeLog("Werte Testversuch ID=$attemptId, TestID=$testId, Code=$accessCode neu aus: $xmlPath");
+        
+        if (file_exists($fullPath)) {
+            try {
+                $evaluationResults = performEvaluation($fullPath);
+                
+                if ($evaluationResults !== false) {
+                    $pointsAchieved = $evaluationResults['achieved'];
+                    $pointsMaximum = $evaluationResults['maximum'];
+                    $percentage = $evaluationResults['percentage'];
+                    $grade = $evaluationResults['grade'];
+                    
+                    writeLog("Neue Werte: Punkte=$pointsAchieved/$pointsMaximum, Prozent=$percentage%, Note=$grade");
+                    
+                    $updateStmt->execute([
+                        $pointsAchieved,
+                        $pointsMaximum,
+                        $percentage,
+                        $grade,
+                        $attemptId
+                    ]);
+                    
+                    $reevaluatedCount++;
+                    writeLog("Testversuch ID=$attemptId erfolgreich neu ausgewertet");
+                } else {
+                    writeLog("Fehler bei der Auswertung der XML-Datei: $xmlPath");
+                }
+            } catch (Exception $e) {
+                writeLog("Fehler bei der Neuauswertung: " . $e->getMessage());
+            }
+        } else {
+            writeLog("XML-Datei nicht gefunden: $fullPath");
+        }
+    }
+    
+    writeLog("Insgesamt $reevaluatedCount Testversuche wurden neu ausgewertet");
+    
+    // Sammle Statistiken
     $stats = [
         'added' => 0,
-        'deleted' => 0,
-        'updated' => 0,
+        'deleted' => count($emptyFolders),
+        'updated' => $reevaluatedCount,
         'total' => 0
     ];
-    
-    // Sammle Statistiken aus dem Log
-    $stats['deleted'] = count($emptyFolders);
     
     // JSON-Antwort vorbereiten und zurückgeben
     echo json_encode([
