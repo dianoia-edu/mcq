@@ -148,7 +148,7 @@ $(document).ready(function() {
                             <ul class="mb-0">
                                 <li>Neue Einträge hinzugefügt: ${response.added}</li>
                                 <li>Verwaiste Einträge gelöscht: ${response.deleted}</li>
-                                <li>Gesamtanzahl Datensätze: ${response.total}</li>
+                                <li>Bestehende Einträge aktualisiert: ${response.updated || 0}</li>
                             </ul>
                         </div>
                     `);

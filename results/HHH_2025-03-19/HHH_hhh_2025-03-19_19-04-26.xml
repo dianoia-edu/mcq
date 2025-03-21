@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<test>
+  <title>Der Fall des Eisernen Vorhangs und das Ende dHHes Kalten Krieges</title>
+  <access_code>HHH</access_code>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein Hauptziel von Michail Gorbatschows Politik der Perestroika?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Verst&#xE4;rkung der kommunistischen Ideologie</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Die Umgestaltung der gesellschaftlichen und wirtschaftlichen Bedingungen in der Sowjetunion</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Die vollst&#xE4;ndige Abschaffung des Sozialismus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Die Erh&#xF6;hung der Milit&#xE4;rausgaben</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welche Rolle spielte die Gewerkschaft Solidarno&#x15B;&#x107; im Prozess des politischen Wandels in Polen?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie unterst&#xFC;tzte die kommunistische Regierung</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Sie war eine kleine, unbedeutende Gruppe ohne Einfluss</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Sie f&#xFC;hrte zu demokratischen Reformen und hatte gro&#xDF;en Einfluss auf die Bev&#xF6;lkerung</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Sie f&#xF6;rderte die Ausbreitung des Kommunismus in Westeuropa</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was war ein Ergebnis der ersten freien Wahlen in Polen im Juni 1989?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die Kommunistische Partei behielt ihre Macht</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Es gab keine signifikanten &#xC4;nderungen in der Regierung</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Die Gewerkschaft Solidarno&#x15B;&#x107; wurde verboten</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Die Kommunistische Partei verlor ihre Macht</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Was bedeutete die Breschnew-Doktrin f&#xFC;r die Staaten des Warschauer Paktes?</text>
+      <answers>
+        <answer nr="A">
+          <text>Sie garantierte ihre vollst&#xE4;ndige Unabh&#xE4;ngigkeit von der Sowjetunion</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Sie erlaubte ihnen, eigene politische und wirtschaftliche Wege zu beschreiten</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Sie rechtfertigte sowjetische milit&#xE4;rische Interventionen zur Aufrechterhaltung des Kommunismus</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Sie f&#xF6;rderte den freien Handel mit westlichen L&#xE4;ndern</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Welches Ereignis markierte das offizielle Ende des Ost-West-Konflikts in Europa?</text>
+      <answers>
+        <answer nr="A">
+          <text>Der Fall der Berliner Mauer im November 1989</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Die Unterzeichnung der Charta von Paris im November 1990</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Der Beginn von Gorbatschows Reformpolitik in den fr&#xFC;hen 1980er Jahren</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Der Zusammenbruch der Sowjetunion im Dezember 1991</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was war ein direktes Ergebnis von Glasnost unter Michail Gorbatschow?</text>
+      <answers>
+        <answer nr="A">
+          <text>Eine Versch&#xE4;rfung der Zensur in den Medien</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Eine erh&#xF6;hte Transparenz und Offenheit in der politischen Arbeit</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Ein sofortiger Wechsel zur Marktwirtschaft</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Eine Verst&#xE4;rkung der Geheimdienstaktivit&#xE4;ten</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Wie reagierte Michail Gorbatschow auf den Krieg in Afghanistan?</text>
+      <answers>
+        <answer nr="A">
+          <text>Er entsandte zus&#xE4;tzliche Truppen, um den Konflikt zu gewinnen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Er ignorierte den Konflikt und konzentrierte sich auf innere Angelegenheiten</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Er zog die sowjetischen Truppen zur&#xFC;ck und beendete damit den Konflikt</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Er intensivierte die milit&#xE4;rischen Angriffe, um einen schnellen Sieg zu erzielen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was geschah nach dem Ende des Warschauer Paktes im Juli 1991?</text>
+      <answers>
+        <answer nr="A">
+          <text>Die NATO wurde aufgel&#xF6;st</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Die Sowjetunion dehnte ihren Einfluss auf Westeuropa aus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Die ehemaligen Mitgliedsstaaten begannen, demokratische und marktwirtschaftliche Strukturen zu errichten</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Der Kalte Krieg intensivierte sich erneut</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Wie wirkte sich die Wahl von Karol Wojtyla zum Papst auf Polen aus?</text>
+      <answers>
+        <answer nr="A">
+          <text>Es hatte keinen Einfluss auf die politische Situation in Polen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Es verst&#xE4;rkte den Einfluss der katholischen Kirche als oppositionelle Kraft</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Es f&#xFC;hrte zur sofortigen Aufl&#xF6;sung der Gewerkschaft Solidarno&#x15B;&#x107;</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Es l&#xF6;ste eine Welle kommunistischer Revolutionen in Europa aus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Welche Folge hatte die Politik von Glasnost und Perestroika f&#xFC;r das Verh&#xE4;ltnis zwischen Ost- und Westm&#xE4;chten?</text>
+      <answers>
+        <answer nr="A">
+          <text>Es verschlechterte das Verh&#xE4;ltnis und f&#xFC;hrte zu neuen Konflikten</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Es hatte keinen Einfluss auf internationale Beziehungen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>Es f&#xFC;hrte zu einer Ann&#xE4;herung und dem Abbau von Mittelstreckenraketen in Europa</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Es isolierte die Sowjetunion weiter vom Rest der Welt</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>hhh</schuelername>
+  <abgabezeit>2025-03-19 19:04:26</abgabezeit>
+</test>

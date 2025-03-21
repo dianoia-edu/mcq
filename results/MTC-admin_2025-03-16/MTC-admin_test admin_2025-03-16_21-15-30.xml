@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>MTC</access_code>
+  <title>Google Cloud Platform Grundlagen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was ist der primäre Zweck des Google Cloud Identity und Access Managements (IAM)?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Verschlüsselung von Daten während der Übertragung zu gewährleisten</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Verwaltung von Ressourcen und Kosten zu optimieren</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Den Zugriff auf Google Cloud-Ressourcen zu steuern</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Migration von Code zwischen verschiedenen Cloud-Anbietern zu erleichtern</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welche Methode wird empfohlen, um den Zugriff auf Google Cloud-Projekte basierend auf Gruppenzugehörigkeit zu verwalten?</text>
+      <answers>
+        <answer nr="1">
+          <text>Individuelle Nutzerkonten für jedes Teammitglied erstellen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Google Groups verwenden, um Nutzer zu organisieren und Zugriffsrechte zuzuweisen</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Allen Nutzern Administratorrechte gewähren, um den Verwaltungsaufwand zu minimieren</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Externe Identitätsanbieter meiden und nur interne Verwaltungstools nutzen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Was ist ein Vorteil der Verwendung von Google Cloud IAM-Rollen im Vergleich zur direkten Zuweisung von Berechtigungen an einzelne Nutzer?</text>
+      <answers>
+        <answer nr="1">
+          <text>Rollen erlauben unbegrenzten Zugriff auf alle Ressourcen.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Rollen ermöglichen eine feingranulare Zugriffssteuerung und einfache Verwaltung.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Rollen sind einfacher zu erstellen als individuelle Berechtigungen.</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Rollen verhindern die Notwendigkeit von Authentifizierung.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Wie können Sie den Zugriff eines Nutzers auf ein Google Cloud-Projekt widerrufen, wenn dieser das Unternehmen verlässt?</text>
+      <answers>
+        <answer nr="1">
+          <text>Das Nutzerkonto in der Google Cloud Console manuell löschen</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Projektdaten verschlüsseln, um den Zugriff zu blockieren</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Dem Nutzer eine E-Mail senden mit der Aufforderung, den Zugriff selbst zu entfernen</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Das gesamte Projekt löschen, um alle Zugriffe zu widerrufen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Was ist die empfohlene Methode zur Authentifizierung von Anwendungen in Google Cloud?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Nutzung von OAuth-Clientschlüsseln für alle Anwendungen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Verwendung von individuellen Benutzernamen und Passwörtern für jede Anwendung</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Einrichtung von Dienstkontoschlüsseln für serverseitige Anwendungen</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Der Einsatz von API-Schlüsseln für jede Interaktion mit Google Cloud-Diensten</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Welches Tool bietet Ihnen die Möglichkeit, Richtlinien in Google Cloud zu analysieren und festzustellen, welche Ressourcen ein bestimmtes Nutzerkonto zugreifen kann?</text>
+      <answers>
+        <answer nr="1">
+          <text>Google Cloud Deployment Manager</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Google Cloud Policy Analyzer</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Google Cloud Resource Manager</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Google Cloud Security Command Center</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Wie können Sie die Sicherheit Ihrer VM-Instanzen in der Compute Engine verbessern?</text>
+      <answers>
+        <answer nr="1">
+          <text>Durch die Aktivierung des Gastbetriebssystems-Updates für alle Instanzen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Indem Sie das Prinzip der geringsten Berechtigung anwenden und unnötigen -Zugriff einschränken</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Durch die Vergabe von Administratorrechten an alle Nutzer zur Vereinfachung der Verwaltung</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Indem Sie regelmäßig neue Instanzen erstellen und alte Instanzen löschen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was ist eine Best Practice für die Verwaltung von API-Schlüsseln in Google Cloud?</text>
+      <answers>
+        <answer nr="1">
+          <text>API-Schlüssel sollten öffentlich geteilt werden, um die Integration zu erleichtern.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>API-Schlüssel sollten unbeschränkt bleiben, um maximale Flexibilität zu gewährleisten.</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>API-Schlüssel sollten regelmäßig rotiert und ihre Nutzung eingeschränkt werden.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>API-Schlüssel sollten nur einmal erstellt und niemals geändert werden.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Was ist ein Hauptvorteil der Nutzung des gcloud-Befehlszeilentools für die Interaktion mit Google Cloud-Diensten?</text>
+      <answers>
+        <answer nr="1">
+          <text>Es ermöglicht das direkte Hochladen von physischen Datenträgern in die Cloud.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Es bietet eine grafische Benutzeroberfläche zur einfachen Navigation.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Es erlaubt die Ausführung wiederholbarer Skripte und Automatisierung von Aufgaben.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Es ersetzt vollständig die Notwendigkeit einer Internetverbindung.</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Welche Aussage beschreibt am besten das Konzept "BeyondProd" im Kontext der Sicherheitsarchitektur bei Google?</text>
+      <answers>
+        <answer nr="1">
+          <text>Es handelt sich um eine spezielle Hardwarekomponente zur physischen Sicherung von Datenzentren.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>BeyondProd bezieht sich auf traditionelle Perimeter-basierte Sicherheitsmodelle.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>BeyondProd ist ein Ansatz zur Sicherheit, der auf Zero Trust basiert und Netzwerksicherheit mit Serviceidentität kombiniert.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>BeyondProd ist eine Methode zur Verschlüsselung ruhender Daten in der Cloud.</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>test admin</schuelername>
+  <abgabezeit>2025-03-16 21:15:30</abgabezeit>
+</test>

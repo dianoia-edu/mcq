@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<test>
+  <title>test mixed answers</title>
+  <access_code>ML2</access_code>
+  <question_count>3</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>multiple</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Welcher polnische Gewerkschaftsf&#xFC;hrer spielte eine zentrale Rolle bei den Streiks in der Lenin-Werft in Danzig im August 1980?</text>
+      <answers>
+        <answer nr="A">
+          <text>r Karol Wojtyla</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>r Lech Wa&#x142;&#x119;sa</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>r Michail Gorbatschow</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>r Ronald Reagan</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Was bedeutet der Begriff "Perestroika", der mit den Reformen von Michail Gorbatschow in Verbindung steht?</text>
+      <answers>
+        <answer nr="A">
+          <text>Offenheit und Transparenz</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Milit&#xE4;rische Intervention</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>r Umgestaltung und Umbau</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>r Abbau von Mittelstreckenraketen</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welches Ziel verfolgte Michail Gorbatschow mit den Reformen der Perestroika in der Sowjetunion?</text>
+      <answers>
+        <answer nr="A">
+          <text>r Die Wiederherstellung des Stalinismus</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="B">
+          <text>Die St&#xE4;rkung des Warschauer Paktes</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="C">
+          <text>r Die Erhaltung der Sowjetunion als Weltmacht</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="D">
+          <text>Die Ausweitung des Kalten Krieges</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>test multi</schuelername>
+  <abgabezeit>2025-03-20 17:04:20</abgabezeit>
+</test>

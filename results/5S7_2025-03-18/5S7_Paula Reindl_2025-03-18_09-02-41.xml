@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>5S7</access_code>
+  <title>Der Fall des Eisernen Vorhangs und das Ende des Kalten Krieges</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Welcher polnische Gewerkschaftsführer spielte eine zentrale Rolle bei den Streiks in der Lenin-Werft in Danzig im August 1980?</text>
+      <answers>
+        <answer nr="1">
+          <text>Karol Wojtyla</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Lech Wałęsa</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Michail Gorbatschow</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Ronald Reagan</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Was bedeutet der Begriff "Perestroika", der mit den Reformen von Michail Gorbatschow in Verbindung steht?</text>
+      <answers>
+        <answer nr="1">
+          <text>Offenheit und Transparenz</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Wirtschaftliche Liberalisierung</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Umgestaltung und Umbau</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Militärische Abrüstung</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>Welches Ziel verfolgte Michail Gorbatschow mit der Einführung von Glasnost?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Stärkung des Militärs</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Förderung von Meinungsfreiheit und Transparenz</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Ausweitung des Warschauer Paktes</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Erhöhung der Rüstungsausgaben</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welcher Konflikt erwies sich für die Sowjetunion als kostspielig und zermürbend, was zur innenpolitischen Krise beitrug?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Vietnamkrieg</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Der Koreakrieg</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Der Krieg in Afghanistan</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Der Zweite Weltkrieg</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Was war ein Ergebnis der Gespräche zwischen US-Präsident Ronald Reagan und Michail Gorbatschow im Winter 1987?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Gründung der NATO</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Der Beginn des Kalten Krieges</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Einigung auf den Abbau von Mittelstreckenraketen in Europa</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Unterzeichnung des Warschauer Paktes</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Was signalisierte die Zulassung einer freien und unabhängigen Gewerkschaft "Solidarność" in Polen für den Ostblock?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine Rückkehr zum strengen Kommunismus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Eine Verstärkung der Breschnew-Doktrin</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Eine Fortsetzung des Kalten Krieges</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Den Beginn demokratischer Reformen</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Wie reagierte die polnische Regierung auf den Druck durch die Solidarność-Bewegung und die katholische Kirche in den 1980er Jahren?</text>
+      <answers>
+        <answer nr="1">
+          <text>Mit einer sofortigen Demokratisierung Polens</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Mit der Ausrufung des Kriegsrechts und dem Verbot von Solidarność</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Mit einer vollständigen Übernahme durch die Sowjetunion</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Mit einer Expansion des Warschauer Paktes</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Was war ein direktes Ergebnis des Runden Tisches in Warschau im Jahr 1989?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Gründung der Europäischen Union</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Der Beginn des Ersten Weltkrieges</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die ersten freien Wahlen in Polen, bei denen die Kommunisten ihre Macht verloren</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Unterzeichnung des NATO-Vertrages</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Welches Dokument erklärte im November 1990 offiziell das Ende des Ost-West-Konflikts in Europa?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Vertrag von Versailles</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Charta von Paris</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Das Potsdamer Abkommen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Der Marshallplan</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Was führte letztendlich zum Zerfall der Sowjetunion am Ende des Jahres 1991?</text>
+      <answers>
+        <answer nr="1">
+          <text>Der Beitritt zur Europäischen Union</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Das Scheitern der Perestroika-Reformen und anhaltende wirtschaftliche Probleme</text>
+          <correct>1</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Ein militärischer Putsch gegen Gorbatschow</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Der Ausbruch eines neuen Weltkrieges</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>Paula Reindl</schuelername>
+  <abgabezeit>2025-03-18 09:02:41</abgabezeit>
+</test>

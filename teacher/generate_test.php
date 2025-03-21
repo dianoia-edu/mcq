@@ -67,12 +67,14 @@ function performOCR($file, $mimeType) {
     // Prüfe ob die Programme verfügbar sind
     exec('tesseract --version', $output, $returnVar);
     if ($returnVar !== 0) {
-        throw new Exception("Tesseract ist nicht verfügbar. Bitte installieren Sie Tesseract-OCR.");
+        error_log("Tesseract ist nicht verfügbar.");
+        return "OCR nicht verfügbar. Bitte installieren Sie Tesseract OCR oder verwenden Sie eine andere Dateiform.";
     }
     
     exec('gswin64c --version', $output, $returnVar);
     if ($returnVar !== 0) {
-        throw new Exception("Ghostscript ist nicht verfügbar. Bitte installieren Sie Ghostscript.");
+        error_log("Ghostscript ist nicht verfügbar.");
+        return "OCR nicht verfügbar. Bitte installieren Sie Ghostscript oder verwenden Sie eine andere Dateiform.";
     }
     
     $text = '';
@@ -436,7 +438,15 @@ try {
 
         // Extrahiere Text aus der Datei
         if ($mime_type === 'application/pdf' || in_array($mime_type, ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp'])) {
-            $combinedContent .= performOCR($_FILES['source_file']['tmp_name'], $mime_type) . "\n\n";
+            $ocrResult = performOCR($_FILES['source_file']['tmp_name'], $mime_type);
+            
+            // Prüfe, ob OCR-Ergebnis eine Fehlermeldung enthält
+            if (strpos($ocrResult, "OCR nicht verfügbar") === 0) {
+                error_log("OCR nicht verfügbar: " . $ocrResult);
+                throw new Exception('Tesseract OCR ist nicht verfügbar. Bitte installieren Sie Tesseract OCR oder verwenden Sie eine Textdatei/URL.');
+            }
+            
+            $combinedContent .= $ocrResult . "\n\n";
         } 
         else if ($mime_type === 'text/plain') {
             $combinedContent .= file_get_contents($_FILES['source_file']['tmp_name']) . "\n\n";
