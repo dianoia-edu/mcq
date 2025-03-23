@@ -4,13 +4,13 @@ header('Content-Type: text/html; charset=utf-8');
 
 // OpenAI API-Key aus Konfigurationsdatei laden
 require_once __DIR__ . '/includes/config/openai_config.php';
-// Annahme: Die Variable $openai_api_key existiert in dieser Datei
 
 // Konfiguration
 $videoUrl = 'https://youtu.be/R6ahSCdPjF8?si=X0MHc3V4nFoeq6bj';
 $tempDir = __DIR__ . '/temp';
 $outputDir = __DIR__ . '/output';
 $logFile = __DIR__ . '/youtube-whisper.log';
+$cookieFile = __DIR__ . '/includes/config/www.youtube.com.txt'; // Pfad zur vorhandenen Cookie-Datei
 
 // Vollständiger Pfad zu yt-dlp
 $ytdlpPath = '/home/mcqadmin/.local/bin/yt-dlp';
@@ -38,47 +38,21 @@ echo "<h1>YouTube Audio Extrahieren und mit OpenAI Whisper API Transkribieren</h
 echo "<p>Verarbeite Video: $videoUrl</p>";
 
 try {
-    // 1. Versuche Audio mit mehreren Methoden herunterzuladen
-    logMessage("Starte Download von Audio aus YouTube-Video (mit erweiterten Optionen)...");
-    
-    // Mehrere Versuche mit verschiedenen Optionen
-    $downloadSuccessful = false;
-    
-    // Versuch 1: Mit --no-check-certificate und erweiterten Optionen
-    $ytdlpCommand1 = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 --no-check-certificate --force-ipv4 --extractor-retries 3 --fragment-retries 3 -o '$audioFile' '$videoUrl' 2>&1";
-    logMessage("Versuch 1: Mit erweiterten Optionen");
-    $ytdlpOutput = shell_exec($ytdlpCommand1);
-    logMessage("yt-dlp Ausgabe (Versuch 1): " . $ytdlpOutput);
-    
-    if (file_exists($audioFile)) {
-        $downloadSuccessful = true;
-        logMessage("Download mit Versuch 1 erfolgreich.");
-    } else {
-        // Versuch 2: Mit alternativer Extraktionsmethode
-        logMessage("Versuch 2: Mit alternativer Extraktionsmethode");
-        $ytdlpCommand2 = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 --extractor-args 'youtube:player_client=android' -o '$audioFile' '$videoUrl' 2>&1";
-        $ytdlpOutput = shell_exec($ytdlpCommand2);
-        logMessage("yt-dlp Ausgabe (Versuch 2): " . $ytdlpOutput);
-        
-        if (file_exists($audioFile)) {
-            $downloadSuccessful = true;
-            logMessage("Download mit Versuch 2 erfolgreich.");
-        } else {
-            // Versuch 3: Mit Proxy-Option (falls verfügbar)
-            logMessage("Versuch 3: Mit --geo-bypass-country Option");
-            $ytdlpCommand3 = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 --geo-bypass-country DE -o '$audioFile' '$videoUrl' 2>&1";
-            $ytdlpOutput = shell_exec($ytdlpCommand3);
-            logMessage("yt-dlp Ausgabe (Versuch 3): " . $ytdlpOutput);
-            
-            if (file_exists($audioFile)) {
-                $downloadSuccessful = true;
-                logMessage("Download mit Versuch 3 erfolgreich.");
-            }
-        }
+    // Überprüfe, ob die Cookie-Datei existiert
+    if (!file_exists($cookieFile)) {
+        throw new Exception("Cookie-Datei nicht gefunden: $cookieFile");
     }
     
-    if (!$downloadSuccessful) {
-        throw new Exception("Fehler: Audiodatei konnte mit keiner Methode erstellt werden");
+    logMessage("Cookie-Datei gefunden: $cookieFile");
+    
+    // 1. Audio mit yt-dlp und Cookie-Datei herunterladen
+    logMessage("Starte Download von Audio aus YouTube-Video mit authentifizierten Cookies...");
+    $ytdlpCommand = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 --cookies '$cookieFile' -o '$audioFile' '$videoUrl' 2>&1";
+    $ytdlpOutput = shell_exec($ytdlpCommand);
+    logMessage("yt-dlp Ausgabe: " . $ytdlpOutput);
+    
+    if (!file_exists($audioFile)) {
+        throw new Exception("Fehler: Audiodatei konnte nicht erstellt werden. yt-dlp Ausgabe: $ytdlpOutput");
     }
     
     $fileSize = filesize($audioFile);
@@ -87,7 +61,6 @@ try {
     // 2. Audio mit OpenAI Whisper API transkribieren
     logMessage("Starte Transkription mit OpenAI Whisper API...");
     
-    // Datei für den Upload vorbereiten
     if (!function_exists('curl_file_create')) {
         function curl_file_create($filename, $mimetype = '', $postname = '') {
             return "@$filename;filename="
@@ -163,5 +136,10 @@ echo "yt-dlp Pfad: $ytdlpPath\n";
 echo "yt-dlp Version: " . trim(shell_exec("$ytdlpPath --version 2>&1")) . "\n";
 echo "cURL Version: " . curl_version()['version'] . "\n";
 echo "Ausgeführt als: " . trim(shell_exec("whoami 2>&1")) . "\n";
+echo "Cookie-Datei: $cookieFile\n";
+if (file_exists($cookieFile)) {
+    echo "Cookie-Dateigröße: " . filesize($cookieFile) . " Bytes\n";
+    echo "Cookie-Datei letztes Änderungsdatum: " . date("Y-m-d H:i:s", filemtime($cookieFile)) . "\n";
+}
 echo "</pre>";
 ?>
