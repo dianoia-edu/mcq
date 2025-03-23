@@ -38,18 +38,51 @@ echo "<h1>YouTube Audio Extrahieren und mit OpenAI Whisper API Transkribieren</h
 echo "<p>Verarbeite Video: $videoUrl</p>";
 
 try {
-    // 1. Audio mit yt-dlp herunterladen
-    logMessage("Starte Download von Audio aus YouTube-Video...");
-    $ytdlpCommand = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 -o '$audioFile' '$videoUrl' 2>&1";
-    $ytdlpOutput = shell_exec($ytdlpCommand);
-    logMessage("yt-dlp Ausgabe: " . $ytdlpOutput);
+    // 1. Versuche Audio mit mehreren Methoden herunterzuladen
+    logMessage("Starte Download von Audio aus YouTube-Video (mit erweiterten Optionen)...");
     
-    if (!file_exists($audioFile)) {
-        throw new Exception("Fehler: Audiodatei wurde nicht erstellt");
+    // Mehrere Versuche mit verschiedenen Optionen
+    $downloadSuccessful = false;
+    
+    // Versuch 1: Mit --no-check-certificate und erweiterten Optionen
+    $ytdlpCommand1 = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 --no-check-certificate --force-ipv4 --extractor-retries 3 --fragment-retries 3 -o '$audioFile' '$videoUrl' 2>&1";
+    logMessage("Versuch 1: Mit erweiterten Optionen");
+    $ytdlpOutput = shell_exec($ytdlpCommand1);
+    logMessage("yt-dlp Ausgabe (Versuch 1): " . $ytdlpOutput);
+    
+    if (file_exists($audioFile)) {
+        $downloadSuccessful = true;
+        logMessage("Download mit Versuch 1 erfolgreich.");
+    } else {
+        // Versuch 2: Mit alternativer Extraktionsmethode
+        logMessage("Versuch 2: Mit alternativer Extraktionsmethode");
+        $ytdlpCommand2 = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 --extractor-args 'youtube:player_client=android' -o '$audioFile' '$videoUrl' 2>&1";
+        $ytdlpOutput = shell_exec($ytdlpCommand2);
+        logMessage("yt-dlp Ausgabe (Versuch 2): " . $ytdlpOutput);
+        
+        if (file_exists($audioFile)) {
+            $downloadSuccessful = true;
+            logMessage("Download mit Versuch 2 erfolgreich.");
+        } else {
+            // Versuch 3: Mit Proxy-Option (falls verfügbar)
+            logMessage("Versuch 3: Mit --geo-bypass-country Option");
+            $ytdlpCommand3 = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 --geo-bypass-country DE -o '$audioFile' '$videoUrl' 2>&1";
+            $ytdlpOutput = shell_exec($ytdlpCommand3);
+            logMessage("yt-dlp Ausgabe (Versuch 3): " . $ytdlpOutput);
+            
+            if (file_exists($audioFile)) {
+                $downloadSuccessful = true;
+                logMessage("Download mit Versuch 3 erfolgreich.");
+            }
+        }
+    }
+    
+    if (!$downloadSuccessful) {
+        throw new Exception("Fehler: Audiodatei konnte mit keiner Methode erstellt werden");
     }
     
     $fileSize = filesize($audioFile);
-    logMessage("Audio erfolgreich in $audioFile gespeichert. Dateigröße: " . round($fileSize / 1024 / 1024, 2) . " MB");
+    logMessage("Audio erfolgreich gespeichert. Dateigröße: " . round($fileSize / 1024 / 1024, 2) . " MB");
     
     // 2. Audio mit OpenAI Whisper API transkribieren
     logMessage("Starte Transkription mit OpenAI Whisper API...");
