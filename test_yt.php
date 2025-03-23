@@ -1,145 +1,92 @@
 <?php
-// yt-dlp-whisper-test.php
-header('Content-Type: text/html; charset=utf-8');
-
-// OpenAI API-Key aus Konfigurationsdatei laden
+// youtube_transcription.php
 require_once __DIR__ . '/includes/config/openai_config.php';
+require_once __DIR__ . '/includes/YoutubeTranscriptionService.php';
 
-// Konfiguration
-$videoUrl = 'https://youtu.be/R6ahSCdPjF8?si=X0MHc3V4nFoeq6bj';
-$tempDir = __DIR__ . '/temp';
-$outputDir = __DIR__ . '/output';
-$logFile = __DIR__ . '/youtube-whisper.log';
-$cookieFile = __DIR__ . '/includes/config/www.youtube.com.txt'; // Pfad zur vorhandenen Cookie-Datei
+$result = null;
+$videoUrl = '';
+$errors = [];
+$logs = [];
 
-// Vollständiger Pfad zu yt-dlp
-$ytdlpPath = '/home/mcqadmin/.local/bin/yt-dlp';
-
-// Funktion zum Loggen
-function logMessage($message) {
-    global $logFile;
-    $timestamp = date('Y-m-d H:i:s');
-    $logMessage = "[$timestamp] $message" . PHP_EOL;
-    file_put_contents($logFile, $logMessage, FILE_APPEND);
-    echo $logMessage . "<br>";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $videoUrl = $_POST['video_url'] ?? '';
+    
+    if (empty($videoUrl)) {
+        $errors[] = 'Bitte gib eine YouTube-URL ein.';
+    } else {
+        $service = new YoutubeTranscriptionService($openai_api_key);
+        $result = $service->transcribeVideo($videoUrl);
+        $logs = $result['logs'] ?? [];
+    }
 }
-
-// Verzeichnisse erstellen, falls nicht vorhanden
-if (!is_dir($tempDir)) mkdir($tempDir, 0755, true);
-if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
-
-// Eindeutige ID für diesen Prozess
-$processId = uniqid();
-$audioFile = "$tempDir/audio_$processId.mp3";
-$transcriptionFile = "$outputDir/transcript_$processId.txt";
-
-// Ausgabe starten
-echo "<h1>YouTube Audio Extrahieren und mit OpenAI Whisper API Transkribieren</h1>";
-echo "<p>Verarbeite Video: $videoUrl</p>";
-
-try {
-    // Überprüfe, ob die Cookie-Datei existiert
-    if (!file_exists($cookieFile)) {
-        throw new Exception("Cookie-Datei nicht gefunden: $cookieFile");
-    }
-    
-    logMessage("Cookie-Datei gefunden: $cookieFile");
-    
-    // 1. Audio mit yt-dlp und Cookie-Datei herunterladen
-    logMessage("Starte Download von Audio aus YouTube-Video mit authentifizierten Cookies...");
-    $ytdlpCommand = "$ytdlpPath -x --audio-format mp3 --audio-quality 0 --cookies '$cookieFile' -o '$audioFile' '$videoUrl' 2>&1";
-    $ytdlpOutput = shell_exec($ytdlpCommand);
-    logMessage("yt-dlp Ausgabe: " . $ytdlpOutput);
-    
-    if (!file_exists($audioFile)) {
-        throw new Exception("Fehler: Audiodatei konnte nicht erstellt werden. yt-dlp Ausgabe: $ytdlpOutput");
-    }
-    
-    $fileSize = filesize($audioFile);
-    logMessage("Audio erfolgreich gespeichert. Dateigröße: " . round($fileSize / 1024 / 1024, 2) . " MB");
-    
-    // 2. Audio mit OpenAI Whisper API transkribieren
-    logMessage("Starte Transkription mit OpenAI Whisper API...");
-    
-    if (!function_exists('curl_file_create')) {
-        function curl_file_create($filename, $mimetype = '', $postname = '') {
-            return "@$filename;filename="
-                . ($postname ?: basename($filename))
-                . ($mimetype ? ";type=$mimetype" : '');
-        }
-    }
-    
-    $curl = curl_init();
-    $cFile = curl_file_create($audioFile, 'audio/mpeg', basename($audioFile));
-    
-    $postFields = [
-        'file' => $cFile,
-        'model' => 'whisper-1',
-        'language' => 'de', // Deutsch
-        'response_format' => 'text'
-    ];
-    
-    curl_setopt_array($curl, [
-        CURLOPT_URL => 'https://api.openai.com/v1/audio/transcriptions',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 300, // Längeres Timeout für große Dateien
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => $postFields,
-        CURLOPT_HTTPHEADER => [
-            'Authorization: Bearer ' . $openai_api_key
-        ],
-    ]);
-    
-    $response = curl_exec($curl);
-    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    $error = curl_error($curl);
-    
-    curl_close($curl);
-    
-    if ($error) {
-        throw new Exception("Fehler bei API-Anfrage: $error");
-    }
-    
-    if ($httpCode != 200) {
-        throw new Exception("API-Fehler mit Code $httpCode: $response");
-    }
-    
-    // 3. Transkription speichern und ausgeben
-    file_put_contents($transcriptionFile, $response);
-    
-    logMessage("Transkription erfolgreich abgeschlossen und gespeichert in $transcriptionFile");
-    
-    echo "<h2>Transkription:</h2>";
-    echo "<div style='background-color: #f0f0f0; padding: 15px; border-radius: 5px;'>";
-    echo "<pre>$response</pre>";
-    echo "</div>";
-    
-    // 4. Temporäre Dateien bereinigen
-    unlink($audioFile);
-    logMessage("Temporäre Audiodatei gelöscht.");
-    
-} catch (Exception $e) {
-    logMessage("FEHLER: " . $e->getMessage());
-    echo "<div style='color: red; font-weight: bold;'>" . $e->getMessage() . "</div>";
-}
-
-// Systeminfo zur Diagnose
-echo "<h3>Systeminformationen:</h3>";
-echo "<pre>";
-echo "PHP Version: " . phpversion() . "\n";
-echo "Betriebssystem: " . PHP_OS . "\n";
-echo "yt-dlp Pfad: $ytdlpPath\n";
-echo "yt-dlp Version: " . trim(shell_exec("$ytdlpPath --version 2>&1")) . "\n";
-echo "cURL Version: " . curl_version()['version'] . "\n";
-echo "Ausgeführt als: " . trim(shell_exec("whoami 2>&1")) . "\n";
-echo "Cookie-Datei: $cookieFile\n";
-if (file_exists($cookieFile)) {
-    echo "Cookie-Dateigröße: " . filesize($cookieFile) . " Bytes\n";
-    echo "Cookie-Datei letztes Änderungsdatum: " . date("Y-m-d H:i:s", filemtime($cookieFile)) . "\n";
-}
-echo "</pre>";
 ?>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube-Transkription</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        pre { white-space: pre-wrap; }
+        .logs { max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h1>YouTube-Video-Transkription</h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="post" action="">
+                    <div class="mb-3">
+                        <label for="video_url" class="form-label">YouTube-Video-URL:</label>
+                        <input type="url" class="form-control" id="video_url" name="video_url" value="<?= htmlspecialchars($videoUrl) ?>" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Video transkribieren</button>
+                </form>
+            </div>
+        </div>
+        
+        <?php if (!empty($errors)): ?>
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= htmlspecialchars($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($result): ?>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Ergebnis</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($result['success']): ?>
+                        <h3>Transkription:</h3>
+                        <div class="bg-light p-3 rounded mb-3">
+                            <pre><?= htmlspecialchars($result['transcription']) ?></pre>
+                        </div>
+                        <div class="alert alert-success">
+                            Transkription erfolgreich erstellt und gespeichert in: <?= htmlspecialchars($result['transcription_file']) ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-danger">
+                            <?= htmlspecialchars($result['error']) ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <h3>Logs:</h3>
+                    <div class="bg-dark text-light p-3 rounded logs">
+                        <?php foreach ($logs as $log): ?>
+                            <div><?= htmlspecialchars($log) ?></div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+</body>
+</html>
