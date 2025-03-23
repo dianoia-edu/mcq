@@ -250,10 +250,21 @@ function getYoutubeTranscript($videoUrl) {
     }
     
     try {
-        // Lade die Audio-Spur herunter
+        // Pfad zur Cookie-Datei
+        $cookiePath = __DIR__ . '/../includes/config/www.youtube.com.txt';
+        error_log("Verwende YouTube-Cookies aus: " . $cookiePath);
+        
+        if (!file_exists($cookiePath)) {
+            error_log("WARNUNG: Cookie-Datei nicht gefunden: " . $cookiePath);
+        }
+        
+        // Lade die Audio-Spur herunter mit Cookie-Datei
         $output = [];
         $tempDir = str_replace('\\', '/', $tempDir); // Konvertiere Windows-Pfade zu Unix-Style
-        $command = sprintf('yt-dlp -x --audio-format mp3 -o "%s/audio.%%(ext)s" "%s"', $tempDir, $videoUrl);
+        $command = sprintf('yt-dlp --cookies "%s" -x --audio-format mp3 -o "%s/audio.%%(ext)s" "%s"', 
+                           $cookiePath, $tempDir, $videoUrl);
+        
+        error_log("Ausführung des Befehls: " . $command);
         exec($command . " 2>&1", $output, $returnVar);
         
         if ($returnVar !== 0) {
