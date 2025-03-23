@@ -258,18 +258,61 @@ function getYoutubeTranscript($videoUrl) {
             error_log("WARNUNG: Cookie-Datei nicht gefunden: " . $cookiePath);
         }
         
+        // Erstelle eine temporäre Kopie der Cookie-Datei mit richtigen Berechtigungen
+        $tempCookiePath = $tempDir . '/cookies.txt';
+        if (file_exists($cookiePath)) {
+            // Kopiere Inhalt statt die Datei direkt zu kopieren, um Berechtigungsprobleme zu vermeiden
+            $cookieContent = file_get_contents($cookiePath);
+            file_put_contents($tempCookiePath, $cookieContent);
+            chmod($tempCookiePath, 0644); // Setze sichere Leseberechtigungen
+            error_log("Temporäre Cookie-Datei erstellt: " . $tempCookiePath);
+        } else {
+            $tempCookiePath = $cookiePath; // Fallback
+        }
+        
         // Lade die Audio-Spur herunter mit Cookie-Datei
         $output = [];
         $tempDir = str_replace('\\', '/', $tempDir); // Konvertiere Windows-Pfade zu Unix-Style
-        $command = sprintf('yt-dlp --cookies "%s" --no-cache-dir --no-check-certificates --no-cookies-from-browser -x --audio-format mp3 -o "%s/audio.%%(ext)s" "%s"', 
-                           $cookiePath, $tempDir, $videoUrl);
+        
+        // Umfangreichere Parameter, um die Bot-Erkennung zu umgehen
+        $command = sprintf(
+            'yt-dlp --cookies "%s" --no-cache-dir --no-check-certificates '.
+            '--user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" '.
+            '--add-header "Accept-Language:de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7" '.
+            '--geo-bypass --geo-bypass-country DE '.
+            '--extractor-retries 5 --fragment-retries 5 --retry-sleep 3 '.
+            '--force-ipv4 --no-playlist '.
+            '-x --audio-format mp3 -o "%s/audio.%%(ext)s" "%s"',
+            $tempCookiePath, $tempDir, $videoUrl
+        );
         
         error_log("Ausführung des Befehls: " . $command);
         exec($command . " 2>&1", $output, $returnVar);
         
         if ($returnVar !== 0) {
             error_log("yt-dlp Fehler: " . implode("\n", $output));
-            throw new Exception('Fehler beim Herunterladen der Audio-Datei: ' . implode("\n", $output));
+            
+            // Versuche direkt alternative Methoden, anstatt sofort zu scheitern
+            error_log("YouTube-Download fehlgeschlagen. Versuche alternative Methoden...");
+            
+            // Hole YouTube API Key und versuche, Untertitel abzurufen
+            try {
+                $youtubeApiKey = getYoutubeApiKey();
+                if (!empty($youtubeApiKey)) {
+                    $videoId = extractYoutubeVideoId($videoUrl);
+                    $subtitles = getYoutubeSubtitles($videoId, $youtubeApiKey);
+                    
+                    if (!empty($subtitles)) {
+                        error_log("Untertitel erfolgreich über YouTube API abgerufen");
+                        return $subtitles;
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Untertitel-Abruf fehlgeschlagen: " . $e->getMessage());
+            }
+            
+            // Falls keine Untertitel verfügbar sind, sende eine benutzerfreundliche Fehlermeldung
+            throw new Exception('Fehler beim Verarbeiten des YouTube-Videos. Bitte versuchen Sie ein anderes Video oder eine alternative Quelle (Textdatei, Webseite, etc.).');
         }
         
         $audioFile = $tempDir . '/audio.mp3';
