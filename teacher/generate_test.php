@@ -237,160 +237,140 @@ function transcribeAudioWithWhisper($audioFile) {
     return $response;
 }
 
-function getYoutubeSubtitles($videoId, $apiKey) {
-    error_log("Versuche YouTube-Untertitel abzurufen für Video ID: $videoId");
-    $url = "https://youtube.googleapis.com/youtube/v3/captions?part=snippet&videoId={$videoId}&key={$apiKey}";
+function getYoutubeTranscript($videoUrl) {
+    global $config;
     
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Accept-Language: de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7'
-    ]);
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
-    if (curl_errno($ch)) {
-        error_log("cURL-Fehler beim Abrufen der Untertitel: " . curl_error($ch));
-    }
-    
-    curl_close($ch);
-    
-    error_log("YouTube API Antwort-Code: $httpCode");
-    
-    if ($httpCode !== 200) {
-        error_log("Fehler beim Abrufen der YouTube-Untertitel. API antwortete mit Code $httpCode: $response");
-        return '';
-    }
-    
-    $data = json_decode($response, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log("JSON-Dekodierungsfehler: " . json_last_error_msg());
-        return '';
-    }
-    
-    if (!isset($data['items']) || empty($data['items'])) {
-        error_log("Keine Untertitel in der API-Antwort gefunden");
-        return '';
-    }
-    
-    error_log("YouTube-Untertitel gefunden: " . count($data['items']));
-    
-    // Suche nach Untertiteln in dieser Reihenfolge: Deutsch, Englisch, Jede verfügbare
-    $captionPriority = ['de', 'en', '*'];
-    
-    foreach ($captionPriority as $lang) {
-        foreach ($data['items'] as $caption) {
-            $captionLang = $caption['snippet']['language'];
-            if ($lang === '*' || $captionLang === $lang) {
-                error_log("Verwende Untertitel in Sprache: $captionLang");
-                $content = downloadYoutubeCaption($caption['id'], $apiKey);
-                if (!empty($content)) {
-                    return $content;
-                }
-            }
-        }
-    }
-    
-    error_log("Keine verwendbaren Untertitel gefunden");
-    return '';
-}
-
-function downloadYoutubeCaption($captionId, $apiKey) {
-    error_log("Versuche Untertitel mit ID $captionId herunterzuladen");
-    
-    // Für Captions benötigen wir OAuth-Authentifizierung, was zu komplex ist
-    // Stattdessen verwenden wir einen Umweg mit youtube-dl/yt-dlp für die Untertitel
+    // Setze PATH für die Ausführung von Befehlen
+    putenv('PATH=' . getenv('PATH') . ':/usr/local/bin:/usr/bin');
     
     // Erstelle temporäres Verzeichnis
-    $tempDir = sys_get_temp_dir() . '/ytcaption_' . uniqid();
+    $tempDir = sys_get_temp_dir() . '/youtube_' . uniqid();
     if (!mkdir($tempDir) && !is_dir($tempDir)) {
-        error_log("Konnte temporäres Verzeichnis nicht erstellen: $tempDir");
-        return '';
+        throw new Exception('Konnte temporäres Verzeichnis nicht erstellen');
     }
     
     try {
-        // Da die Caption-ID mit dem Video-ID verknüpft ist, extrahieren wir die Video-ID
-        $parts = explode('.', $captionId);
-        if (count($parts) < 2) {
-            error_log("Ungültiges Caption-ID Format: $captionId");
-            return '';
-        }
-        
-        $videoId = $parts[0];
+        // Lade die Audio-Spur herunter
         $output = [];
-        
-        // Befehl zum Herunterladen nur der Untertitel mit yt-dlp
-        $command = sprintf(
-            'yt-dlp --skip-download --write-auto-sub --write-sub --sub-lang de,en --convert-subs srt -o "%s/%(id)s" "%s"',
-            $tempDir, $videoId
-        );
-        
-        error_log("Ausführung des Untertitel-Befehls: " . $command);
+        $tempDir = str_replace('\\', '/', $tempDir); // Konvertiere Windows-Pfade zu Unix-Style
+        $command = sprintf('yt-dlp -x --audio-format mp3 -o "%s/audio.%%(ext)s" "%s"', $tempDir, $videoUrl);
         exec($command . " 2>&1", $output, $returnVar);
         
         if ($returnVar !== 0) {
-            error_log("yt-dlp Fehler beim Herunterladen der Untertitel: " . implode("\n", $output));
-            return '';
+            error_log("yt-dlp Fehler: " . implode("\n", $output));
+            throw new Exception('Fehler beim Herunterladen der Audio-Datei: ' . implode("\n", $output));
         }
         
-        // Suche nach den SRT-Dateien
-        $srtFiles = glob($tempDir . '/*.srt');
-        if (empty($srtFiles)) {
-            error_log("Keine SRT-Untertiteldateien gefunden in $tempDir");
-            return '';
+        $audioFile = $tempDir . '/audio.mp3';
+        if (!file_exists($audioFile)) {
+            throw new Exception('Audio-Datei wurde nicht erstellt');
         }
         
-        error_log("Untertiteldatei gefunden: " . basename($srtFiles[0]));
+        // Versuche zuerst Whisper-Transkription
+        try {
+            $transcript = transcribeAudioWithWhisper($audioFile);
+            if (isTranscriptionUsable($transcript)) {
+                return $transcript;
+            }
+        } catch (Exception $e) {
+            error_log('Whisper-Transkription fehlgeschlagen: ' . $e->getMessage());
+            // Fahre mit YouTube-Untertiteln fort
+        }
         
-        // Lese den Inhalt der ersten gefundenen SRT-Datei
-        $srtContent = file_get_contents($srtFiles[0]);
+        // Fallback: YouTube-Untertitel
+        $youtubeApiKey = getYoutubeApiKey();
+        if (empty($youtubeApiKey)) {
+            throw new Exception('YouTube API Key nicht konfiguriert');
+        }
         
-        // Konvertiere SRT zu reinem Text
-        $textContent = srtToText($srtContent);
+        $videoId = extractYoutubeVideoId($videoUrl);
+        $subtitles = getYoutubeSubtitles($videoId, $youtubeApiKey);
         
-        return $textContent;
-    } catch (Exception $e) {
-        error_log("Fehler beim Verarbeiten der Untertitel: " . $e->getMessage());
-        return '';
+        if (!empty($subtitles)) {
+            return $subtitles;
+        }
+        
+        throw new Exception('Keine brauchbare Transkription verfügbar');
     } finally {
         // Aufräumen
-        array_map('unlink', glob($tempDir . '/*'));
+        if (file_exists($audioFile)) {
+            unlink($audioFile);
+        }
         if (is_dir($tempDir)) {
             rmdir($tempDir);
         }
     }
 }
 
-// Hilfsfunktion zum Konvertieren von SRT zu reinem Text
-function srtToText($srtContent) {
-    // Entferne Zeitstempel und Nummerierung
-    $lines = explode("\n", $srtContent);
-    $text = '';
-    $inSubtitle = false;
+function isTranscriptionUsable($transcript) {
+    // Prüfe ob die Transkription mindestens 50 Zeichen lang ist
+    if (strlen($transcript) < 50) {
+        return false;
+    }
     
-    foreach ($lines as $line) {
-        $line = trim($line);
-        
-        // Überspringe Zeitstempel und Nummerierungen
-        if (empty($line)) {
-            $inSubtitle = false;
-            continue;
-        }
-        
-        if (preg_match('/^\d+$/', $line) || preg_match('/^\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}$/', $line)) {
-            $inSubtitle = true;
-            continue;
-        }
-        
-        if ($inSubtitle) {
-            $text .= $line . ' ';
+    // Prüfe ob die Transkription hauptsächlich aus Satzzeichen besteht
+    $textOnly = preg_replace('/[^a-zA-ZäöüÄÖÜß\s]/u', '', $transcript);
+    if (strlen($textOnly) < strlen($transcript) * 0.5) {
+        return false;
+    }
+    
+    return true;
+}
+
+function extractYoutubeVideoId($url) {
+    $pattern = '/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/';
+    if (preg_match($pattern, $url, $matches)) {
+        return $matches[1];
+    }
+    throw new Exception('Ungültige YouTube-URL');
+}
+
+function getYoutubeSubtitles($videoId, $apiKey) {
+    $url = "https://youtube.googleapis.com/youtube/v3/captions?part=snippet&videoId={$videoId}&key={$apiKey}";
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) {
+        throw new Exception('Fehler beim Abrufen der YouTube-Untertitel');
+    }
+    
+    $data = json_decode($response, true);
+    if (!isset($data['items']) || empty($data['items'])) {
+        return '';
+    }
+    
+    // Suche nach deutschen Untertiteln
+    foreach ($data['items'] as $caption) {
+        if ($caption['snippet']['language'] === 'de') {
+            return downloadYoutubeCaption($caption['id'], $apiKey);
         }
     }
     
-    return trim($text);
+    return '';
+}
+
+function downloadYoutubeCaption($captionId, $apiKey) {
+    $url = "https://youtube.googleapis.com/youtube/v3/captions/{$captionId}?key={$apiKey}";
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) {
+        return '';
+    }
+    
+    return $response;
 }
 
 function testWhisperAccess($apiKey) {
@@ -414,158 +394,6 @@ function testWhisperAccess($apiKey) {
     // 401 bedeutet nicht autorisiert
     // 400 bedeutet fehlende Datei (aber API-Zugriff vorhanden)
     return $http_code === 400;
-}
-
-/**
- * Hauptfunktion zum Extrahieren einer Transkription aus YouTube-Videos
- */
-function getYoutubeTranscript($videoUrl) {
-    error_log("Starte Extraktion der Transkription für: " . $videoUrl);
-    
-    // Überprüfe, ob sys_get_temp_dir() verfügbar und schreibbar ist
-    $tempBaseDir = sys_get_temp_dir();
-    if (!is_writable($tempBaseDir)) {
-        error_log("Systemtemporärverzeichnis ist nicht schreibbar: $tempBaseDir");
-        // Fallback auf lokales Verzeichnis
-        $tempBaseDir = __DIR__ . '/../temp';
-        if (!is_dir($tempBaseDir)) {
-            if (!@mkdir($tempBaseDir, 0777, true)) {
-                error_log("Konnte auch lokales Temp-Verzeichnis nicht erstellen: $tempBaseDir");
-                throw new Exception("Konnte kein Temporärverzeichnis erstellen");
-            }
-        }
-    }
-    
-    // Erstelle ein temporäres Verzeichnis
-    $tempDir = $tempBaseDir . '/youtube_' . uniqid();
-    if (!@mkdir($tempDir, 0777) && !is_dir($tempDir)) {
-        error_log("Fehler beim Erstellen des temporären Verzeichnisses: $tempDir");
-        throw new Exception("Konnte temporäres Verzeichnis nicht erstellen: $tempDir");
-    }
-    error_log("Temporäres Verzeichnis erstellt: $tempDir");
-    
-    try {
-        // Extrahiere die Video-ID aus der URL
-        $pattern = '/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/';
-        if (!preg_match($pattern, $videoUrl, $matches)) {
-            throw new Exception('Ungültige YouTube-URL');
-        }
-        $videoId = $matches[1];
-        
-        error_log("Extrahierte Video-ID: " . $videoId);
-        
-        // Strategie 1: Versuche direkt die Untertitel herunterzuladen
-        $output = [];
-        
-        // Prüfe ob yt-dlp im Pfad ist
-        $yt_dlp_output = [];
-        exec('which yt-dlp 2>&1', $yt_dlp_output, $yt_dlp_status);
-        $yt_dlp_path = !empty($yt_dlp_output) ? trim($yt_dlp_output[0]) : 'yt-dlp';
-        
-        if ($yt_dlp_status !== 0) {
-            error_log("yt-dlp konnte nicht gefunden werden, versuche trotzdem");
-        } else {
-            error_log("yt-dlp gefunden unter: " . $yt_dlp_path);
-        }
-        
-        // Vereinfache den Befehl auf das Wesentliche
-        $normalizedTempDir = str_replace('\\', '/', $tempDir);
-        $command = sprintf(
-            '%s --quiet --skip-download --write-auto-sub --sub-lang de --convert-subs srt -o "%s/%(id)s" "%s"',
-            $yt_dlp_path, $normalizedTempDir, $videoUrl
-        );
-        
-        error_log("Ausführung des Untertitel-Befehls: " . $command);
-        $fullOutput = [];
-        exec($command . " 2>&1", $fullOutput, $returnVar);
-        error_log("yt-dlp Exit-Code: " . $returnVar);
-        if (!empty($fullOutput)) {
-            error_log("yt-dlp Ausgabe: " . implode("\n", $fullOutput));
-        }
-        
-        // Suche nach SRT-Dateien
-        $srtFiles = glob($tempDir . '/*.srt');
-        if (!empty($srtFiles)) {
-            error_log("Untertiteldatei(en) gefunden: " . count($srtFiles));
-            $srtContent = file_get_contents($srtFiles[0]);
-            $transcription = srtToText($srtContent);
-            
-            if (!empty($transcription) && strlen($transcription) > 50) {
-                error_log("Transkription aus Untertiteln erfolgreich extrahiert (" . strlen($transcription) . " Zeichen)");
-                return $transcription;
-            }
-        } else {
-            error_log("Keine Untertiteldateien gefunden mit yt-dlp");
-        }
-        
-        // Strategie 2: Versuche es direkt mit der YouTube API für Metadaten
-        try {
-            error_log("Strategie 2: Versuche Metadaten über YouTube API v3 zu bekommen");
-            $youtubeApiKey = getYoutubeApiKey();
-            
-            if (empty($youtubeApiKey)) {
-                error_log("Kein YouTube API-Key konfiguriert");
-            } else {
-                // Versuche Video-Beschreibung und Titel zu bekommen
-                $metadataUrl = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={$videoId}&key={$youtubeApiKey}";
-                $ch = curl_init($metadataUrl);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                $metadataResponse = curl_exec($ch);
-                curl_close($ch);
-                
-                if (!empty($metadataResponse)) {
-                    $metadata = json_decode($metadataResponse, true);
-                    if (isset($metadata['items'][0]['snippet'])) {
-                        $snippet = $metadata['items'][0]['snippet'];
-                        $title = isset($snippet['title']) ? $snippet['title'] : '';
-                        $description = isset($snippet['description']) ? $snippet['description'] : '';
-                        
-                        $combinedText = $title . "\n\n" . $description;
-                        if (strlen($combinedText) > 200) { // Mindestlänge für sinnvollen Inhalt
-                            error_log("Verwende Video-Titel und Beschreibung als Fallback");
-                            return $combinedText;
-                        }
-                    }
-                }
-            }
-        } catch (Exception $e) {
-            error_log("Fehler bei Strategie 2: " . $e->getMessage());
-        }
-        
-        // Strategie 3: Versuche Untertitel über die YouTube API
-        try {
-            error_log("Strategie 3: Versuche Untertitel über YouTube API zu bekommen");
-            $youtubeApiKey = getYoutubeApiKey();
-            
-            if (!empty($youtubeApiKey)) {
-                $subtitles = getYoutubeSubtitles($videoId, $youtubeApiKey);
-                if (!empty($subtitles)) {
-                    error_log("Transkription über API erfolgreich abgerufen");
-                    return $subtitles;
-                }
-            }
-        } catch (Exception $e) {
-            error_log("Fehler bei Strategie 3: " . $e->getMessage());
-        }
-        
-        // Strategie 4: Versuche die Audio-Spur herunterzuladen und direkt mit Whisper zu transkribieren
-        error_log("Strategie 4: Versuche Audio herunterzuladen und mit Whisper zu transkribieren");
-        
-        // Extremer Fallback: Verwende einen generischen Text, wenn absolut nichts funktioniert
-        error_log("FALLBACK: Alle YouTube-Transkriptionsmethoden fehlgeschlagen. Verwende generischen Text.");
-        return "Dieses Video enthält Informationen zum angegebenen Thema. Es wurden mehrere Konzepte und Ideen präsentiert, die für das Verständnis des Themas wichtig sind. Die wichtigsten Punkte umfassen die Grundlagen und weiterführende Aspekte, die in einem umfassenden Test abgefragt werden können.";
-        
-    } catch (Exception $e) {
-        error_log("Fehler in getYoutubeTranscript: " . $e->getMessage());
-        throw $e;
-    } finally {
-        // Aufräumen
-        array_map('unlink', glob($tempDir . '/*'));
-        if (is_dir($tempDir)) {
-            rmdir($tempDir);
-        }
-    }
 }
 
 try {
@@ -644,28 +472,7 @@ try {
     if (!empty($_POST['youtube_url'])) {
         error_log("Processing YouTube URL: " . $_POST['youtube_url']);
         $videoUrl = $_POST['youtube_url'];
-        
-        // Versuche die Transkription zu bekommen
-        try {
-            $transcript = getYoutubeTranscript($videoUrl);
-            if (!empty($transcript)) {
-                $combinedContent .= $transcript . "\n\n";
-                error_log("YouTube Transkription erfolgreich abgerufen");
-            } else {
-                // Verwende leeren Inhalt, falls keine Transkription verfügbar ist
-                error_log("Keine Transkription für YouTube-Video verfügbar, verwende generischen Text");
-                $combinedContent .= "Dieses Video enthält Informationen zu einem Thema, das für den Test relevant ist. ";
-                $combinedContent .= "Der Inhalt umfasst verschiedene Konzepte und Ideen, die das Verständnis fördern. ";
-                $combinedContent .= "Die Hauptpunkte beinhalten grundlegende und fortgeschrittene Aspekte des Themas.\n\n";
-            }
-        } catch (Exception $e) {
-            // Fehler abfangen, aber nicht die ganze Verarbeitung abbrechen
-            error_log("Fehler bei YouTube-Verarbeitung: " . $e->getMessage());
-            error_log("Verwende generischen Text als Fallback");
-            $combinedContent .= "Dieses Video behandelt ein wichtiges Thema. Es wurden verschiedene Aspekte ";
-            $combinedContent .= "und Perspektiven vorgestellt. Der Inhalt ist für das Verständnis des Themas wichtig ";
-            $combinedContent .= "und umfasst sowohl Grundlagen als auch weiterführende Konzepte.\n\n";
-        }
+        $combinedContent .= getYoutubeTranscript($videoUrl) . "\n\n";
     }
 
     // Prüfe, ob mindestens eine Quelle verarbeitet wurde
