@@ -122,6 +122,29 @@ if (isset($_GET['code'])) {
     if (testExists($code)) {
         // Wenn noch kein Name eingegeben wurde
         if (!isset($_SESSION['student_name'])) {
+            // Finde die Testdatei anhand der ersten 3 Zeichen des Dateinamens
+            $allFiles = glob("tests/*.xml");
+            $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
+                $filename = basename($file);
+                $fileCode = substr($filename, 0, 3);
+                return ($fileCode === $searchCode);
+            });
+            
+            $testFile = !empty($testFiles) ? reset($testFiles) : null;
+            $testTitle = "Test";
+            
+            // Lese den Testtitel aus der XML-Datei
+            if ($testFile) {
+                try {
+                    $xml = simplexml_load_file($testFile);
+                    if ($xml !== false && isset($xml->title)) {
+                        $testTitle = (string)$xml->title;
+                    }
+                } catch (Exception $e) {
+                    error_log("Fehler beim Lesen des Testtitels: " . $e->getMessage());
+                }
+            }
+            
             // Zeige das Namenseingabeformular
             ?>
             <!DOCTYPE html>
@@ -129,31 +152,117 @@ if (isset($_GET['code'])) {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Namenseingabe - Test</title>
+                <title>Namenseingabe - <?php echo htmlspecialchars($testTitle); ?></title>
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    .name-form-container {
+                        max-width: 600px;
+                        margin: 2rem auto;
+                        padding: 2rem;
+                        background-color: #ffffff;
+                        border-radius: 12px;
+                        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+                        border-top: 5px solid #0d6efd; /* Blaue Akzentfarbe */
+                    }
+                    
+                    .test-code-info {
+                        background-color: #f0f7ff; /* Blassblau als Hintergrund */
+                        border-radius: 8px;
+                        padding: 1.5rem;
+                        margin-bottom: 2rem;
+                        text-align: center;
+                        /* Rahmen entfernt */
+                    }
+                    
+                    .testcode-badge {
+                        background-color: #0d6efd;
+                        color: white;
+                        font-size: 1.5rem;
+                        padding: 0.25rem 1rem;
+                        border-radius: 4px;
+                        font-weight: 600;
+                        display: inline-block;
+                        margin-left: 0.5rem;
+                    }
+                    
+                    .student-name-form {
+                        background-color: #ffffff;
+                        padding: 2rem;
+                        border-radius: 8px;
+                        border: 1px solid #e5e7eb;
+                    }
+                    
+                    .form-title {
+                        color: #0d6efd;
+                        text-align: center;
+                        margin-bottom: 1.5rem;
+                    }
+                    
+                    .name-input {
+                        border: 2px solid #d1d5db;
+                        border-radius: 8px;
+                        padding: 0.75rem;
+                        font-size: 1.1rem;
+                        width: 100%;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .name-input:focus {
+                        border-color: #0d6efd;
+                        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+                        outline: none;
+                    }
+                    
+                    .name-label {
+                        font-weight: 600;
+                        color: #374151;
+                        display: block;
+                        margin-bottom: 0.5rem;
+                    }
+                    
+                    .submit-btn {
+                        background-color: #0d6efd;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 0.75rem 1.5rem;
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        width: 100%;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .submit-btn:hover {
+                        background-color: #0b5ed7;
+                        transform: translateY(-2px);
+                    }
+                </style>
             </head>
             <body class="bg-light">
-                <div class="container mt-5">
-                    <div class="row justify-content-center">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="text-center">Bitte geben Sie Ihren Namen ein</h3>
-                                </div>
-                                <div class="card-body">
-                                    <form action="index.php" method="POST">
-                                        <input type="hidden" name="code" value="<?php echo htmlspecialchars($code); ?>">
-                                        <div class="mb-3">
-                                            <label for="student_name" class="form-label">Ihr Name:</label>
-                                            <input type="text" class="form-control" id="student_name" name="student_name" required>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary">Test starten</button>
-                                        </div>
-                                    </form>
-                                </div>
+                <div class="name-form-container">
+                    <div class="test-code-info">
+                        <h2>Testcode: <span class="testcode-badge"><?php echo htmlspecialchars($code); ?></span></h2>
+                        <p class="mt-3 fw-bold"><?php echo htmlspecialchars($testTitle); ?></p>
+                    </div>
+                    
+                    <div class="student-name-form">
+                        <h3 class="form-title">Teilnehmerdaten eingeben</h3>
+                        <form action="index.php" method="POST">
+                            <input type="hidden" name="code" value="<?php echo htmlspecialchars($code); ?>">
+                            <div class="mb-4">
+                                <label for="student_name" class="name-label">Vor- und Nachname:</label>
+                                <input type="text" class="name-input" id="student_name" name="student_name" 
+                                       placeholder="Bitte vollständigen Namen eingeben" required>
                             </div>
-                        </div>
+                            <button type="submit" class="submit-btn">Test jetzt starten</button>
+                        </form>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Mit dem Absenden bestätigen Sie, dass Sie den Test selbständig bearbeiten werden.
+                        </p>
                     </div>
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -323,6 +432,17 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) &
     $testFile = !empty($testFiles) ? reset($testFiles) : null;
     
     if ($testFile) {
+        // Prüfe, ob der Test heute bereits absolviert wurde (mit dem Schülernamen)
+        if (hasCompletedTestToday($code, $_POST['student_name'])) {
+            // Setze eine Fehlermeldung und leite zur Startseite weiter
+            session_destroy();
+            session_start();
+            $_SESSION['error_message'] = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
+            $_SESSION['error_type'] = "danger"; // Rot für Fehler
+            header("Location: index.php");
+            exit();
+        }
+        
         $_SESSION['student_name'] = $_POST['student_name'];
         $_SESSION['test_code'] = $code; // Original-Code speichern
         $_SESSION['test_file'] = $testFile;
@@ -373,50 +493,138 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) &
 }
 // Wenn kein Code übergeben wurde
 else {
+    // Default-Inhalte für die Startseite anzeigen
     ?>
     <!DOCTYPE html>
     <html lang="de">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MCQ Test System</title>
+        <title>Online-Test-System</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .card {
+                border-radius: 15px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+            .card-access {
+                border-left: 6px solid #0d6efd;
+                background: linear-gradient(to right, #e6efff, #ffffff);
+            }
+            .form-control-large {
+                height: 60px;
+                font-size: 1.2rem;
+                text-align: center;
+                letter-spacing: 3px;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+            .btn-access {
+                height: 60px;
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
+            .qr-container {
+                text-align: center;
+                margin-top: 40px;
+            }
+            .qr-code {
+                max-width: 200px;
+                margin: 0 auto;
+            }
+            .qr-text {
+                margin-top: 15px;
+                font-size: 0.9rem;
+                color: #6c757d;
+            }
+        </style>
     </head>
     <body class="bg-light">
         <div class="container mt-5">
             <div class="row justify-content-center">
+                <div class="col-md-8 text-center mb-4">
+                    <h1 class="display-4 fw-bold text-primary">Online-Test-System</h1>
+                    <p class="lead">Geben Sie den Zugangscode ein, um einen Test zu starten</p>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
                 <div class="col-md-6">
                     <?php if (isset($errorMessage)): ?>
-                    <div class="alert alert-<?php echo isset($errorType) ? htmlspecialchars($errorType) : 'danger'; ?> alert-dismissible fade show" role="alert">
-                        <?php echo htmlspecialchars($errorMessage); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                        <div class="alert alert-<?php echo $errorType; ?> mb-4">
+                            <?php echo $errorMessage; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($_SESSION['error_message'])): ?>
+                        <div class="alert alert-<?php echo $_SESSION['error_type']; ?> mb-4">
+                            <?php echo $_SESSION['error_message']; ?>
+                        </div>
+                        <?php 
+                        // Lösche die Fehlermeldung nach der Anzeige
+                        unset($_SESSION['error_message']);
+                        unset($_SESSION['error_type']);
+                        ?>
                     <?php endif; ?>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="text-center">MCQ Test System</h3>
-                        </div>
-                        <div class="card-body">
+                    <div class="card card-access mb-4">
+                        <div class="card-body p-5">
+                            <h2 class="card-title text-primary mb-4">Zugangscode eingeben</h2>
                             <form action="index.php" method="POST">
-                                <div class="mb-3">
-                                    <label for="accessCode" class="form-label">Bitte geben Sie Ihren Testcode ein:</label>
-                                    <input type="text" class="form-control" id="accessCode" name="accessCode" required>
+                                <div class="mb-4">
+                                    <input type="text" class="form-control form-control-large" id="accessCode" name="accessCode" 
+                                        placeholder="z.B. ABC123" required
+                                        autocomplete="off">
                                 </div>
                                 <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">Test starten</button>
+                                    <button type="submit" class="btn btn-primary btn-access">
+                                        <i class="bi bi-arrow-right-circle me-2"></i>Test starten
+                                    </button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- QR-Code Bereich -->
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="qr-container">
+                        <h3 class="text-primary mb-3">Zugang via QR-Code</h3>
+                        <div class="qr-code">
+                            <?php
+                            // QR-Code mit dem installierten phpqrcode-Modul erstellen
+                            require_once('includes/phpqrcode/qrlib.php');
+                            
+                            // Aktuelle URL für den QR-Code ermitteln
+                            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+                            $host = $_SERVER['HTTP_HOST'];
+                            $baseUrl = $protocol . $host . dirname($_SERVER['PHP_SELF']);
+                            $qrCodeUrl = $baseUrl . "/index.php";
+                            
+                            // Temporäres Verzeichnis für QR-Code-Dateien erstellen, falls nicht vorhanden
+                            $qrCodeDir = __DIR__ . '/temp_qrcodes';
+                            if (!is_dir($qrCodeDir)) {
+                                mkdir($qrCodeDir, 0777, true);
+                            }
+                            
+                            // QR-Code-Dateiname generieren
+                            $qrCodeFile = $qrCodeDir . '/qrcode_' . md5($qrCodeUrl) . '.png';
+                            $qrCodeWebPath = 'temp_qrcodes/qrcode_' . md5($qrCodeUrl) . '.png';
+                            
+                            // Erzeuge den QR-Code in blauer Farbe
+                            QRcode::png($qrCodeUrl, $qrCodeFile, QR_ECLEVEL_M, 8, 2, false, 0x0000FF);
+                            ?>
+                            <img src="<?php echo $qrCodeWebPath; ?>" alt="QR-Code für Testzugang" class="img-fluid">
+                        </div>
+                        <p class="qr-text">Scannen Sie diesen QR-Code, um direkt zum Test-System zu gelangen</p>
+                    </div>
+                </div>
+            </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            console.log('Debug Information - Startseite:');
-            console.log('Session:', <?php echo json_encode($_SESSION); ?>);
-        </script>
     </body>
     </html>
     <?php

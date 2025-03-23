@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <access_code>ZGZ</access_code>
+  <title>Die Aufklärung in Europa und ihre Folgen</title>
+  <question_count>10</question_count>
+  <answer_count>4</answer_count>
+  <answer_type>single</answer_type>
+  <questions>
+    <question nr="1">
+      <text>Was war ein zentrales Anliegen der Aufklärung im Hinblick auf die Regierungsführung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Förderung des Absolutismus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Beibehaltung traditioneller Monarchien</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Einführung der Gewaltenteilung</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Unterstützung des Feudalismus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="2">
+      <text>Welcher Artikel der Erklärung der Menschen- und Bürgerrechte betont die Gleichheit vor dem Gesetz?</text>
+      <answers>
+        <answer nr="1">
+          <text>Artikel 1 – Freiheit und Gleichheit in Rechten</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Artikel 6 – Gleichheit vor dem Gesetz</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Artikel 10 – Meinungsfreiheit</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Artikel 17 – Recht auf Eigentum</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="3">
+      <text>In welchem Jahr wurde die Erklärung der Menschen- und Bürgerrechte verabschiedet?</text>
+      <answers>
+        <answer nr="1">
+          <text>1776</text>
+          <correct>0</correct>
+          <schuelerantwort>1</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>1789</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>1799</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>1804</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="4">
+      <text>Welches Ziel verfolgte Jean-Jacques Rousseau mit seiner Abhandlung über die Wissenschaften und Künste?</text>
+      <answers>
+        <answer nr="1">
+          <text>Die Verteidigung des religiösen Dogmatismus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Die Kritik an der Verderbtheit der Sitten durch den Fortschritt</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Unterstützung für den Ausbau des Bildungssystems</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die Förderung von Wissenschaft und Kunst als Mittel zur Machtsteigerung</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="5">
+      <text>Was kennzeichnete den sogenannten aufgeklärten Absolutismus?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine strikte Trennung von Kirche und Staat</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Eine absolute Machtverteilung ohne Einfluss der Aufklärer</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Reformen, die von aufgeklärten Ideen beeinflusst waren</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Eine vollständige Umsetzung demokratischer Prinzipien</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="6">
+      <text>Wie wird Freiheit gemäß Artikel 4 der Erklärung der Menschen- und Bürgerrechte definiert?</text>
+      <answers>
+        <answer nr="1">
+          <text>Das Recht auf Privateigentum ohne Einschränkungen</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Das Recht, alles zu tun, was anderen nicht schadet</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Freiheit, ohne gesetzliche Beschränkungen zu handeln</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Das Recht auf Widerstand gegen Unterdrückung</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="7">
+      <text>Was war eine direkte Folge der Aufklärung für das europäische Selbstverständnis?</text>
+      <answers>
+        <answer nr="1">
+          <text>Eine verstärkte Hinwendung zum traditionellen Feudalismus</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Eine Abkehr von wissenschaftlichem Denken</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Die Betonung von individuellen Menschenrechten und bürgerlichen Freiheiten</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Die vollständige Ablehnung aller vorherigen kulturellen Werte</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="8">
+      <text>Welche Rolle spielte die Unkenntnis, Vergehen oder Verachtung der Menschenrechte nach Ansicht der französischen Nationalversammlung?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie waren eine Triebkraft für wirtschaftliche Prosperität.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Sie galten als Ursachen für öffentliches Unglück und Verderbtheit der Regierungen.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Sie wurden als notwendig für die Aufrechterhaltung des sozialen Friedens angesehen.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Sie hatten keinen Einfluss auf die politische Stabilität.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="9">
+      <text>Was besagt Artikel 11 der Erklärung der Menschen- und Bürgerrechte über die Kommunikation von Gedanken und Meinungen?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie ist nur mit Zustimmung des Königs erlaubt.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Sie darf ausschließlich durch staatlich kontrollierte Medien erfolgen.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Sie ist eines der kostbarsten Menschenrechte.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Sie ist nur innerhalb bestimmter gesellschaftlicher Klassen gestattet.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+    <question nr="10">
+      <text>Wie beeinflussten die Ideen der Aufklärung die Französische Revolution?</text>
+      <answers>
+        <answer nr="1">
+          <text>Sie führten zu einer Stärkung des absolutistischen Systems.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="2">
+          <text>Sie trugen zur Entstehung einer mächtigen Opposition gegen Adel und Klerus bei.</text>
+          <correct>1</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="3">
+          <text>Sie verhinderten jegliche Form von sozialem Wandel.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+        <answer nr="4">
+          <text>Sie förderten eine Rückkehr zu mittelalterlichen Herrschaftsformen.</text>
+          <correct>0</correct>
+          <schuelerantwort>0</schuelerantwort>
+        </answer>
+      </answers>
+    </question>
+  </questions>
+  <schuelername>dfds</schuelername>
+  <abgabezeit>2025-03-23 15:18:28</abgabezeit>
+</test>

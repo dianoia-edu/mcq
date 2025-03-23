@@ -356,19 +356,8 @@ try {
     $testDb->saveTestAttempt($testData);
     error_log("Ergebnisse erfolgreich in der Datenbank gespeichert");
 
-    // Führe direkte Synchronisation durch
-    try {
-        error_log("Starte direkte Datenbanksynchronisation");
-        require_once __DIR__ . '/includes/teacher_dashboard/sync_database_helper.php';
-        
-        // Dies muss ein direkter Funktionsaufruf sein, keine include
-        syncDatabase();
-        
-        error_log("Datenbank wurde nach Testabschluss erfolgreich synchronisiert");
-    } catch (Exception $syncError) {
-        error_log("Fehler bei der Synchronisation: " . $syncError->getMessage() . "\n" . $syncError->getTraceAsString());
-        // Fahre fort, da die Hauptspeicherung erfolgreich war
-    }
+    // Keine Synchronisierung mehr durchführen, da dies zu doppelten Einträgen führt
+    error_log("Überspringe direkte Datenbanksynchronisation, um doppelte Einträge zu vermeiden");
 
 } catch (Exception $e) {
     error_log("Fehler beim Speichern in der Datenbank: " . $e->getMessage());

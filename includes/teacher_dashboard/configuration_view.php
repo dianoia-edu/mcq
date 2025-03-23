@@ -46,6 +46,9 @@
                 <button id="manageTestResultsBtn" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#testResultsManagerModal">
                     <i class="bi bi-gear"></i> Testergebnisse verwalten
                 </button>
+                <button id="fixDuplicatesBtn" class="btn btn-warning">
+                    <i class="bi bi-tools"></i> Duplikate bereinigen
+                </button>
             </div>
             <div id="syncProgress" class="progress mt-3 d-none">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
@@ -730,5 +733,11 @@ $(document).ready(function() {
                 .html('<i class="bi bi-trash"></i> Ausgewählte Einträge löschen');
         }
     }
+    
+    // Button zur Duplikatbereinigung
+    $('#fixDuplicatesBtn').on('click', function() {
+        // Öffne das Skript in einem neuen Tab oder Fenster
+        window.open('../fix_duplicate_entries.php', '_blank');
+    });
 });
 </script> 

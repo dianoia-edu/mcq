@@ -14,6 +14,61 @@ class TestDatabase {
             // Prüfe ob der Test bereits in der tests-Tabelle existiert
             $testId = $this->getOrCreateTest($testData);
             
+            // Erweiterte Prüfung auf doppelte Einträge:
+            // 1. Prüfung anhand von test_id, student_name und Datum (heutigem Tag)
+            $today = date('Y-m-d');
+            $checkStmt = $this->db->prepare("
+                SELECT COUNT(*) as attempt_count, attempt_id 
+                FROM test_attempts 
+                WHERE test_id = :test_id 
+                AND student_name = :student_name 
+                AND DATE(completed_at) = :today
+            ");
+            
+            $checkStmt->execute([
+                'test_id' => $testId,
+                'student_name' => $testData['student_name'],
+                'today' => $today
+            ]);
+            
+            $result = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Wenn bereits ein Eintrag existiert, protokolliere dies und breche ab
+            if ($result['attempt_count'] > 0) {
+                error_log("Testversuch für heute existiert bereits: Test ID {$testId}, Student {$testData['student_name']}, Datum {$today}, Attempt ID: {$result['attempt_id']}");
+                return false; // Kein neuer Eintrag erstellt
+            }
+            
+            // 2. Prüfung anhand des Dateipfads (falls vorhanden)
+            if (!empty($testData['xml_file_path'])) {
+                // Normalisiere den Pfad, um absolute und relative Pfade korrekt zu vergleichen
+                $normalizedPath = str_replace('\\', '/', $testData['xml_file_path']);
+                $relativeBasisPfad = basename(dirname($normalizedPath)) . '/' . basename($normalizedPath);
+                
+                $checkFilePathStmt = $this->db->prepare("
+                    SELECT COUNT(*) as path_count 
+                    FROM test_attempts 
+                    WHERE xml_file_path LIKE ?
+                ");
+                
+                $checkFilePathStmt->execute([
+                    '%' . $relativeBasisPfad
+                ]);
+                
+                $filePathResult = $checkFilePathStmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($filePathResult['path_count'] > 0) {
+                    error_log("Testversuch mit diesem Dateipfad existiert bereits (Basis: {$relativeBasisPfad})");
+                    return false; // Kein neuer Eintrag erstellt
+                }
+            }
+            
+            // Timestamp für Logging
+            $timestamp = date('Y-m-d H:i:s');
+            
+            // Alles OK, speichere den Testversuch
+            error_log("[{$timestamp}] Speichere neuen Testversuch: Test ID {$testId}, Student {$testData['student_name']}, Punkte {$testData['points_achieved']}/{$testData['points_maximum']}");
+            
             // Speichere den Testversuch
             $stmt = $this->db->prepare("
                 INSERT INTO test_attempts (
@@ -49,6 +104,9 @@ class TestDatabase {
                 'grade' => $testData['grade'],
                 'started_at' => $testData['started_at']
             ]);
+            
+            $newAttemptId = $this->db->lastInsertId();
+            error_log("[{$timestamp}] Testversuch erfolgreich gespeichert mit ID: {$newAttemptId}");
             
             // Aktualisiere die Teststatistiken
             $this->updateTestStatistics($testId);

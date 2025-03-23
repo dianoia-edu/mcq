@@ -48,6 +48,9 @@ try {
         // Normalisierte Pfaddarstellung für Vergleiche
         $normalizedPath = str_replace('\\', '/', $entry['xml_file_path']);
         
+        // Entferne absolute Pfadkomponenten, falls vorhanden
+        $normalizedPath = preg_replace('/^.*?\/results\//', 'results/', $normalizedPath);
+        
         // Füge zur Ergebnisliste hinzu
         $dbResults[] = [
             'id' => $entry['attempt_id'],
@@ -56,7 +59,7 @@ try {
             'title' => $entry['title'],
             'student_name' => $entry['student_name'],
             'completed_at' => $entry['completed_at'],
-            'xml_file_path' => $normalizedPath,
+            'xml_file_path' => $normalizedPath, // Verwende den normalisierten Pfad
             'points_achieved' => $entry['points_achieved'],
             'points_maximum' => $entry['points_maximum'],
             'percentage' => $entry['percentage'],

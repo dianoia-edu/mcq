@@ -33,8 +33,32 @@ function syncDatabase() {
     }
     
     // Hole alle existierenden Einträge aus der Datenbank
-    $stmt = $db->query("SELECT attempt_id, xml_file_path FROM test_attempts");
+    $stmt = $db->query("SELECT attempt_id, test_id, student_name, xml_file_path, completed_at FROM test_attempts");
     $dbEntries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Erstelle verschiedene Maps für robuste Duplikaterkennung
+    $existingEntries = []; // Dateipfad-basiert
+    $existingFiles = [];   // Normalisierte Pfade
+    $existingTests = [];   // Test+Student+Datum-basiert
+    
+    foreach ($dbEntries as $entry) {
+        // Basis-Dateiname als Schlüssel
+        $key = basename($entry['xml_file_path']);
+        $existingEntries[$key] = $entry;
+        
+        // Normalisierter Pfad (für Vergleich von absoluten/relativen Pfaden)
+        $normalizedPath = str_replace('\\', '/', $entry['xml_file_path']);
+        $relativePath = preg_replace('#^.*?(/results/|results/)#', 'results/', $normalizedPath);
+        $existingFiles[$relativePath] = $entry['attempt_id'];
+        
+        // Teile des Dateinamens extrahieren für Prüfung ohne Pfad
+        if (preg_match('/^([A-Z0-9]+)_(.+)_(\d{4}-\d{2}-\d{2})/', basename($entry['xml_file_path']), $matches)) {
+            $codeStudentDateKey = $matches[1] . '_' . $matches[2] . '_' . $matches[3];
+            $existingTests[$codeStudentDateKey] = $entry['attempt_id'];
+        }
+    }
+    
+    error_log("Bestehende Datenbankeinträge: " . count($existingEntries) . ", Normalisierte Pfade: " . count($existingFiles) . ", Code+Student+Datum Kombinationen: " . count($existingTests));
     
     // Sammle alle XML-Dateien
     $xmlFiles = [];
@@ -76,87 +100,129 @@ function syncDatabase() {
         )
     ");
 
+    $processed = 0;
+    $skipped = 0;
+    $added = 0;
+    
     foreach ($xmlFiles as $relativePath => $fullPath) {
-        // Prüfe ob der Eintrag bereits existiert
-        $exists = false;
-        foreach ($dbEntries as $entry) {
-            if (strpos($entry['xml_file_path'], $relativePath) !== false) {
-                $exists = true;
-                break;
-            }
+        $processed++;
+        $filename = basename($relativePath);
+        
+        // Prüfe ob der Eintrag bereits existiert (durch Dateinamen)
+        if (isset($existingEntries[$filename])) {
+            error_log("Datei bereits in Datenbank: " . $filename);
+            $skipped++;
+            continue;
         }
         
-        if (!$exists) {
-            error_log("Verarbeite neue XML-Datei: " . $relativePath);
+        // Extrahiere den Zugangscode aus dem Dateinamen
+        if (!preg_match('/^([A-Z0-9]+)_/', $filename, $matches)) {
+            error_log("Kein gültiger Zugangscode in Dateiname gefunden: " . $filename);
+            $skipped++;
+            continue;
+        }
+        $accessCode = $matches[1];
+        
+        // Lade XML und extrahiere Informationen
+        $xml = simplexml_load_file($fullPath);
+        if ($xml === false) {
+            error_log("Konnte XML nicht laden: " . $fullPath);
+            $skipped++;
+            continue;
+        }
+        
+        // Extrahiere den Schülernamen
+        $studentName = isset($xml->schuelername) ? (string)$xml->schuelername : '';
+        
+        // Extrahiere das Datum aus dem Dateinamen oder XML
+        $completedAt = isset($xml->abgabezeit) ? (string)$xml->abgabezeit : date('Y-m-d H:i:s', filemtime($fullPath));
+        $completedDate = date('Y-m-d', strtotime($completedAt));
+        
+        // Berechne Punkte und Note
+        // Definiere Konstante, um das HTML und JavaScript in auswertung.php zu überspringen
+        if (!defined('FUNCTIONS_ONLY')) {
+            define('FUNCTIONS_ONLY', true);
+        }
+        require_once __DIR__ . '/../../auswertung.php';
+        $results = evaluateTest($fullPath);
+        if ($results === false) {
+            error_log("Konnte Ergebnisse nicht berechnen: " . $fullPath);
+            $skipped++;
+            continue;
+        }
+        
+        try {
+            error_log("Lade Notenschema für Datei: " . $fullPath);
+            $schema = loadGradeSchema();
+            error_log("Notenschema geladen: " . (is_array($schema) ? count($schema) . " Einträge" : "Fehler - kein Array"));
             
-            // Lade XML und extrahiere Informationen
-            $xml = simplexml_load_file($fullPath);
-            if ($xml === false) {
-                error_log("Konnte XML nicht laden: " . $fullPath);
-                continue;
-            }
-            
-            // Extrahiere den Zugangscode aus dem Dateinamen
-            if (!preg_match('/^([A-Z0-9]+)_/', basename($relativePath), $matches)) {
-                error_log("Kein gültiger Zugangscode in Dateiname gefunden: " . basename($relativePath));
-                continue;
-            }
-            $accessCode = $matches[1];
-            
-            // Extrahiere den Schülernamen
-            $studentName = isset($xml->schuelername) ? (string)$xml->schuelername : '';
-            
-            // Extrahiere das Datum aus dem Dateinamen oder XML
-            $completedAt = isset($xml->abgabezeit) ? (string)$xml->abgabezeit : date('Y-m-d H:i:s', filemtime($fullPath));
-            
-            // Berechne Punkte und Note
-            // Definiere Konstante, um das HTML und JavaScript in auswertung.php zu überspringen
-            if (!defined('FUNCTIONS_ONLY')) {
-                define('FUNCTIONS_ONLY', true);
-            }
-            require_once __DIR__ . '/../../auswertung.php';
-            $results = evaluateTest($fullPath);
-            if ($results === false) {
-                error_log("Konnte Ergebnisse nicht berechnen: " . $fullPath);
-                continue;
-            }
-            
-            try {
-                error_log("Lade Notenschema für Datei: " . $fullPath);
-                $schema = loadGradeSchema();
-                error_log("Notenschema geladen: " . (is_array($schema) ? count($schema) . " Einträge" : "Fehler - kein Array"));
-                
-                if (is_array($schema) && !empty($schema)) {
-                    $grade = calculateGrade($results['percentage'], $schema);
-                    error_log("Note berechnet: " . $grade . " für " . $results['percentage'] . "%");
-                } else {
-                    // Fallback für den Fall, dass das Schema nicht geladen werden kann
-                    $grade = "?";
-                    error_log("Konnte Note nicht berechnen, verwende Platzhalter");
-                }
-            } catch (Exception $e) {
-                error_log("Fehler bei der Notenberechnung: " . $e->getMessage());
+            if (is_array($schema) && !empty($schema)) {
+                $grade = calculateGrade($results['percentage'], $schema);
+                error_log("Note berechnet: " . $grade . " für " . $results['percentage'] . "%");
+            } else {
+                // Fallback für den Fall, dass das Schema nicht geladen werden kann
                 $grade = "?";
+                error_log("Konnte Note nicht berechnen, verwende Platzhalter");
             }
-            
-            error_log("Füge neuen Eintrag hinzu: " . $accessCode . ", " . $studentName . ", " . $results['achieved'] . "/" . $results['max'] . ", Note: " . $grade);
-            
-            // Füge den Eintrag zur Datenbank hinzu
-            try {
-                $insertStmt->execute([
-                    $accessCode,
-                    $studentName,
-                    $completedAt,
-                    'results/' . $relativePath,
-                    $results['achieved'],
-                    $results['max'],
-                    $results['percentage'],
-                    $grade
-                ]);
-                error_log("Eintrag erfolgreich hinzugefügt");
-            } catch (Exception $e) {
-                error_log("Fehler beim Einfügen von " . $relativePath . ": " . $e->getMessage());
-            }
+        } catch (Exception $e) {
+            error_log("Fehler bei der Notenberechnung: " . $e->getMessage());
+            $grade = "?";
+        }
+        
+        // VERBESSERTE DUPLIKATPRÜFUNG: Überprüfe mehrere Faktoren
+        $isDuplicate = false;
+        $duplicateReason = "";
+        
+        // 1. Prüfung anhand von Zugangscode, Schülername und Datum
+        $codeStudentDateKey = $accessCode . '_' . $studentName . '_' . $completedDate;
+        if (isset($existingTests[$codeStudentDateKey])) {
+            $isDuplicate = true;
+            $duplicateReason = "Code+Student+Datum Kombination bereits vorhanden";
+        }
+        
+        // 2. Prüfung anhand des Dateinamens
+        $fileBaseName = basename($relativePath);
+        if (isset($existingEntries[$fileBaseName])) {
+            $isDuplicate = true;
+            $duplicateReason = "Dateiname bereits in Datenbank";
+        }
+        
+        // 3. Prüfung anhand des normalisierten Pfads
+        $normalizedPath = 'results/' . $relativePath;
+        if (isset($existingFiles[$normalizedPath])) {
+            $isDuplicate = true;
+            $duplicateReason = "Normalisierter Pfad bereits in Datenbank";
+        }
+        
+        // Bei Duplikat überspringe die Einfügung
+        if ($isDuplicate) {
+            error_log("Doppelter Eintrag gefunden: {$duplicateReason} - Überspringe {$relativePath}");
+            $skipped++;
+            continue;
+        }
+        
+        // Keine Duplikate gefunden, füge den Eintrag hinzu
+        error_log("Füge neuen Eintrag hinzu: " . $accessCode . ", " . $studentName . ", " . $results['achieved'] . "/" . $results['max'] . ", Note: " . $grade);
+        
+        // Füge den Eintrag zur Datenbank hinzu
+        try {
+            $insertStmt->execute([
+                $accessCode,
+                $studentName,
+                $completedAt,
+                'results/' . $relativePath,
+                $results['achieved'],
+                $results['max'],
+                $results['percentage'],
+                $grade
+            ]);
+            error_log("Eintrag erfolgreich hinzugefügt für: " . $filename);
+            $added++;
+        } catch (Exception $e) {
+            error_log("Fehler beim Einfügen von " . $relativePath . ": " . $e->getMessage());
+            $skipped++;
         }
     }
+    
+    error_log("Synchronisation abgeschlossen: {$processed} XML-Dateien verarbeitet, {$added} hinzugefügt, {$skipped} übersprungen");
 } 
