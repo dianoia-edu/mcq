@@ -10,14 +10,13 @@ class YoutubeTranscriptionService {
     public function __construct($openai_api_key) {
         $this->ytdlpPath = '/home/mcqadmin/.local/bin/yt-dlp';
         $this->openai_api_key = $openai_api_key;
-        $this->tempDir = __DIR__ . '/../temp';
-        $this->outputDir = __DIR__ . '/../output';
-        $this->logFile = __DIR__ . '/../logs/youtube-whisper.log';
-        $this->cookieFile = __DIR__ . '/../includes/config/www.youtube.com.txt';
         
-        if (!is_dir($this->tempDir)) mkdir($this->tempDir, 0755, true);
-        if (!is_dir($this->outputDir)) mkdir($this->outputDir, 0755, true);
-        if (!is_dir(dirname($this->logFile))) mkdir(dirname($this->logFile), 0755, true);
+        // Absolute Pfade verwenden
+        $rootDir = realpath(__DIR__ . '/..');
+        $this->tempDir = $rootDir . '/temp';
+        $this->outputDir = $rootDir . '/output';
+        $this->logFile = $rootDir . '/logs/youtube-whisper.log';
+        $this->cookieFile = $rootDir . '/includes/config/www.youtube.com.txt';
     }
     
     private function logMessage($message) {
@@ -25,6 +24,15 @@ class YoutubeTranscriptionService {
         $logMessage = "[$timestamp] $message" . PHP_EOL;
         file_put_contents($this->logFile, $logMessage, FILE_APPEND);
         return $logMessage;
+    }
+    
+    private function extractVideoId($url) {
+        // Regulärer Ausdruck zum Extrahieren der Video-ID
+        $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i';
+        if (preg_match($pattern, $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
     }
     
     public function transcribeVideo($videoUrl) {
@@ -39,16 +47,18 @@ class YoutubeTranscriptionService {
             
             $downloadSuccessful = false;
             
-            // Methode 1: Mit alternativen Cookies
-            $altCookieFile = "{$this->tempDir}/youtube_cookies_temp_$processId.txt";
-            file_put_contents($altCookieFile, 
-                ".youtube.com\tTRUE\t/\tTRUE\t" . (time() + 86400) . "\tCONSENT\tYES+cb\n" .
-                ".youtube.com\tTRUE\t/\tTRUE\t" . (time() + 86400) . "\tAECGD\ttest\n" .
-                file_get_contents($this->cookieFile)
-            );
-            chmod($altCookieFile, 0644);
+            // Extrahiere die Video-ID für spätere Verwendung
+            $videoId = $this->extractVideoId($videoUrl);
+            if (!$videoId) {
+                $logs[] = $this->logMessage("Konnte Video-ID nicht aus URL extrahieren: $videoUrl");
+                throw new Exception("Ungültige YouTube-URL: Konnte Video-ID nicht extrahieren");
+            }
             
-            $ytdlpCommand1 = "{$this->ytdlpPath} -x --audio-format mp3 --audio-quality 0 --cookies '$altCookieFile' -o '$audioFile' '$videoUrl' 2>&1";
+            $logs[] = $this->logMessage("Extrahierte Video-ID: $videoId");
+            
+            // Methode 1: Direkt mit Format-Auswahl und User-Agent
+            $logs[] = $this->logMessage("Methode 1: Mit Format-Auswahl und User-Agent");
+            $ytdlpCommand1 = "{$this->ytdlpPath} -x --audio-format mp3 --audio-quality 0 -f 'bestaudio[ext=m4a]' --user-agent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' -o '$audioFile' 'https://www.youtube.com/watch?v=$videoId' 2>&1";
             $ytdlpOutput1 = shell_exec($ytdlpCommand1);
             $logs[] = $this->logMessage("Methode 1 Ausgabe: " . $ytdlpOutput1);
             
@@ -56,8 +66,9 @@ class YoutubeTranscriptionService {
                 $downloadSuccessful = true;
                 $logs[] = $this->logMessage("Download mit Methode 1 erfolgreich.");
             } else {
-                // Methode 2: Mit User-Agent
-                $ytdlpCommand2 = "{$this->ytdlpPath} -x --audio-format mp3 -f 'bestaudio' --user-agent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36' -o '$audioFile' '$videoUrl' 2>&1";
+                // Methode 2: Mit anderen Optionen
+                $logs[] = $this->logMessage("Methode 2: Mit erweiterten Optionen");
+                $ytdlpCommand2 = "{$this->ytdlpPath} -x --audio-format mp3 --force-ipv4 --no-check-certificate --geo-bypass -f 'bestaudio' -o '$audioFile' 'https://www.youtube.com/watch?v=$videoId' 2>&1";
                 $ytdlpOutput2 = shell_exec($ytdlpCommand2);
                 $logs[] = $this->logMessage("Methode 2 Ausgabe: " . $ytdlpOutput2);
                 
@@ -65,9 +76,10 @@ class YoutubeTranscriptionService {
                     $downloadSuccessful = true;
                     $logs[] = $this->logMessage("Download mit Methode 2 erfolgreich.");
                 } else {
-                    // Methode 3: Mit invidious
-                    $invidousUrl = str_replace('youtube.com', 'invidious.snopyta.org', $videoUrl);
-                    $invidousUrl = str_replace('youtu.be', 'invidious.snopyta.org/watch?v=', $invidousUrl);
+                    // Methode 3: Mit Invidious-Instance (korrigiert)
+                    $logs[] = $this->logMessage("Methode 3: Mit Invidious-Instance");
+                    // Verwende die korrekte Invidious-URL-Struktur mit der Video-ID
+                    $invidousUrl = "https://invidious.snopyta.org/watch?v=$videoId";
                     $ytdlpCommand3 = "{$this->ytdlpPath} -x --audio-format mp3 -o '$audioFile' '$invidousUrl' 2>&1";
                     $ytdlpOutput3 = shell_exec($ytdlpCommand3);
                     $logs[] = $this->logMessage("Methode 3 Ausgabe: " . $ytdlpOutput3);
@@ -75,6 +87,20 @@ class YoutubeTranscriptionService {
                     if (file_exists($audioFile) && filesize($audioFile) > 1000) {
                         $downloadSuccessful = true;
                         $logs[] = $this->logMessage("Download mit Methode 3 erfolgreich.");
+                    } else {
+                        // Methode 4: Mit youtube-dl als Fallback
+                        $youtubeDlPath = '/usr/bin/youtube-dl';
+                        if (file_exists($youtubeDlPath)) {
+                            $logs[] = $this->logMessage("Methode 4: Verwende youtube-dl als Fallback");
+                            $ytdlCommand4 = "$youtubeDlPath -x --audio-format mp3 --audio-quality 0 -o '$audioFile' 'https://www.youtube.com/watch?v=$videoId' 2>&1";
+                            $ytdlOutput4 = shell_exec($ytdlCommand4);
+                            $logs[] = $this->logMessage("Methode 4 Ausgabe: " . $ytdlOutput4);
+                            
+                            if (file_exists($audioFile) && filesize($audioFile) > 1000) {
+                                $downloadSuccessful = true;
+                                $logs[] = $this->logMessage("Download mit Methode 4 erfolgreich.");
+                            }
+                        }
                     }
                 }
             }
@@ -142,7 +168,6 @@ class YoutubeTranscriptionService {
             
             // 4. Temporäre Dateien bereinigen
             unlink($audioFile);
-            if (file_exists($altCookieFile)) unlink($altCookieFile);
             
             return [
                 'success' => true,
@@ -157,7 +182,6 @@ class YoutubeTranscriptionService {
             
             // Temporäre Dateien bereinigen bei Fehler
             if (file_exists($audioFile)) unlink($audioFile);
-            if (file_exists($altCookieFile)) unlink($altCookieFile);
             
             return [
                 'success' => false,
@@ -167,3 +191,4 @@ class YoutubeTranscriptionService {
         }
     }
 }
+?>
