@@ -261,7 +261,7 @@ function getYoutubeTranscript($videoUrl) {
         // Lade die Audio-Spur herunter mit Cookie-Datei
         $output = [];
         $tempDir = str_replace('\\', '/', $tempDir); // Konvertiere Windows-Pfade zu Unix-Style
-        $command = sprintf('yt-dlp --cookies "%s" -x --audio-format mp3 -o "%s/audio.%%(ext)s" "%s"', 
+        $command = sprintf('yt-dlp --cookies "%s" --no-cache-dir --no-check-certificates --no-cookies-from-browser -x --audio-format mp3 -o "%s/audio.%%(ext)s" "%s"', 
                            $cookiePath, $tempDir, $videoUrl);
         
         error_log("Ausführung des Befehls: " . $command);
