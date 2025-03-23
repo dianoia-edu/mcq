@@ -6,9 +6,28 @@ header('Content-Type: text/html; charset=utf-8');
 require_once __DIR__ . '/includes/config/openai_config.php';
 require_once __DIR__ . '/includes/config/youtube_config.php';
 
-// Annahme: Die Variable heißt $youtube_api_key
-if (!isset($youtube_api_key)) {
-    die("YouTube API Key nicht gefunden. Überprüfe die Datei youtube_config.php.");
+// Überprüfen, welche Variable den YouTube API Key enthält
+// Mögliche Variablennamen prüfen
+$possible_key_vars = ['youtube_api_key', 'youtubeApiKey', 'google_api_key', 'googleApiKey', 'api_key_youtube', 'apiKeyYoutube', 'yt_api_key', 'ytApiKey'];
+
+$youtube_api_key = null;
+foreach ($possible_key_vars as $var) {
+    if (isset($$var)) {
+        $youtube_api_key = $$var;
+        break;
+    }
+}
+
+// Falls kein API Key gefunden wurde, direkt ausgeben, welche Variablen verfügbar sind
+if (!$youtube_api_key) {
+    echo "YouTube API Key nicht gefunden. Verfügbare Variablen in youtube_config.php:<br>";
+    $vars = get_defined_vars();
+    foreach ($vars as $key => $value) {
+        if (is_string($value) && strpos($key, 'key') !== false) {
+            echo "- $key: " . substr($value, 0, 5) . "...<br>";
+        }
+    }
+    die("Bitte passe die Variable in yt_test.php entsprechend an.");
 }
 
 // Konfiguration
