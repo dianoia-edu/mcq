@@ -58,3 +58,4 @@ includes/database_config.php
 
 # Database configuration
 includes/database_config.php
+includes/config/youtube_config.php
