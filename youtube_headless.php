@@ -80,13 +80,22 @@ function extractYoutubeId($url) {
 }
 
 // Node.js-Script erstellen mit vereinfachten Optionen
-function createPuppeteerScript($videoId, $username = '', $password = '') {
+function createPuppeteerScript($videoId, $username = '', $password = '', $proxyUrl = '') {
     global $cookieDir, $tempDir;
     
     $cookieFile = $cookieDir . '/youtube_cookies.json';
     $debugLogFile = $tempDir . '/puppeteer_debug_' . uniqid() . '.log';
     $outputFile = $tempDir . '/yt_result_' . uniqid() . '.json';
     $hasCredentials = !empty($username) && !empty($password);
+    $hasProxy = !empty($proxyUrl);
+    
+    // Proxy-Konfiguration für Puppeteer
+    $proxyArgs = '';
+    if ($hasProxy) {
+        $proxyArgs = <<<EOT
+            '--proxy-server=$proxyUrl',
+EOT;
+    }
     
     $loginCode = '';
     if ($hasCredentials) {
@@ -139,19 +148,28 @@ process.on('uncaughtException', (error) => {
     
     let browser;
     try {
-        // Vereinfachte Browser-Einstellungen
+        // Browser-Einstellungen mit möglichem Proxy
         browser = await puppeteer.launch({
             headless: true,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-gpu',
-                '--disable-dev-shm-usage'
+                '--disable-dev-shm-usage',
+                $proxyArgs
+                '--window-size=1280,720'
             ],
             defaultViewport: { width: 1280, height: 720 }
         });
         
         debug('Browser erfolgreich gestartet');
+        
+        // Proxy-Info für das Debug-Log
+        if ('$hasProxy') {
+            debug('Proxy konfiguriert: $proxyUrl');
+        } else {
+            debug('Kein Proxy verwendet');
+        }
     } catch (error) {
         debug('Browser-Start fehlgeschlagen: ' + error.message);
         fs.writeFileSync('$outputFile', JSON.stringify({
@@ -588,12 +606,15 @@ function execCommand($command, $timeout = 300) {
     }
 }
 
-// Hauptfunktion zur Verarbeitung eines YouTube-Videos
-function processYoutubeVideo($url, $username = '', $password = '') {
+// Hauptfunktion zur Verarbeitung eines YouTube-Videos mit Proxy-Unterstützung
+function processYoutubeVideo($url, $username = '', $password = '', $proxyUrl = '') {
     global $outputDir, $tempDir, $DEBUG;
     
     // Videoanalyse starten
     logMessage("Starte Analyse für URL: $url", "INFO");
+    if (!empty($proxyUrl)) {
+        logMessage("Verwende Proxy: $proxyUrl", "INFO");
+    }
     
     // Video-ID extrahieren
     $videoId = extractYoutubeId($url);
@@ -625,9 +646,9 @@ function processYoutubeVideo($url, $username = '', $password = '') {
         logMessage("Versuche trotzdem fortzufahren...", "INFO");
     }
     
-    // Puppeteer-Script erstellen
+    // Puppeteer-Script erstellen mit Proxy
     logMessage("Erstelle Puppeteer-Script...", "INFO");
-    $scriptData = createPuppeteerScript($videoId, $username, $password);
+    $scriptData = createPuppeteerScript($videoId, $username, $password, $proxyUrl);
     $scriptFile = $tempDir . '/puppeteer_script_' . uniqid() . '.js';
     file_put_contents($scriptFile, $scriptData['script']);
     logMessage("Script gespeichert unter: $scriptFile", "DEBUG");
@@ -759,6 +780,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $youtubeUrl = $_POST['youtube_url'] ?? '';
     $username = $_POST['google_username'] ?? '';
     $password = $_POST['google_password'] ?? '';
+    $proxyUrl = $_POST['proxy_url'] ?? '';
     
     if (!empty($youtubeUrl)) {
         echo "<div class='processing-status'>";
@@ -770,8 +792,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ob_flush();
         flush();
         
-        // Verarbeite das Video
-        $result = processYoutubeVideo($youtubeUrl, $username, $password);
+        // Verarbeite das Video mit Proxy
+        $result = processYoutubeVideo($youtubeUrl, $username, $password, $proxyUrl);
         
         // Zeige Ergebnisse an
         echo "<div class='results'>";
@@ -854,6 +876,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .download-links { margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee; }
         .video-info { margin: 15px 0; }
         .screenshot { margin: 15px 0; }
+        .proxy-section { margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
     </style>
 </head>
 <body>
@@ -865,6 +888,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div>
             <label for="youtube_url">YouTube-URL:</label>
             <input type="text" name="youtube_url" id="youtube_url" required placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+        
+        <div class="proxy-section">
+            <h3>Proxy-Einstellungen</h3>
+            <p>Falls Ihre IP blockiert wird, können Sie einen Proxy-Server verwenden.</p>
+            <div>
+                <label for="proxy_url">Proxy-URL (optional):</label>
+                <input type="text" name="proxy_url" id="proxy_url" placeholder="http://username:password@proxy.example.com:8080">
+                <p class="hint">Format: http://username:password@host:port oder http://host:port</p>
+            </div>
         </div>
         
         <div class="optional-fields">
@@ -889,6 +922,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <li>Der Prozess kann bis zu 2 Minuten dauern.</li>
             <li>Es wird ein Headless-Browser (Puppeteer) verwendet, um YouTube-Inhalte zu analysieren.</li>
             <li>Die Ergebnisse werden im Ordner "output" gespeichert.</li>
+            <li>Falls YouTube Ihre Anfragen blockiert, versuchen Sie einen Proxy zu verwenden.</li>
+            <li>Kostenlose Proxy-Listen finden Sie bei <a href="https://free-proxy-list.net/" target="_blank">free-proxy-list.net</a> oder <a href="https://www.proxynova.com/" target="_blank">ProxyNova</a>.</li>
         </ul>
     </div>
     <?php endif; ?>
