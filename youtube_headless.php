@@ -16,60 +16,89 @@ error_reporting(E_ALL);
 // Debug-Modus aktivieren
 $DEBUG = true;
 
-// Verzeichnisse festlegen
+// Verzeichnisse festlegen - verwende bestehende Verzeichnisse, die bereits Berechtigungen haben
 $outputDir = __DIR__ . '/output';
 $logsDir = __DIR__ . '/logs';
 $tempDir = __DIR__ . '/temp';
-$cookieDir = __DIR__ . '/cookies';
+$cookieDir = $tempDir; // Cookies im bereits existierenden temp-Verzeichnis speichern
 
-// Verzeichnisse erstellen, falls sie nicht existieren
-foreach ([$outputDir, $logsDir, $tempDir, $cookieDir] as $dir) {
+// Prüfe auf Schreibrechte, anstatt Verzeichnisse zu erstellen
+function checkDirectoryPermissions($dir) {
     if (!file_exists($dir)) {
-        mkdir($dir, 0777, true);
+        return [
+            'exists' => false,
+            'writable' => false,
+            'message' => "Verzeichnis $dir existiert nicht"
+        ];
     }
+    
+    if (!is_writable($dir)) {
+        return [
+            'exists' => true,
+            'writable' => false,
+            'message' => "Verzeichnis $dir ist nicht beschreibbar"
+        ];
+    }
+    
+    return [
+        'exists' => true,
+        'writable' => true,
+        'message' => "Verzeichnis $dir ist beschreibbar"
+    ];
 }
 
-// Debugging-Info ausgeben
-echo "<h2>YouTube Headless Browser Tool - Debug Mode</h2>";
-echo "<pre>";
-echo "PHP Version: " . phpversion() . "\n";
-echo "Zeitlimit: " . ini_get('max_execution_time') . " Sekunden\n";
-echo "Memory Limit: " . ini_get('memory_limit') . "\n";
-echo "Arbeitsverzeichnis: " . __DIR__ . "\n";
-echo "Hostname: " . gethostname() . "\n";
-echo "Betriebssystem: " . PHP_OS . "\n";
-echo "</pre>";
-
-// YouTube Headless Browser Extractor
-header('Content-Type: text/html; charset=utf-8');
-
-// Konfiguration
-$outputDir = __DIR__ . '/output';
-$logsDir = __DIR__ . '/logs';
-$cookieDir = __DIR__ . '/cookies';
-$tempDir = sys_get_temp_dir();
-
-// Verzeichnisse erstellen
-foreach ([$outputDir, $logsDir, $cookieDir] as $dir) {
-    if (!file_exists($dir)) {
-        mkdir($dir, 0755, true);
-    }
+// Überprüfe die notwendigen Verzeichnisse
+$dirChecks = [];
+foreach ([$outputDir, $logsDir, $tempDir] as $dir) {
+    $dirChecks[$dir] = checkDirectoryPermissions($dir);
 }
 
-// Logging-Funktion verbessern
+// Logging-Funktion
 function logMessage($message, $level = 'INFO') {
     global $logsDir;
-    $logFile = $logsDir . '/headless_' . date('Y-m-d') . '.log';
+    $logFile = $logsDir . '/youtube_headless_' . date('Y-m-d') . '.log';
+    
+    // Prüfe, ob ins Log geschrieben werden kann
+    $canWriteLog = is_writable($logsDir) || (file_exists($logFile) && is_writable($logFile));
+    
     $timestamp = date('[Y-m-d H:i:s]');
     $logEntry = "$timestamp [$level] $message";
-    echo $logEntry . "<br>\n";
-    file_put_contents($logFile, $logEntry . PHP_EOL, FILE_APPEND);
+    
+    // Log in Datei schreiben, wenn möglich
+    if ($canWriteLog) {
+        file_put_contents($logFile, $logEntry . PHP_EOL, FILE_APPEND);
+    }
+    
+    // Ausgabe im Browser mit Farben
+    $color = '#333';
+    switch ($level) {
+        case 'ERROR': $color = '#f44336'; break;
+        case 'WARNING': $color = '#ff9800'; break;
+        case 'SUCCESS': $color = '#4caf50'; break;
+        case 'INFO': $color = '#2196f3'; break;
+        case 'DEBUG': $color = '#9e9e9e'; break;
+    }
+    
+    echo "<div style='color:$color; margin:2px 0;'>$logEntry</div>";
     
     // Sofort ausgeben für Live-Debugging
-    ob_flush();
+    if (ob_get_level() > 0) {
+        ob_flush();
+    }
     flush();
     
     return $logEntry;
+}
+
+// Status der Verzeichnisse anzeigen
+foreach ($dirChecks as $dir => $check) {
+    if (!$check['exists']) {
+        logMessage($check['message'], 'ERROR');
+    } elseif (!$check['writable']) {
+        logMessage($check['message'], 'ERROR');
+    } else {
+        logMessage($check['message'], 'SUCCESS');
+    }
 }
 
 // Hilfsfunktion: Video-ID aus YouTube-URL extrahieren

@@ -16,28 +16,57 @@ error_reporting(E_ALL);
 // Debug-Modus aktivieren
 $DEBUG = true;
 
-// Verzeichnisse festlegen
+// Verzeichnisse festlegen - verwende bestehende Verzeichnisse, die bereits Berechtigungen haben
 $outputDir = __DIR__ . '/output';
 $logsDir = __DIR__ . '/logs';
 $tempDir = __DIR__ . '/temp';
-$cookieDir = __DIR__ . '/cookies';
 
-// Verzeichnisse erstellen, falls sie nicht existieren
-foreach ([$outputDir, $logsDir, $tempDir, $cookieDir] as $dir) {
+// Prüfe auf Schreibrechte
+function checkDirectoryPermissions($dir) {
     if (!file_exists($dir)) {
-        mkdir($dir, 0777, true);
+        return [
+            'exists' => false,
+            'writable' => false,
+            'message' => "Verzeichnis $dir existiert nicht"
+        ];
     }
+    
+    if (!is_writable($dir)) {
+        return [
+            'exists' => true,
+            'writable' => false,
+            'message' => "Verzeichnis $dir ist nicht beschreibbar"
+        ];
+    }
+    
+    return [
+        'exists' => true,
+        'writable' => true,
+        'message' => "Verzeichnis $dir ist beschreibbar"
+    ];
+}
+
+// Überprüfe die notwendigen Verzeichnisse
+$dirChecks = [];
+foreach ([$outputDir, $logsDir, $tempDir] as $dir) {
+    $dirChecks[$dir] = checkDirectoryPermissions($dir);
 }
 
 // Logging-Funktion
 function logMessage($message, $level = 'INFO') {
     global $logsDir;
     $logFile = $logsDir . '/youtube_direct_' . date('Y-m-d') . '.log';
+    
+    // Prüfe, ob ins Log geschrieben werden kann
+    $canWriteLog = is_writable($logsDir) || (file_exists($logFile) && is_writable($logFile));
+    
     $timestamp = date('[Y-m-d H:i:s]');
     $logEntry = "$timestamp [$level] $message";
     
-    // Log in Datei schreiben
-    file_put_contents($logFile, $logEntry . PHP_EOL, FILE_APPEND);
+    // Log in Datei schreiben, wenn möglich
+    if ($canWriteLog) {
+        file_put_contents($logFile, $logEntry . PHP_EOL, FILE_APPEND);
+    }
     
     // Ausgabe im Browser mit Farben
     $color = '#333';
@@ -58,6 +87,17 @@ function logMessage($message, $level = 'INFO') {
     flush();
     
     return $logEntry;
+}
+
+// Status der Verzeichnisse anzeigen
+foreach ($dirChecks as $dir => $check) {
+    if (!$check['exists']) {
+        logMessage($check['message'], 'ERROR');
+    } elseif (!$check['writable']) {
+        logMessage($check['message'], 'ERROR');
+    } else {
+        logMessage($check['message'], 'SUCCESS');
+    }
 }
 
 // Hilfsfunktion: Video-ID aus YouTube-URL extrahieren
@@ -177,9 +217,10 @@ function makeRequest($url, $method = 'GET', $headers = [], $postData = null, $pr
 
 // YouTube-Video-Informationen abrufen
 function getYoutubeVideoInfo($videoId, $proxy = null) {
-    global $cookieDir;
+    global $tempDir;
     
-    $cookieFile = $cookieDir . '/youtube_cookies.txt';
+    // Temporäre Cookie-Datei im tempDir erstellen
+    $cookieFile = $tempDir . '/youtube_cookies_' . uniqid() . '.txt';
     $embed_url = "https://www.youtube.com/embed/$videoId";
     $watch_url = "https://www.youtube.com/watch?v=$videoId";
     
