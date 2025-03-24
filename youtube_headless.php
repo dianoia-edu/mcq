@@ -108,7 +108,7 @@ function extractYoutubeId($url) {
     return isset($matches[1]) ? $matches[1] : false;
 }
 
-// Node.js-Script erstellen mit vereinfachten Optionen
+// Browser mit Proxy-Unterstützung starten
 function createPuppeteerScript($videoId, $username = '', $password = '', $proxyUrl = '') {
     global $cookieDir, $tempDir;
     
@@ -117,6 +117,9 @@ function createPuppeteerScript($videoId, $username = '', $password = '', $proxyU
     $outputFile = $tempDir . '/yt_result_' . uniqid() . '.json';
     $hasCredentials = !empty($username) && !empty($password);
     $hasProxy = !empty($proxyUrl);
+    
+    // Speichere den Output-Dateinamen, um ihn später zu verwenden
+    $GLOBALS['outputFilePath'] = $outputFile;
     
     // Proxy-Konfiguration für Puppeteer
     $proxyArgs = '';
@@ -129,421 +132,230 @@ EOT;
     $loginCode = '';
     if ($hasCredentials) {
         $loginCode = <<<EOT
-        // Login durchführen
-        console.log('Starte Login-Prozess...');
-        await page.goto('https://accounts.google.com/signin');
-        
-        // E-Mail eingeben
-        await page.waitForSelector('input[type="email"]');
-        await page.type('input[type="email"]', '$username');
-        await page.keyboard.press('Enter');
-        
-        // Kurze Pause für die Überleitung
-        await page.waitForTimeout(2000);
-        
-        // Passwort eingeben
-        await page.waitForSelector('input[type="password"]');
-        await page.type('input[type="password"]', '$password');
-        await page.keyboard.press('Enter');
-        
-        // Warten auf erfolgreichen Login
-        console.log('Warte auf erfolgreichen Login...');
-        await page.waitForNavigation({ waitUntil: 'networkidle0' });
-        
+        // Login-Versuch, wenn Anmeldedaten angegeben wurden
+        try {
+            console.log('Versuche YouTube-Login...');
+            await page.goto('https://accounts.google.com/signin/v2/identifier?service=youtube', { waitUntil: 'networkidle2' });
+            
+            // E-Mail eingeben
+            await page.type('input[type="email"]', '$username');
+            await page.click('#identifierNext');
+            
+            // Warten auf Passwort-Eingabefeld
+            await page.waitForSelector('input[type="password"]', { visible: true, timeout: 10000 });
+            await page.type('input[type="password"]', '$password');
+            await page.click('#passwordNext');
+            
+            // Warten auf Abschluss der Anmeldung
+            await page.waitForNavigation({ waitUntil: 'networkidle2' });
+            console.log('Login abgeschlossen');
+            
+            // Sicherstellen, dass wir auf YouTube sind
+            if (!page.url().includes('youtube.com')) {
+                await page.goto('https://www.youtube.com');
+            }
+        } catch (error) {
+            console.error('Login fehlgeschlagen:', error.message);
+            // Trotzdem fortfahren...
+        }
 EOT;
     }
-
-    $script = <<<EOT
-const puppeteer = require('puppeteer');
+    
+    // Puppeteer-Skript für YouTube-Extraktion mit direktem Import und lokaler Installation
+    $scriptContent = <<<EOT
+// Puppeteer-Skript zur Extraktion von YouTube-Videoinformationen
 const fs = require('fs');
-const path = require('path');
+const puppeteer = require('puppeteer');
 
-// Debug-Logging-Funktion
-function debug(message) {
+// Konfiguration
+const videoId = '$videoId';
+const outputFile = '$outputFile';
+const debugLogFile = '$debugLogFile';
+const cookieFile = '$cookieFile';
+
+// Debug-Log-Funktion
+function logDebug(message) {
     const timestamp = new Date().toISOString();
-    const logMessage = `[\${timestamp}] \${message}`;
-    console.log(logMessage);
-    fs.appendFileSync('$debugLogFile', logMessage + '\\n');
+    const logEntry = `\${timestamp} - \${message}`;
+    console.log(logEntry);
+    
+    // In Debug-Datei schreiben
+    fs.appendFileSync(debugLogFile, logEntry + "\\n", { encoding: 'utf8' });
 }
 
-// Prozess-Fehlerbehandlung
-process.on('uncaughtException', (error) => {
-    debug('CRITICAL ERROR: ' + error.message);
-    debug(error.stack);
+// Ergebnisfunktion
+function saveResult(data) {
+    fs.writeFileSync(outputFile, JSON.stringify(data, null, 2), { encoding: 'utf8' });
+    logDebug(`Ergebnis in \${outputFile} gespeichert`);
+}
+
+// Fehlerbehandlung
+process.on('unhandledRejection', (error) => {
+    logDebug(`Unbehandelte Ablehnung: \${error.message}`);
+    logDebug(error.stack);
+    
+    saveResult({
+        success: false,
+        error: `Unbehandelte Ablehnung: \${error.message}`,
+        stack: error.stack
+    });
+    
+    process.exit(1);
 });
 
+// Hauptfunktion
 (async () => {
-    debug('Starte Headless-Browser...');
+    let browser = null;
+    let page = null;
     
-    let browser;
     try {
-        // Browser-Einstellungen mit möglichem Proxy
+        logDebug('Starte Browser...');
+        
+        // Browser mit Konfiguration starten
         browser = await puppeteer.launch({
-            headless: true,
+            headless: "new",
+            executablePath: '/snap/bin/chromium',
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
-                '--disable-gpu',
                 '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--disable-gpu',
+                '--window-size=1280,800',
                 $proxyArgs
-                '--window-size=1280,720'
-            ],
-            defaultViewport: { width: 1280, height: 720 }
+            ]
         });
         
-        debug('Browser erfolgreich gestartet');
-        
-        // Proxy-Info für das Debug-Log
-        if ('$hasProxy') {
-            debug('Proxy konfiguriert: $proxyUrl');
-        } else {
-            debug('Kein Proxy verwendet');
-        }
-    } catch (error) {
-        debug('Browser-Start fehlgeschlagen: ' + error.message);
-        fs.writeFileSync('$outputFile', JSON.stringify({
-            videoId: '$videoId',
-            success: false,
-            error: 'Browser konnte nicht gestartet werden: ' + error.message
-        }));
-        process.exit(1);
-    }
-    
-    let result = {
-        videoId: '$videoId',
-        success: false,
-        error: null,
-        title: null,
-        description: null,
-        hasSubtitles: false,
-        captionText: ''
-    };
-    
-    let page;
-    
-    try {
-        debug('Erstelle neue Seite...');
         page = await browser.newPage();
         
-        // Debug-Ereignisse
-        page.on('console', msg => debug('CONSOLE: ' + msg.text()));
-        page.on('pageerror', error => debug('PAGE ERROR: ' + error.message));
-        page.on('error', error => debug('ERROR: ' + error.message));
-        page.on('requestfailed', request => {
-            debug(`REQUEST FAILED: \${request.url()} - \${request.failure().errorText}`);
-        });
+        // User-Agent setzen
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36');
         
-        // Browser-Fingerprint anpassen
-        debug('Setze User-Agent und Viewport...');
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
-        
-        // Cookies laden, falls vorhanden
-        const cookieFile = '$cookieFile';
+        // Cookies laden, wenn vorhanden
         if (fs.existsSync(cookieFile)) {
-            debug('Lade bestehende Cookies...');
+            logDebug(`Lade Cookies aus \${cookieFile}`);
             try {
                 const cookiesString = fs.readFileSync(cookieFile, 'utf8');
                 const cookies = JSON.parse(cookiesString);
                 await page.setCookie(...cookies);
-                debug('Cookies erfolgreich geladen');
-            } catch (err) {
-                debug('Fehler beim Laden der Cookies: ' + err.message);
+                logDebug('Cookies erfolgreich geladen');
+            } catch (error) {
+                logDebug(`Fehler beim Laden der Cookies: \${error.message}`);
             }
-        } else {
-            debug('Keine Cookie-Datei gefunden: ' + cookieFile);
         }
         
+        // Page logging
+        page.on('console', msg => logDebug(`PAGE LOG: \${msg.text()}`));
+        page.on('error', err => logDebug(`PAGE ERROR: \${err.message}`));
+        
+        // Login ausführen, wenn Anmeldedaten vorhanden
         $loginCode
         
         // YouTube-Video besuchen
-        debug('Besuche YouTube-Video...');
-        try {
-            await page.goto('https://www.youtube.com/watch?v=$videoId', { 
-                waitUntil: 'networkidle2',
-                timeout: 30000
-            });
-            debug('Seite erfolgreich geladen');
-        } catch (error) {
-            debug('Fehler beim Laden der Seite: ' + error.message);
-            // Versuche es noch einmal mit einfacheren Optionen
-            debug('Versuche erneut mit einfacheren Optionen...');
-            await page.goto('https://www.youtube.com/watch?v=$videoId', { 
-                waitUntil: 'domcontentloaded',
-                timeout: 60000
-            });
-        }
-        
-        // Mache einen Screenshot für Debugging
-        debug('Erstelle Screenshot...');
-        await page.screenshot({ path: '$tempDir/youtube_debug_' + Date.now() + '.png' });
-        
-        // HTML-Inhalt protokollieren
-        debug('Protokolliere HTML-Inhalt...');
-        const htmlContent = await page.content();
-        debug('HTML-Inhalt-Länge: ' + htmlContent.length);
-        fs.writeFileSync('$tempDir/page_content_' + Date.now() + '.html', htmlContent);
-        
-        // Überprüfen, ob wir auf das Video zugreifen können
-        debug('Prüfe auf Blockierung...');
-        const isBlocked = await page.evaluate(() => {
-            return document.body.innerText.includes("confirm you're not a robot");
+        logDebug(`Navigiere zu YouTube-Video \${videoId}...`);
+        await page.goto(`https://www.youtube.com/watch?v=\${videoId}`, {
+            waitUntil: 'networkidle2',
+            timeout: 60000
         });
-        
-        if (isBlocked) {
-            debug('Blockierung erkannt. Bot-Erkennung aktiv.');
-            result.error = 'YouTube blockiert den Zugriff. Manuelle Anmeldung erforderlich.';
-            throw new Error(result.error);
-        }
-        
-        // Cookies speichern
-        debug('Speichere Cookies...');
-        const cookies = await page.cookies();
-        fs.writeFileSync(cookieFile, JSON.stringify(cookies, null, 2));
         
         // Videotitel extrahieren
-        debug('Extrahiere Videotitel...');
-        try {
-            await page.waitForSelector('h1.ytd-watch-metadata', { timeout: 10000 });
-            debug('Titelselektorgefunden');
-        } catch (error) {
-            debug('Timeout beim Warten auf den Titel: ' + error.message);
-            debug('Versuche alternative Selektoren...');
-        }
-            
-        const videoTitle = await page.evaluate(() => {
-            const selectors = [
-                'h1.ytd-watch-metadata',
-                'h1.title',
-                '#container h1',
-                '.title'
-            ];
-            
-            for (const selector of selectors) {
-                const element = document.querySelector(selector);
-                if (element) {
-                    console.log('Titel gefunden mit Selektor: ' + selector);
-                    return element.innerText.trim();
-                }
-            }
-            
-            // Fallback auf meta tags
-            const metaTitle = document.querySelector('meta[property="og:title"]');
-            if (metaTitle) {
-                return metaTitle.getAttribute('content');
-            }
-            
-            return 'Titel nicht gefunden';
+        const title = await page.evaluate(() => {
+            const titleElement = document.querySelector('h1.title.style-scope.ytd-video-primary-info-renderer');
+            return titleElement ? titleElement.textContent.trim() : null;
         });
         
-        debug('Videotitel: ' + videoTitle);
-        result.title = videoTitle;
+        logDebug(`Extrahierter Titel: \${title}`);
         
         // Videobeschreibung extrahieren
-        debug('Extrahiere Videobeschreibung...');
-        const videoDescription = await page.evaluate(() => {
-            // Beschreibung aufklappen, falls möglich
-            try {
-                const expandButtons = document.querySelectorAll('#expand, .more-button, .expand');
-                for (const button of expandButtons) {
-                    button.click();
-                    console.log('Expand-Button geklickt');
-                }
-            } catch (e) {
-                console.error('Fehler beim Klicken des Expand-Buttons:', e);
+        const description = await page.evaluate(() => {
+            const showMoreBtn = document.querySelector('#description-inline-expander tp-yt-paper-button#expand');
+            if (showMoreBtn) {
+                showMoreBtn.click();
             }
             
-            // Kurze Pause und dann versuchen, die Beschreibung zu finden
-            return new Promise(resolve => {
+            // Warten, bis die Beschreibung erweitert wurde
+            return new Promise((resolve) => {
                 setTimeout(() => {
-                    const selectors = [
-                        '#description-inline-expander',
-                        '#description-inner',
-                        '#description',
-                        '.description',
-                        '[itemprop="description"]'
-                    ];
-                    
-                    for (const selector of selectors) {
-                        const element = document.querySelector(selector);
-                        if (element && element.innerText.trim()) {
-                            console.log('Beschreibung gefunden mit Selektor: ' + selector);
-                            return resolve(element.innerText.trim());
-                        }
-                    }
-                    
-                    // Fallback auf meta
-                    const metaDesc = document.querySelector('meta[property="og:description"]');
-                    if (metaDesc) {
-                        return resolve(metaDesc.getAttribute('content'));
-                    }
-                    
-                    resolve('Keine Beschreibung gefunden');
-                }, 3000);
+                    const descriptionElement = document.querySelector('#description-inline-expander #description');
+                    resolve(descriptionElement ? descriptionElement.textContent.trim() : null);
+                }, 1000);
             });
         });
         
-        debug('Beschreibung erhalten, Länge: ' + videoDescription.length);
-        result.description = videoDescription;
+        logDebug(`Beschreibung extrahiert: \${description ? description.substring(0, 100) + '...' : 'Nicht gefunden'}`);
         
-        // Untertitel-Button finden und prüfen
-        debug('Suche nach Untertitel-Option...');
-        let hasCaptions = false;
-        
-        try {
-            await page.waitForSelector('.ytp-subtitles-button', { timeout: 5000 });
-            debug('Untertitel-Button gefunden');
-            
-            // Überprüfen, ob Untertitel verfügbar sind
-            hasCaptions = await page.evaluate(() => {
-                const captionButton = document.querySelector('.ytp-subtitles-button');
-                if (!captionButton) return false;
-                
-                const disabled = captionButton.classList.contains('ytp-button-disabled');
-                console.log('Untertitel-Button Status: ' + (disabled ? 'deaktiviert' : 'aktiviert'));
-                return !disabled;
-            });
-        } catch (error) {
-            debug('Kein Untertitel-Button gefunden: ' + error.message);
-        }
-        
-        debug('Untertitel verfügbar: ' + (hasCaptions ? 'Ja' : 'Nein'));
-        result.hasSubtitles = hasCaptions;
-        
-        if (hasCaptions) {
-            debug('Untertitel sind verfügbar. Versuche Aktivierung...');
-            
-            try {
-                // Klicke auf den Untertitel-Button, falls Untertitel nicht bereits aktiviert sind
-                const isSubtitleActive = await page.evaluate(() => {
-                    const captionButton = document.querySelector('.ytp-subtitles-button');
-                    const isActive = captionButton ? captionButton.getAttribute('aria-pressed') === 'true' : false;
-                    console.log('Untertitel aktiv: ' + isActive);
-                    return isActive;
-                });
-                
-                if (!isSubtitleActive) {
-                    debug('Aktiviere Untertitel durch Klick...');
-                    await page.click('.ytp-subtitles-button');
-                    await page.waitForTimeout(1000);
-                    debug('Untertitel sollten jetzt aktiviert sein');
-                } else {
-                    debug('Untertitel sind bereits aktiviert');
-                }
-                
-                // Starte Video und sammle Untertitel
-                debug('Starte Video und sammle Untertitel...');
-                
-                // Maximiere den Untertitel-Erfassungsbereich
-                await page.evaluate(() => {
-                    const video = document.querySelector('video');
-                    if (video) {
-                        video.muted = true;
-                        video.play();
-                        console.log('Video gestartet (stumm)');
-                    } else {
-                        console.error('Kein Video-Element gefunden');
-                    }
-                });
-                
-                // Sammle 45 Sekunden lang Untertitel
-                const captionTexts = new Set();
-                
-                for (let i = 0; i < 30; i++) {
-                    debug('Sammle Untertitel (Durchlauf ' + (i+1) + '/30)...');
-                    
-                    const newCaptions = await page.evaluate(() => {
-                        const captionElements = document.querySelectorAll('.ytp-caption-segment, .captions-text');
-                        const captions = Array.from(captionElements).map(el => el.innerText.trim()).filter(text => text.length > 0);
-                        console.log('Gefundene Untertitel in diesem Durchlauf: ' + captions.length);
-                        return captions;
-                    });
-                    
-                    if (newCaptions.length > 0) {
-                        newCaptions.forEach(text => captionTexts.add(text));
-                        debug('Gefundene Untertitel bisher: ' + captionTexts.size);
-                    }
-                    
-                    // Alle 1,5 Sekunden prüfen
-                    await page.waitForTimeout(1500);
-                    
-                    // Spule im Video vor, wenn nach einigen Versuchen nichts gefunden wurde
-                    if (i % 5 === 4 && captionTexts.size < 5) {
-                        debug('Nicht genug Untertitel gefunden, spule vor...');
-                        await page.evaluate(() => {
-                            const video = document.querySelector('video');
-                            if (video) {
-                                const newTime = video.currentTime + 30;
-                                console.log('Spule vor von ' + video.currentTime + ' auf ' + newTime);
-                                video.currentTime = newTime;
-                            }
-                        });
-                    }
-                    
-                    // Brich ab, wenn genug Untertitel gesammelt wurden
-                    if (captionTexts.size > 30) {
-                        debug('Genug Untertitel gesammelt, breche Sammlung ab');
-                        break;
-                    }
-                }
-                
-                // Stoppe Video
-                await page.evaluate(() => {
-                    const video = document.querySelector('video');
-                    if (video) {
-                        video.pause();
-                        console.log('Video gestoppt');
-                    }
-                });
-                
-                // Speichere gesammelte Untertitel
-                const captionArray = Array.from(captionTexts);
-                result.captionText = captionArray.join(' ');
-                debug('Insgesamt ' + captionArray.length + ' Untertitel-Segmente gesammelt.');
-            } catch (error) {
-                debug('Fehler bei der Untertitel-Extraktion: ' + error.message);
+        // Untertitel prüfen - Untertitel-Button anklicken
+        await page.evaluate(() => {
+            const captionsButton = document.querySelector('button.ytp-subtitles-button');
+            if (captionsButton) {
+                captionsButton.click();
             }
-        } else {
-            debug('Keine Untertitel für dieses Video verfügbar.');
-        }
+        });
         
-        result.success = true;
+        // Kurz warten und Verfügbarkeit prüfen
+        await page.waitForTimeout(1000);
         
+        const hasSubtitles = await page.evaluate(() => {
+            const captionsPanel = document.querySelector('.ytp-caption-segment');
+            const captionsButton = document.querySelector('button.ytp-subtitles-button');
+            const isEnabled = captionsButton && captionsButton.getAttribute('aria-pressed') === 'true';
+            return !!captionsPanel || isEnabled;
+        });
+        
+        logDebug(`Untertitel verfügbar: \${hasSubtitles}`);
+        
+        // Speichere die aktuelle Cookies für spätere Verwendung
+        const cookies = await page.cookies();
+        fs.writeFileSync(cookieFile, JSON.stringify(cookies, null, 2), 'utf8');
+        logDebug('Cookies gespeichert');
+        
+        // Erfolgreicher Abschluss
+        saveResult({
+            success: true,
+            videoId: videoId,
+            title: title,
+            description: description,
+            hasSubtitles: hasSubtitles,
+            timestamp: new Date().toISOString()
+        });
+        
+        logDebug('Extraktion erfolgreich abgeschlossen');
     } catch (error) {
-        debug('Allgemeiner Fehler: ' + error.message);
-        debug(error.stack);
-        result.error = error.message;
+        logDebug(`Fehler bei der Ausführung: \${error.message}`);
+        logDebug(error.stack);
+        
+        let errorType = 'Unbekannter Fehler';
+        
+        if (error.message.includes('net::ERR_PROXY_CONNECTION_FAILED')) {
+            errorType = 'Proxy-Verbindungsfehler';
+        } else if (error.message.includes('Navigation timeout')) {
+            errorType = 'Zeitüberschreitung bei der Navigation';
+        } else if (error.message.includes('Target closed')) {
+            errorType = 'Browser wurde unerwartet geschlossen';
+        }
+        
+        saveResult({
+            success: false,
+            videoId: videoId,
+            error: errorType,
+            errorMessage: error.message,
+            timestamp: new Date().toISOString()
+        });
     } finally {
-        // Speichere Ergebnis in die Datei
-        debug('Speichere Ergebnisse in ' + '$outputFile');
-        fs.writeFileSync('$outputFile', JSON.stringify(result, null, 2));
-        
-        if (page) {
-            debug('Erstelle finalen Screenshot...');
-            try {
-                await page.screenshot({ path: '$tempDir/youtube_final_' + Date.now() + '.png' });
-            } catch (e) {
-                debug('Fehler beim finalen Screenshot: ' + e.message);
-            }
+        // Aufräumen
+        try {
+            if (page) await page.close();
+            if (browser) await browser.close();
+        } catch (error) {
+            logDebug(`Fehler beim Schließen des Browsers: \${error.message}`);
         }
         
-        if (browser) {
-            debug('Schließe Browser...');
-            await browser.close();
-            debug('Browser geschlossen');
-        }
-        
-        // Gib Ergebnis zurück
-        console.log(JSON.stringify(result));
-        debug('Script beendet');
+        logDebug('Prozess beendet');
     }
 })();
 EOT;
 
-    return [
-        'script' => $script,
-        'outputFile' => $outputFile,
-        'debugLogFile' => $debugLogFile
-    ];
+    return $scriptContent;
 }
 
 // Shell-Befehl ausführen mit verbessertem Logging
@@ -635,107 +447,85 @@ function execCommand($command, $timeout = 300) {
     }
 }
 
-// Hauptfunktion zur Verarbeitung eines YouTube-Videos mit Proxy-Unterstützung
-function processYoutubeVideo($url, $username = '', $password = '', $proxyUrl = '') {
-    global $outputDir, $tempDir, $DEBUG;
-    
-    // Videoanalyse starten
-    logMessage("Starte Analyse für URL: $url", "INFO");
-    if (!empty($proxyUrl)) {
-        logMessage("Verwende Proxy: $proxyUrl", "INFO");
-    }
+// YouTube-Video mit Puppeteer verarbeiten
+function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxyUrl = '') {
+    global $tempDir, $outputDir;
     
     // Video-ID extrahieren
-    $videoId = extractYoutubeId($url);
+    $videoId = extractYoutubeId($youtubeUrl);
     if (!$videoId) {
-        logMessage("Keine gültige YouTube-ID gefunden in: $url", "ERROR");
-        return [
-            'success' => false,
-            'error' => 'Keine gültige YouTube-URL'
-        ];
+        logMessage("Ungültige YouTube-URL: $youtubeUrl", 'ERROR');
+        return false;
     }
     
-    logMessage("Extrahierte YouTube-ID: $videoId", "INFO");
+    logMessage("Verarbeite YouTube-Video mit ID: $videoId", 'INFO');
     
-    // Systemprüfungen
-    logMessage("Überprüfe Node.js-Installation...", "INFO");
-    $nodeCheck = execCommand('node --version');
-    if ($nodeCheck['exitCode'] !== 0) {
-        logMessage("Node.js ist nicht installiert oder nicht verfügbar", "ERROR");
-        return [
-            'success' => false,
-            'error' => 'Node.js ist nicht verfügbar'
-        ];
-    }
-    
-    logMessage("Überprüfe Puppeteer-Installation...", "INFO");
-    $puppeteerCheck = execCommand('npm list -g puppeteer');
-    if (strpos($puppeteerCheck['output'], 'puppeteer@') === false) {
-        logMessage("Puppeteer ist möglicherweise nicht installiert", "WARNING");
-        logMessage("Versuche trotzdem fortzufahren...", "INFO");
-    }
-    
-    // Puppeteer-Script erstellen mit Proxy
-    logMessage("Erstelle Puppeteer-Script...", "INFO");
-    $scriptData = createPuppeteerScript($videoId, $username, $password, $proxyUrl);
+    // Puppeteer-Skript erstellen
+    $scriptContent = createPuppeteerScript($videoId, $username, $password, $proxyUrl);
     $scriptFile = $tempDir . '/puppeteer_script_' . uniqid() . '.js';
-    file_put_contents($scriptFile, $scriptData['script']);
-    logMessage("Script gespeichert unter: $scriptFile", "DEBUG");
+    file_put_contents($scriptFile, $scriptContent);
     
-    // Script ausführen
-    logMessage("Starte Puppeteer-Browser (kann einige Minuten dauern)...", "INFO");
+    // Node.js-Prozess starten
+    $nodeExecutable = '/usr/bin/node'; // Vollständiger Pfad zu Node.js
+    $command = escapeshellcmd("$nodeExecutable $scriptFile");
     
-    // Ausführungszeit erhöhen für komplexe Seiten
-    set_time_limit(600);
+    logMessage("Führe Node.js-Skript aus: $command", 'INFO');
     
-    $debugOutputFile = $tempDir . '/node_debug_' . uniqid() . '.log';
-    $cmd = "node $scriptFile 2>&1";
-    if ($DEBUG) {
-        logMessage("Ausführungsbefehl: $cmd", "DEBUG");
+    // Prozess ausführen mit Ausgabeerfassung
+    $output = [];
+    $exitCode = -1;
+    
+    exec($command . ' 2>&1', $output, $exitCode);
+    
+    // Temporäre Datei löschen
+    if (file_exists($scriptFile)) {
+        unlink($scriptFile);
     }
     
-    $startTime = microtime(true);
-    $result = execCommand($cmd, 300); // 5-Minuten-Timeout
-    $executionTime = round(microtime(true) - $startTime, 2);
-    
-    logMessage("Puppeteer-Ausführung abgeschlossen in $executionTime Sekunden", "INFO");
-    
-    // Ausgabe auswerten
-    if ($result['exitCode'] !== 0) {
-        logMessage("Puppeteer-Ausführung fehlgeschlagen mit Exit-Code: " . $result['exitCode'], "ERROR");
+    // Ausgabe überprüfen
+    if ($exitCode !== 0) {
+        logMessage("Prozess beendet mit Exit-Code: $exitCode", 'ERROR');
         
-        // Mehr Kontext für Fehler bereitstellen
-        logMessage("Versuche Debug-Log zu lesen...", "INFO");
-        if (file_exists($scriptData['debugLogFile'])) {
-            $debugLog = file_get_contents($scriptData['debugLogFile']);
-            logMessage("Debug-Log (letzte 20 Zeilen):", "DEBUG");
-            $debugLines = explode("\n", $debugLog);
-            $lastLines = array_slice($debugLines, -20);
-            foreach ($lastLines as $line) {
-                logMessage("  " . $line, "LOG");
+        // Versuche nach bestimmten Mustern im Fehler zu suchen
+        $errorOutput = implode("\n", $output);
+        
+        if (strpos($errorOutput, 'Error: Failed to launch the browser') !== false) {
+            logMessage("Konnte Browser nicht starten. Ist Chromium installiert?", 'ERROR');
+            logMessage("Installieren Sie Chromium mit: apt-get install chromium-browser", 'INFO');
+        } elseif (strpos($errorOutput, 'Cannot find module') !== false) {
+            logMessage("Node.js-Module fehlen. Führen Sie 'npm install puppeteer' aus.", 'ERROR');
+        } elseif (empty($output)) {
+            logMessage("Node.js ist nicht installiert oder nicht verfügbar", 'ERROR');
+            logMessage("Installieren Sie Node.js mit: apt-get install nodejs npm", 'INFO');
+        } else {
+            logMessage("Fehler beim Ausführen des Node.js-Skripts:", 'ERROR');
+            foreach ($output as $line) {
+                logMessage($line, 'ERROR');
             }
         }
         
-        return [
-            'success' => false,
-            'error' => 'Fehler bei der Ausführung von Puppeteer: ' . substr($result['output'], 0, 500),
-            'rawOutput' => $result['output']
-        ];
+        return false;
     }
     
+    // Globale Variable für die Output-Datei verwenden
+    global $outputFilePath;
+    
     // JSON-Ergebnis aus der Datei lesen
-    logMessage("Lese Ergebnisdatei: " . $scriptData['outputFile'], "INFO");
-    if (!file_exists($scriptData['outputFile'])) {
+    logMessage("Lese Ergebnisdatei: " . $outputFilePath, "INFO");
+    if (!file_exists($outputFilePath)) {
         logMessage("Ergebnisdatei wurde nicht erstellt!", "ERROR");
         return [
             'success' => false,
             'error' => 'Keine Ergebnisdatei gefunden',
-            'rawOutput' => $result['output']
+            'rawOutput' => implode("\n", $output)
         ];
     }
     
-    $jsonOutput = file_get_contents($scriptData['outputFile']);
+    $jsonOutput = file_get_contents($outputFilePath);
     $data = json_decode($jsonOutput, true);
+    
+    // Temporäre Datei löschen
+    unlink($outputFilePath);
     
     if (!$data) {
         logMessage("Konnte JSON-Daten nicht parsen", "ERROR");
@@ -791,13 +581,6 @@ function processYoutubeVideo($url, $username = '', $password = '', $proxyUrl = '
         logMessage("Metadaten gespeichert in: $jsonFile", "INFO");
     } else {
         logMessage("Analyse fehlgeschlagen: " . ($data['error'] ?? 'Unbekannter Fehler'), "ERROR");
-    }
-    
-    // Aufräumen - temporäre Script-Datei löschen, wenn nicht im Debug-Modus
-    if (!$DEBUG) {
-        @unlink($scriptFile);
-    } else {
-        logMessage("Debug-Modus aktiv: Temporäre Dateien werden beibehalten", "DEBUG");
     }
     
     return $data;
