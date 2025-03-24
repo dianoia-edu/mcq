@@ -123,7 +123,7 @@ function createPuppeteerScript($videoId, $username = '', $password = '', $proxyU
     
     // Skript mit korrektem Pfad zum Puppeteer-Modul
     $script = <<<EOT
-const puppeteer = require('./node_modules/puppeteer');
+const puppeteer = require('/var/www/dianoia-ai.de/mcq-test-system/node_modules/puppeteer');
 const fs = require('fs');
 const path = require('path');
 
