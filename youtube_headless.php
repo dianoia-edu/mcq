@@ -110,252 +110,154 @@ function extractYoutubeId($url) {
 
 // Browser mit Proxy-Unterstützung starten
 function createPuppeteerScript($videoId, $username = '', $password = '', $proxyUrl = '') {
-    global $cookieDir, $tempDir;
+    global $tempDir;
     
-    $cookieFile = $cookieDir . '/youtube_cookies.json';
-    $debugLogFile = $tempDir . '/puppeteer_debug_' . uniqid() . '.log';
-    $outputFile = $tempDir . '/yt_result_' . uniqid() . '.json';
-    $hasCredentials = !empty($username) && !empty($password);
-    $hasProxy = !empty($proxyUrl);
+    // Speichere den Output-Pfad in einer globalen Variable
+    $GLOBALS['outputFilePath'] = $tempDir . '/youtube_data_' . $videoId . '.json';
     
-    // Speichere den Output-Dateinamen, um ihn später zu verwenden
-    $GLOBALS['outputFilePath'] = $outputFile;
-    
-    // Proxy-Konfiguration für Puppeteer
-    $proxyArgs = '';
-    if ($hasProxy) {
-        $proxyArgs = <<<EOT
-            '--proxy-server=$proxyUrl',
-EOT;
+    // Proxy-Konfiguration
+    $proxyConfig = '';
+    if (!empty($proxyUrl)) {
+        $proxyConfig = "args: ['--proxy-server=$proxyUrl'],";
     }
     
-    $loginCode = '';
-    if ($hasCredentials) {
-        $loginCode = <<<EOT
-        // Login-Versuch, wenn Anmeldedaten angegeben wurden
-        try {
-            console.log('Versuche YouTube-Login...');
-            await page.goto('https://accounts.google.com/signin/v2/identifier?service=youtube', { waitUntil: 'networkidle2' });
-            
-            // E-Mail eingeben
-            await page.type('input[type="email"]', '$username');
-            await page.click('#identifierNext');
-            
-            // Warten auf Passwort-Eingabefeld
-            await page.waitForSelector('input[type="password"]', { visible: true, timeout: 10000 });
-            await page.type('input[type="password"]', '$password');
-            await page.click('#passwordNext');
-            
-            // Warten auf Abschluss der Anmeldung
-            await page.waitForNavigation({ waitUntil: 'networkidle2' });
-            console.log('Login abgeschlossen');
-            
-            // Sicherstellen, dass wir auf YouTube sind
-            if (!page.url().includes('youtube.com')) {
-                await page.goto('https://www.youtube.com');
-            }
-        } catch (error) {
-            console.error('Login fehlgeschlagen:', error.message);
-            // Trotzdem fortfahren...
-        }
-EOT;
-    }
-    
-    // Puppeteer-Skript für YouTube-Extraktion mit direktem Import und lokaler Installation
-    $scriptContent = <<<EOT
-// Puppeteer-Skript zur Extraktion von YouTube-Videoinformationen
+    // Skript mit korrektem Pfad zum Puppeteer-Modul
+    $script = <<<EOT
+const puppeteer = require('./node_modules/puppeteer');
 const fs = require('fs');
-const puppeteer = require('puppeteer');
+const path = require('path');
 
-// Konfiguration
-const videoId = '$videoId';
-const outputFile = '$outputFile';
-const debugLogFile = '$debugLogFile';
-const cookieFile = '$cookieFile';
-
-// Debug-Log-Funktion
-function logDebug(message) {
-    const timestamp = new Date().toISOString();
-    const logEntry = `\${timestamp} - \${message}`;
-    console.log(logEntry);
-    
-    // In Debug-Datei schreiben
-    fs.appendFileSync(debugLogFile, logEntry + "\\n", { encoding: 'utf8' });
-}
-
-// Ergebnisfunktion
-function saveResult(data) {
-    fs.writeFileSync(outputFile, JSON.stringify(data, null, 2), { encoding: 'utf8' });
-    logDebug(`Ergebnis in \${outputFile} gespeichert`);
-}
-
-// Fehlerbehandlung
-process.on('unhandledRejection', (error) => {
-    logDebug(`Unbehandelte Ablehnung: \${error.message}`);
-    logDebug(error.stack);
-    
-    saveResult({
-        success: false,
-        error: `Unbehandelte Ablehnung: \${error.message}`,
-        stack: error.stack
-    });
-    
-    process.exit(1);
-});
-
-// Hauptfunktion
 (async () => {
-    let browser = null;
-    let page = null;
-    
     try {
-        logDebug('Starte Browser...');
-        
-        // Browser mit Konfiguration starten
-        browser = await puppeteer.launch({
-            headless: "new",
+        console.log('Starte Browser...');
+        const browser = await puppeteer.launch({
+            headless: true,
             executablePath: '/snap/bin/chromium',
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--disable-gpu',
-                '--window-size=1280,800',
-                $proxyArgs
-            ]
+            $proxyConfig
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         
-        page = await browser.newPage();
+        console.log('Öffne neue Seite...');
+        const page = await browser.newPage();
         
-        // User-Agent setzen
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36');
+        // Setze User-Agent
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
         
-        // Cookies laden, wenn vorhanden
-        if (fs.existsSync(cookieFile)) {
-            logDebug(`Lade Cookies aus \${cookieFile}`);
-            try {
-                const cookiesString = fs.readFileSync(cookieFile, 'utf8');
-                const cookies = JSON.parse(cookiesString);
-                await page.setCookie(...cookies);
-                logDebug('Cookies erfolgreich geladen');
-            } catch (error) {
-                logDebug(`Fehler beim Laden der Cookies: \${error.message}`);
+        // Setze Viewport
+        await page.setViewport({ width: 1920, height: 1080 });
+        
+        // Navigiere zu YouTube
+        console.log('Navigiere zu YouTube...');
+        await page.goto('https://www.youtube.com/watch?v=$videoId', {
+            waitUntil: 'networkidle0',
+            timeout: 30000
+        });
+        
+        // Warte auf Cookie-Banner und klicke "Alle Cookies akzeptieren"
+        try {
+            const acceptButton = await page.waitForSelector('button[aria-label="Alle Cookies akzeptieren"]', { timeout: 5000 });
+            if (acceptButton) {
+                console.log('Akzeptiere Cookies...');
+                await acceptButton.click();
+                await page.waitForTimeout(2000);
             }
+        } catch (e) {
+            console.log('Kein Cookie-Banner gefunden oder bereits akzeptiert');
         }
         
-        // Page logging
-        page.on('console', msg => logDebug(`PAGE LOG: \${msg.text()}`));
-        page.on('error', err => logDebug(`PAGE ERROR: \${err.message}`));
+        // Warte auf Video-Titel
+        console.log('Warte auf Video-Titel...');
+        await page.waitForSelector('h1.ytd-video-primary-info-renderer', { timeout: 10000 });
         
-        // Login ausführen, wenn Anmeldedaten vorhanden
-        $loginCode
-        
-        // YouTube-Video besuchen
-        logDebug(`Navigiere zu YouTube-Video \${videoId}...`);
-        await page.goto(`https://www.youtube.com/watch?v=\${videoId}`, {
-            waitUntil: 'networkidle2',
-            timeout: 60000
-        });
-        
-        // Videotitel extrahieren
+        // Extrahiere Video-Titel
         const title = await page.evaluate(() => {
-            const titleElement = document.querySelector('h1.title.style-scope.ytd-video-primary-info-renderer');
-            return titleElement ? titleElement.textContent.trim() : null;
+            const titleElement = document.querySelector('h1.ytd-video-primary-info-renderer');
+            return titleElement ? titleElement.textContent.trim() : '';
         });
         
-        logDebug(`Extrahierter Titel: \${title}`);
-        
-        // Videobeschreibung extrahieren
+        // Extrahiere Beschreibung
+        console.log('Extrahiere Beschreibung...');
         const description = await page.evaluate(() => {
-            const showMoreBtn = document.querySelector('#description-inline-expander tp-yt-paper-button#expand');
-            if (showMoreBtn) {
-                showMoreBtn.click();
+            const descriptionElement = document.querySelector('#description-text');
+            return descriptionElement ? descriptionElement.textContent.trim() : '';
+        });
+        
+        // Speichere HTML-Inhalt für Debugging
+        const htmlContent = await page.content();
+        fs.writeFileSync(path.join('$tempDir', 'page_content_' . Date.now() . '.html'), htmlContent);
+        
+        // Prüfe auf Untertitel
+        console.log('Prüfe auf Untertitel...');
+        let captionText = '';
+        try {
+            // Klicke auf "Mehr anzeigen" in der Beschreibung
+            const moreButton = await page.waitForSelector('#description #expand', { timeout: 5000 });
+            if (moreButton) {
+                await moreButton.click();
+                await page.waitForTimeout(1000);
             }
             
-            // Warten, bis die Beschreibung erweitert wurde
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    const descriptionElement = document.querySelector('#description-inline-expander #description');
-                    resolve(descriptionElement ? descriptionElement.textContent.trim() : null);
-                }, 1000);
-            });
-        });
-        
-        logDebug(`Beschreibung extrahiert: \${description ? description.substring(0, 100) + '...' : 'Nicht gefunden'}`);
-        
-        // Untertitel prüfen - Untertitel-Button anklicken
-        await page.evaluate(() => {
-            const captionsButton = document.querySelector('button.ytp-subtitles-button');
-            if (captionsButton) {
-                captionsButton.click();
+            // Prüfe auf CC-Button
+            const ccButton = await page.waitForSelector('.ytp-subtitles-button', { timeout: 5000 });
+            if (ccButton) {
+                const isCCEnabled = await page.evaluate(() => {
+                    const button = document.querySelector('.ytp-subtitles-button');
+                    return button.getAttribute('aria-pressed') === 'true';
+                });
+                
+                if (!isCCEnabled) {
+                    await ccButton.click();
+                    await page.waitForTimeout(1000);
+                }
+                
+                // Extrahiere Untertitel
+                captionText = await page.evaluate(() => {
+                    const captions = document.querySelectorAll('.ytp-caption-segment');
+                    return Array.from(captions).map(caption => caption.textContent.trim()).join(' ');
+                });
             }
+        } catch (e) {
+            console.log('Keine Untertitel gefunden oder Fehler beim Extrahieren:', e.message);
+        }
+        
+        // Speichere Screenshot
+        console.log('Erstelle Screenshot...');
+        await page.screenshot({
+            path: path.join('$tempDir', 'youtube_' . Date.now() . '.png'),
+            fullPage: true
         });
         
-        // Kurz warten und Verfügbarkeit prüfen
-        await page.waitForTimeout(1000);
-        
-        const hasSubtitles = await page.evaluate(() => {
-            const captionsPanel = document.querySelector('.ytp-caption-segment');
-            const captionsButton = document.querySelector('button.ytp-subtitles-button');
-            const isEnabled = captionsButton && captionsButton.getAttribute('aria-pressed') === 'true';
-            return !!captionsPanel || isEnabled;
-        });
-        
-        logDebug(`Untertitel verfügbar: \${hasSubtitles}`);
-        
-        // Speichere die aktuelle Cookies für spätere Verwendung
-        const cookies = await page.cookies();
-        fs.writeFileSync(cookieFile, JSON.stringify(cookies, null, 2), 'utf8');
-        logDebug('Cookies gespeichert');
-        
-        // Erfolgreicher Abschluss
-        saveResult({
+        // Speichere Ergebnis
+        const result = {
             success: true,
-            videoId: videoId,
             title: title,
             description: description,
-            hasSubtitles: hasSubtitles,
+            captionText: captionText,
+            videoId: '$videoId',
             timestamp: new Date().toISOString()
-        });
+        };
         
-        logDebug('Extraktion erfolgreich abgeschlossen');
+        fs.writeFileSync('$outputFilePath', JSON.stringify(result, null, 2));
+        console.log('Ergebnis gespeichert');
+        
+        await browser.close();
+        console.log('Browser geschlossen');
+        
     } catch (error) {
-        logDebug(`Fehler bei der Ausführung: \${error.message}`);
-        logDebug(error.stack);
-        
-        let errorType = 'Unbekannter Fehler';
-        
-        if (error.message.includes('net::ERR_PROXY_CONNECTION_FAILED')) {
-            errorType = 'Proxy-Verbindungsfehler';
-        } else if (error.message.includes('Navigation timeout')) {
-            errorType = 'Zeitüberschreitung bei der Navigation';
-        } else if (error.message.includes('Target closed')) {
-            errorType = 'Browser wurde unerwartet geschlossen';
-        }
-        
-        saveResult({
+        console.error('Fehler:', error);
+        const errorResult = {
             success: false,
-            videoId: videoId,
-            error: errorType,
-            errorMessage: error.message,
+            error: error.message,
+            videoId: '$videoId',
             timestamp: new Date().toISOString()
-        });
-    } finally {
-        // Aufräumen
-        try {
-            if (page) await page.close();
-            if (browser) await browser.close();
-        } catch (error) {
-            logDebug(`Fehler beim Schließen des Browsers: \${error.message}`);
-        }
-        
-        logDebug('Prozess beendet');
+        };
+        fs.writeFileSync('$outputFilePath', JSON.stringify(errorResult, null, 2));
+        process.exit(1);
     }
 })();
 EOT;
-
-    return $scriptContent;
+    
+    return $script;
 }
 
 // Shell-Befehl ausführen mit verbessertem Logging
