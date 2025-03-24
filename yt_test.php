@@ -1,16 +1,69 @@
 // METHODE 6: Direkte yt-dlp-Integration für Untertitel
-logMessage("METHODE 6: Verwende yt-dlp für direkten Untertitel-Download...");
+logMessage("METHODE 6: Verwende yt-dlp für direkten Untertitel-Download (mit Browser-Cookies)...");
 $baseFilename = $tempDir . '/yt_' . $videoId;
 $ytdlpPath = '/home/mcqadmin/.local/bin/yt-dlp';
 
-// Versuche, Untertitel zu extrahieren
-$cmd = "$ytdlpPath --write-auto-sub --sub-format vtt --skip-download -o " . 
-      escapeshellarg($baseFilename) . " " . 
-      escapeshellarg("https://www.youtube.com/watch?v=$videoId") . " 2>&1";
+// Browser-Namen und deren Cookies-Pfade (anpassen je nach Server-Umgebung)
+$browsers = [
+    'chrome' => '--cookies-from-browser chrome',
+    'firefox' => '--cookies-from-browser firefox',
+    'edge' => '--cookies-from-browser edge',
+    'safari' => '--cookies-from-browser safari',
+    'opera' => '--cookies-from-browser opera',
+    'brave' => '--cookies-from-browser brave'
+];
 
-logMessage("Ausführen: $cmd");
-$output = shell_exec($cmd);
-logMessage("yt-dlp Ausgabe: " . substr($output, 0, 500) . (strlen($output) > 500 ? "..." : ""));
+$cookiesSuccess = false;
+
+// Versuche nacheinander verschiedene Browser-Cookies
+foreach ($browsers as $browser => $cookieOption) {
+    logMessage("Versuche $browser Cookies...");
+    
+    // Versuche, Untertitel mit Browser-Cookies zu extrahieren
+    $cmd = "$ytdlpPath $cookieOption --write-auto-sub --sub-format vtt --skip-download -o " . 
+          escapeshellarg($baseFilename) . " " . 
+          escapeshellarg("https://www.youtube.com/watch?v=$videoId") . " 2>&1";
+    
+    logMessage("Ausführen: $cmd");
+    $output = shell_exec($cmd);
+    logMessage("yt-dlp Ausgabe ($browser): " . substr($output, 0, 500) . (strlen($output) > 500 ? "..." : ""));
+    
+    // Prüfe auf Erfolg (keine Bot-Erkennung)
+    if (strpos($output, "Sign in to confirm you're not a bot") === false) {
+        $cookiesSuccess = true;
+        logMessage("Erfolgreich mit $browser Cookies!");
+        break;
+    }
+}
+
+// Wenn die Browser-Cookies nicht funktionieren, versuche es mit einer Invidious-Instanz als Proxy
+if (!$cookiesSuccess) {
+    logMessage("Browser-Cookies funktionieren nicht. Versuche Invidious als Proxy...");
+    $invidious_instances = [
+        'https://yewtu.be/watch?v=',
+        'https://invidious.snopyta.org/watch?v=',
+        'https://vid.puffyan.us/watch?v='
+    ];
+    
+    foreach ($invidious_instances as $instance) {
+        $proxyUrl = $instance . $videoId;
+        logMessage("Versuche Invidious-Instanz: $proxyUrl");
+        
+        $cmd = "$ytdlpPath --write-auto-sub --sub-format vtt --skip-download -o " . 
+              escapeshellarg($baseFilename) . " " . 
+              escapeshellarg($proxyUrl) . " 2>&1";
+        
+        logMessage("Ausführen: $cmd");
+        $output = shell_exec($cmd);
+        logMessage("yt-dlp Ausgabe (Invidious): " . substr($output, 0, 500) . (strlen($output) > 500 ? "..." : ""));
+        
+        if (strpos($output, "Sign in to confirm you're not a bot") === false) {
+            $cookiesSuccess = true;
+            logMessage("Erfolgreich mit Invidious-Instanz!");
+            break;
+        }
+    }
+}
 
 // Suche nach VTT-Untertiteldateien
 $subtitleFiles = glob($baseFilename . "*.vtt");
@@ -72,6 +125,21 @@ if (!empty($subtitleFiles)) {
     }
 } else {
     logMessage("Keine Untertiteldateien gefunden mit yt-dlp.");
+    
+    // Alternative: Versuche die Videobeschreibung zu bekommen
+    logMessage("Versuche die Videobeschreibung zu erhalten...");
+    $cmd = "$ytdlpPath --cookies-from-browser chrome --get-description " . 
+          escapeshellarg("https://www.youtube.com/watch?v=$videoId") . " 2>&1";
+    
+    $description = shell_exec($cmd);
+    
+    if (!empty($description) && strpos($description, "Sign in to confirm you're not a bot") === false) {
+        logMessage("Videobeschreibung erhalten. Länge: " . strlen($description) . " Zeichen");
+        echo "<h3 class='warning'>Untertitel nicht verfügbar. Hier ist die Videobeschreibung:</h3>";
+        echo "<pre>" . htmlspecialchars($description) . "</pre>";
+    } else {
+        logMessage("Konnte keine Videobeschreibung erhalten.");
+    }
 }
 
 // METHODE 7: Python youtube-transcript-api
