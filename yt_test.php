@@ -1,44 +1,50 @@
 // METHODE 6: Direkte yt-dlp-Integration für Untertitel
-logMessage("METHODE 6: Verwende yt-dlp für direkten Untertitel-Download (mit Browser-Cookies)...");
+logMessage("METHODE 6: Verwende yt-dlp für direkten Untertitel-Download (mit Cookie-Datei)...");
 $baseFilename = $tempDir . '/yt_' . $videoId;
 $ytdlpPath = '/home/mcqadmin/.local/bin/yt-dlp';
 
-// Browser-Namen und deren Cookies-Pfade (anpassen je nach Server-Umgebung)
-$browsers = [
-    'chrome' => '--cookies-from-browser chrome',
-    'firefox' => '--cookies-from-browser firefox',
-    'edge' => '--cookies-from-browser edge',
-    'safari' => '--cookies-from-browser safari',
-    'opera' => '--cookies-from-browser opera',
-    'brave' => '--cookies-from-browser brave'
-];
+// Pfad zur Cookie-Datei, die manuell hochgeladen wurde
+// TODO: Lade eine YouTube-Cookie-Datei hoch und gib hier den Pfad an
+$cookiePath = __DIR__ . '/youtube_cookies.txt';
 
 $cookiesSuccess = false;
 
-// Versuche nacheinander verschiedene Browser-Cookies
-foreach ($browsers as $browser => $cookieOption) {
-    logMessage("Versuche $browser Cookies...");
+// Prüfe ob die Cookie-Datei existiert
+if (file_exists($cookiePath)) {
+    logMessage("Verwende Cookie-Datei: $cookiePath");
     
-    // Versuche, Untertitel mit Browser-Cookies zu extrahieren
-    $cmd = "$ytdlpPath $cookieOption --write-auto-sub --sub-format vtt --skip-download -o " . 
-          escapeshellarg($baseFilename) . " " . 
-          escapeshellarg("https://www.youtube.com/watch?v=$videoId") . " 2>&1";
+    // Versuche, Untertitel mit der Cookie-Datei zu extrahieren
+    $cmd = "$ytdlpPath --cookies " . escapeshellarg($cookiePath) . 
+           " --write-auto-sub --sub-format vtt --skip-download -o " . 
+           escapeshellarg($baseFilename) . " " . 
+           escapeshellarg("https://www.youtube.com/watch?v=$videoId") . " 2>&1";
     
     logMessage("Ausführen: $cmd");
     $output = shell_exec($cmd);
-    logMessage("yt-dlp Ausgabe ($browser): " . substr($output, 0, 500) . (strlen($output) > 500 ? "..." : ""));
+    logMessage("yt-dlp Ausgabe (mit Cookie-Datei): " . substr($output, 0, 500) . (strlen($output) > 500 ? "..." : ""));
     
     // Prüfe auf Erfolg (keine Bot-Erkennung)
     if (strpos($output, "Sign in to confirm you're not a bot") === false) {
         $cookiesSuccess = true;
-        logMessage("Erfolgreich mit $browser Cookies!");
-        break;
+        logMessage("Erfolgreich mit Cookie-Datei!");
+    } else {
+        logMessage("Cookie-Datei hat nicht funktioniert oder ist abgelaufen.");
     }
+} else {
+    logMessage("Keine Cookie-Datei gefunden unter: $cookiePath");
+    logMessage("Bitte lade eine YouTube-Cookie-Datei hoch und gib den Pfad im Skript an.");
+    echo "<div class='error'><p>Cookie-Datei nicht gefunden. Bitte folge diesen Schritten, um eine YouTube-Cookie-Datei zu erstellen:</p>";
+    echo "<ol>";
+    echo "<li>Installiere die Browser-Erweiterung 'Get cookies.txt' für Chrome oder Firefox</li>";
+    echo "<li>Besuche YouTube und melde dich an</li>";
+    echo "<li>Verwende die Erweiterung, um Cookies als .txt-Datei zu exportieren</li>";
+    echo "<li>Lade die Datei als 'youtube_cookies.txt' in das gleiche Verzeichnis wie dieses Skript hoch</li>";
+    echo "</ol></div>";
 }
 
-// Wenn die Browser-Cookies nicht funktionieren, versuche es mit einer Invidious-Instanz als Proxy
+// Wenn die Cookie-Datei nicht funktioniert, versuche es mit einer Invidious-Instanz als Proxy
 if (!$cookiesSuccess) {
-    logMessage("Browser-Cookies funktionieren nicht. Versuche Invidious als Proxy...");
+    logMessage("Cookie-Datei nicht verfügbar oder funktioniert nicht. Versuche Invidious als Proxy...");
     $invidious_instances = [
         'https://yewtu.be/watch?v=',
         'https://invidious.snopyta.org/watch?v=',
@@ -57,7 +63,8 @@ if (!$cookiesSuccess) {
         $output = shell_exec($cmd);
         logMessage("yt-dlp Ausgabe (Invidious): " . substr($output, 0, 500) . (strlen($output) > 500 ? "..." : ""));
         
-        if (strpos($output, "Sign in to confirm you're not a bot") === false) {
+        if (strpos($output, "Sign in to confirm you're not a bot") === false && 
+            strpos($output, "ERROR") === false) {
             $cookiesSuccess = true;
             logMessage("Erfolgreich mit Invidious-Instanz!");
             break;
@@ -126,19 +133,22 @@ if (!empty($subtitleFiles)) {
 } else {
     logMessage("Keine Untertiteldateien gefunden mit yt-dlp.");
     
-    // Alternative: Versuche die Videobeschreibung zu bekommen
-    logMessage("Versuche die Videobeschreibung zu erhalten...");
-    $cmd = "$ytdlpPath --cookies-from-browser chrome --get-description " . 
-          escapeshellarg("https://www.youtube.com/watch?v=$videoId") . " 2>&1";
-    
-    $description = shell_exec($cmd);
-    
-    if (!empty($description) && strpos($description, "Sign in to confirm you're not a bot") === false) {
-        logMessage("Videobeschreibung erhalten. Länge: " . strlen($description) . " Zeichen");
-        echo "<h3 class='warning'>Untertitel nicht verfügbar. Hier ist die Videobeschreibung:</h3>";
-        echo "<pre>" . htmlspecialchars($description) . "</pre>";
-    } else {
-        logMessage("Konnte keine Videobeschreibung erhalten.");
+    // Alternative: Versuche die Videobeschreibung zu bekommen (falls Cookie-Datei existiert)
+    if (file_exists($cookiePath)) {
+        logMessage("Versuche die Videobeschreibung zu erhalten...");
+        $cmd = "$ytdlpPath --cookies " . escapeshellarg($cookiePath) . 
+              " --get-description " . 
+              escapeshellarg("https://www.youtube.com/watch?v=$videoId") . " 2>&1";
+        
+        $description = shell_exec($cmd);
+        
+        if (!empty($description) && strpos($description, "Sign in to confirm you're not a bot") === false) {
+            logMessage("Videobeschreibung erhalten. Länge: " . strlen($description) . " Zeichen");
+            echo "<h3 class='warning'>Untertitel nicht verfügbar. Hier ist die Videobeschreibung:</h3>";
+            echo "<pre>" . htmlspecialchars($description) . "</pre>";
+        } else {
+            logMessage("Konnte keine Videobeschreibung erhalten.");
+        }
     }
 }
 
