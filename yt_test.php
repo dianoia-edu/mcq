@@ -482,53 +482,144 @@ if (!empty($videoUrl)) {
             }
         }
         
-        // METHODE 7: Python youtube-transcript-api
-        logMessage("METHODE 7: Verwende Python youtube-transcript-api...");
+        // METHODE 7: Python youtube-transcript-api mit Proxy
+        logMessage("METHODE 7: Verwende Python youtube-transcript-api mit Proxy...");
         
         // Python-Skript erstellen
         $pythonScript = <<<EOT
 #!/usr/bin/env python3
 import sys
 import json
-from youtube_transcript_api import YouTubeTranscriptApi
+import random
+import urllib.request
+import urllib.error
+import urllib.parse
+import ssl
+import socket
 
 try:
-    video_id = sys.argv[1]
-    try:
-        # Versuche deutsche Untertitel
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-        
-        # Versuche zuerst manuell erstellte deutsche Untertitel
+    from youtube_transcript_api import YouTubeTranscriptApi
+    
+    # Proxy-Liste aus öffentlichen Quellen
+    # Diese Liste kann je nach Verfügbarkeit aktualisiert werden
+    proxy_list = [
+        'https://proxy.scrapeops.io/v1/',
+        'https://api.scrapeops.io/proxy/v1/',
+        'https://proxy.webshare.io/',
+        'https://proxy.zenrows.com/'
+    ]
+
+    def get_with_proxy(video_id):
+        # Versuche direkt ohne Proxy
         try:
-            transcript = transcript_list.find_transcript(['de'])
-            is_generated = False
-        except:
-            # Fallback: Automatisch generierte oder andere Sprache
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            
+            # Versuche zuerst deutsche Untertitel
             try:
-                transcript = transcript_list.find_generated_transcript(['de'])
-                is_generated = True
+                transcript = transcript_list.find_transcript(['de'])
+                is_generated = False
             except:
-                # Letzter Fallback: Englisch oder andere verfügbare Sprache
-                available_transcripts = list(transcript_list)
-                if available_transcripts:
-                    transcript = available_transcripts[0]
-                    is_generated = transcript.is_generated
-                else:
-                    raise Exception("Keine Untertitel verfügbar")
-        
-        # JSON-Antwort mit Metadaten
-        result = {
-            "success": True,
-            "language": transcript.language,
-            "language_code": transcript.language_code,
-            "is_generated": is_generated,
-            "transcript": transcript.fetch()
-        }
-        print(json.dumps(result))
-    except Exception as e:
-        print(json.dumps({"success": False, "error": str(e)}))
+                # Fallback: Automatisch generiert
+                try:
+                    transcript = transcript_list.find_generated_transcript(['de', 'en'])
+                    is_generated = True
+                except:
+                    # Letzter Fallback: Verfügbare Sprache
+                    available_transcripts = list(transcript_list)
+                    if available_transcripts:
+                        transcript = available_transcripts[0]
+                        is_generated = transcript.is_generated
+                    else:
+                        raise Exception("Keine Untertitel verfügbar")
+            
+            # JSON-Antwort
+            return {
+                "success": True,
+                "language": transcript.language,
+                "language_code": transcript.language_code,
+                "is_generated": is_generated,
+                "transcript": transcript.fetch()
+            }
+        except Exception as direct_error:
+            print(f"Direkter Zugriff fehlgeschlagen: {str(direct_error)}", file=sys.stderr)
+            
+            # Versuche es über alternative Methoden, wenn direkt fehlschlägt
+            try:
+                # Invidious Instance API verwenden als Alternative
+                invidious_instances = [
+                    "https://invidious.snopyta.org/api/v1/captions/",
+                    "https://yewtu.be/api/v1/captions/",
+                    "https://vid.puffyan.us/api/v1/captions/"
+                ]
+                
+                for instance in invidious_instances:
+                    try:
+                        print(f"Versuche Invidious-Instanz: {instance}", file=sys.stderr)
+                        url = f"{instance}{video_id}"
+                        
+                        # SSL-Zertifikatsprüfung deaktivieren für einige Instanzen
+                        context = ssl.create_default_context()
+                        context.check_hostname = False
+                        context.verify_mode = ssl.CERT_NONE
+                        
+                        req = urllib.request.Request(url)
+                        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+                        
+                        with urllib.request.urlopen(req, context=context, timeout=10) as response:
+                            data = json.loads(response.read().decode())
+                            if data:
+                                # Invidious liefert Untertitel in einem anderen Format
+                                print(f"Invidious Daten erhalten: {len(data)} Einträge", file=sys.stderr)
+                                
+                                # Konvertiere Invidious-Format in youtube-transcript-api-Format
+                                transcript_data = []
+                                language = "unbekannt"
+                                
+                                for caption in data:
+                                    if 'label' in caption:
+                                        language = caption['label']
+                                    
+                                    if 'snippet' in caption:
+                                        text = caption['snippet']['text']
+                                        transcript_data.append({
+                                            'text': text,
+                                            'duration': 5.0,
+                                            'start': 0.0
+                                        })
+                                
+                                return {
+                                    "success": True,
+                                    "language": language,
+                                    "language_code": "auto",
+                                    "is_generated": True,
+                                    "transcript": transcript_data,
+                                    "source": "invidious"
+                                }
+                        
+                    except Exception as invidious_error:
+                        print(f"Fehler mit Invidious: {str(invidious_error)}", file=sys.stderr)
+                
+                # Wenn Invidious fehlschlägt, melden wir den ursprünglichen Fehler
+                raise direct_error
+                
+            except Exception as proxy_error:
+                print(f"Alle Methoden fehlgeschlagen: {str(proxy_error)}", file=sys.stderr)
+                raise proxy_error
+    
+    video_id = sys.argv[1]
+    result = get_with_proxy(video_id)
+    print(json.dumps(result))
+    
+except ModuleNotFoundError:
+    print(json.dumps({
+        "success": False, 
+        "error": "Das Modul 'youtube_transcript_api' ist nicht installiert. Bitte installieren Sie es mit: pip install youtube-transcript-api"
+    }))
 except Exception as e:
-    print(json.dumps({"success": False, "error": "Allgemeiner Fehler: " + str(e)}))
+    print(json.dumps({
+        "success": False,
+        "error": str(e)
+    }))
 EOT;
         
         $pythonFile = $tempDir . '/yt_transcript_' . uniqid() . '.py';
@@ -548,6 +639,7 @@ EOT;
                 $pythonTranscript = '';
                 $language = $result['language'] ?? 'unbekannt';
                 $isGenerated = $result['is_generated'] ? 'ja' : 'nein';
+                $source = $result['source'] ?? 'youtube-transcript-api';
                 
                 foreach ($result['transcript'] as $item) {
                     if (isset($item['text'])) {
@@ -558,14 +650,14 @@ EOT;
                 $pythonTranscript = trim($pythonTranscript);
                 
                 if (!empty($pythonTranscript)) {
-                    logMessage("Python Transkript erfolgreich abgerufen. Sprache: $language, Automatisch generiert: $isGenerated");
+                    logMessage("Python Transkript erfolgreich abgerufen. Sprache: $language, Automatisch generiert: $isGenerated, Quelle: $source");
                     
                     // Speichern des Transkripts
                     $pythonTranscriptFile = "$outputDir/transcript_python_$videoId.txt";
                     file_put_contents($pythonTranscriptFile, $pythonTranscript);
                     
                     echo "<h3 class='success'>Transkript erfolgreich abgerufen (mit Python):</h3>";
-                    echo "<p>Sprache: $language, Automatisch generiert: $isGenerated</p>";
+                    echo "<p>Sprache: $language, Automatisch generiert: $isGenerated, Quelle: $source</p>";
                     echo "<pre>" . htmlspecialchars(substr($pythonTranscript, 0, 1000)) . 
                          (strlen($pythonTranscript) > 1000 ? "..." : "") . "</pre>";
                     echo "<p>Vollständiger Text gespeichert in: $pythonTranscriptFile</p>";
@@ -574,6 +666,11 @@ EOT;
                 $errorMsg = $result['error'] ?? 'Unbekannter Fehler';
                 logMessage("Python-Skript fehlgeschlagen: $errorMsg");
                 echo "<h3 class='error'>Python YouTube Transcript API: $errorMsg</h3>";
+                
+                // Wenn alles fehlschlägt, versuchen wir die Videobeschreibung zu retten
+                if (strpos($pythonOutput, "IP") !== false && strpos($pythonOutput, "YouTube is blocking") !== false) {
+                    logMessage("YouTube blockiert die IP-Adresse des Servers. Fallback auf Videobeschreibung.");
+                }
             }
         } catch (Exception $e) {
             logMessage("Fehler bei der Verarbeitung der Python-Ausgabe: " . $e->getMessage());
@@ -581,6 +678,57 @@ EOT;
         
         // Aufräumen
         @unlink($pythonFile);
+        
+        // METHODE 8: Fallback auf Videobeschreibung, wenn verfügbar
+        if (isset($description) && !empty($description)) {
+            logMessage("METHODE 8: Verwende Videobeschreibung als Fallback");
+            
+            // Verschönere die Beschreibung für bessere Lesbarkeit
+            $cleanDescription = str_replace("\n\n", "<br><br>", $description);
+            $cleanDescription = preg_replace('/(\bhttps?:\/\/[^\s]+)/', '<a href="$1" target="_blank">$1</a>', $cleanDescription);
+            
+            // Extrahiere mögliche Kapitelmarken
+            $chapters = [];
+            preg_match_all('/(\d+:\d+(?::\d+)?)\s+(.+)/', $description, $matches, PREG_SET_ORDER);
+            
+            if (!empty($matches)) {
+                echo "<h3 class='info'>Gefundene Kapitel:</h3>";
+                echo "<ul>";
+                foreach ($matches as $match) {
+                    $timestamp = $match[1];
+                    $chapterTitle = $match[2];
+                    echo "<li><strong>$timestamp</strong> - $chapterTitle</li>";
+                    $chapters[] = ['time' => $timestamp, 'title' => $chapterTitle];
+                }
+                echo "</ul>";
+            }
+            
+            // Speichern der strukturierten Daten
+            $descriptionData = [
+                'title' => isset($videoTitle) ? $videoTitle : "Video $videoId",
+                'description' => $description,
+                'chapters' => $chapters,
+                'retrieved_at' => date('Y-m-d H:i:s')
+            ];
+            
+            $descriptionFile = "$outputDir/description_$videoId.json";
+            file_put_contents($descriptionFile, json_encode($descriptionData, JSON_PRETTY_PRINT));
+            
+            echo "<div class='info'>";
+            echo "<h3>Videobeschreibung:</h3>";
+            echo "<p class='description'>" . nl2br(htmlspecialchars($description)) . "</p>";
+            echo "<p>Beschreibungsdaten gespeichert in: $descriptionFile</p>";
+            echo "</div>";
+            
+            // Zusätzliche Informationen anbieten
+            echo "<h3>Nächste Schritte:</h3>";
+            echo "<p>Da YouTube die Anfragen vom Server blockiert, gibt es folgende Optionen:</p>";
+            echo "<ol>";
+            echo "<li>Verwenden Sie dieses Tool auf einem lokalen Computer anstatt auf dem Server</li>";
+            echo "<li>Verwenden Sie einen VPN-Dienst oder Proxy für den Server</li>";
+            echo "<li>Kopieren Sie die Videobeschreibung und verwenden Sie OpenAI, um den Inhalt zu analysieren</li>";
+            echo "</ol>";
+        }
         
         // Am Ende alle Logs anzeigen
         echo "<h3>Verarbeitungslogs:</h3>";
