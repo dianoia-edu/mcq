@@ -184,7 +184,8 @@ const path = require('path');
         
         // Speichere HTML-Inhalt für Debugging
         const htmlContent = await page.content();
-        fs.writeFileSync(path.join('$tempDir', 'page_content_' . Date.now() . '.html'), htmlContent);
+        const timestamp = Date.now();
+        fs.writeFileSync(path.join('$tempDir', `page_content_\${timestamp}.html`), htmlContent);
         
         // Prüfe auf Untertitel
         console.log('Prüfe auf Untertitel...');
@@ -223,7 +224,7 @@ const path = require('path');
         // Speichere Screenshot
         console.log('Erstelle Screenshot...');
         await page.screenshot({
-            path: path.join('$tempDir', 'youtube_' . Date.now() . '.png'),
+            path: path.join('$tempDir', `youtube_\${timestamp}.png`),
             fullPage: true
         });
         
