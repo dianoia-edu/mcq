@@ -455,7 +455,11 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
     $videoId = extractYoutubeId($youtubeUrl);
     if (!$videoId) {
         logMessage("Ungültige YouTube-URL: $youtubeUrl", 'ERROR');
-        return false;
+        return [
+            'success' => false,
+            'error' => 'Ungültige YouTube-URL',
+            'videoId' => null
+        ];
     }
     
     logMessage("Verarbeite YouTube-Video mit ID: $videoId", 'INFO');
@@ -463,10 +467,18 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
     // Puppeteer-Skript erstellen
     $scriptContent = createPuppeteerScript($videoId, $username, $password, $proxyUrl);
     $scriptFile = $tempDir . '/puppeteer_script_' . uniqid() . '.js';
-    file_put_contents($scriptFile, $scriptContent);
+    
+    if (!file_put_contents($scriptFile, $scriptContent)) {
+        logMessage("Konnte Skriptdatei nicht erstellen", 'ERROR');
+        return [
+            'success' => false,
+            'error' => 'Konnte Skriptdatei nicht erstellen',
+            'videoId' => $videoId
+        ];
+    }
     
     // Node.js-Prozess starten
-    $nodeExecutable = '/usr/bin/node'; // Vollständiger Pfad zu Node.js
+    $nodeExecutable = '/usr/bin/node';
     $command = escapeshellcmd("$nodeExecutable $scriptFile");
     
     logMessage("Führe Node.js-Skript aus: $command", 'INFO');
@@ -489,22 +501,26 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
         // Versuche nach bestimmten Mustern im Fehler zu suchen
         $errorOutput = implode("\n", $output);
         
+        $errorMessage = 'Unbekannter Fehler';
         if (strpos($errorOutput, 'Error: Failed to launch the browser') !== false) {
-            logMessage("Konnte Browser nicht starten. Ist Chromium installiert?", 'ERROR');
+            $errorMessage = 'Konnte Browser nicht starten. Ist Chromium installiert?';
+            logMessage($errorMessage, 'ERROR');
             logMessage("Installieren Sie Chromium mit: apt-get install chromium-browser", 'INFO');
         } elseif (strpos($errorOutput, 'Cannot find module') !== false) {
-            logMessage("Node.js-Module fehlen. Führen Sie 'npm install puppeteer' aus.", 'ERROR');
+            $errorMessage = 'Node.js-Module fehlen. Führen Sie "npm install puppeteer" aus.';
+            logMessage($errorMessage, 'ERROR');
         } elseif (empty($output)) {
-            logMessage("Node.js ist nicht installiert oder nicht verfügbar", 'ERROR');
+            $errorMessage = 'Node.js ist nicht installiert oder nicht verfügbar';
+            logMessage($errorMessage, 'ERROR');
             logMessage("Installieren Sie Node.js mit: apt-get install nodejs npm", 'INFO');
-        } else {
-            logMessage("Fehler beim Ausführen des Node.js-Skripts:", 'ERROR');
-            foreach ($output as $line) {
-                logMessage($line, 'ERROR');
-            }
         }
         
-        return false;
+        return [
+            'success' => false,
+            'error' => $errorMessage,
+            'videoId' => $videoId,
+            'rawOutput' => $errorOutput
+        ];
     }
     
     // Globale Variable für die Output-Datei verwenden
@@ -517,6 +533,7 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
         return [
             'success' => false,
             'error' => 'Keine Ergebnisdatei gefunden',
+            'videoId' => $videoId,
             'rawOutput' => implode("\n", $output)
         ];
     }
@@ -533,6 +550,7 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
         return [
             'success' => false,
             'error' => 'Ungültiges JSON-Format',
+            'videoId' => $videoId,
             'rawOutput' => $jsonOutput
         ];
     }
@@ -570,7 +588,9 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
         $outputFile = $outputDir . "/youtube_transcript_$videoId.txt";
         $outputContent = "Titel: " . $data['title'] . "\n\n";
         $outputContent .= "Beschreibung:\n" . $data['description'] . "\n\n";
-        $outputContent .= "Untertitel:\n" . $data['captionText'] . "\n";
+        if (isset($data['captionText'])) {
+            $outputContent .= "Untertitel:\n" . $data['captionText'] . "\n";
+        }
         
         file_put_contents($outputFile, $outputContent);
         logMessage("Ergebnis gespeichert in: $outputFile", "INFO");
