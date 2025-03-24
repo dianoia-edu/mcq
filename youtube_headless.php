@@ -134,7 +134,24 @@ const path = require('path');
             headless: true,
             executablePath: '/snap/bin/chromium',
             $proxyConfig
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--disable-gpu',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process',
+                '--disable-extensions',
+                '--disable-software-rasterizer',
+                '--disable-features=IsolateOrigins,site-per-process',
+                '--disable-site-isolation-trials',
+                '--disable-web-security',
+                '--allow-running-insecure-content',
+                '--window-size=1920,1080'
+            ],
+            ignoreHTTPSErrors: true
         });
         
         console.log('Öffne neue Seite...');
