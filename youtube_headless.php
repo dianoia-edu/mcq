@@ -127,11 +127,15 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
+// Setze den Cache-Pfad für Puppeteer
+process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
+
 (async () => {
     try {
         console.log('Starte Browser...');
         const browser = await puppeteer.launch({
             headless: true,
+            executablePath: '/home/mcqadmin/.cache/puppeteer/chrome/linux-134.0.6998.35/chrome-linux64/chrome',
             $proxyConfig
             args: [
                 '--no-sandbox',
