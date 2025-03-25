@@ -153,9 +153,17 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
                 '--disable-web-security',
                 '--allow-running-insecure-content',
                 '--window-size=1920,1080',
-                '--remote-debugging-port=9222'
+                '--remote-debugging-port=9222',
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-breakpad',
+                '--disable-component-extensions-with-background-pages',
+                '--disable-features=TranslateUI,BlinkGenPropertyTrees',
+                '--disable-ipc-flooding-protection',
+                '--enable-features=NetworkService,NetworkServiceInProcess'
             ],
-            ignoreHTTPSErrors: true
+            ignoreHTTPSErrors: true,
+            timeout: 60000
         });
         
         console.log('Öffne neue Seite...');
@@ -167,12 +175,31 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
         // Setze Viewport
         await page.setViewport({ width: 1920, height: 1080 });
         
-        // Navigiere zu YouTube
+        // Setze zusätzliche Timeouts
+        await page.setDefaultNavigationTimeout(60000);
+        await page.setDefaultTimeout(60000);
+        
+        // Navigiere zu YouTube mit verbesserter Fehlerbehandlung
         console.log('Navigiere zu YouTube...');
-        await page.goto('https://www.youtube.com/watch?v=$videoId', {
-            waitUntil: 'networkidle0',
-            timeout: 30000
-        });
+        try {
+            await page.goto('https://www.youtube.com/watch?v=$videoId', {
+                waitUntil: ['networkidle0', 'domcontentloaded'],
+                timeout: 60000
+            });
+            
+            // Warte auf die Hauptelemente
+            await Promise.race([
+                page.waitForSelector('h1.ytd-video-primary-info-renderer', { timeout: 30000 }),
+                page.waitForSelector('#player-container', { timeout: 30000 })
+            ]);
+            
+            // Kurze Pause für stabilere Ausführung
+            await page.waitForTimeout(2000);
+            
+        } catch (error) {
+            console.error('Fehler bei der Navigation:', error);
+            throw error;
+        }
         
         // Warte auf Cookie-Banner und klicke "Alle Cookies akzeptieren"
         try {
