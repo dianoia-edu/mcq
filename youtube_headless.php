@@ -160,10 +160,23 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
                 '--disable-component-extensions-with-background-pages',
                 '--disable-features=TranslateUI,BlinkGenPropertyTrees',
                 '--disable-ipc-flooding-protection',
-                '--enable-features=NetworkService,NetworkServiceInProcess'
+                '--enable-features=NetworkService,NetworkServiceInProcess',
+                '--disable-features=IsolateOrigins,site-per-process',
+                '--disable-site-isolation-trials',
+                '--disable-web-security',
+                '--allow-running-insecure-content',
+                '--disable-features=IsolateOrigins,site-per-process',
+                '--disable-site-isolation-trials',
+                '--disable-web-security',
+                '--allow-running-insecure-content',
+                '--disable-features=IsolateOrigins,site-per-process',
+                '--disable-site-isolation-trials',
+                '--disable-web-security',
+                '--allow-running-insecure-content'
             ],
             ignoreHTTPSErrors: true,
-            timeout: 60000
+            timeout: 60000,
+            pipe: true
         });
         
         console.log('Öffne neue Seite...');
@@ -182,6 +195,16 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
         // Navigiere zu YouTube mit verbesserter Fehlerbehandlung
         console.log('Navigiere zu YouTube...');
         try {
+            // Warte auf die Hauptseite
+            await page.goto('https://www.youtube.com', {
+                waitUntil: ['networkidle0', 'domcontentloaded'],
+                timeout: 60000
+            });
+            
+            // Kurze Pause
+            await page.waitForTimeout(2000);
+            
+            // Navigiere zum Video
             await page.goto('https://www.youtube.com/watch?v=$videoId', {
                 waitUntil: ['networkidle0', 'domcontentloaded'],
                 timeout: 60000
