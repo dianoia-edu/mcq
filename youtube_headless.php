@@ -112,8 +112,8 @@ function extractYoutubeId($url) {
 function createPuppeteerScript($videoId, $username = '', $password = '', $proxyUrl = '') {
     global $tempDir;
     
-    // Speichere den Output-Pfad in einer globalen Variable
-    $GLOBALS['outputFilePath'] = $tempDir . '/youtube_data_' . $videoId . '.json';
+    // Output-Pfad definieren
+    $outputFile = $tempDir . '/youtube_data_' . $videoId . '.json';
     
     // Proxy-Konfiguration
     $proxyConfig = '';
@@ -123,7 +123,7 @@ function createPuppeteerScript($videoId, $username = '', $password = '', $proxyU
     
     // Skript mit korrektem Pfad zum Puppeteer-Modul
     $script = <<<EOT
-const puppeteer = require('/var/www/dianoia-ai.de/mcq-test-system/node_modules/puppeteer');
+const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
@@ -132,7 +132,6 @@ const path = require('path');
         console.log('Starte Browser...');
         const browser = await puppeteer.launch({
             headless: true,
-            executablePath: '/snap/bin/chromium',
             $proxyConfig
             args: [
                 '--no-sandbox',
@@ -149,7 +148,8 @@ const path = require('path');
                 '--disable-site-isolation-trials',
                 '--disable-web-security',
                 '--allow-running-insecure-content',
-                '--window-size=1920,1080'
+                '--window-size=1920,1080',
+                '--remote-debugging-port=9222'
             ],
             ignoreHTTPSErrors: true
         });
@@ -255,7 +255,7 @@ const path = require('path');
             timestamp: new Date().toISOString()
         };
         
-        fs.writeFileSync('$outputFilePath', JSON.stringify(result, null, 2));
+        fs.writeFileSync('$outputFile', JSON.stringify(result, null, 2));
         console.log('Ergebnis gespeichert');
         
         await browser.close();
@@ -269,7 +269,7 @@ const path = require('path');
             videoId: '$videoId',
             timestamp: new Date().toISOString()
         };
-        fs.writeFileSync('$outputFilePath', JSON.stringify(errorResult, null, 2));
+        fs.writeFileSync('$outputFile', JSON.stringify(errorResult, null, 2));
         process.exit(1);
     }
 })();
@@ -384,6 +384,9 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
     
     logMessage("Verarbeite YouTube-Video mit ID: $videoId", 'INFO');
     
+    // Output-Datei definieren
+    $outputFile = $tempDir . '/youtube_data_' . $videoId . '.json';
+    
     // Puppeteer-Skript erstellen
     $scriptContent = createPuppeteerScript($videoId, $username, $password, $proxyUrl);
     $scriptFile = $tempDir . '/puppeteer_script_' . uniqid() . '.js';
@@ -443,12 +446,9 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
         ];
     }
     
-    // Globale Variable für die Output-Datei verwenden
-    global $outputFilePath;
-    
     // JSON-Ergebnis aus der Datei lesen
-    logMessage("Lese Ergebnisdatei: " . $outputFilePath, "INFO");
-    if (!file_exists($outputFilePath)) {
+    logMessage("Lese Ergebnisdatei: " . $outputFile, "INFO");
+    if (!file_exists($outputFile)) {
         logMessage("Ergebnisdatei wurde nicht erstellt!", "ERROR");
         return [
             'success' => false,
@@ -458,11 +458,11 @@ function processYoutubeVideo($youtubeUrl, $username = '', $password = '', $proxy
         ];
     }
     
-    $jsonOutput = file_get_contents($outputFilePath);
+    $jsonOutput = file_get_contents($outputFile);
     $data = json_decode($jsonOutput, true);
     
     // Temporäre Datei löschen
-    unlink($outputFilePath);
+    unlink($outputFile);
     
     if (!$data) {
         logMessage("Konnte JSON-Daten nicht parsen", "ERROR");
