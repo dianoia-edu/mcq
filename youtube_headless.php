@@ -202,12 +202,12 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
                     retryCount++;
                     console.log(`Versuch ${retryCount} fehlgeschlagen:`, error.message);
                     if (retryCount === maxRetries) throw error;
-                    await page.waitForTimeout(2000);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
             
             // Kurze Pause
-            await page.waitForTimeout(2000);
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
             // Navigiere zum Video mit mehreren Versuchen
             retryCount = 0;
@@ -222,7 +222,7 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
                     retryCount++;
                     console.log(`Versuch ${retryCount} fehlgeschlagen:`, error.message);
                     if (retryCount === maxRetries) throw error;
-                    await page.waitForTimeout(2000);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
             
@@ -239,12 +239,12 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
                     retryCount++;
                     console.log(`Versuch ${retryCount} fehlgeschlagen:`, error.message);
                     if (retryCount === maxRetries) throw error;
-                    await page.waitForTimeout(2000);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
             
             // Kurze Pause für stabilere Ausführung
-            await page.waitForTimeout(2000);
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
         } catch (error) {
             console.error('Fehler bei der Navigation:', error);
