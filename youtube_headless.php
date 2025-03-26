@@ -164,14 +164,6 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
                 '--disable-features=IsolateOrigins,site-per-process',
                 '--disable-site-isolation-trials',
                 '--disable-web-security',
-                '--allow-running-insecure-content',
-                '--disable-features=IsolateOrigins,site-per-process',
-                '--disable-site-isolation-trials',
-                '--disable-web-security',
-                '--allow-running-insecure-content',
-                '--disable-features=IsolateOrigins,site-per-process',
-                '--disable-site-isolation-trials',
-                '--disable-web-security',
                 '--allow-running-insecure-content'
             ],
             ignoreHTTPSErrors: true,
@@ -183,7 +175,7 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
         const page = await browser.newPage();
         
         // Setze User-Agent
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
         
         // Setze Viewport
         await page.setViewport({ width: 1920, height: 1080 });
@@ -195,26 +187,61 @@ process.env.PUPPETEER_CACHE_DIR = '$tempDir/puppeteer_cache';
         // Navigiere zu YouTube mit verbesserter Fehlerbehandlung
         console.log('Navigiere zu YouTube...');
         try {
-            // Warte auf die Hauptseite
-            await page.goto('https://www.youtube.com', {
-                waitUntil: ['networkidle0', 'domcontentloaded'],
-                timeout: 60000
-            });
+            // Warte auf die Hauptseite mit mehreren Versuchen
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            while (retryCount < maxRetries) {
+                try {
+                    await page.goto('https://www.youtube.com', {
+                        waitUntil: ['networkidle0', 'domcontentloaded'],
+                        timeout: 60000
+                    });
+                    break;
+                } catch (error) {
+                    retryCount++;
+                    console.log(`Versuch ${retryCount} fehlgeschlagen:`, error.message);
+                    if (retryCount === maxRetries) throw error;
+                    await page.waitForTimeout(2000);
+                }
+            }
             
             // Kurze Pause
             await page.waitForTimeout(2000);
             
-            // Navigiere zum Video
-            await page.goto('https://www.youtube.com/watch?v=$videoId', {
-                waitUntil: ['networkidle0', 'domcontentloaded'],
-                timeout: 60000
-            });
+            // Navigiere zum Video mit mehreren Versuchen
+            retryCount = 0;
+            while (retryCount < maxRetries) {
+                try {
+                    await page.goto('https://www.youtube.com/watch?v=$videoId', {
+                        waitUntil: ['networkidle0', 'domcontentloaded'],
+                        timeout: 60000
+                    });
+                    break;
+                } catch (error) {
+                    retryCount++;
+                    console.log(`Versuch ${retryCount} fehlgeschlagen:`, error.message);
+                    if (retryCount === maxRetries) throw error;
+                    await page.waitForTimeout(2000);
+                }
+            }
             
-            // Warte auf die Hauptelemente
-            await Promise.race([
-                page.waitForSelector('h1.ytd-video-primary-info-renderer', { timeout: 30000 }),
-                page.waitForSelector('#player-container', { timeout: 30000 })
-            ]);
+            // Warte auf die Hauptelemente mit mehreren Versuchen
+            retryCount = 0;
+            while (retryCount < maxRetries) {
+                try {
+                    await Promise.race([
+                        page.waitForSelector('h1.ytd-video-primary-info-renderer', { timeout: 30000 }),
+                        page.waitForSelector('#player-container', { timeout: 30000 })
+                    ]);
+                    break;
+                } catch (error) {
+                    retryCount++;
+                    console.log(`Versuch ${retryCount} fehlgeschlagen:`, error.message);
+                    if (retryCount === maxRetries) throw error;
+                    await page.waitForTimeout(2000);
+                }
+            }
             
             // Kurze Pause für stabilere Ausführung
             await page.waitForTimeout(2000);
