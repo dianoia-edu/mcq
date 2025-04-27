@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function scheduleNextButton() {
         if (!testActive) return;
         
-        const delay = Math.floor(Math.random() * (15000 - 10000) + 10000); // 10-15 Sekunden
+        const delay = Math.floor(Math.random() * (60000 - 40000) + 10000); //  Sekunden
         setTimeout(() => {
             if (testActive) {
                 showButton();
