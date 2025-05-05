@@ -1,3 +1,7 @@
+// Hinweis: Aufmerksamkeitsbutton ist derzeit deaktiviert
+console.log('Aufmerksamkeitsbutton ist deaktiviert');
+
+/*
 // Aufmerksamkeitsbutton Funktionalität
 function createAttentionButton() {
     const button = document.createElement('button');
@@ -204,4 +208,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
         scheduleNextButton();
     }
-}); 
+});
+*/ 
