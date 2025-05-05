@@ -201,11 +201,20 @@ function getTestModeWarning() {
             transform: translateY(-2px);
         }
 
+        .question-number {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
         .question-text {
             font-size: 1.1rem;
             font-weight: 500;
             margin-bottom: 20px;
             color: var(--text-primary);
+            display: inline-block;
         }
 
         .answer-option {
@@ -278,12 +287,6 @@ function getTestModeWarning() {
             text-align: center;
         }
 
-        .question-number {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-bottom: 8px;
-        }
-
         .test-header {
             text-align: center;
             margin-bottom: 40px;
@@ -335,7 +338,7 @@ function getTestModeWarning() {
         <form method="post" action="process.php" id="testForm">
             <?php foreach ($shuffledQuestions as $qIndex => $question): ?>
                 <div class="question-container">
-                    <div class="question-number">Frage <?php echo $qIndex + 1; ?> von <?php echo count($shuffledQuestions); ?></div>
+                    <div class="question-number"><?php echo $qIndex + 1; ?> von <?php echo count($shuffledQuestions); ?></div>
                     <div class="question-text"><?php echo htmlspecialchars($question["question"]); ?></div>
                     
                     <div class="answers-container">
