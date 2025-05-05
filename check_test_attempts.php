@@ -35,6 +35,14 @@ function getStudentIdentifier($studentName) {
     // Normalisiere den Namen (Kleinbuchstaben, Trim)
     $normalizedName = strtolower(trim($studentName));
     
+    // Behandle deutsche Umlaute und ß
+    $search = array('ä', 'ö', 'ü', 'ß');
+    $replace = array('ae', 'oe', 'ue', 'ss');
+    $normalizedName = str_replace($search, $replace, $normalizedName);
+    
+    // Entferne alle nicht-alphanumerischen Zeichen, um Konsistenz zu gewährleisten
+    $normalizedName = preg_replace('/[^a-z0-9]/', '', $normalizedName);
+    
     // Erstelle einen Hash
     $identifier = hash('sha256', $normalizedName);
     error_log("Student Identifier generiert für '$studentName': " . substr($identifier, 0, 8) . "...");
@@ -158,6 +166,9 @@ function hasCompletedTestToday($testCode, $studentName = null) {
  * @return bool True wenn der Test erfolgreich als absolviert markiert wurde
  */
 function markTestAsCompleted($testCode, $studentName) {
+    // Zusätzliche Debug-Ausgaben
+    error_log("markTestAsCompleted aufgerufen - Code: $testCode, Schüler: $studentName");
+    
     // Bei Admin-Tests verwenden wir den Basis-Code für die Speicherung
     $baseCode = getBaseCode($testCode);
     
@@ -170,7 +181,9 @@ function markTestAsCompleted($testCode, $studentName) {
     $attempts = [];
     
     if (file_exists($attemptsFile)) {
-        $attempts = json_decode(file_get_contents($attemptsFile), true) ?: [];
+        $jsonContent = file_get_contents($attemptsFile);
+        error_log("JSON Inhalt: " . substr($jsonContent, 0, 100) . "...");
+        $attempts = json_decode($jsonContent, true) ?: [];
     }
     
     $today = date('Y-m-d');
@@ -178,7 +191,8 @@ function markTestAsCompleted($testCode, $studentName) {
         $attempts[$baseCode] = [];
     }
     
-    $attempts[$baseCode][] = [
+    // Neuer Eintrag für den aktuellen Versuch
+    $newAttempt = [
         'date' => $today,
         'student' => $studentName,
         'student_id' => $studentId,
@@ -186,6 +200,10 @@ function markTestAsCompleted($testCode, $studentName) {
         'is_admin' => isAdminCode($testCode)
     ];
     
+    $attempts[$baseCode][] = $newAttempt;
+    error_log("Neuer Eintrag: " . print_r($newAttempt, true));
+    
+    // Speichere die aktualisierte JSON-Datei
     $jsonSaved = file_put_contents($attemptsFile, json_encode($attempts, JSON_PRETTY_PRINT)) !== false;
     
     // 2. Setze Cookie

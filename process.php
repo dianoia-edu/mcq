@@ -20,14 +20,33 @@ error_log("Formular-Daten: " . print_r($_POST, true));
 
 // Diese Funktion wandelt Umlaute korrekt um und behält Leerzeichen und Bindestriche
 function sanitizeStudentName($name) {
+    // Debug-Ausgabe für Fehlersuche
+    error_log("Sanitizing student name: " . $name);
+    
     // Umlaute und Sonderzeichen korrekt umwandeln
     $search = array('ä', 'ö', 'ü', 'Ä', 'Ö', 'Ü', 'ß');
     $replace = array('ae', 'oe', 'ue', 'Ae', 'Oe', 'Ue', 'ss');
     $name = str_replace($search, $replace, $name);
     
+    // Für den Fall, dass UTF-8 und Multibyte-Zeichen verwendet werden
+    if (function_exists('mb_convert_encoding')) {
+        // Konvertiere in ASCII, um sicherzustellen, dass alle Sonderzeichen korrekt behandelt werden
+        $name = mb_convert_encoding($name, 'ASCII', 'UTF-8');
+    }
+    
     // Nur erlaubte Zeichen behalten: Buchstaben, Zahlen, Leerzeichen, Bindestriche
     $name = preg_replace('/[^a-zA-Z0-9 \-]/', '_', $name);
     
+    // Entferne führende und abschließende Unterstriche oder Leerzeichen
+    $name = trim($name, "_ \t\n\r\0\x0B");
+    
+    // Stelle sicher, dass der Name nicht leer ist
+    if (empty($name)) {
+        $name = 'Schueler_' . substr(md5(microtime()), 0, 8);
+        error_log("Leerer Name nach Sanitierung - verwende Standardnamen: " . $name);
+    }
+    
+    error_log("Name nach Sanitierung: " . $name);
     return $name;
 }
 
@@ -42,10 +61,15 @@ if (!isset($_SESSION['test_file']) || !isset($_SESSION['test_code']) || !isset($
 
 error_log("Session-Variablen sind vorhanden");
 
-// Validiere den Schülernamen
-if (!preg_match('/^[a-zA-Z0-9\s\-_]{2,50}$/', $_SESSION['student_name'])) {
-    error_log("Ungültiger Schülername: " . $_SESSION['student_name']);
-    $_SESSION['error'] = "Ungültiger Schülername. Bitte verwenden Sie nur Buchstaben, Zahlen und Leerzeichen.";
+// WICHTIG: Sanitiere den Namen VOR der Validierung
+$sanitizedName = sanitizeStudentName($_SESSION['student_name']);
+error_log("Original Schülername: " . $_SESSION['student_name']);
+error_log("Sanitized Schülername: " . $sanitizedName);
+
+// Validiere den sanitierten Schülernamen
+if (!preg_match('/^[a-zA-Z0-9\s\-_]{2,50}$/', $sanitizedName)) {
+    error_log("Ungültiger Schülername nach Sanitierung: " . $sanitizedName);
+    $_SESSION['error'] = "Ungültiger Schülername. Bitte verwenden Sie nur Buchstaben, Zahlen, Leerzeichen und Bindestriche.";
     header("Location: index.php");
     exit();
 }
