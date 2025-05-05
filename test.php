@@ -202,19 +202,46 @@ function getTestModeWarning() {
         }
 
         .question-number {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-bottom: 0;
-            display: inline-block;
-            margin-right: 10px;
+            font-size: 1rem;
+            color: white;
+            background-color: var(--primary-color);
+            border-radius: 50%; /* Runder Kreis */
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0; /* Verhindert Schrumpfen */
         }
 
         .question-text {
             font-size: 1.1rem;
             font-weight: 500;
-            margin-bottom: 20px;
+            margin-bottom: 0;
             color: var(--text-primary);
-            display: inline-block;
+        }
+        
+        .question-header {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .question-info {
+            flex: 1;
+        }
+        
+        .question-counter {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .answers-container {
+            margin-top: 15px;
         }
 
         .answer-option {
@@ -338,8 +365,13 @@ function getTestModeWarning() {
         <form method="post" action="process.php" id="testForm">
             <?php foreach ($shuffledQuestions as $qIndex => $question): ?>
                 <div class="question-container">
-                    <div class="question-number"><?php echo $qIndex + 1; ?> von <?php echo count($shuffledQuestions); ?></div>
-                    <div class="question-text"><?php echo htmlspecialchars($question["question"]); ?></div>
+                    <div class="question-header">
+                        <div class="question-number"><?php echo $qIndex + 1; ?></div>
+                        <div class="question-info">
+                            <div class="question-counter">Frage <?php echo $qIndex + 1; ?> von <?php echo count($shuffledQuestions); ?></div>
+                            <div class="question-text"><?php echo htmlspecialchars($question["question"]); ?></div>
+                        </div>
+                    </div>
                     
                     <div class="answers-container">
                         <?php if (!empty($question["answers"])): ?>
