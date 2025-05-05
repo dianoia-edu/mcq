@@ -20,6 +20,36 @@
                     <label for="resultStorage" class="form-label">Speicherort für Ergebnisse</label>
                     <input type="text" class="form-control" id="resultStorage" name="resultStorage" value="results">
                 </div>
+                
+                <!-- Neuer Bereich für Test-Funktionseinstellungen -->
+                <div class="mb-4 mt-4 pt-2 border-top">
+                    <h5 class="mb-3">Test-Funktionen</h5>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="disableAttentionButton" name="disableAttentionButton">
+                            <label class="form-check-label" for="disableAttentionButton">
+                                Aufmerksamkeitsbutton deaktivieren
+                            </label>
+                            <div class="form-text text-muted">
+                                Wenn aktiviert, wird der rote Aufmerksamkeitsbutton während der Tests nicht angezeigt.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="disableDailyTestLimit" name="disableDailyTestLimit">
+                            <label class="form-check-label" for="disableDailyTestLimit">
+                                Tägliche Test-Begrenzung deaktivieren
+                            </label>
+                            <div class="form-text text-muted">
+                                Wenn aktiviert, können Schüler denselben Test mehrmals am selben Tag durchführen.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <button type="submit" class="btn btn-primary">Einstellungen speichern</button>
             </form>
         </div>
@@ -162,6 +192,36 @@ $(document).ready(function() {
     
     // Initial laden
     loadGradeSchemas();
+    loadConfig();
+
+    // Konfiguration laden
+    function loadConfig() {
+        $.ajax({
+            url: '../includes/teacher_dashboard/get_config.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Formularfelder mit den gespeicherten Werten füllen
+                    if (response.config) {
+                        const config = response.config;
+                        $('#schoolName').val(config.schoolName || '');
+                        $('#defaultTimeLimit').val(config.defaultTimeLimit || 45);
+                        $('#resultStorage').val(config.resultStorage || 'results');
+                        
+                        // Neue Optionen setzen
+                        $('#disableAttentionButton').prop('checked', config.disableAttentionButton === true);
+                        $('#disableDailyTestLimit').prop('checked', config.disableDailyTestLimit === true);
+                    }
+                } else {
+                    console.error('Fehler beim Laden der Konfiguration:', response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX-Fehler beim Laden der Konfiguration:', status, error);
+            }
+        });
+    }
 
     // Event-Handler für die Datenbank-Synchronisation
     $('#syncDatabaseBtn').on('click', function() {
@@ -218,8 +278,37 @@ $(document).ready(function() {
     // Event-Handler für das Konfigurations-Formular
     $('#configForm').on('submit', function(e) {
         e.preventDefault();
-        // Hier können Sie die Logik zum Speichern der Konfiguration implementieren
-        alert('Einstellungen wurden gespeichert');
+        
+        // Konfigurationsdaten sammeln
+        const config = {
+            schoolName: $('#schoolName').val(),
+            defaultTimeLimit: parseInt($('#defaultTimeLimit').val()) || 45,
+            resultStorage: $('#resultStorage').val(),
+            
+            // Neue Optionen
+            disableAttentionButton: $('#disableAttentionButton').is(':checked'),
+            disableDailyTestLimit: $('#disableDailyTestLimit').is(':checked')
+        };
+        
+        // Konfiguration speichern
+        $.ajax({
+            url: '../includes/teacher_dashboard/save_config.php',
+            method: 'POST',
+            data: JSON.stringify(config),
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    alert('Einstellungen wurden erfolgreich gespeichert.');
+                } else {
+                    alert('Fehler beim Speichern der Einstellungen: ' + (response.error || 'Unbekannter Fehler'));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX-Fehler:', status, error);
+                alert('Fehler beim Speichern der Einstellungen: ' + error);
+            }
+        });
     });
     
     // Event-Handler für die Test-Ergebnis-Verwaltung

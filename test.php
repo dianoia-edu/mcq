@@ -241,6 +241,24 @@ function getTestModeWarning() {
             background-color: var(--secondary-color);
             transform: translateY(-1px);
         }
+        
+        .btn-backup {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: white;
+            background-color: var(--success-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-backup:hover {
+            background-color: #0d9668;
+            transform: translateY(-1px);
+        }
 
         .form-actions {
             margin-top: 40px;
@@ -330,7 +348,10 @@ function getTestModeWarning() {
             <?php endforeach; ?>
             
             <div class="form-actions">
-                <button type="button" id="submitButton" class="btn-submit">Test abschließen</button>
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" id="backupButton" class="btn-backup btn-success">Sicherheitskopie erstellen</button>
+                    <button type="button" id="submitButton" class="btn-submit">Test abschließen</button>
+                </div>
             </div>
             
             <!-- Warnung Modal -->
@@ -370,6 +391,7 @@ function getTestModeWarning() {
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('testForm');
             const submitButton = document.getElementById('submitButton');
+            const backupButton = document.getElementById('backupButton');
             const confirmSubmitButton = document.getElementById('confirmSubmit');
             let warningModal;
             
@@ -446,6 +468,10 @@ function getTestModeWarning() {
                 }, 100);
                 
                 console.log("XML-Sicherungskopie erstellt und heruntergeladen");
+                
+                // Zeige eine Erfolgsmeldung an
+                alert("Sicherheitskopie wurde erfolgreich erstellt. Sie können jetzt den Test abschließen.");
+                
                 return true;
             }
             
@@ -473,17 +499,19 @@ function getTestModeWarning() {
                 };
             }
             
+            // Sicherheitskopie-Button Event
+            backupButton.addEventListener('click', function() {
+                createAndDownloadBackup();
+            });
+            
             // Submit-Button Klick-Event
             submitButton.addEventListener('click', function() {
                 const result = checkAllQuestionsAnswered();
                 
-                // Immer zuerst die Sicherungskopie erstellen, unabhängig davon ob alle Fragen beantwortet wurden
-                createAndDownloadBackup();
-                
                 if (result.allAnswered) {
                     // Alle Fragen beantwortet - Formular absenden
                     console.log("Alle Fragen wurden beantwortet, sende Formular ab...");
-                    setTimeout(() => form.submit(), 500); // Kurze Verzögerung, um Download zu erlauben
+                    form.submit();
                 } else {
                     // Nicht alle Fragen beantwortet - Warnung anzeigen
                     const unansweredElement = document.getElementById('unansweredQuestions');
@@ -497,7 +525,7 @@ function getTestModeWarning() {
                         // Fallback, falls Modal nicht funktioniert
                         console.log("Modal nicht verfügbar, verwende Confirm-Dialog");
                         if (confirm('Sie haben nicht alle Fragen beantwortet. Möchten Sie den Test trotzdem abschicken?')) {
-                            setTimeout(() => form.submit(), 500); // Kurze Verzögerung, um Download zu erlauben
+                            form.submit();
                         }
                     }
                 }
@@ -510,7 +538,7 @@ function getTestModeWarning() {
                 }
                 // Formular absenden auch wenn nicht alle Fragen beantwortet wurden
                 console.log("Bestätigung zum Absenden erhalten, sende Formular ab...");
-                setTimeout(() => form.submit(), 500); // Kurze Verzögerung, um Download zu erlauben
+                form.submit();
             });
         });
     </script>

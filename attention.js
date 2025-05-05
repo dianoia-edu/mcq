@@ -24,124 +24,145 @@ function createAttentionButton() {
 
 // Hauptfunktion
 document.addEventListener('DOMContentLoaded', () => {
-    // Prüfe, ob wir im Testmodus sind
-    const isTestMode = document.body.getAttribute('data-test-mode') === 'true';
-    const isAttentionButtonDisabled = document.body.getAttribute('data-disable-attention-button') === 'true';
-    
-    // Wenn wir im Testmodus sind oder der Button deaktiviert ist, starte den Button nicht
-    if (isTestMode || isAttentionButtonDisabled) {
-        console.log('Aufmerksamkeitsbutton ist deaktiviert');
-        return;
-    }
-
-    const button = createAttentionButton();
-    let timeoutId;
-    let countdownInterval;
-    let missedClicks = 0;
-    let testActive = true;
-    const testForm = document.getElementById('testForm');
-
-    function updateCountdown(seconds) {
-        const countdownElement = button.querySelector('.countdown');
-        countdownElement.textContent = seconds;
-    }
-
-    function addHiddenInput(form, name, value) {
-        let input = form.querySelector(`input[name="${name}"]`);
-        if (!input) {
-            input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = name;
-            form.appendChild(input);
-        }
-        input.value = value;
-    }
-
-    async function endTest() {
-        if (!testActive) return;
-        testActive = false;
-
-        try {
-            if (testForm) {
-                addHiddenInput(testForm, 'aborted', 'true');
-                addHiddenInput(testForm, 'missedClicks', missedClicks);
-                testForm.submit();
-            } else {
-                console.error('Testformular nicht gefunden');
+    // Hole Konfiguration vom Server
+    fetch('config/app_config.json')
+        .then(response => {
+            if (!response.ok) {
+                // Wenn keine Konfigurationsdatei gefunden wurde, normal fortfahren
+                return { disableAttentionButton: false };
             }
-        } catch (error) {
-            console.error('Fehler beim Speichern:', error);
-            alert('Fehler beim Speichern des Tests. Bitte wenden Sie sich an die Aufsichtsperson.');
-            testActive = true;
-            missedClicks--;
+            return response.json();
+        })
+        .then(config => {
+            initializeAttentionButton(config);
+        })
+        .catch(error => {
+            console.error('Fehler beim Laden der Konfiguration:', error);
+            // Bei Fehler, normal fortfahren
+            initializeAttentionButton({ disableAttentionButton: false });
+        });
+
+    function initializeAttentionButton(config) {
+        // Prüfe, ob wir im Testmodus sind
+        const isTestMode = document.body.getAttribute('data-test-mode') === 'true';
+        const isAttentionButtonDisabled = document.body.getAttribute('data-disable-attention-button') === 'true' || 
+                                          (config && config.disableAttentionButton === true);
+        
+        // Wenn wir im Testmodus sind oder der Button deaktiviert ist, starte den Button nicht
+        if (isTestMode || isAttentionButtonDisabled) {
+            console.log('Aufmerksamkeitsbutton ist deaktiviert');
+            return;
         }
-    }
 
-    function showButton() {
-        if (!testActive) return;
-        
-        button.style.display = 'block';
-        
-        let secondsLeft = 4;
-        updateCountdown(secondsLeft);
+        const button = createAttentionButton();
+        let timeoutId;
+        let countdownInterval;
+        let missedClicks = 0;
+        let testActive = true;
+        const testForm = document.getElementById('testForm');
 
-        countdownInterval = setInterval(() => {
-            if (!testActive) {
-                clearInterval(countdownInterval);
-                return;
+        function updateCountdown(seconds) {
+            const countdownElement = button.querySelector('.countdown');
+            countdownElement.textContent = seconds;
+        }
+
+        function addHiddenInput(form, name, value) {
+            let input = form.querySelector(`input[name="${name}"]`);
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                form.appendChild(input);
             }
+            input.value = value;
+        }
 
-            secondsLeft--;
-            updateCountdown(secondsLeft);
+        async function endTest() {
+            if (!testActive) return;
+            testActive = false;
+
+            try {
+                if (testForm) {
+                    addHiddenInput(testForm, 'aborted', 'true');
+                    addHiddenInput(testForm, 'missedClicks', missedClicks);
+                    testForm.submit();
+                } else {
+                    console.error('Testformular nicht gefunden');
+                }
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                alert('Fehler beim Speichern des Tests. Bitte wenden Sie sich an die Aufsichtsperson.');
+                testActive = true;
+                missedClicks--;
+            }
+        }
+
+        function showButton() {
+            if (!testActive) return;
             
-            if (secondsLeft <= 0) {
-                clearInterval(countdownInterval);
-                button.style.display = 'none';
-                missedClicks++;
+            button.style.display = 'block';
+            
+            let secondsLeft = 4;
+            updateCountdown(secondsLeft);
+
+            countdownInterval = setInterval(() => {
+                if (!testActive) {
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                secondsLeft--;
+                updateCountdown(secondsLeft);
                 
-                if (missedClicks >= 2) {
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    button.style.display = 'none';
+                    missedClicks++;
+                    
+                    if (missedClicks >= 2) {
+                        endTest();
+                    }
+                }
+            }, 1000);
+
+            timeoutId = setTimeout(() => {
+                if (button.style.display === 'block') {
+                    clearInterval(countdownInterval);
+                    button.style.display = 'none';
+                }
+            }, 4000);
+        }
+
+        button.addEventListener('click', () => {
+            if (!testActive) return;
+            
+            button.style.display = 'none';
+            clearTimeout(timeoutId);
+            clearInterval(countdownInterval);
+        });
+
+        function scheduleNextButton() {
+            if (!testActive) return;
+            
+            const delay = Math.floor(Math.random() * (60000 - 40000) + 10000); //  Sekunden
+            setTimeout(() => {
+                if (testActive) {
+                    showButton();
+                    scheduleNextButton();
+                }
+            }, delay);
+        }
+
+        // Verhindere das normale Absenden des Formulars bei verpassten Klicks
+        if (testForm) {
+            testForm.addEventListener('submit', (e) => {
+                if (missedClicks > 0) {
+                    e.preventDefault();
                     endTest();
                 }
-            }
-        }, 1000);
+            });
+        }
 
-        timeoutId = setTimeout(() => {
-            if (button.style.display === 'block') {
-                clearInterval(countdownInterval);
-                button.style.display = 'none';
-            }
-        }, 4000);
+        scheduleNextButton();
     }
-
-    button.addEventListener('click', () => {
-        if (!testActive) return;
-        
-        button.style.display = 'none';
-        clearTimeout(timeoutId);
-        clearInterval(countdownInterval);
-    });
-
-    function scheduleNextButton() {
-        if (!testActive) return;
-        
-        const delay = Math.floor(Math.random() * (60000 - 40000) + 10000); //  Sekunden
-        setTimeout(() => {
-            if (testActive) {
-                showButton();
-                scheduleNextButton();
-            }
-        }, delay);
-    }
-
-    // Verhindere das normale Absenden des Formulars bei verpassten Klicks
-    if (testForm) {
-        testForm.addEventListener('submit', (e) => {
-            if (missedClicks > 0) {
-                e.preventDefault();
-                endTest();
-            }
-        });
-    }
-
-    scheduleNextButton();
 }); 

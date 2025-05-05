@@ -82,6 +82,16 @@ function getBaseCode($testCode) {
  * @return bool True wenn der Test heute bereits absolviert wurde, sonst False
  */
 function hasCompletedTestToday($testCode, $studentName = null) {
+    // Überprüfe, ob die tägliche Test-Begrenzung deaktiviert wurde
+    $configFile = dirname(__FILE__) . '/config/app_config.json';
+    if (file_exists($configFile)) {
+        $config = json_decode(file_get_contents($configFile), true);
+        if (isset($config['disableDailyTestLimit']) && $config['disableDailyTestLimit'] === true) {
+            error_log("Tägliche Test-Begrenzung deaktiviert - Erlaube Testdurchführung");
+            return false;
+        }
+    }
+    
     // Admin-Modus: Erlaube unbegrenzte Versuche
     if (isAdminCode($testCode)) {
         error_log("Admin-Modus erkannt für Code: $testCode - Erlaube Testdurchführung");
