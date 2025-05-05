@@ -13,13 +13,29 @@ if (!isset($_SESSION['teacher']) || $_SESSION['teacher'] !== true) {
 $configFile = dirname(dirname(__DIR__)) . '/config/app_config.json';
 $configDir = dirname($configFile);
 
+// Protokolliere Pfade zur Fehlerdiagnose
+error_log("Config Verzeichnis: " . $configDir);
+error_log("Config Datei: " . $configFile);
+
 // Stelle sicher, dass das Konfigurationsverzeichnis existiert
 if (!is_dir($configDir)) {
-    if (!mkdir($configDir, 0755, true)) {
+    if (!mkdir($configDir, 0777, true)) {
+        $mkdirError = error_get_last();
+        error_log("Fehler beim Erstellen des Config-Verzeichnisses: " . print_r($mkdirError, true));
         header('HTTP/1.1 500 Internal Server Error');
-        echo json_encode(['success' => false, 'error' => 'Konfigurationsverzeichnis konnte nicht erstellt werden']);
+        echo json_encode(['success' => false, 'error' => 'Konfigurationsverzeichnis konnte nicht erstellt werden: ' . $mkdirError['message']]);
         exit();
     }
+    // Setze Verzeichnisberechtigungen erneut explizit
+    chmod($configDir, 0777);
+}
+
+// Überprüfe Schreibberechtigung für Verzeichnis
+if (!is_writable($configDir)) {
+    error_log("Config-Verzeichnis ist nicht beschreibbar: " . $configDir);
+    header('HTTP/1.1 500 Internal Server Error');
+    echo json_encode(['success' => false, 'error' => 'Konfigurationsverzeichnis ist nicht beschreibbar']);
+    exit();
 }
 
 // Hole und validiere die eingereichten Daten
@@ -51,11 +67,18 @@ $config = [
 
 // Speichere die Konfiguration
 $jsonConfig = json_encode($config, JSON_PRETTY_PRINT);
-if (file_put_contents($configFile, $jsonConfig) === false) {
+$result = file_put_contents($configFile, $jsonConfig);
+
+if ($result === false) {
+    $fileError = error_get_last();
+    error_log("Fehler beim Speichern der Konfigurationsdatei: " . print_r($fileError, true));
     header('HTTP/1.1 500 Internal Server Error');
-    echo json_encode(['success' => false, 'error' => 'Konfiguration konnte nicht gespeichert werden']);
+    echo json_encode(['success' => false, 'error' => 'Konfiguration konnte nicht gespeichert werden: ' . $fileError['message']]);
     exit();
 }
+
+// Setze Dateiberechtigungen
+chmod($configFile, 0666);
 
 // Sende Erfolgsantwort
 header('Content-Type: application/json');

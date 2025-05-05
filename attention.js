@@ -28,12 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('config/app_config.json')
         .then(response => {
             if (!response.ok) {
-                // Wenn keine Konfigurationsdatei gefunden wurde, normal fortfahren
+                console.log('Keine Konfigurationsdatei gefunden, verwende Standardwerte');
                 return { disableAttentionButton: false };
             }
             return response.json();
         })
         .then(config => {
+            console.log('Konfiguration geladen:', config);
             initializeAttentionButton(config);
         })
         .catch(error => {

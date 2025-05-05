@@ -12,6 +12,9 @@ if (!isset($_SESSION['teacher']) || $_SESSION['teacher'] !== true) {
 // Konfigurationsdatei-Pfad
 $configFile = dirname(dirname(__DIR__)) . '/config/app_config.json';
 
+// Protokolliere Pfad zur Fehlerdiagnose
+error_log("Lese Konfigurationsdatei: " . $configFile);
+
 // Standardkonfiguration
 $defaultConfig = [
     'schoolName' => '',
@@ -31,8 +34,14 @@ if (file_exists($configFile)) {
         if (is_array($loadedConfig)) {
             // Merge mit Standardkonfiguration, damit keine Felder fehlen
             $config = array_merge($defaultConfig, $loadedConfig);
+        } else {
+            error_log("Konfigurationsdatei enthält ungültiges JSON: " . $jsonContent);
         }
+    } else {
+        error_log("Konfigurationsdatei konnte nicht gelesen werden: " . $configFile);
     }
+} else {
+    error_log("Konfigurationsdatei existiert nicht: " . $configFile);
 }
 
 // Sende die Konfiguration als JSON-Antwort
