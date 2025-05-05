@@ -12,7 +12,24 @@ require_once 'check_test_attempts.php';
 require_once 'auswertung.php';
 require_once 'includes/TestDatabase.php';
 
+// Zusätzliche Fehlerprotokollierung für problematische Fälle
 error_log("=== Start der Testverarbeitung ===");
+error_log("Browser-Info: " . $_SERVER['HTTP_USER_AGENT']);
+error_log("Session-ID: " . session_id());
+error_log("Formular-Daten: " . print_r($_POST, true));
+
+// Diese Funktion wandelt Umlaute korrekt um und behält Leerzeichen und Bindestriche
+function sanitizeStudentName($name) {
+    // Umlaute und Sonderzeichen korrekt umwandeln
+    $search = array('ä', 'ö', 'ü', 'Ä', 'Ö', 'Ü', 'ß');
+    $replace = array('ae', 'oe', 'ue', 'Ae', 'Oe', 'Ue', 'ss');
+    $name = str_replace($search, $replace, $name);
+    
+    // Nur erlaubte Zeichen behalten: Buchstaben, Zahlen, Leerzeichen, Bindestriche
+    $name = preg_replace('/[^a-zA-Z0-9 \-]/', '_', $name);
+    
+    return $name;
+}
 
 // Überprüfe, ob alle erforderlichen Session-Variablen vorhanden sind
 if (!isset($_SESSION['test_file']) || !isset($_SESSION['test_code']) || !isset($_SESSION['student_name']) || !isset($_SESSION['original_questions'])) {
@@ -206,9 +223,10 @@ if (!is_writable($resultsDir)) {
     }
 }
 
-// Erstelle den Dateinamen
+// Erstelle den Dateinamen mit sanitiertem Schülernamen
 $timestamp = date('Y-m-d_H-i-s');
-$filename = $_SESSION['test_code'] . '_' . $_SESSION['student_name'] . '_' . $timestamp . '.xml';
+$safeStudentName = sanitizeStudentName($_SESSION['student_name']);
+$filename = $_SESSION['test_code'] . '_' . $safeStudentName . '_' . $timestamp . '.xml';
 $filepath = $resultsDir . '/' . $filename;
 
 // Formatiere das XML für bessere Lesbarkeit
@@ -221,6 +239,19 @@ $dom->loadXML($answerXml->asXML());
 error_log("Versuche XML-Datei zu speichern: " . $filepath);
 error_log("Aktuelles Arbeitsverzeichnis: " . getcwd());
 error_log("Dateiberechtigungen des Zielordners: " . decoct(fileperms($resultsDir)));
+
+// Speichere zuerst eine Backup-Kopie der XML-Daten
+$xmlContent = $dom->saveXML();
+$backupFilepath = $mainResultsDir . '/backup_' . $filename;
+error_log("Erstelle Backup-Datei: " . $backupFilepath);
+$backupSaved = file_put_contents($backupFilepath, $xmlContent);
+if ($backupSaved === false) {
+    error_log("Fehler beim Speichern der Backup-XML-Datei: " . $backupFilepath);
+} else {
+    error_log("Backup-XML-Datei erfolgreich gespeichert: " . $backupFilepath);
+    // Setze Berechtigungen für die Datei
+    chmod($backupFilepath, 0664);
+}
 
 // Prüfe Schreibrechte vor dem Speichern
 if (!is_writable(dirname($filepath))) {
@@ -337,14 +368,14 @@ try {
     // Verwende den Basis-Code für die Datenbank
     $baseCode = getBaseCode($_SESSION['test_code']);
     
-    // Bereite die Testdaten vor
+    // Bereite die Testdaten vor - verwende den sanitierten Namen für die Datenbank
     $testData = [
         'access_code' => $baseCode, // Speichere den Basis-Code
         'title' => (string)$originalXml->title,
         'question_count' => count($questions),
         'answer_count' => $totalAnswers,
         'answer_type' => $answerType,
-        'student_name' => $_SESSION['student_name'] . (isAdminCode($_SESSION['test_code']) ? ' (Admin)' : ''),
+        'student_name' => sanitizeStudentName($_SESSION['student_name']) . (isAdminCode($_SESSION['test_code']) ? ' (Admin)' : ''),
         'xml_file_path' => $filepath,
         'points_achieved' => $results['achieved'],
         'points_maximum' => $results['max'],
@@ -374,9 +405,14 @@ $_SESSION['test_results'] = [
 ];
 error_log("Session nach Speichern der Ergebnisse: " . print_r($_SESSION, true));
 
+// Biete dem Schüler die XML-Datei zum Download an
+error_log("Biete XML-Datei zum Download an");
+$_SESSION['download_xml_file'] = $filepath;
+$_SESSION['download_xml_filename'] = $filename;
+
 // Weiterleitung zur Ergebnisseite
 error_log("Weiterleitung zur Ergebnisseite");
-header("Location: result.php");
+header("Location: result.php?download=1");
 exit();
 
 error_log("=== Ende der Testverarbeitung ===");

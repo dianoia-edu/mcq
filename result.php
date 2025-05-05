@@ -7,6 +7,34 @@ if (!isset($_SESSION['test_results'])) {
     exit();
 }
 
+// Prüfe, ob XML-Download angefordert wurde
+if (isset($_GET['download']) && $_GET['download'] == '1' && isset($_SESSION['download_xml_file']) && file_exists($_SESSION['download_xml_file'])) {
+    $file_path = $_SESSION['download_xml_file'];
+    $file_name = $_SESSION['download_xml_filename'];
+    
+    // Stelle sicher, dass die Datei existiert und lesbar ist
+    if (file_exists($file_path) && is_readable($file_path)) {
+        // Setze die richtigen Header für den Download
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/xml');
+        header('Content-Disposition: attachment; filename="' . $file_name . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($file_path));
+        
+        // Lese und sende die Datei
+        readfile($file_path);
+        
+        // Entferne die Download-Information aus der Session
+        unset($_SESSION['download_xml_file']);
+        unset($_SESSION['download_xml_filename']);
+        
+        // Beende das Skript nach dem Download
+        exit;
+    }
+}
+
 // Wenn der "Zurück zur Startseite" Button geklickt wurde
 if (isset($_POST['back_to_home'])) {
     session_destroy();
@@ -57,6 +85,10 @@ if (isset($_POST['back_to_home'])) {
         }
         .congratulation {
             margin-bottom: 30px;
+        }
+        .download-xml-btn {
+            margin-top: 15px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -115,6 +147,14 @@ if (isset($_POST['back_to_home'])) {
                                 <?php echo $_SESSION['test_results']['grade']; ?>
                             </div>
                         </div>
+                        
+                        <?php if (isset($_SESSION['download_xml_file']) && file_exists($_SESSION['download_xml_file'])): ?>
+                        <div class="text-center download-xml-btn">
+                            <a href="result.php?download=1" class="btn btn-success">
+                                <i class="bi bi-file-earmark-code-fill me-2"></i>Ergebnis als XML herunterladen
+                            </a>
+                        </div>
+                        <?php endif; ?>
                         
                         <div class="text-center mt-4">
                             <form method="post">

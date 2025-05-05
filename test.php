@@ -380,18 +380,93 @@ function getTestModeWarning() {
                 console.error('Fehler beim Initialisieren des Modals:', e);
             }
             
-            // Prüfen, ob alle Fragen beantwortet wurden
+            // Funktion zum Erstellen und Herunterladen der XML-Sicherungsdatei
+            function createAndDownloadBackup() {
+                console.log("Erstelle XML-Sicherungskopie...");
+                const studentName = '<?php echo htmlspecialchars($studentName); ?>';
+                const testName = '<?php echo htmlspecialchars($testName); ?>';
+                const testCode = '<?php echo htmlspecialchars($_SESSION["test_code"]); ?>';
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const filename = `${testCode}_${studentName}_${timestamp}_backup.xml`;
+                
+                // XML-Struktur erstellen
+                // Verwende Verkettung für die XML-Deklaration, um PHP-Parsing-Probleme zu vermeiden
+                let xmlContent = '<' + '?xml version="1.0" encoding="UTF-8"?' + '>\n';
+                xmlContent += '<test>\n';
+                xmlContent += `  <title>${testName}</title>\n`;
+                xmlContent += `  <code>${testCode}</code>\n`;
+                xmlContent += `  <schuelername>${studentName}</schuelername>\n`;
+                xmlContent += `  <abgabezeit>${new Date().toISOString()}</abgabezeit>\n`;
+                xmlContent += '  <questions>\n';
+                
+                // Alle Fragen und gewählten Antworten durchgehen
+                const questionContainers = document.querySelectorAll('.question-container');
+                questionContainers.forEach((container, qIndex) => {
+                    const questionText = container.querySelector('.question-text').textContent;
+                    const questionNr = <?php echo json_encode($shuffledQuestions); ?>[qIndex].nr;
+                    
+                    xmlContent += `    <question nr="${questionNr}">\n`;
+                    xmlContent += `      <text>${questionText}</text>\n`;
+                    xmlContent += '      <answers>\n';
+                    
+                    // Finde alle Antworten für diese Frage
+                    const answerOptions = container.querySelectorAll('.answer-option');
+                    answerOptions.forEach((option, aIndex) => {
+                        const answerText = option.querySelector('label').textContent.trim();
+                        const input = option.querySelector('.question-input');
+                        const answerNr = input.value;
+                        const isChecked = input.checked ? '1' : '0';
+                        
+                        xmlContent += `        <answer nr="${answerNr}">\n`;
+                        xmlContent += `          <text>${answerText}</text>\n`;
+                        xmlContent += `          <schuelerantwort>${isChecked}</schuelerantwort>\n`;
+                        xmlContent += '        </answer>\n';
+                    });
+                    
+                    xmlContent += '      </answers>\n';
+                    xmlContent += '    </question>\n';
+                });
+                
+                xmlContent += '  </questions>\n';
+                xmlContent += '</test>';
+                
+                // XML-Datei erzeugen und herunterladen
+                const blob = new Blob([xmlContent], { type: 'application/xml' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                
+                // Aufräumen
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }, 100);
+                
+                console.log("XML-Sicherungskopie erstellt und heruntergeladen");
+                return true;
+            }
+            
+            // Prüfen, ob alle Fragen beantwortet wurden - verbesserte Version
             function checkAllQuestionsAnswered() {
+                console.log("Prüfe beantwortete Fragen...");
                 const questionContainers = document.querySelectorAll('.question-container');
                 let unansweredQuestions = [];
                 
                 questionContainers.forEach((container, index) => {
                     const inputs = container.querySelectorAll('.question-input:checked');
+                    console.log(`Frage ${index + 1}: ${inputs.length} Antwort(en) ausgewählt`);
+                    
+                    // Eine Frage gilt als beantwortet, wenn MINDESTENS eine Antwort gegeben wurde,
+                    // unabhängig davon, wie viele richtige Antworten es gibt
                     if (inputs.length === 0) {
                         unansweredQuestions.push(index + 1);
                     }
                 });
                 
+                console.log("Nicht beantwortete Fragen:", unansweredQuestions);
                 return {
                     allAnswered: unansweredQuestions.length === 0,
                     unanswered: unansweredQuestions
@@ -402,9 +477,13 @@ function getTestModeWarning() {
             submitButton.addEventListener('click', function() {
                 const result = checkAllQuestionsAnswered();
                 
+                // Immer zuerst die Sicherungskopie erstellen, unabhängig davon ob alle Fragen beantwortet wurden
+                createAndDownloadBackup();
+                
                 if (result.allAnswered) {
                     // Alle Fragen beantwortet - Formular absenden
-                    form.submit();
+                    console.log("Alle Fragen wurden beantwortet, sende Formular ab...");
+                    setTimeout(() => form.submit(), 500); // Kurze Verzögerung, um Download zu erlauben
                 } else {
                     // Nicht alle Fragen beantwortet - Warnung anzeigen
                     const unansweredElement = document.getElementById('unansweredQuestions');
@@ -412,11 +491,13 @@ function getTestModeWarning() {
                     
                     // Modal anzeigen
                     if (warningModal) {
+                        console.log("Zeige Warnung an...");
                         warningModal.show();
                     } else {
                         // Fallback, falls Modal nicht funktioniert
+                        console.log("Modal nicht verfügbar, verwende Confirm-Dialog");
                         if (confirm('Sie haben nicht alle Fragen beantwortet. Möchten Sie den Test trotzdem abschicken?')) {
-                            form.submit();
+                            setTimeout(() => form.submit(), 500); // Kurze Verzögerung, um Download zu erlauben
                         }
                     }
                 }
@@ -428,7 +509,8 @@ function getTestModeWarning() {
                     warningModal.hide();
                 }
                 // Formular absenden auch wenn nicht alle Fragen beantwortet wurden
-                form.submit();
+                console.log("Bestätigung zum Absenden erhalten, sende Formular ab...");
+                setTimeout(() => form.submit(), 500); // Kurze Verzögerung, um Download zu erlauben
             });
         });
     </script>
