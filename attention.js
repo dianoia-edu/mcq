@@ -24,12 +24,47 @@ function createAttentionButton() {
 
 // Hauptfunktion
 document.addEventListener('DOMContentLoaded', () => {
-    // Hole Konfiguration vom Server
-    fetch('config/app_config.json')
+    console.log('Attention.js geladen - Initialisiere Aufmerksamkeitsbutton...');
+    
+    // Lese zuerst das data-Attribut vom body-Element
+    const dataDisabled = document.body.getAttribute('data-disable-attention-button');
+    console.log('data-disable-attention-button Attribut:', dataDisabled);
+    
+    // Prüfe, ob wir im Testmodus sind
+    const isTestMode = document.body.getAttribute('data-test-mode') === 'true';
+    console.log('Test-Modus:', isTestMode);
+    
+    // Überprüfe, ob der Button über das data-Attribut deaktiviert ist
+    const isDisabledByAttribute = dataDisabled === 'true';
+    console.log('Deaktiviert durch data-Attribut:', isDisabledByAttribute);
+    
+    // Wenn bereits durch das Attribut deaktiviert, müssen wir die Konfiguration nicht laden
+    if (isTestMode || isDisabledByAttribute) {
+        console.log('Aufmerksamkeitsbutton ist über HTML-Attribut deaktiviert');
+        return;
+    }
+    
+    // Als Fallback und zur Doppelprüfung: Hole Konfiguration vom Server
+    console.log('Lade Konfiguration vom Server...');
+    fetch('../config/app_config.json')
         .then(response => {
+            console.log('Konfigurationsanfrage Status:', response.status);
             if (!response.ok) {
                 console.log('Keine Konfigurationsdatei gefunden, verwende Standardwerte');
-                return { disableAttentionButton: false };
+                // Versuche alternativen Pfad
+                return fetch('./config/app_config.json')
+                    .then(altResponse => {
+                        if (!altResponse.ok) {
+                            console.log('Auch alternativer Pfad fehlgeschlagen');
+                            return { disableAttentionButton: false };
+                        }
+                        console.log('Alternativer Pfad erfolgreich');
+                        return altResponse.json();
+                    })
+                    .catch(altError => {
+                        console.error('Fehler beim Laden der Konfiguration (Alt):', altError);
+                        return { disableAttentionButton: false };
+                    });
             }
             return response.json();
         })
@@ -39,22 +74,25 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error('Fehler beim Laden der Konfiguration:', error);
-            // Bei Fehler, normal fortfahren
+            // Bei Fehler, Standardkonfiguration verwenden
             initializeAttentionButton({ disableAttentionButton: false });
         });
 
     function initializeAttentionButton(config) {
-        // Prüfe, ob wir im Testmodus sind
-        const isTestMode = document.body.getAttribute('data-test-mode') === 'true';
+        // Prüfe nochmals alle Bedingungen
         const isAttentionButtonDisabled = document.body.getAttribute('data-disable-attention-button') === 'true' || 
                                           (config && config.disableAttentionButton === true);
         
+        console.log('Aufmerksamkeitsbutton Deaktivierungsstatus:', isAttentionButtonDisabled);
+        console.log('config.disableAttentionButton:', config.disableAttentionButton);
+        
         // Wenn wir im Testmodus sind oder der Button deaktiviert ist, starte den Button nicht
         if (isTestMode || isAttentionButtonDisabled) {
-            console.log('Aufmerksamkeitsbutton ist deaktiviert');
+            console.log('Aufmerksamkeitsbutton wird nicht initialisiert (deaktiviert)');
             return;
         }
 
+        console.log('Aufmerksamkeitsbutton wird initialisiert...');
         const button = createAttentionButton();
         let timeoutId;
         let countdownInterval;

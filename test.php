@@ -32,6 +32,19 @@ if (hasCompletedTestToday($_SESSION["test_code"], $_SESSION["student_name"])) {
     exit();
 }
 
+// Lade die Konfiguration
+$config = [];
+$configFile = __DIR__ . '/config/app_config.json';
+if (file_exists($configFile)) {
+    $configContent = file_get_contents($configFile);
+    if ($configContent !== false) {
+        $config = json_decode($configContent, true) ?: [];
+    }
+}
+
+// Debug-Ausgabe für die Konfiguration
+error_log("Konfiguration in test.php geladen: " . print_r($config, true));
+
 // Setze Header für keine Caching
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -303,7 +316,12 @@ function getTestModeWarning() {
     <script src="attention.js"></script>
 </head>
 <body data-test-mode="<?php echo isset($config['testMode']) && $config['testMode'] ? 'true' : 'false'; ?>"
-      data-disable-attention-button="<?php echo isset($config['disableAttentionButton']) && $config['disableAttentionButton'] ? 'true' : 'false'; ?>">
+      data-disable-attention-button="<?php 
+        $disableButton = isset($config['disableAttentionButton']) && $config['disableAttentionButton'] === true ? 'true' : 'false';
+        echo $disableButton; 
+        // Debug-Ausgabe in die Konsole
+        echo "<!-- Debug: disableAttentionButton = " . var_export($config['disableAttentionButton'] ?? false, true) . " -->";
+      ?>">
     <?php echo getTestModeWarning(); ?>
     
     <div class="container">
