@@ -7,8 +7,8 @@ if (!isset($_SESSION['test_results'])) {
     exit();
 }
 
-// Prüfe, ob XML-Download angefordert wurde
-if (isset($_GET['download']) && $_GET['download'] == '1' && isset($_SESSION['download_xml_file']) && file_exists($_SESSION['download_xml_file'])) {
+// Prüfe, ob XML-Download explizit angefordert wurde (über einen Button, nicht automatisch)
+if (isset($_GET['download']) && $_GET['download'] == 'xml' && isset($_SESSION['download_xml_file']) && file_exists($_SESSION['download_xml_file'])) {
     $file_path = $_SESSION['download_xml_file'];
     $file_name = $_SESSION['download_xml_filename'];
     
@@ -25,10 +25,6 @@ if (isset($_GET['download']) && $_GET['download'] == '1' && isset($_SESSION['dow
         
         // Lese und sende die Datei
         readfile($file_path);
-        
-        // Entferne die Download-Information aus der Session
-        unset($_SESSION['download_xml_file']);
-        unset($_SESSION['download_xml_filename']);
         
         // Beende das Skript nach dem Download
         exit;
@@ -50,125 +46,134 @@ if (isset($_POST['back_to_home'])) {
     <title>Testergebnis</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .result-card {
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            overflow: hidden;
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --background-color: #f3f4f6;
+            --card-background: #ffffff;
+            --text-primary: #1f2937;
+            --border-color: #e5e7eb;
         }
-        .result-value {
-            font-size: 3rem;
-            font-weight: bold;
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
         }
-        .grade-display {
-            font-size: 5rem;
-            font-weight: bold;
-            margin: 20px 0;
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--card-background);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
         }
-        .grade-1, .grade-2 {
-            color: #28a745; /* Grün für gute Noten */
-        }
-        .grade-3, .grade-4 {
-            color: #fd7e14; /* Orange für mittlere Noten */
-        }
-        .grade-5, .grade-6 {
-            color: #dc3545; /* Rot für schlechte Noten */
-        }
-        .home-button {
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            margin-top: 30px;
-            border-radius: 30px;
-            transition: all 0.3s ease;
-        }
-        .home-button:hover {
-            transform: scale(1.05);
-        }
-        .congratulation {
+        
+        .result-header {
+            text-align: center;
             margin-bottom: 30px;
         }
-        .download-xml-btn {
-            margin-top: 15px;
-            margin-bottom: 15px;
+        
+        .result-card {
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        
+        .percentage-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .grade-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .score-details {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        
+        .btn-success:hover {
+            background-color: #059669;
+            border-color: #059669;
         }
     </style>
 </head>
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card result-card mb-4">
-                    <div class="card-header bg-primary text-white py-4">
-                        <h2 class="text-center mb-0">Dein Testergebnis</h2>
-                    </div>
-                    <div class="card-body p-5">
-                        <div class="text-center congratulation">
-                            <div class="display-1 text-success mb-3">✓</div>
-                            <h3>Test erfolgreich abgeschlossen!</h3>
-                            <p class="lead">Vielen Dank für deine Teilnahme, <strong><?php echo htmlspecialchars($_SESSION['student_name']); ?></strong>.</p>
-                        </div>
-                        
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-6">
-                                <div class="card h-100 bg-light">
-                                    <div class="card-body text-center p-4">
-                                        <h4 class="text-primary mb-3">Erreichte Punkte</h4>
-                                        <div class="result-value">
-                                            <?php echo $_SESSION['test_results']['achieved']; ?> / <?php echo $_SESSION['test_results']['max']; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card h-100 bg-light">
-                                    <div class="card-body text-center p-4">
-                                        <h4 class="text-primary mb-3">Prozent</h4>
-                                        <div class="result-value">
-                                            <?php echo $_SESSION['test_results']['percentage']; ?>%
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center mt-4 p-4 bg-light rounded">
-                            <h4 class="text-center mb-3">Deine Note</h4>
-                            <?php 
-                            $grade = $_SESSION['test_results']['grade'];
-                            $gradeClass = '';
-                            if ($grade == '1' || $grade == '2') {
-                                $gradeClass = 'grade-1';
-                            } else if ($grade == '3' || $grade == '4') {
-                                $gradeClass = 'grade-3';
-                            } else if ($grade == '5' || $grade == '6') {
-                                $gradeClass = 'grade-5';
-                            }
-                            ?>
-                            <div class="grade-display <?php echo $gradeClass; ?>">
-                                <?php echo $_SESSION['test_results']['grade']; ?>
-                            </div>
-                        </div>
-                        
-                        <?php if (isset($_SESSION['download_xml_file']) && file_exists($_SESSION['download_xml_file'])): ?>
-                        <div class="text-center download-xml-btn">
-                            <a href="result.php?download=1" class="btn btn-success">
-                                <i class="bi bi-file-earmark-code-fill me-2"></i>Ergebnis als XML herunterladen
-                            </a>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <div class="text-center mt-4">
-                            <form method="post">
-                                <button type="submit" name="back_to_home" class="btn btn-primary btn-lg home-button">
-                                    <i class="bi bi-house-door me-2"></i>Zurück zur Startseite
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+<body>
+    <div class="container">
+        <div class="result-header">
+            <h1>Testergebnis</h1>
+        </div>
+        
+        <div class="result-card">
+            <div class="percentage-display">
+                <?php echo $_SESSION['test_results']['percentage']; ?>%
+            </div>
+            
+            <div class="grade-display">
+                <?php echo $_SESSION['test_results']['grade']; ?>
+            </div>
+            
+            <div class="score-details">
+                Erreichte Punkte: <?php echo $_SESSION['test_results']['achieved']; ?> von <?php echo $_SESSION['test_results']['max']; ?>
             </div>
         </div>
+        
+        <div class="action-buttons">
+            <a href="result.php?download=xml" class="btn btn-success">XML-Ergebnis herunterladen</a>
+            
+            <form method="post" action="">
+                <button type="submit" name="back_to_home" class="btn btn-primary">Zurück zur Startseite</button>
+            </form>
+        </div>
     </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </body>
 </html> 

@@ -412,7 +412,7 @@ $_SESSION['download_xml_filename'] = $filename;
 
 // Weiterleitung zur Ergebnisseite
 error_log("Weiterleitung zur Ergebnisseite");
-header("Location: result.php?download=1");
+header("Location: result.php");
 exit();
 
 error_log("=== Ende der Testverarbeitung ===");
