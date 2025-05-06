@@ -289,7 +289,7 @@ foreach ($allResults as $result) {
         $groupedResults[$key] = [
             'testTitle' => $result['testTitle'],
             'accessCode' => $result['accessCode'],
-            'testDate' => $result['testDate'],
+            'testDate' => !empty($result['testDate']) ? $result['testDate'] : (!empty($result['created_at']) ? $result['created_at'] : ''),
             'lastTestDate' => $result['date'],
             'results' => []
         ];
@@ -654,28 +654,30 @@ if (!$isAjax):
                         <?php if (!empty($groupedResults)): ?>
             <?php foreach ($groupedResults as $group): ?>
                                 <div class="card mb-4 result-group">
-                    <div class="card-header bg-primary text-white position-relative">
-                        <h5 class="mb-0">
-                            [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
-                            <?php echo htmlspecialchars($group['testTitle']); ?> 
-                                            <?php if (!empty($group['testDate'])): ?>
-                                                (<?php echo date('d.m.y', strtotime($group['testDate'])); ?>)
-                                            <?php endif; ?>
-                                            <?php if (!empty($group['lastTestDate'])): ?>
-                                                <?php 
-                                                    $lastTestTimestamp = strtotime($group['lastTestDate']);
-                                                    if ($lastTestTimestamp !== false): 
-                                                ?>
-                                                | Letzter Test: <?php echo date('d.m.y H:i', $lastTestTimestamp); ?>
-                                                <?php endif; ?>
-                                            <?php endif; ?>
-                        </h5>
-                        <button class="btn btn-sm btn-outline-light position-absolute top-0 end-0 mt-2 me-2" 
-                                onclick="deleteTestGroup('<?php echo htmlspecialchars($group['accessCode']); ?>', 
-                                                         '<?php echo htmlspecialchars($group['testTitle']); ?>', 
-                                                         <?php echo count($group['results']); ?>)">
-                            <i class="bi bi-trash"></i> Alle Ergebnisse löschen
-                        </button>
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="mb-0 pe-4" style="word-wrap: break-word; max-width: 80%;">
+                                [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
+                                <?php echo htmlspecialchars($group['testTitle']); ?> 
+                                <?php if (!empty($group['testDate'])): ?>
+                                    (<?php echo date('d.m.y', strtotime($group['testDate'])); ?>)
+                                <?php endif; ?>
+                                <?php if (!empty($group['lastTestDate'])): ?>
+                                    <?php 
+                                        $lastTestTimestamp = strtotime($group['lastTestDate']);
+                                        if ($lastTestTimestamp !== false): 
+                                    ?>
+                                    | Letzter Test: <?php echo date('d.m.y H:i', $lastTestTimestamp); ?>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </h5>
+                            <button class="btn btn-sm btn-outline-light" 
+                                    onclick="deleteTestGroup('<?php echo htmlspecialchars($group['accessCode']); ?>', 
+                                                             '<?php echo htmlspecialchars($group['testTitle']); ?>', 
+                                                             <?php echo count($group['results']); ?>)">
+                                <i class="bi bi-trash"></i> Alle Ergebnisse löschen
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -1128,7 +1130,7 @@ function updateResultsDisplay(results) {
             groupedResults[key] = {
                 testTitle: result.testTitle,
                 accessCode: result.accessCode,
-                testDate: result.testDate || result.created_at || '',
+                testDate: result.testDate ? result.testDate : (result.created_at ? result.created_at : ''),
                 lastTestDate: result.date,
                 results: []
             };
@@ -1159,20 +1161,22 @@ function updateResultsDisplay(results) {
     Object.values(groupedResults).forEach(group => {
         html += `
             <div class="card mb-4 result-group">
-                <div class="card-header bg-primary text-white position-relative">
-                    <h5 class="mb-0">
-                        [${group.accessCode}] - 
-                        ${group.testTitle}
-                        ${group.testDate ? ' (' + formatDate(group.testDate) + ')' : ''}
-                        ${group.lastTestDate ? (() => {
-                            const formattedDate = formatDateTime(group.lastTestDate);
-                            return formattedDate ? ' | Letzter Test: ' + formattedDate : '';
-                        })() : ''}
-                    </h5>
-                    <button class="btn btn-sm btn-outline-light position-absolute top-0 end-0 mt-2 me-2" 
-                            onclick="deleteTestGroup('${group.accessCode}', '${group.testTitle}', ${group.results.length})">
-                        <i class="bi bi-trash"></i> Alle Ergebnisse löschen
-                    </button>
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="mb-0 pe-4" style="word-wrap: break-word; max-width: 80%;">
+                            [${group.accessCode}] - 
+                            ${group.testTitle}
+                            ${group.testDate ? ' (' + formatDate(group.testDate) + ')' : ''}
+                            ${group.lastTestDate ? (() => {
+                                const formattedDate = formatDateTime(group.lastTestDate);
+                                return formattedDate ? ' | Letzter Test: ' + formattedDate : '';
+                            })() : ''}
+                        </h5>
+                        <button class="btn btn-sm btn-outline-light" 
+                                onclick="deleteTestGroup('${group.accessCode}', '${group.testTitle}', ${group.results.length})">
+                            <i class="bi bi-trash"></i> Alle Ergebnisse löschen
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
