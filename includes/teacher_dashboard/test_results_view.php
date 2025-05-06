@@ -654,7 +654,7 @@ if (!$isAjax):
                         <?php if (!empty($groupedResults)): ?>
             <?php foreach ($groupedResults as $group): ?>
                                 <div class="card mb-4 result-group">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-primary text-white position-relative">
                         <h5 class="mb-0">
                             [<?php echo htmlspecialchars($group['accessCode']); ?>] - 
                             <?php echo htmlspecialchars($group['testTitle']); ?> 
@@ -670,6 +670,12 @@ if (!$isAjax):
                                                 <?php endif; ?>
                                             <?php endif; ?>
                         </h5>
+                        <button class="btn btn-sm btn-outline-light position-absolute top-0 end-0 mt-2 me-2" 
+                                onclick="deleteTestGroup('<?php echo htmlspecialchars($group['accessCode']); ?>', 
+                                                         '<?php echo htmlspecialchars($group['testTitle']); ?>', 
+                                                         <?php echo count($group['results']); ?>)">
+                            <i class="bi bi-trash"></i> Alle Ergebnisse löschen
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -809,6 +815,32 @@ if (!$isAjax):
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteButton">Ja, löschen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für Löschbestätigung einer Gruppe -->
+<div class="modal fade" id="confirmDeleteGroupModal" tabindex="-1" aria-labelledby="confirmDeleteGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteGroupModalLabel">Gruppe löschen</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-3" style="font-size: 2rem;"></i>
+                    <p class="mb-0" id="confirmDeleteGroupMessage">Sind Sie sicher, dass Sie alle Testergebnisse dieser Gruppe löschen möchten?</p>
+                </div>
+                <p><strong>Test:</strong> <span id="groupTestTitle"></span></p>
+                <p><strong>Code:</strong> <span id="groupTestCode"></span></p>
+                <p><strong>Anzahl Ergebnisse:</strong> <span id="groupResultCount"></span></p>
+                <p class="text-danger fw-bold">Diese Aktion kann nicht rückgängig gemacht werden!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteGroupButton">Ja, alle löschen</button>
             </div>
         </div>
     </div>
@@ -1127,7 +1159,7 @@ function updateResultsDisplay(results) {
     Object.values(groupedResults).forEach(group => {
         html += `
             <div class="card mb-4 result-group">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white position-relative">
                     <h5 class="mb-0">
                         [${group.accessCode}] - 
                         ${group.testTitle}
@@ -1137,6 +1169,10 @@ function updateResultsDisplay(results) {
                             return formattedDate ? ' | Letzter Test: ' + formattedDate : '';
                         })() : ''}
                     </h5>
+                    <button class="btn btn-sm btn-outline-light position-absolute top-0 end-0 mt-2 me-2" 
+                            onclick="deleteTestGroup('${group.accessCode}', '${group.testTitle}', ${group.results.length})">
+                        <i class="bi bi-trash"></i> Alle Ergebnisse löschen
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -1677,6 +1713,84 @@ function deleteTestResult(filename, studentName) {
     
     // Modal anzeigen
     confirmDeleteModal.show();
+}
+
+// Funktion zum Löschen einer kompletten Testergebnisgruppe
+function deleteTestGroup(accessCode, testTitle, resultCount) {
+    console.log('Gruppenlöschversuch für:', accessCode, 'Test:', testTitle, 'Anzahl:', resultCount);
+    
+    // Löschbestätigung als Modal anzeigen
+    const confirmDeleteGroupModal = new bootstrap.Modal(document.getElementById('confirmDeleteGroupModal'));
+    
+    // Modal-Inhalte setzen
+    document.getElementById('confirmDeleteGroupMessage').textContent = 
+        `Sind Sie sicher, dass Sie alle ${resultCount} Testergebnisse für diesen Test löschen möchten?`;
+    document.getElementById('groupTestTitle').textContent = testTitle;
+    document.getElementById('groupTestCode').textContent = accessCode;
+    document.getElementById('groupResultCount').textContent = resultCount;
+    
+    // Event-Handler für den Bestätigungsbutton
+    const confirmDeleteGroupButton = document.getElementById('confirmDeleteGroupButton');
+    
+    // Alten Event-Listener entfernen, um doppelte Registrierung zu vermeiden
+    const newConfirmDeleteGroupButton = confirmDeleteGroupButton.cloneNode(true);
+    confirmDeleteGroupButton.parentNode.replaceChild(newConfirmDeleteGroupButton, confirmDeleteGroupButton);
+    
+    // Neuen Event-Listener hinzufügen
+    newConfirmDeleteGroupButton.addEventListener('click', function() {
+        // Modal schließen
+        confirmDeleteGroupModal.hide();
+        
+        console.log('Lösche Testergebnisgruppe:', accessCode);
+        
+        // AJAX-Anfrage zum Löschen der Testergebnisgruppe
+        fetch('../includes/teacher_dashboard/delete_test_group.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `access_code=${encodeURIComponent(accessCode)}`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Netzwerkantwort war nicht ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Erfolgreiche Löschung - zeige Modal
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                document.getElementById('successMessage').textContent = 
+                    `${data.count} Testergebnisse wurden erfolgreich gelöscht.`;
+                successModal.show();
+                
+                // Automatisches Ausblenden nach 3 Sekunden
+                setTimeout(() => {
+                    successModal.hide();
+                }, 3000);
+                
+                // Aktualisiere die Ergebnisanzeige
+                updateResults();
+            } else {
+                // Fehler bei der Löschung - zeige Modal
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                document.getElementById('errorMessage').textContent = data.error || 'Unbekannter Fehler beim Löschen';
+                errorModal.show();
+            }
+        })
+        .catch(error => {
+            console.error('Fehler beim Löschen der Testergebnisgruppe:', error);
+            // Fehler-Modal anzeigen
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            document.getElementById('errorMessage').textContent = 'Fehler beim Löschen der Testergebnisgruppe: ' + error.message;
+            errorModal.show();
+        });
+    });
+    
+    // Modal anzeigen
+    confirmDeleteGroupModal.show();
 }
 </script> 
 
