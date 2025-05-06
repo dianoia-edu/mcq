@@ -1224,6 +1224,17 @@ function updateResultsDisplay(results) {
     
     container.innerHTML = html;
     console.log('Ergebnisanzeige aktualisiert');
+    
+    // Nach der Aktualisierung immer nach letztem Testdatum sortieren
+    sortGroups('testDate', 'desc');
+    
+    // Markiere den entsprechenden Button als aktiv
+    const sortButtons = document.querySelectorAll('.btn-group-sort .btn');
+    sortButtons.forEach(btn => btn.classList.remove('active'));
+    const newestTestsButton = document.querySelector('[data-sort-groups="testDate"][data-sort-dir="desc"]');
+    if (newestTestsButton) {
+        newestTestsButton.classList.add('active');
+    }
 }
 
 function showResults(filename) {
