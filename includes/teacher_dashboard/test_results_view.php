@@ -752,6 +752,68 @@ if (!$isAjax):
     </div>
 </div>
 
+<!-- Modal für Erfolgsmeldung -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">Erfolg</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-success me-3" style="font-size: 2rem;"></i>
+                    <p class="mb-0" id="successMessage">Das Testergebnis wurde erfolgreich gelöscht.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für Fehlermeldung -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">Fehler</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-3" style="font-size: 2rem;"></i>
+                    <p class="mb-0" id="errorMessage">Es ist ein Fehler aufgetreten.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für Löschbestätigung -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Löschen bestätigen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-3" style="font-size: 2rem;"></i>
+                    <p class="mb-0" id="confirmDeleteMessage">Sind Sie sicher, dass Sie dieses Testergebnis löschen möchten?</p>
+                </div>
+                <p class="small text-muted">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Ja, löschen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
 <script>
@@ -1536,20 +1598,37 @@ function sortGroups(field, direction) {
 function deleteTestResult(filename, studentName) {
     console.log('Löschversuch für:', filename, 'Schüler:', studentName);
     
-    // Sicherheitsabfrage anzeigen
-    if (confirm(`Sind Sie sicher, dass Sie das Testergebnis von "${studentName}" löschen möchten?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) {
+    // Speichere die Dateiinformationen, um sie später zu verwenden
+    let fileToDelete = filename;
+    
+    // Löschbestätigung als Modal anzeigen statt confirm()
+    const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+    document.getElementById('confirmDeleteMessage').textContent = `Sind Sie sicher, dass Sie das Testergebnis von "${studentName}" löschen möchten?`;
+    
+    // Event-Handler für den Bestätigungsbutton
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    
+    // Alten Event-Listener entfernen, um doppelte Registrierung zu vermeiden
+    const newConfirmDeleteButton = confirmDeleteButton.cloneNode(true);
+    confirmDeleteButton.parentNode.replaceChild(newConfirmDeleteButton, confirmDeleteButton);
+    
+    // Neuen Event-Listener hinzufügen
+    newConfirmDeleteButton.addEventListener('click', function() {
+        // Modal schließen
+        confirmDeleteModal.hide();
+        
         // Normalisiere den Pfad für Windows (ersetze Backslashes durch Forward Slashes)
-        filename = filename.replace(/\\/g, '/');
+        fileToDelete = fileToDelete.replace(/\\/g, '/');
         
         // Entferne absoluten Pfadteil, falls vorhanden
         const basePath = '/xampp/htdocs/mcq-test-system/';
-        if (filename.includes(basePath)) {
-            filename = filename.substring(filename.indexOf(basePath) + basePath.length);
-        } else if (filename.includes('C:/xampp/htdocs/mcq-test-system/')) {
-            filename = filename.replace('C:/xampp/htdocs/mcq-test-system/', '');
+        if (fileToDelete.includes(basePath)) {
+            fileToDelete = fileToDelete.substring(fileToDelete.indexOf(basePath) + basePath.length);
+        } else if (fileToDelete.includes('C:/xampp/htdocs/mcq-test-system/')) {
+            fileToDelete = fileToDelete.replace('C:/xampp/htdocs/mcq-test-system/', '');
         }
         
-        console.log('Lösche Testergebnis:', filename);
+        console.log('Lösche Testergebnis:', fileToDelete);
         
         // AJAX-Anfrage zum Löschen des Testergebnisses
         fetch('../includes/teacher_dashboard/delete_test_result.php', {
@@ -1558,7 +1637,7 @@ function deleteTestResult(filename, studentName) {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: `file=${encodeURIComponent(filename)}`
+            body: `file=${encodeURIComponent(fileToDelete)}`
         })
         .then(response => {
             if (!response.ok) {
@@ -1568,22 +1647,36 @@ function deleteTestResult(filename, studentName) {
         })
         .then(data => {
             if (data.success) {
-                // Erfolgreiche Löschung
-                alert('Das Testergebnis wurde erfolgreich gelöscht.');
+                // Erfolgreiche Löschung - zeige Modal statt alert
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                document.getElementById('successMessage').textContent = 'Das Testergebnis wurde erfolgreich gelöscht.';
+                successModal.show();
+                
+                // Automatisches Ausblenden nach 3 Sekunden
+                setTimeout(() => {
+                    successModal.hide();
+                }, 3000);
+                
                 // Aktualisiere die Ergebnisanzeige
                 updateResults();
             } else {
-                // Fehler bei der Löschung
-                throw new Error(data.error || 'Unbekannter Fehler beim Löschen');
+                // Fehler bei der Löschung - zeige Modal statt alert
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                document.getElementById('errorMessage').textContent = data.error || 'Unbekannter Fehler beim Löschen';
+                errorModal.show();
             }
         })
         .catch(error => {
             console.error('Fehler beim Löschen des Testergebnisses:', error);
-            alert('Fehler beim Löschen des Testergebnisses: ' + error.message);
+            // Fehler-Modal anzeigen statt alert
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            document.getElementById('errorMessage').textContent = 'Fehler beim Löschen des Testergebnisses: ' + error.message;
+            errorModal.show();
         });
-    } else {
-        console.log('Löschvorgang abgebrochen');
-    }
+    });
+    
+    // Modal anzeigen
+    confirmDeleteModal.show();
 }
 </script> 
 
