@@ -709,6 +709,9 @@ if (!$isAjax):
                                                 <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('<?php echo htmlspecialchars(str_replace('\\', '/', $result['fileName'])); ?>')">
                                                     Details
                                                 </button>
+                                                <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteTestResult('<?php echo htmlspecialchars(str_replace('\\', '/', $result['fileName'])); ?>', '<?php echo htmlspecialchars($result['studentName'] ?? 'Unbekannt'); ?>')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -1101,6 +1104,9 @@ function updateResultsDisplay(results) {
                     <td class="text-start">
                         <button class="btn btn-sm btn-outline-success btn-action" onclick="showResults('${(result.fileName || '').replace(/\\/g, '/')}')">
                             Details
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteTestResult('${(result.fileName || '').replace(/\\/g, '/')}', '${result.studentName || 'Unbekannt'}')">
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>`;
@@ -1524,6 +1530,60 @@ function sortGroups(field, direction) {
     
     // Aktualisiere DOM
     groups.forEach(group => container.appendChild(group));
+}
+
+// Funktion zum Löschen eines Testergebnisses
+function deleteTestResult(filename, studentName) {
+    console.log('Löschversuch für:', filename, 'Schüler:', studentName);
+    
+    // Sicherheitsabfrage anzeigen
+    if (confirm(`Sind Sie sicher, dass Sie das Testergebnis von "${studentName}" löschen möchten?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) {
+        // Normalisiere den Pfad für Windows (ersetze Backslashes durch Forward Slashes)
+        filename = filename.replace(/\\/g, '/');
+        
+        // Entferne absoluten Pfadteil, falls vorhanden
+        const basePath = '/xampp/htdocs/mcq-test-system/';
+        if (filename.includes(basePath)) {
+            filename = filename.substring(filename.indexOf(basePath) + basePath.length);
+        } else if (filename.includes('C:/xampp/htdocs/mcq-test-system/')) {
+            filename = filename.replace('C:/xampp/htdocs/mcq-test-system/', '');
+        }
+        
+        console.log('Lösche Testergebnis:', filename);
+        
+        // AJAX-Anfrage zum Löschen des Testergebnisses
+        fetch('../includes/teacher_dashboard/delete_test_result.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `file=${encodeURIComponent(filename)}`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Netzwerkantwort war nicht ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Erfolgreiche Löschung
+                alert('Das Testergebnis wurde erfolgreich gelöscht.');
+                // Aktualisiere die Ergebnisanzeige
+                updateResults();
+            } else {
+                // Fehler bei der Löschung
+                throw new Error(data.error || 'Unbekannter Fehler beim Löschen');
+            }
+        })
+        .catch(error => {
+            console.error('Fehler beim Löschen des Testergebnisses:', error);
+            alert('Fehler beim Löschen des Testergebnisses: ' + error.message);
+        });
+    } else {
+        console.log('Löschvorgang abgebrochen');
+    }
 }
 </script> 
 
