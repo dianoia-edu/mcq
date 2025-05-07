@@ -307,18 +307,17 @@ if (isset($_GET['code'])) {
                     
                     <div class="student-name-form">
                         <h3 class="form-title">Teilnehmerdaten eingeben</h3>
-                        <form action="index.php" method="POST">
-                            <input type="hidden" name="code" value="<?php echo htmlspecialchars($code); ?>">
-                            <?php if (isset($_GET['seb'])): ?>
-                            <input type="hidden" name="seb" value="<?php echo htmlspecialchars($_GET['seb']); ?>">
-                            <?php endif; ?>
+                        <div id="nameForm">
                             <div class="mb-4">
                                 <label for="student_name" class="name-label">Vor- und Nachname:</label>
-                                <input type="text" class="name-input" id="student_name" name="student_name" 
-                                       placeholder="Bitte vollständigen Namen eingeben" required>
+                                <input type="text" class="name-input" id="student_name" name="student_name" placeholder="Bitte vollständigen Namen eingeben" required>
                             </div>
-                            <button type="submit" class="submit-btn">Test jetzt starten</button>
-                        </form>
+                            <input type="hidden" id="test_code" value="<?php echo htmlspecialchars($code); ?>">
+                            <div class="d-grid gap-2">
+                                <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test im Browser starten</button>
+                                <button id="sebBtn" class="btn btn-success btn-lg">Test im Safe Exam Browser starten</button>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="text-center mt-4">
@@ -329,18 +328,25 @@ if (isset($_GET['code'])) {
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
                 <script>
-                    console.log('Debug Information - Namenseingabe:');
-                    console.log('Original Code:', '<?php echo htmlspecialchars($code); ?>');
-                    console.log('Basis Code:', '<?php echo htmlspecialchars($baseCode); ?>');
-                    console.log('Such-Code:', '<?php echo htmlspecialchars($searchCode); ?>');
-                    console.log('Test File:', '<?php echo htmlspecialchars(glob("tests/" . $searchCode . "*.xml")[0] ?? 'Nicht gefunden'); ?>');
-                    console.log('Session:', <?php echo json_encode($_SESSION); ?>);
-                    console.log('Form Action:', 'index.php');
-                    console.log('Form Method:', 'POST');
-                    console.log('Form Data:', {
-                        code: '<?php echo htmlspecialchars($code); ?>',
-                        student_name: '[wird eingegeben]'
-                    });
+                document.getElementById('browserBtn').onclick = function() {
+                    var name = encodeURIComponent(document.getElementById('student_name').value);
+                    var code = encodeURIComponent(document.getElementById('test_code').value);
+                    if (!name) {
+                        alert('Bitte geben Sie Ihren Namen ein.');
+                        return;
+                    }
+                    window.location.href = 'index.php?code=' + code + '&student_name=' + name;
+                };
+                document.getElementById('sebBtn').onclick = function() {
+                    var name = encodeURIComponent(document.getElementById('student_name').value);
+                    var code = encodeURIComponent(document.getElementById('test_code').value);
+                    if (!name) {
+                        alert('Bitte geben Sie Ihren Namen ein.');
+                        return;
+                    }
+                    var url = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>' + '/index.php?code=' + code + '&seb=true&student_name=' + name;
+                    window.location.href = 'seb://start?url=' + encodeURIComponent(url);
+                };
                 </script>
             </body>
             </html>
