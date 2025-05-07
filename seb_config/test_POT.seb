@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sebConfigFile>
+  <startURL>https://www.dianoia-ai.de/mcq-test-system/index.php?code=POT&amp;seb=true</startURL>
+  <URLFilterEnable>true</URLFilterEnable>
+  <URLFilterRules>
+    <string>^https://www\.dianoia-ai\.de/.*$</string>
+    <string>^https://dianoia-ai\.de/.*$</string>
+    <string>https://www.dianoia-ai.de/mcq-test-system/index.php?code=POT&amp;seb=true</string>
+  </URLFilterRules>
+  <browserWindowAllowReload>false</browserWindowAllowReload>
+  <browserWindowShowURL>false</browserWindowShowURL>
+  <browserWindowAllowBackForward>false</browserWindowAllowBackForward>
+  <browserWindowAllowSpellCheck>false</browserWindowAllowSpellCheck>
+  <browserWindowAllowPrinting>false</browserWindowAllowPrinting>
+  <browserWindowAllowExternalLinks>false</browserWindowAllowExternalLinks>
+  <browserWindowAllowNavigation>false</browserWindowAllowNavigation>
+  <browserWindowAllowConfigFileDownload>false</browserWindowAllowConfigFileDownload>
+  <allowQuit>false</allowQuit>
+  <showReloadWarning>true</showReloadWarning>
+  <showQuitWarning>true</showQuitWarning>
+</sebConfigFile> 
