@@ -288,6 +288,19 @@ if (isset($_GET['code'])) {
                 </style>
             </head>
             <body class="bg-light">
+                <?php
+                // Debug-Informationen am Anfang der Seite
+                echo '<div style="background: #f8f9fa; padding: 10px; margin: 10px; border: 1px solid #ddd;">';
+                echo '<h3>SEB Debug Information:</h3>';
+                echo '<pre>';
+                echo "Zeit: " . date('Y-m-d H:i:s') . "\n";
+                echo "User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt') . "\n";
+                echo "Code: " . $code . "\n";
+                echo "SEB Parameter: " . ($_GET['seb'] ?? 'Nicht gesetzt') . "\n";
+                echo "Session: " . print_r($_SESSION, true) . "\n";
+                echo '</pre>';
+                echo '</div>';
+                ?>
                 <div class="name-form-container">
                     <div class="test-code-info">
                         <h2>Testcode: <span class="testcode-badge"><?php echo htmlspecialchars($code); ?></span></h2>
