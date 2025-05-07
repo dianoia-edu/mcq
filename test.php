@@ -1,4 +1,13 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+echo '<div style="background:yellow;color:black;padding:10px;z-index:9999;">test.php wurde geladen<br>';
+echo 'Session: <pre>' . print_r($_SESSION, true) . '</pre>';
+echo 'GET: <pre>' . print_r($_GET, true) . '</pre>';
+echo 'POST: <pre>' . print_r($_POST, true) . '</pre>';
+echo '</div>';
+
 ob_start();
 
 require_once 'check_test_attempts.php';
