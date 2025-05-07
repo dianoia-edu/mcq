@@ -68,15 +68,19 @@ function generateSEBConfig($testCode) {
 function startSEB($testCode) {
     $config = generateSEBConfig($testCode);
     
-    // Debug-Logging
-    error_log("SEB Start - User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt'));
-    error_log("SEB Start - Config: " . $config);
+    // Debug-Logging in Datei
+    $debugLog = "SEB Debug Log:\n";
+    $debugLog .= "Zeit: " . date('Y-m-d H:i:s') . "\n";
+    $debugLog .= "User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt') . "\n";
+    $debugLog .= "Config: " . $config . "\n";
     
     // Für iOS SEB - Verwende die korrekte URL-Struktur
     $sebUrl = "seb://start?config=" . urlencode(base64_encode($config));
+    $debugLog .= "SEB URL: " . $sebUrl . "\n";
+    $debugLog .= "----------------------------------------\n";
     
-    // Debug-Logging
-    error_log("SEB Start - URL: " . $sebUrl);
+    // Schreibe in Debug-Datei
+    file_put_contents(__DIR__ . '/seb_debug.log', $debugLog, FILE_APPEND);
     
     // Setze Header für iOS SEB
     header("Location: " . $sebUrl);
