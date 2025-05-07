@@ -141,6 +141,12 @@ function testExists($code) {
     return !empty($matchingFiles);
 }
 
+// Session setzen, wenn student_name und code per GET kommen (z.B. aus SEB)
+if (isset($_GET['student_name']) && isset($_GET['code'])) {
+    $_SESSION['student_name'] = $_GET['student_name'];
+    $_SESSION['test_code'] = $_GET['code'];
+}
+
 // Wenn ein Code übergeben wurde
 if (isset($_GET['code'])) {
     // Lösche die alte Session beim direkten Aufruf eines Tests
@@ -516,37 +522,15 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) &
         error_log("Versuche test.php einzubinden (post) - Pfad: " . $testFile);
         error_log("Datei existiert: " . (file_exists($testFile) ? "Ja" : "Nein"));
         
-        // Starte Output-Buffering für die Fehlersuche
-        ob_start();
-        include 'test.php';
-        $output = ob_get_clean();
-        
-        // Prüfe, ob die Ausgabe leer ist
-        if (empty(trim($output))) {
-            error_log("WARNUNG: test.php hat keine Ausgabe erzeugt!");
-            echo '<!DOCTYPE html>
-            <html lang="de">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Fehler beim Laden des Tests</title>
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-            </head>
-            <body class="bg-light">
-                <div class="container mt-5">
-                    <div class="alert alert-danger">
-                        <h4>Fehler beim Laden des Tests</h4>
-                        <p>Es ist ein Problem beim Laden des Tests aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie den Administrator.</p>
-                        <p>Test-Datei: ' . htmlspecialchars($testFile) . '</p>
-                        <p>Zugangscode: ' . htmlspecialchars($code) . '</p>
-                        <a href="index.php" class="btn btn-primary">Zurück zur Startseite</a>
-                    </div>
-                </div>
-            </body>
-            </html>';
-        } else {
-            echo $output;
-        }
+        // Zeige die zwei Buttons anstelle des direkten Test-Starts
+        $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']);
+        $sebUrl = 'seb://start?url=' . urlencode($baseUrl . '/index.php?code=' . urlencode($code) . '&seb=true&student_name=' . urlencode($_POST['student_name']));
+        echo '<div class="container mt-5 text-center">';
+        echo '<h2>Test starten</h2>';
+        echo '<a href="index.php?code=' . urlencode($code) . '" class="btn btn-primary btn-lg me-2">Test im Browser starten</a>';
+        echo '<a href="' . htmlspecialchars($sebUrl) . '" class="btn btn-success btn-lg">Test im Safe Exam Browser starten</a>';
+        echo '<div class="mt-4 text-muted">Sollte sich der Safe Exam Browser nicht öffnen, können Sie den Test auch im Browser durchführen.</div>';
+        echo '</div>';
         exit;
     } else {
         $errorMessage = "Ungültiger Testcode";
