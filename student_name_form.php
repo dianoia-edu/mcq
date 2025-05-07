@@ -159,7 +159,7 @@ header("Pragma: no-cache");
                            pattern="[A-Za-zÄäÖöÜüß\s-]+" 
                            title="Bitte geben Sie Ihren vollständigen Namen ein (nur Buchstaben, Leerzeichen und Bindestriche erlaubt)">
                 </div>
-                <button type="submit" class="submit-btn">Test jetzt starten</button>
+                <button type="submit" class="submit-btn" onclick="enterFullscreen()">Test jetzt starten</button>
             </form>
         </div>
         
@@ -169,6 +169,24 @@ header("Pragma: no-cache");
             </p>
         </div>
     </div>
+    
+    <script>
+    // Vollbildmodus-Funktionen
+    function enterFullscreen() {
+        const element = document.documentElement;
+        
+        // iOS Safari spezifische Implementierung
+        if (element.webkitEnterFullscreen) {
+            element.webkitEnterFullscreen();
+        } else if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) { // Desktop Safari
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) { // IE11
+            element.msRequestFullscreen();
+        }
+    }
+    </script>
     
     <div style="position: fixed; bottom: 5px; right: 5px; font-size: 0.7em; color: #666; opacity: 0.5;">
         <?php echo "Letzte Änderung: " . date('d.m.Y H:i:s', filemtime(__FILE__)); ?>

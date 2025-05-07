@@ -357,9 +357,13 @@ function getTestModeWarning() {
     // Vollbildmodus-Funktionen
     function enterFullscreen() {
         const element = document.documentElement;
-        if (element.requestFullscreen) {
+        
+        // iOS Safari spezifische Implementierung
+        if (element.webkitEnterFullscreen) {
+            element.webkitEnterFullscreen();
+        } else if (element.requestFullscreen) {
             element.requestFullscreen();
-        } else if (element.webkitRequestFullscreen) { // Safari
+        } else if (element.webkitRequestFullscreen) { // Desktop Safari
             element.webkitRequestFullscreen();
         } else if (element.msRequestFullscreen) { // IE11
             element.msRequestFullscreen();
@@ -367,10 +371,13 @@ function getTestModeWarning() {
     }
 
     function exitFullscreen() {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) { // Safari
+        // iOS Safari spezifische Implementierung
+        if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
+        } else if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitCancelFullScreen) { // Desktop Safari
+            document.webkitCancelFullScreen();
         } else if (document.msExitFullscreen) { // IE11
             document.msExitFullscreen();
         }
