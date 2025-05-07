@@ -156,6 +156,7 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
                     <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test im Browser starten</button>
                     <button id="sebBtn" class="btn btn-success btn-lg">Test im Safe Exam Browser starten</button>
                 </div>
+                <div id="sebUrlDebug" style="background:#e0ffe0;color:#222;padding:10px;margin-top:20px;word-break:break-all;display:none;"></div>
             </div>
         </div>
         
@@ -184,7 +185,10 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
             return;
         }
         var url = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>' + '/index.php?code=' + code + '&seb=true&student_name=' + name;
-        window.location.href = 'seb://start?url=' + encodeURIComponent(url);
+        var sebUrl = 'seb://start?url=' + encodeURIComponent(url);
+        document.getElementById('sebUrlDebug').style.display = 'block';
+        document.getElementById('sebUrlDebug').innerHTML = '<b>SEB-URL zum Testen/Kopieren:</b><br>' + sebUrl;
+        window.location.href = sebUrl;
     };
     </script>
 </body>
