@@ -6,6 +6,7 @@ ob_start();
 session_start();
 
 require_once 'check_test_attempts.php';
+require_once 'includes/seb_functions.php';
 
 // Debug-Informationen für alle Anfragen
 error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
@@ -64,6 +65,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $errorMessage = "Der eingegebene Zugangscode ist ungültig. Bitte überprüfen Sie Ihre Eingabe.";
             $errorType = "danger";
         }
+    }
+}
+
+// Überprüfe, ob SEB-Parameter vorhanden ist
+if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
+    if (isSEBBrowser()) {
+        // SEB ist bereits aktiv, normaler Testablauf
+        $code = $_GET['code'];
+    } else {
+        // SEB ist nicht aktiv, starte SEB
+        startSEB($_GET['code']);
     }
 }
 
