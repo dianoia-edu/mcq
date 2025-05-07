@@ -131,6 +131,13 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
     </style>
 </head>
 <body class="bg-light">
+    <div style="background:yellow;color:black;padding:10px;z-index:9999;">
+        <b>DEBUG:</b> name_form.php geladen<br>
+        Code: <?php echo htmlspecialchars($code); ?><br>
+        SEB: <?php echo htmlspecialchars($seb); ?><br>
+        Session ID: <?php echo session_id(); ?><br>
+        Session Status: <?php echo session_status(); ?><br>
+    </div>
     <div class="name-form-container">
         <div class="test-code-info">
             <h2>Testcode: <span class="testcode-badge"><?php echo htmlspecialchars($code); ?></span></h2>
