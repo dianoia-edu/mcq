@@ -70,10 +70,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 // Überprüfe, ob SEB-Parameter vorhanden ist
 if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
+    error_log("SEB Parameter gefunden - Code: " . $_GET['code']);
+    error_log("User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt'));
+    
     if (isSEBBrowser()) {
+        error_log("SEB Browser erkannt - Starte normalen Testablauf");
         // SEB ist bereits aktiv, normaler Testablauf
         $code = $_GET['code'];
     } else {
+        error_log("SEB Browser nicht erkannt - Versuche SEB zu starten");
         // SEB ist nicht aktiv, starte SEB
         startSEB($_GET['code']);
     }

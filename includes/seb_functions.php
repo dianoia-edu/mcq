@@ -8,14 +8,19 @@
  */
 function isSEBBrowser() {
     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    return (strpos($userAgent, 'SEB') !== false);
+    // Verbesserte SEB-Erkennung für iOS
+    return (strpos($userAgent, 'SEB') !== false || 
+            strpos($userAgent, 'SafeExamBrowser') !== false ||
+            strpos($userAgent, 'SEB_iOS') !== false);
 }
 
 /**
  * Generiert die SEB-Konfiguration für einen Test
  */
 function generateSEBConfig($testCode) {
-    $baseUrl = "https://" . $_SERVER['HTTP_HOST'];
+    // Verwende die vollständige URL mit Protokoll
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $baseUrl = $protocol . $_SERVER['HTTP_HOST'];
     $testUrl = $baseUrl . "/index.php?code=" . urlencode($testCode);
     
     $config = [
@@ -62,7 +67,18 @@ function generateSEBConfig($testCode) {
  */
 function startSEB($testCode) {
     $config = generateSEBConfig($testCode);
+    
+    // Debug-Logging
+    error_log("SEB Start - User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt'));
+    error_log("SEB Start - Config: " . $config);
+    
+    // Für iOS SEB
     $sebUrl = "seb://start?config=" . base64_encode($config);
+    
+    // Debug-Logging
+    error_log("SEB Start - URL: " . $sebUrl);
+    
+    // Setze Header für iOS SEB
     header("Location: " . $sebUrl);
     exit;
 } 
