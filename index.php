@@ -79,8 +79,22 @@ if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
         $code = $_GET['code'];
     } else {
         error_log("SEB Browser nicht erkannt - Versuche SEB zu starten");
-        // SEB ist nicht aktiv, starte SEB
-        startSEB($_GET['code']);
+        
+        // Prüfe, ob es sich um iOS handelt
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        if (strpos($userAgent, 'iPhone') !== false || strpos($userAgent, 'iPad') !== false) {
+            error_log("iOS Gerät erkannt - Verwende iOS SEB URL");
+            // Für iOS: Verwende die direkte SEB-URL
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+            $baseUrl = $protocol . $_SERVER['HTTP_HOST'];
+            $testUrl = $baseUrl . "/index.php?code=" . urlencode($_GET['code']);
+            $sebUrl = "seb://start?url=" . urlencode($testUrl);
+            header("Location: " . $sebUrl);
+            exit;
+        } else {
+            // Für andere Plattformen: Verwende die normale SEB-Start-Funktion
+            startSEB($_GET['code']);
+        }
     }
 }
 

@@ -72,8 +72,8 @@ function startSEB($testCode) {
     error_log("SEB Start - User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt'));
     error_log("SEB Start - Config: " . $config);
     
-    // Für iOS SEB
-    $sebUrl = "seb://start?config=" . base64_encode($config);
+    // Für iOS SEB - Verwende die korrekte URL-Struktur
+    $sebUrl = "seb://start?config=" . urlencode(base64_encode($config));
     
     // Debug-Logging
     error_log("SEB Start - URL: " . $sebUrl);
