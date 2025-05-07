@@ -88,30 +88,22 @@ if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
         // SEB ist bereits aktiv, normaler Testablauf
         $code = $_GET['code'];
     } else {
-        echo '<div style="background: #fff3cd; padding: 10px; margin: 10px; border: 1px solid #ffeeba;">';
-        echo "SEB Browser nicht erkannt - Versuche SEB zu starten";
-        echo '</div>';
-        
-        // Prüfe, ob es sich um iOS handelt
+        // Prüfe, ob der Browser ein iOS-Gerät ist
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        if (strpos($userAgent, 'iPhone') !== false || strpos($userAgent, 'iPad') !== false) {
-            echo '<div style="background: #cce5ff; padding: 10px; margin: 10px; border: 1px solid #b8daff;">';
-            echo "iOS Gerät erkannt - Verwende iOS SEB URL";
-            echo '</div>';
-            // Für iOS: Verwende die direkte SEB-URL
-            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-            $baseUrl = $protocol . $_SERVER['HTTP_HOST'];
-            $testUrl = $baseUrl . "/index.php?code=" . urlencode($_GET['code']);
-            $sebUrl = "seb://start?url=" . urlencode($testUrl);
-            echo '<div style="background: #e2e3e5; padding: 10px; margin: 10px; border: 1px solid #d6d8db;">';
-            echo "SEB URL: " . htmlspecialchars($sebUrl);
-            echo '</div>';
-            header("Location: " . $sebUrl);
-            exit;
-        } else {
-            // Für andere Plattformen: Verwende die normale SEB-Start-Funktion
-            startSEB($_GET['code']);
+        if ((strpos($userAgent, 'iPhone') !== false || strpos($userAgent, 'iPad') !== false)) {
+            // Versuche, SEB zu starten (nur auf iOS sinnvoll)
+            echo '<script>';
+            echo 'setTimeout(function() {';
+            echo '  window.location = "seb://start?url=' . urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/mcq-test-system/index.php?code=' . urlencode($_GET['code']) . '&seb=true') . '";';
+            echo '}, 500);';
+            echo '</script>';
+            // Zeige dem Nutzer einen Hinweis, falls SEB nicht installiert ist
+            echo '<div class="alert alert-info mt-3">Wenn sich der Safe Exam Browser nicht öffnet, können Sie den Test auch im normalen Browser durchführen.</div>';
+            // Test läuft trotzdem weiter im Browser
         }
+        // Wenn kein iOS oder SEB nicht installiert: Test läuft einfach weiter im Browser
+        // Keine Weiterleitung, keine Blockade
+        $code = $_GET['code'];
     }
 }
 
