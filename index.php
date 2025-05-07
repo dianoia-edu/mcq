@@ -74,6 +74,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 // Überprüfe, ob SEB-Parameter vorhanden ist
 if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
+    error_log("SEB-DEBUG: SEB-Parameter erkannt");
+    error_log("SEB-DEBUG: GET-Parameter: " . print_r($_GET, true));
+    error_log("SEB-DEBUG: Session vor SEB-Check: " . print_r($_SESSION, true));
+    
     // Debug-Ausgabe
     echo '<div style="background: #f8f9fa; padding: 10px; margin: 10px; border: 1px solid #ddd;">';
     echo '<h3>SEB Debug Information:</h3>';
@@ -82,6 +86,7 @@ if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
     echo "User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt') . "\n";
     echo "Code: " . $_GET['code'] . "\n";
     echo "SEB Parameter: " . $_GET['seb'] . "\n";
+    echo "Student Name: " . ($_GET['student_name'] ?? 'Nicht gesetzt') . "\n";
     echo '</pre>';
     echo '</div>';
     
@@ -228,6 +233,8 @@ if (isset($_GET['code'])) {
             }
             
             // Zeige das Namenseingabeformular
+            error_log('DEBUG: Namenseingabe-Formular wird angezeigt');
+            echo '<div style="background:yellow;color:black;padding:10px;z-index:9999;">Namenseingabe-Formular wird angezeigt</div>';
             ?>
             <!DOCTYPE html>
             <html lang="de">
