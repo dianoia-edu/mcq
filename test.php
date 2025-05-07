@@ -159,15 +159,10 @@ function getTestModeWarning() {
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden;
-            background-color: var(--background-color);
             margin: 0;
             padding: 0;
+            background-color: var(--background-color);
+            min-height: 100vh;
         }
 
         /* iOS-spezifische Anpassungen */
@@ -177,13 +172,27 @@ function getTestModeWarning() {
                 touch-action: manipulation;
                 -webkit-text-size-adjust: 100%;
             }
-            
-            /* Verhindert das Scrollen der gesamten Seite */
-            html {
-                position: fixed;
-                height: 100%;
-                overflow: hidden;
-            }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--card-background);
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-actions {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
         }
 
         body {
@@ -258,18 +267,6 @@ function getTestModeWarning() {
         /* Verstecke den Toggle-Button im Vollbildmodus */
         body.fullscreen-mode .fullscreen-toggle {
             display: none;
-        }
-
-        .container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            background-color: var(--card-background);
-            padding: 20px;
         }
 
         .student-info {
@@ -400,20 +397,6 @@ function getTestModeWarning() {
         .btn-backup:hover {
             background-color: #0d9668;
             transform: translateY(-1px);
-        }
-
-        .form-actions {
-            margin-top: 40px;
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .test-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
         }
 
         .test-title {
@@ -583,13 +566,6 @@ function getTestModeWarning() {
             // Verhindere das Zoomen auf iOS
             document.addEventListener('touchmove', function(e) {
                 if (e.scale !== 1) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            // Verhindere das Scrollen der gesamten Seite
-            document.body.addEventListener('touchmove', function(e) {
-                if (e.target.closest('.container') === null) {
                     e.preventDefault();
                 }
             }, { passive: false });
