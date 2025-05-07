@@ -79,8 +79,9 @@ function startSEB($testCode) {
     $debugLog .= "SEB URL: " . $sebUrl . "\n";
     $debugLog .= "----------------------------------------\n";
     
-    // Schreibe in Debug-Datei
-    file_put_contents(__DIR__ . '/seb_debug.log', $debugLog, FILE_APPEND);
+    // Schreibe in Debug-Datei im temp Verzeichnis
+    $logFile = sys_get_temp_dir() . '/seb_debug.log';
+    file_put_contents($logFile, $debugLog, FILE_APPEND);
     
     // Setze Header für iOS SEB
     header("Location: " . $sebUrl);

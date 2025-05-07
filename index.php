@@ -70,25 +70,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 // Überprüfe, ob SEB-Parameter vorhanden ist
 if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
-    error_log("SEB Parameter gefunden - Code: " . $_GET['code']);
-    error_log("User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt'));
+    // Debug-Ausgabe
+    echo '<div style="background: #f8f9fa; padding: 10px; margin: 10px; border: 1px solid #ddd;">';
+    echo '<h3>SEB Debug Information:</h3>';
+    echo '<pre>';
+    echo "Zeit: " . date('Y-m-d H:i:s') . "\n";
+    echo "User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt') . "\n";
+    echo "Code: " . $_GET['code'] . "\n";
+    echo "SEB Parameter: " . $_GET['seb'] . "\n";
+    echo '</pre>';
+    echo '</div>';
     
     if (isSEBBrowser()) {
-        error_log("SEB Browser erkannt - Starte normalen Testablauf");
+        echo '<div style="background: #d4edda; padding: 10px; margin: 10px; border: 1px solid #c3e6cb;">';
+        echo "SEB Browser erkannt - Starte normalen Testablauf";
+        echo '</div>';
         // SEB ist bereits aktiv, normaler Testablauf
         $code = $_GET['code'];
     } else {
-        error_log("SEB Browser nicht erkannt - Versuche SEB zu starten");
+        echo '<div style="background: #fff3cd; padding: 10px; margin: 10px; border: 1px solid #ffeeba;">';
+        echo "SEB Browser nicht erkannt - Versuche SEB zu starten";
+        echo '</div>';
         
         // Prüfe, ob es sich um iOS handelt
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         if (strpos($userAgent, 'iPhone') !== false || strpos($userAgent, 'iPad') !== false) {
-            error_log("iOS Gerät erkannt - Verwende iOS SEB URL");
+            echo '<div style="background: #cce5ff; padding: 10px; margin: 10px; border: 1px solid #b8daff;">';
+            echo "iOS Gerät erkannt - Verwende iOS SEB URL";
+            echo '</div>';
             // Für iOS: Verwende die direkte SEB-URL
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
             $baseUrl = $protocol . $_SERVER['HTTP_HOST'];
             $testUrl = $baseUrl . "/index.php?code=" . urlencode($_GET['code']);
             $sebUrl = "seb://start?url=" . urlencode($testUrl);
+            echo '<div style="background: #e2e3e5; padding: 10px; margin: 10px; border: 1px solid #d6d8db;">';
+            echo "SEB URL: " . htmlspecialchars($sebUrl);
+            echo '</div>';
             header("Location: " . $sebUrl);
             exit;
         } else {
