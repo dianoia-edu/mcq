@@ -159,6 +159,31 @@ function getTestModeWarning() {
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* iOS-spezifische Anpassungen */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                /* Verhindert das Zoomen auf iOS */
+                touch-action: manipulation;
+                -webkit-text-size-adjust: 100%;
+            }
+            
+            /* Verhindert das Scrollen der gesamten Seite */
+            html {
+                position: fixed;
+                height: 100%;
+                overflow: hidden;
+            }
         }
 
         body {
@@ -236,12 +261,15 @@ function getTestModeWarning() {
         }
 
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             background-color: var(--card-background);
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            padding: 2rem;
+            padding: 20px;
         }
 
         .student-info {
@@ -377,11 +405,15 @@ function getTestModeWarning() {
         .form-actions {
             margin-top: 40px;
             text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
         }
 
         .test-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .test-title {
@@ -547,6 +579,20 @@ function getTestModeWarning() {
                     e.returnValue = '';
                 }
             });
+
+            // Verhindere das Zoomen auf iOS
+            document.addEventListener('touchmove', function(e) {
+                if (e.scale !== 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Verhindere das Scrollen der gesamten Seite
+            document.body.addEventListener('touchmove', function(e) {
+                if (e.target.closest('.container') === null) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
 
             // Bootstrap-Modal initialisieren
             try {
