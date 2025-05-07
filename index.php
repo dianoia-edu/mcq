@@ -14,6 +14,10 @@ error_log("POST Data: " . print_r($_POST, true));
 error_log("GET Data: " . print_r($_GET, true));
 error_log("Session Data: " . print_r($_SESSION, true));
 
+error_log("SEB-DEBUG: GET-Parameter: " . print_r($_GET, true));
+error_log("SEB-DEBUG: SESSION: " . print_r($_SESSION, true));
+error_log("SEB-DEBUG: User-Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt'));
+
 // Lösche die Testergebnisse nach der ersten Anzeige
 if (isset($_SESSION['test_results']) && $_SERVER['REQUEST_METHOD'] === 'GET' && empty($_POST)) {
     $temp_results = $_SESSION['test_results'];
