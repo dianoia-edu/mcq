@@ -159,40 +159,6 @@ function getTestModeWarning() {
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            margin: 0;
-            padding: 0;
-            background-color: var(--background-color);
-            min-height: 100vh;
-        }
-
-        /* iOS-spezifische Anpassungen */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                /* Verhindert das Zoomen auf iOS */
-                touch-action: manipulation;
-                -webkit-text-size-adjust: 100%;
-            }
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: var(--card-background);
-        }
-
-        .test-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .form-actions {
-            margin-top: 40px;
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
         }
 
         body {
@@ -204,69 +170,13 @@ function getTestModeWarning() {
             padding: 20px;
         }
 
-        /* Vollbildschirm-Modus Styles */
-        body.fullscreen-mode {
-            padding: 0;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        body.fullscreen-mode .container {
-            max-width: 100%;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-            border-radius: 0;
-            box-shadow: none;
-            overflow-y: auto;
-        }
-
-        body.fullscreen-mode .test-header {
-            position: sticky;
-            top: 0;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
             background-color: var(--card-background);
-            padding: 10px 0;
-            z-index: 1000;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        body.fullscreen-mode .form-actions {
-            position: sticky;
-            bottom: 0;
-            background-color: var(--card-background);
-            padding: 10px 0;
-            z-index: 1000;
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* Vollbildschirm-Toggle Button */
-        .fullscreen-toggle {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1001;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .fullscreen-toggle:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .fullscreen-toggle i {
-            font-size: 1.2em;
-        }
-
-        /* Verstecke den Toggle-Button im Vollbildmodus */
-        body.fullscreen-mode .fullscreen-toggle {
-            display: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
         }
 
         .student-info {
@@ -399,6 +309,16 @@ function getTestModeWarning() {
             transform: translateY(-1px);
         }
 
+        .form-actions {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
         .test-title {
             color: var(--text-primary);
             font-size: 1.8rem;
@@ -422,7 +342,6 @@ function getTestModeWarning() {
             font-weight: bold;
         }
     </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="./styles.css">
     <script src="attention.js"></script>
 </head>
@@ -435,12 +354,6 @@ function getTestModeWarning() {
       ?>">
     <?php echo getTestModeWarning(); ?>
     
-    <!-- Vollbildschirm-Toggle Button -->
-    <button class="fullscreen-toggle" id="fullscreenToggle" title="Vollbildschirm-Modus">
-        <i class="bi bi-arrows-fullscreen"></i>
-        <span>Vollbild</span>
-    </button>
-
     <div class="container">
         <div class="test-header">
             <h1 class="test-title"><?php echo htmlspecialchars($testName); ?></h1>
@@ -456,7 +369,7 @@ function getTestModeWarning() {
                         <div class="question-number"><?php echo $qIndex + 1; ?></div>
                         <div class="question-info">
                             <div class="question-counter">Frage <?php echo $qIndex + 1; ?> von <?php echo count($shuffledQuestions); ?></div>
-                            <div class="question-text"><?php echo htmlspecialchars($question["question"]); ?></div>
+                    <div class="question-text"><?php echo htmlspecialchars($question["question"]); ?></div>
                         </div>
                     </div>
                     
@@ -490,7 +403,7 @@ function getTestModeWarning() {
             <div class="form-actions">
                 <div class="d-flex justify-content-center gap-3">
                     <button type="button" id="backupButton" class="btn-backup btn-success">Sicherheitskopie erstellen</button>
-                    <button type="button" id="submitButton" class="btn-submit">Test abschließen</button>
+                <button type="button" id="submitButton" class="btn-submit">Test abschließen</button>
                 </div>
             </div>
             
@@ -535,41 +448,6 @@ function getTestModeWarning() {
             const confirmSubmitButton = document.getElementById('confirmSubmit');
             let warningModal;
             
-            // Automatischer Vollbildschirm beim Laden
-            function enterFullscreen() {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.error(`Fehler beim Aktivieren des Vollbildschirms: ${err.message}`);
-                    });
-                    document.body.classList.add('fullscreen-mode');
-                }
-            }
-
-            // Vollbildschirm beim Laden aktivieren
-            enterFullscreen();
-
-            // Verhindere das Verlassen des Vollbildschirms
-            document.addEventListener('fullscreenchange', function() {
-                if (!document.fullscreenElement) {
-                    enterFullscreen();
-                }
-            });
-
-            // Verhindere das Verlassen der Seite
-            window.addEventListener('beforeunload', function(e) {
-                if (!form.submitted) {
-                    e.preventDefault();
-                    e.returnValue = '';
-                }
-            });
-
-            // Verhindere das Zoomen auf iOS
-            document.addEventListener('touchmove', function(e) {
-                if (e.scale !== 1) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
             // Bootstrap-Modal initialisieren
             try {
                 warningModal = new bootstrap.Modal(document.getElementById('warningModal'));
@@ -686,7 +564,6 @@ function getTestModeWarning() {
                 if (result.allAnswered) {
                     // Alle Fragen beantwortet - Formular absenden
                     console.log("Alle Fragen wurden beantwortet, sende Formular ab...");
-                    form.submitted = true; // Markiere das Formular als abgesendet
                     form.submit();
                 } else {
                     // Nicht alle Fragen beantwortet - Warnung anzeigen
@@ -701,7 +578,6 @@ function getTestModeWarning() {
                         // Fallback, falls Modal nicht funktioniert
                         console.log("Modal nicht verfügbar, verwende Confirm-Dialog");
                         if (confirm('Sie haben nicht alle Fragen beantwortet. Möchten Sie den Test trotzdem abschicken?')) {
-                            form.submitted = true; // Markiere das Formular als abgesendet
                             form.submit();
                         }
                     }
@@ -715,7 +591,6 @@ function getTestModeWarning() {
                 }
                 // Formular absenden auch wenn nicht alle Fragen beantwortet wurden
                 console.log("Bestätigung zum Absenden erhalten, sende Formular ab...");
-                form.submitted = true; // Markiere das Formular als abgesendet
                 form.submit();
             });
         });

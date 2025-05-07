@@ -149,28 +149,28 @@ if (isset($_POST['back_to_home'])) {
     <div class="container">
         <div class="result-header">
             <h1>Testergebnis</h1>
-        </div>
-        
+                        </div>
+                        
         <div class="result-card">
             <div class="percentage-display">
-                <?php echo $_SESSION['test_results']['percentage']; ?>%
-            </div>
+                                            <?php echo $_SESSION['test_results']['percentage']; ?>%
+                                        </div>
             
             <div class="grade-display">
                 <?php echo $_SESSION['test_results']['grade']; ?>
-            </div>
-            
+                        </div>
+                        
             <div class="score-details">
                 Erreichte Punkte: <?php echo $_SESSION['test_results']['achieved']; ?> von <?php echo $_SESSION['test_results']['max']; ?>
-            </div>
-        </div>
-        
+                            </div>
+                        </div>
+                        
         <div class="action-buttons">
             <a href="result.php?download=xml" class="btn btn-success">XML-Ergebnis herunterladen</a>
             
             <form method="post" action="">
                 <button type="submit" name="back_to_home" class="btn btn-primary">Zurück zur Startseite</button>
-            </form>
+                            </form>
         </div>
     </div>
     
