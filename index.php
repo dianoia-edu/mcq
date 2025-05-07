@@ -147,6 +147,38 @@ if (isset($_GET['student_name']) && isset($_GET['code'])) {
     $_SESSION['test_code'] = $_GET['code'];
 }
 
+// Teststart auch bei GET mit code und student_name
+if (isset($_GET['code']) && isset($_GET['student_name'])) {
+    $code = $_GET['code'];
+    $studentName = $_GET['student_name'];
+    $_SESSION['student_name'] = $studentName;
+    $_SESSION['test_code'] = $code;
+    $baseCode = getBaseCode($code);
+    $searchCode = $baseCode;
+    $allFiles = glob("tests/*.xml");
+    $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
+        $filename = basename($file);
+        $fileCode = substr($filename, 0, 3);
+        return ($fileCode === $searchCode);
+    });
+    $testFile = !empty($testFiles) ? reset($testFiles) : null;
+    if ($testFile) {
+        $_SESSION['test_file'] = $testFile;
+        ob_start();
+        include 'test.php';
+        $output = ob_get_clean();
+        if (empty(trim($output))) {
+            echo '<div class="container mt-5"><div class="alert alert-danger">Fehler beim Laden des Tests.</div></div>';
+        } else {
+            echo $output;
+        }
+        exit;
+    } else {
+        echo '<div class="container mt-5"><div class="alert alert-danger">Ungültiger Testcode.</div></div>';
+        exit;
+    }
+}
+
 // Wenn ein Code übergeben wurde
 if (isset($_GET['code'])) {
     // Lösche die alte Session beim direkten Aufruf eines Tests

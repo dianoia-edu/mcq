@@ -52,6 +52,7 @@ function generateSEBConfig($testCode) {
     $urlFilterRules = $xml->addChild('URLFilterRules');
     $urlFilterRules->addChild('string', '^https://www\\.dianoia-ai\\.de/.*$');
     $urlFilterRules->addChild('string', '^https://dianoia-ai\\.de/.*$');
+    $urlFilterRules->addChild('string', 'https://www.dianoia-ai.de/mcq-test-system/index.php?code=POT&seb=true');
     
     // Füge Sicherheitseinstellungen hinzu
     $security = $xml->addChild('security');
