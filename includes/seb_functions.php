@@ -47,6 +47,12 @@ function generateSEBConfig($testCode) {
     // Füge Start-URL hinzu
     $xml->addChild('startURL', $config['startURL']);
     
+    // Whitelist/URL-Filter aktivieren
+    $xml->addChild('URLFilterEnable', 'true');
+    $urlFilterRules = $xml->addChild('URLFilterRules');
+    $urlFilterRules->addChild('string', '^https://www\\.dianoia-ai\\.de/.*$');
+    $urlFilterRules->addChild('string', '^https://dianoia-ai\\.de/.*$');
+    
     // Füge Sicherheitseinstellungen hinzu
     $security = $xml->addChild('security');
     foreach ($config['security'] as $key => $value) {
