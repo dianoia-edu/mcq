@@ -1,7 +1,4 @@
 <?php
-// Starte Session
-session_start();
-
 // Lade benötigte Funktionen
 require_once 'includes/seb_functions.php';
 
@@ -11,6 +8,8 @@ $seb = $_GET['seb'] ?? 'false';
 
 error_log("Name Form Debug - Code: " . $code);
 error_log("Name Form Debug - SEB: " . $seb);
+error_log("Name Form Debug - Session ID: " . session_id());
+error_log("Name Form Debug - Session Status: " . session_status());
 
 // Finde die Testdatei
 $baseCode = getBaseCode($code);
