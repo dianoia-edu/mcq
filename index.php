@@ -298,6 +298,9 @@ if (isset($_GET['code'])) {
                         <h3 class="form-title">Teilnehmerdaten eingeben</h3>
                         <form action="index.php" method="POST">
                             <input type="hidden" name="code" value="<?php echo htmlspecialchars($code); ?>">
+                            <?php if (isset($_GET['seb'])): ?>
+                            <input type="hidden" name="seb" value="<?php echo htmlspecialchars($_GET['seb']); ?>">
+                            <?php endif; ?>
                             <div class="mb-4">
                                 <label for="student_name" class="name-label">Vor- und Nachname:</label>
                                 <input type="text" class="name-input" id="student_name" name="student_name" 
@@ -463,6 +466,11 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) &
     $code = $_POST['code']; // Nicht umwandeln
     $baseCode = getBaseCode($code); // Erst Basis-Code extrahieren
     $searchCode = $baseCode; // Nicht in Großbuchstaben umwandeln
+    
+    // Wenn SEB-Parameter vorhanden ist, speichere ihn in der Session
+    if (isset($_POST['seb'])) {
+        $_SESSION['seb'] = $_POST['seb'];
+    }
     
     error_log("Code-Verarbeitung bei Namenseingabe:");
     error_log("Original Code: " . $code);
@@ -650,7 +658,7 @@ else {
                             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
                             $host = $_SERVER['HTTP_HOST'];
                             $baseUrl = $protocol . $host . dirname($_SERVER['PHP_SELF']);
-                            $qrCodeUrl = $baseUrl . "/index.php";
+                            $qrCodeUrl = $baseUrl . "/index.php?seb=true";
                             
                             // Temporäres Verzeichnis für QR-Code-Dateien erstellen, falls nicht vorhanden
                             $qrCodeDir = __DIR__ . '/temp_qrcodes';
