@@ -78,17 +78,26 @@ if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
     error_log("SEB-DEBUG: GET-Parameter: " . print_r($_GET, true));
     error_log("SEB-DEBUG: Session vor SEB-Check: " . print_r($_SESSION, true));
     
-    // Debug-Ausgabe
-    echo '<div style="background: #f8f9fa; padding: 10px; margin: 10px; border: 1px solid #ddd;">';
-    echo '<h3>SEB Debug Information:</h3>';
-    echo '<pre>';
-    echo "Zeit: " . date('Y-m-d H:i:s') . "\n";
-    echo "User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt') . "\n";
-    echo "Code: " . $_GET['code'] . "\n";
-    echo "SEB Parameter: " . $_GET['seb'] . "\n";
-    echo "Student Name: " . ($_GET['student_name'] ?? 'Nicht gesetzt') . "\n";
-    echo '</pre>';
-    echo '</div>';
+    // Wenn student_name fehlt, zurück zum Namenseingabe-Formular
+    if (!isset($_GET['student_name'])) {
+        error_log("SEB-DEBUG: student_name fehlt - zurück zum Namenseingabe-Formular");
+        // Debug-Ausgabe
+        echo '<div style="background: #f8f9fa; padding: 10px; margin: 10px; border: 1px solid #ddd;">';
+        echo '<h3>SEB Debug Information:</h3>';
+        echo '<pre>';
+        echo "Zeit: " . date('Y-m-d H:i:s') . "\n";
+        echo "User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt') . "\n";
+        echo "Code: " . $_GET['code'] . "\n";
+        echo "SEB Parameter: " . $_GET['seb'] . "\n";
+        echo "Student Name: " . ($_GET['student_name'] ?? 'Nicht gesetzt') . "\n";
+        echo "Hinweis: Bitte geben Sie Ihren Namen ein.\n";
+        echo '</pre>';
+        echo '</div>';
+        
+        // Zeige das Namenseingabe-Formular
+        include 'name_form.php';
+        exit;
+    }
     
     if (isSEBBrowser()) {
         echo '<div style="background: #d4edda; padding: 10px; margin: 10px; border: 1px solid #c3e6cb;">';
