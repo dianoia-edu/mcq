@@ -352,6 +352,41 @@ function getTestModeWarning() {
         // Debug-Ausgabe in die Konsole
         echo "<!-- Debug: disableAttentionButton = " . var_export($config['disableAttentionButton'] ?? false, true) . " -->";
       ?>">
+    
+    <script>
+    // Vollbildmodus-Funktionen
+    function enterFullscreen() {
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) { // Safari
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) { // IE11
+            element.msRequestFullscreen();
+        }
+    }
+
+    function exitFullscreen() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { // Safari
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { // IE11
+            document.msExitFullscreen();
+        }
+    }
+
+    // Beim Laden der Seite Vollbildmodus aktivieren
+    document.addEventListener('DOMContentLoaded', function() {
+        enterFullscreen();
+    });
+
+    // Beim Absenden des Formulars Vollbildmodus verlassen
+    document.getElementById('testForm').addEventListener('submit', function() {
+        exitFullscreen();
+    });
+    </script>
+
     <?php echo getTestModeWarning(); ?>
     
     <div class="container">
