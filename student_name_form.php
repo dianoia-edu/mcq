@@ -151,7 +151,7 @@ header("Pragma: no-cache");
         
         <div class="student-name-form">
             <h2 class="student-form-title">Teilnehmerdaten</h2>
-            <form method="post">
+            <form method="post" id="studentForm">
                 <div class="form-group">
                     <label for="studentName" class="name-label">Vor- und Nachname:</label>
                     <input type="text" id="studentName" name="studentName" class="name-input" required 
@@ -159,7 +159,7 @@ header("Pragma: no-cache");
                            pattern="[A-Za-zÄäÖöÜüß\s-]+" 
                            title="Bitte geben Sie Ihren vollständigen Namen ein (nur Buchstaben, Leerzeichen und Bindestriche erlaubt)">
                 </div>
-                <button type="submit" class="submit-btn" onclick="enterFullscreen()">Test jetzt starten</button>
+                <button type="submit" class="submit-btn">Test jetzt starten</button>
             </form>
         </div>
         
@@ -186,6 +186,19 @@ header("Pragma: no-cache");
             element.msRequestFullscreen();
         }
     }
+
+    // Formular-Submit-Event abfangen
+    document.getElementById('studentForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Verhindere das Standard-Formular-Submit
+        
+        // Aktiviere Vollbildmodus
+        enterFullscreen();
+        
+        // Warte kurz und sende dann das Formular ab
+        setTimeout(function() {
+            document.getElementById('studentForm').submit();
+        }, 100);
+    });
     </script>
     
     <div style="position: fixed; bottom: 5px; right: 5px; font-size: 0.7em; color: #666; opacity: 0.5;">
