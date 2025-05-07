@@ -23,8 +23,8 @@ function generateTestQRCode($testName, $accessCode) {
         return $accessCode;
     }
 
-    // Generiere den QR-Code für die direkte URL
-    $url = 'http://www.dianoia.de/test_app/student_name_form.php?code=' . urlencode($accessCode);
+    // Generiere den QR-Code für die direkte URL mit SEB-Parameter
+    $url = 'http://www.dianoia.de/test_app/index.php?code=' . urlencode($accessCode) . '&seb=true';
     $filename = $qrDir . '/' . $accessCode . '_qr.png';
     
     try {
