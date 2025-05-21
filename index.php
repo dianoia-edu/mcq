@@ -9,6 +9,7 @@ require_once 'check_test_attempts.php';
 require_once 'includes/seb_functions.php';
 
 // Debug-Informationen für alle Anfragen
+/*
 error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
 error_log("POST Data: " . print_r($_POST, true));
 error_log("GET Data: " . print_r($_GET, true));
@@ -17,6 +18,7 @@ error_log("Session Data: " . print_r($_SESSION, true));
 error_log("SEB-DEBUG: GET-Parameter: " . print_r($_GET, true));
 error_log("SEB-DEBUG: SESSION: " . print_r($_SESSION, true));
 error_log("SEB-DEBUG: User-Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Nicht gesetzt'));
+*/
 
 // Lösche die Testergebnisse nach der ersten Anzeige
 if (isset($_SESSION['test_results']) && $_SERVER['REQUEST_METHOD'] === 'GET' && empty($_POST)) {
@@ -81,7 +83,8 @@ if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
     // Wenn student_name fehlt, zurück zum Namenseingabe-Formular
     if (!isset($_GET['student_name'])) {
         error_log("SEB-DEBUG: student_name fehlt - zurück zum Namenseingabe-Formular");
-        // Debug-Ausgabe
+        // Debug-Ausgabe auskommentiert
+        /*
         echo '<div style="background: #f8f9fa; padding: 10px; margin: 10px; border: 1px solid #ddd;">';
         echo '<h3>SEB Debug Information:</h3>';
         echo '<pre>';
@@ -93,6 +96,7 @@ if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
         echo "Hinweis: Bitte geben Sie Ihren Namen ein.\n";
         echo '</pre>';
         echo '</div>';
+        */
         
         // Zeige das Namenseingabe-Formular
         include 'name_form.php';
@@ -339,7 +343,8 @@ if (isset($_GET['code'])) {
             </head>
             <body class="bg-light">
                 <?php
-                // Debug-Informationen am Anfang der Seite
+                // Debug-Informationen am Anfang der Seite auskommentiert
+                /*
                 echo '<div style="background: #f8f9fa; padding: 10px; margin: 10px; border: 1px solid #ddd;">';
                 echo '<h3>SEB Debug Information:</h3>';
                 echo '<pre>';
@@ -350,6 +355,7 @@ if (isset($_GET['code'])) {
                 echo "Session: " . print_r($_SESSION, true) . "\n";
                 echo '</pre>';
                 echo '</div>';
+                */
                 ?>
                 <div class="name-form-container">
                     <div class="test-code-info">
@@ -420,11 +426,13 @@ if (isset($_GET['code'])) {
             $_SESSION['test_file'] = !empty($testFiles) ? reset($testFiles) : null;
             ?>
             <script>
+                /*
                 console.log('Debug Information - Test Anzeige:');
                 console.log('Code:', '<?php echo htmlspecialchars($code); ?>');
                 console.log('Test File:', '<?php echo htmlspecialchars($_SESSION['test_file'] ?? 'Nicht gefunden'); ?>');
                 console.log('Session:', <?php echo json_encode($_SESSION); ?>);
                 console.log('Student Name:', '<?php echo htmlspecialchars($_SESSION['student_name'] ?? 'Nicht gesetzt'); ?>');
+                */
             </script>
             <?php
             if ($_SESSION['test_file']) {
@@ -511,6 +519,7 @@ if (isset($_GET['code'])) {
             </div>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script>
+                /*
                 console.log('Debug Information - Fehlerseite:');
                 console.log('Original Code:', '<?php echo htmlspecialchars($code); ?>');
                 console.log('Basis Code:', '<?php echo htmlspecialchars(getBaseCode($code)); ?>');
@@ -520,6 +529,7 @@ if (isset($_GET['code'])) {
                     echo htmlspecialchars(glob("tests/" . $searchCode . "*.xml")[0] ?? 'Nicht gefunden'); 
                 ?>');
                 console.log('Session:', <?php echo json_encode($_SESSION); ?>);
+                */
             </script>
         </body>
         </html>

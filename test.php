@@ -485,11 +485,13 @@ function getTestModeWarning() {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Debug-Informationen
+        // Debug-Informationen auskommentiert
+        /*
         console.log('Debug Information - Test Anzeige:');
         console.log('Test Name:', '<?php echo htmlspecialchars($testName); ?>');
         console.log('Student Name:', '<?php echo htmlspecialchars($studentName); ?>');
         console.log('Questions:', <?php echo json_encode($shuffledQuestions); ?>);
+        */
         
         // Formular-Validierung
         document.addEventListener('DOMContentLoaded', function() {

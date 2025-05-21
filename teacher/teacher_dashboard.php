@@ -193,6 +193,7 @@ echo "-->\n";
             <a href="#" class="tab" id="tab-editor" onclick="activateTab('editor')">Test-Editor</a>
             <a href="#" class="tab" id="tab-testResults" onclick="activateTab('testResults')">Testergebnisse</a>
             <a href="#" class="tab" id="tab-configuration" onclick="activateTab('configuration')">Konfiguration</a>
+            <a href="#" class="tab" id="tab-instance-management" onclick="activateTab('instance-management')"><i class="bi bi-hdd-stack-fill me-1"></i>Instanzverwaltung</a>
         </div>
 
         <div class="tab-content">
@@ -210,6 +211,32 @@ echo "-->\n";
             
             <div id="configuration" class="tab-pane">
                 <?php include(dirname(__DIR__) . '/includes/teacher_dashboard/configuration_view.php'); ?>
+            </div>
+
+            <div id="instance-management" class="tab-pane">
+                <h2>Neue Instanz erstellen</h2>
+                <form id="createInstanceForm">
+                    <div class="mb-3">
+                        <label for="instanceName" class="form-label">Name des Lehrers / der Instanz:</label>
+                        <input type="text" class="form-control" id="instanceName" name="instanceName" required>
+                        <div class="form-text">Wird für den Ordner- und Datenbanknamen verwendet (z.B. "max_mustermann" oder "realschule_xy"). Keine Leerzeichen oder Sonderzeichen außer Bindestrich und Unterstrich.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="adminAccessCode" class="form-label">Admin-Zugangscode für neue Instanz:</label>
+                        <input type="text" class="form-control" id="adminAccessCode" name="adminAccessCode" required value="admin123">
+                        <div class="form-text">Der Code, mit dem sich der Lehrer in seiner neuen Instanz als Admin anmeldet.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle-fill me-2"></i>Neue Instanz erstellen
+                    </button>
+                </form>
+                <div id="instanceCreationResult" class="mt-3"></div>
+
+                <h3 class="mt-5">Erstellte Instanzen</h3>
+                <div id="instanceList" class="list-group">
+                    <!-- Liste wird dynamisch gefüllt -->
+                    <p class="text-muted">Hier werden erstellte Instanzen angezeigt.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -340,6 +367,58 @@ echo "-->\n";
                     $(document).trigger('tabChanged', ['#' + targetId]);
                 });
             });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // ... existing code ...
+
+            // AJAX für Instanzerstellung
+            $('#createInstanceForm').on('submit', function(e) {
+                e.preventDefault();
+                const instanceName = $('#instanceName').val();
+                const adminAccessCode = $('#adminAccessCode').val();
+                const resultDiv = $('#instanceCreationResult');
+
+                resultDiv.html('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Erstelle Instanz...</span></div> <span class="ms-2">Erstelle Instanz, bitte warten...</span>');
+
+                $.ajax({
+                    url: 'create_instance.php', // Dieses Skript erstellen wir als Nächstes
+                    type: 'POST',
+                    data: {
+                        instance_name: instanceName,
+                        admin_access_code: adminAccessCode
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            resultDiv.html('<div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i>Instanz erfolgreich erstellt!<ul>' +
+                                '<li><strong>URL:</strong> <a href="' + response.url + '" target="_blank">' + response.url + '</a></li>' +
+                                '<li><strong>Admin-Zugang:</strong> ' + response.admin_code + '</li>' +
+                            '</ul></div>');
+                            $('#createInstanceForm')[0].reset();
+                            loadInstanceList(); // Liste der Instanzen neu laden
+                        } else {
+                            resultDiv.html('<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Fehler: ' + response.message + '</div>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        resultDiv.html('<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Kommunikationsfehler: ' + error + '</div>');
+                    }
+                });
+            });
+
+            // Funktion zum Laden der Instanzliste
+            function loadInstanceList() {
+                const listDiv = $('#instanceList');
+                // Hier könnte man später eine PHP-Datei aufrufen, die die Liste der Instanzen liefert.
+                // Für den Anfang bleibt es bei der statischen Meldung.
+                // listDiv.html('<p class="text-muted">Lade Instanzliste...</p>');
+                // $.getJSON('get_instances.php', function(data) { ... });
+            }
+
+            loadInstanceList(); // Initiales Laden
         });
     </script>
 </body>

@@ -8,7 +8,7 @@ $(document).ready(function() {
     
     // Tab-Funktionalität
     function initializeTabs() {
-        console.log('Initializing tabs in main.js... DEAKTIVIERT - verwende direkte Tab-Funktionalität');
+        // console.log('Initializing tabs in main.js... DEAKTIVIERT - verwende direkte Tab-Funktionalität');
         
         // Diese Funktion ist deaktiviert, da wir jetzt direkte Tab-Funktionalität in teacher_dashboard.php verwenden
         return;
@@ -43,16 +43,16 @@ $(document).ready(function() {
             e.stopPropagation(); // Verhindere Event-Bubbling
             
             const target = $(this).data('target');
-            console.log('Tab clicked:', target, 'Element:', this);
+            // console.log('Tab clicked:', target, 'Element:', this);
             
             if (!target) {
-                console.error('Tab clicked but no target specified');
+                // console.error('Tab clicked but no target specified');
                 return;
             }
             
             // Prüfe, ob das Ziel existiert
             if ($(target).length === 0) {
-                console.error('Target element not found:', target);
+                // console.error('Target element not found:', target);
                 return;
             }
             
@@ -69,13 +69,14 @@ $(document).ready(function() {
             newUrl.searchParams.set('tab', target.replace('#', ''));
             window.history.pushState({}, '', newUrl);
             
-            console.log('Tab content visibility updated. Active tab is now:', target);
+            // console.log('Tab content visibility updated. Active tab is now:', target);
             
             // Löse ein Event aus, um andere Komponenten zu informieren
             $(document).trigger('tabChanged', [target]);
         });
         
         // Debug: Liste alle Tab-Elemente auf
+        /*
         console.log('Available tabs:');
         $('.tab').each(function() {
             console.log(' - Target:', $(this).data('target'), 'Text:', $(this).text());
@@ -85,6 +86,7 @@ $(document).ready(function() {
         $('.tab-pane').each(function() {
             console.log(' - ID:', this.id, 'Visible:', $(this).is(':visible'));
         });
+        */
     }
     
     // Tabs initialisieren
@@ -349,7 +351,7 @@ function isValidYoutubeUrl(url) {
 // Form Submit Handler
 $('#uploadForm').on('submit', function(e) {
     e.preventDefault();
-    console.log('Form submitted');
+    // console.log('Form submitted');
     
     // Verstecke vorherige Fehlermeldungen
     $('#generationResult').empty();
@@ -403,9 +405,11 @@ $('#uploadForm').on('submit', function(e) {
     formData.append('debug', '1');
     
     // Debug: Log FormData
+    /*
     for (let pair of formData.entries()) {
         console.log(pair[0] + ': ' + pair[1]);
     }
+    */
     
     // Progress-Bar und Status-Text initialisieren
     $('.progress').show();

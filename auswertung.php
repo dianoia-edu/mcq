@@ -264,9 +264,10 @@ if (!defined('FUNCTIONS_ONLY')) {
     </div>
     <script>
     function loadResults() {
-        console.log('Debug: auswertung.php wird geladen - Version vom ' + new Date().toLocaleString('de-DE'));
+        // console.log('Debug: auswertung.php wird geladen - Version vom ' + new Date().toLocaleString('de-DE'));
         
-        // Debug-Ausgaben für Tab-Navigation
+        // Debug-Ausgaben für Tab-Navigation auskommentiert
+        /*
         console.log('==== AUSWERTUNG.PHP DEBUG ====');
         console.log('Analysiere die DOM-Struktur:');
         console.log('Tab-Container existiert:', !!document.querySelector('.nav-tabs'));
@@ -286,45 +287,7 @@ if (!defined('FUNCTIONS_ONLY')) {
                 console.log(`Pane ${i+1}:`, pane.id, 'display:', window.getComputedStyle(pane).display, 'active:', pane.classList.contains('active'));
             });
         }
-        
-        // Tab-Event-Listener hinzufügen, falls sie fehlen
-        document.querySelectorAll('.tab').forEach(tab => {
-            // Entferne vorhandene Event-Listener
-            const newTab = tab.cloneNode(true);
-            tab.parentNode.replaceChild(newTab, tab);
-            
-            // Füge neuen Event-Listener hinzu
-            newTab.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                console.log('Tab clicked:', this.getAttribute('data-target'));
-                
-                // Aktiviere den Tab
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Zeige den zugehörigen Tab-Pane
-                const target = this.getAttribute('data-target');
-                if (target) {
-                    document.querySelectorAll('.tab-pane').forEach(pane => {
-                        pane.classList.remove('active');
-                        pane.style.display = 'none';
-                    });
-                    
-                    const targetPane = document.querySelector(target);
-                    if (targetPane) {
-                        targetPane.classList.add('active');
-                        targetPane.style.display = 'block';
-                        console.log('Activated pane:', target);
-                    } else {
-                        console.error('Target pane not found:', target);
-                    }
-                }
-            });
-        });
-        
-        console.log('================================');
+        */
         
         fetch('/mcq-test-system/teacher/load_test_results.php')
             .then(response => response.json())

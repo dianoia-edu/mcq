@@ -37,6 +37,20 @@ class DatabaseConfig {
             ];
             error_log("Entwicklungsumgebung erkannt");
         }
+
+        // Definiere Konstanten für globalen Zugriff, falls noch nicht definiert
+        if (!defined('DB_HOST')) {
+            define('DB_HOST', $this->config['db_host']);
+        }
+        if (!defined('DB_USER')) {
+            define('DB_USER', $this->config['db_user']);
+        }
+        if (!defined('DB_PASS')) {
+            define('DB_PASS', $this->config['db_password']);
+        }
+        if (!defined('DB_NAME')) {
+            define('DB_NAME', $this->config['db_name']);
+        }
     }
     
     public static function getInstance() {
