@@ -213,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         execute_sql($pdo_super, "FLUSH PRIVILEGES");
 
         // Schritt 4: Konfigurationsdatei der neuen Instanz anpassen (database_config.php)
-        $new_instance_db_config_path = $target_dir . '/includes/database_config.php';
+        $new_instance_db_config_path = $target_dir . '/mcq-test-system/includes/database_config.php';
         if (file_exists($new_instance_db_config_path)) {
             $config_content = file_get_contents($new_instance_db_config_path);
             // Ersetze die DB-Zugangsdaten in der geklonten Datei
@@ -234,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Schritt 5: Admin-Zugangscode in der neuen Instanz anpassen (index.php)
-        $new_instance_index_path = $target_dir . '/index.php';
+        $new_instance_index_path = $target_dir . '/mcq-test-system/index.php';
         if (file_exists($new_instance_index_path)) {
             $index_content = file_get_contents($new_instance_index_path);
             // Ersetze den Standard-Admin-Login-Code
