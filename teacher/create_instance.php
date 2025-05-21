@@ -205,11 +205,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Schritt 2: Datenbank erstellen
-        execute_sql($pdo_super, "CREATE DATABASE IF NOT EXISTS \`" . $db_name . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        execute_sql($pdo_super, "CREATE DATABASE IF NOT EXISTS `" . $db_name . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
         // Schritt 3: Neuen Datenbankbenutzer erstellen und Rechte vergeben
         execute_sql($pdo_super, "CREATE USER IF NOT EXISTS ?@? IDENTIFIED BY ?", [$db_user_new_instance, $config_create_instance['db_host'], $db_password_new_instance]);
-        execute_sql($pdo_super, "GRANT ALL PRIVILEGES ON \`" . $db_name . "`.* TO ?@?", [$db_user_new_instance, $config_create_instance['db_host']]);
+        execute_sql($pdo_super, "GRANT ALL PRIVILEGES ON `" . $db_name . "`.* TO ?@?", [$db_user_new_instance, $config_create_instance['db_host']]);
         execute_sql($pdo_super, "FLUSH PRIVILEGES");
 
         // Schritt 4: Konfigurationsdatei der neuen Instanz anpassen (database_config.php)
