@@ -12,8 +12,8 @@ if (!isset($_SESSION["teacher"]) || $_SESSION["teacher"] !== true) {
 header('Content-Type: application/json');
 
 // Lade die Datenbankkonfiguration der Hauptinstanz
-// Diese Datei sollte DB_HOST, DB_USER (mit Rechten zum Erstellen von DBs/Usern) und DB_PASS definieren.
-$main_db_config_path = dirname(__DIR__) . '/config/database_config.php';
+// Annahme: Die Konfigurationsdatei liegt jetzt in /includes/database_config.php
+$main_db_config_path = dirname(__DIR__) . '/includes/database_config.php';
 
 if (file_exists($main_db_config_path)) {
     require_once $main_db_config_path;
