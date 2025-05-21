@@ -210,7 +210,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($files as $file) {
             $path = $folder . DIRECTORY_SEPARATOR . $file;
             if (is_dir($path)) {
-                // rekursiv löschen
                 empty_folder($path);
                 rmdir($path);
             } else {
@@ -222,6 +221,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $results_dir = $target_dir . '/mcq-test-system/results';
     empty_folder($tests_dir);
     empty_folder($results_dir);
+    // Setze die Rechte für die Ordner auf 0777 (nur für Instanzen)
+    @chmod($tests_dir, 0777);
+    @chmod($results_dir, 0777);
+
+    // Error-Reporting für die Instanz aktivieren (nur in der Instanz)
+    $instanz_index_php = $target_dir . '/mcq-test-system/index.php';
+    if (file_exists($instanz_index_php)) {
+        $index_content = file_get_contents($instanz_index_php);
+        $error_reporting_code = "\nini_set('display_errors', 1);\nini_set('display_startup_errors', 1);\nerror_reporting(E_ALL);\n";
+        if (strpos($index_content, 'error_reporting(E_ALL)') === false) {
+            $index_content = preg_replace('/<\?php/', "<?php\n" . $error_reporting_code, $index_content, 1);
+            file_put_contents($instanz_index_php, $index_content);
+        }
+    }
 
     try {
         // Schritt 2: Datenbank erstellen
