@@ -119,3 +119,9 @@ class DatabaseConfig {
                file_exists('/var/www/production_flag');
     }
 } 
+
+// Stelle sicher, dass der Konstruktor aufgerufen und die Konstanten definiert werden,
+// wenn dieses Skript von create_instance.php eingebunden wird.
+if (isset($_SERVER['SCRIPT_FILENAME']) && basename($_SERVER['SCRIPT_FILENAME']) === 'create_instance.php') {
+    DatabaseConfig::getInstance(); 
+} 
