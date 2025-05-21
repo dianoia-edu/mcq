@@ -203,6 +203,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Nach dem Kopieren: Ordner 'tests' und 'results' leeren (aber Ordner erhalten)
+    function empty_folder($folder) {
+        if (!is_dir($folder)) return;
+        $files = array_diff(scandir($folder), ['.', '..']);
+        foreach ($files as $file) {
+            $path = $folder . DIRECTORY_SEPARATOR . $file;
+            if (is_dir($path)) {
+                // rekursiv löschen
+                empty_folder($path);
+                rmdir($path);
+            } else {
+                unlink($path);
+            }
+        }
+    }
+    $tests_dir = $target_dir . '/mcq-test-system/tests';
+    $results_dir = $target_dir . '/mcq-test-system/results';
+    empty_folder($tests_dir);
+    empty_folder($results_dir);
+
     try {
         // Schritt 2: Datenbank erstellen
         execute_sql($pdo_super, "CREATE DATABASE IF NOT EXISTS `" . $db_name . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
