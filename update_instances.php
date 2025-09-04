@@ -47,7 +47,8 @@ function performAjaxUpdate() {
         'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API (korrigierte Pfade + Admin-Codes)',
         'includes/openai_models.php' => 'OpenAI Models Management',
         'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)',
-        'robust_instance_index.php' => 'Robuste Index-Datei mit Hauptsystem-Design + QR-Code'
+        'robust_instance_index.php' => 'Robuste Index-Datei mit Hauptsystem-Design + QR-Code',
+        'config/clean_schema.sql' => 'Sauberes DB-Schema ohne Testergebnisse'
     ];
     
     // Finde alle Instanzen

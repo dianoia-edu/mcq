@@ -368,7 +368,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Schritt 6: Datenbankschema importieren (OHNE Daten!)
-        $schema_file = $config_create_instance['db_schema_file'];
+        // Verwende das saubere Schema ohne Daten
+        $clean_schema_file = dirname(__DIR__) . '/config/clean_schema.sql';
+        $fallback_schema_file = $config_create_instance['db_schema_file'];
+        
+        $schema_file = file_exists($clean_schema_file) ? $clean_schema_file : $fallback_schema_file;
+        
         if (file_exists($schema_file)) {
             $sql_schema = file_get_contents($schema_file);
             // Verbinde dich mit der neu erstellten DB der Instanz
@@ -376,12 +381,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo_instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo_instance->exec($sql_schema); // Führe das gesamte Schema-Skript aus
             
-            // WICHTIG: Stelle sicher, dass keine Testergebnisse aus der Hauptinstanz kopiert werden
-            // Die neue Instanz soll mit leeren Tabellen starten
-            execute_sql($pdo_instance, "DELETE FROM test_attempts WHERE 1=1");
-            execute_sql($pdo_instance, "DELETE FROM test_statistics WHERE 1=1"); 
-            execute_sql($pdo_instance, "DELETE FROM daily_attempts WHERE 1=1");
-            execute_sql($pdo_instance, "DELETE FROM tests WHERE 1=1");
+            // Falls Fallback-Schema verwendet wurde: Lösche alle Daten
+            if ($schema_file === $fallback_schema_file) {
+                execute_sql($pdo_instance, "DELETE FROM test_attempts WHERE 1=1");
+                execute_sql($pdo_instance, "DELETE FROM test_statistics WHERE 1=1"); 
+                execute_sql($pdo_instance, "DELETE FROM daily_attempts WHERE 1=1");
+                execute_sql($pdo_instance, "DELETE FROM tests WHERE 1=1");
+            }
             
             $pdo_instance = null; // Verbindung schließen
         } else {
