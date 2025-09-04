@@ -78,6 +78,17 @@
     <div id="generationResult" class="mt-4"></div>
 </div>
 
+<script>
+// Pfad-Konfiguration direkt aus PHP
+window.mcqPaths = {
+    isInTeacherDir: <?php echo json_encode(strpos($_SERVER['REQUEST_URI'], '/teacher/') !== false); ?>,
+    generateTestUrl: '<?php echo strpos($_SERVER['REQUEST_URI'], '/teacher/') !== false ? 'generate_test.php' : 'teacher/generate_test.php'; ?>',
+    basePath: '<?php echo strpos($_SERVER['REQUEST_URI'], '/teacher/') !== false ? '' : 'teacher/'; ?>'
+};
+
+console.log('MCQ Paths configured:', window.mcqPaths);
+</script>
+
 <!-- Test Preview Modal -->
 <div class="modal fade" id="testGeneratorPreviewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalTitle">
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">

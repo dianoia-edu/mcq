@@ -499,7 +499,7 @@ $('#uploadForm').on('submit', function(e) {
     window.currentProgressInterval = progressInterval;
     
     $.ajax({
-        url: getTeacherUrl('generate_test.php'),
+        url: window.mcqPaths ? window.mcqPaths.generateTestUrl : getTeacherUrl('generate_test.php'),
         method: 'POST',
         data: formData,
         processData: false,

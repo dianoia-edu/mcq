@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Generator Debug</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .debug-info { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .status { padding: 5px 10px; border-radius: 3px; margin: 5px 0; }
+        .status.success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>🔍 Test Generator Debug</h1>
+        
+        <div class="debug-info">
+            <h3>System-Info</h3>
+            <div id="system-info">⏳ Lade System-Info...</div>
+        </div>
+        
+        <div class="debug-info">
+            <h3>JavaScript-Status</h3>
+            <div id="js-status">⏳ Prüfe JavaScript...</div>
+        </div>
+        
+        <h2>Test-Formular</h2>
+        <form id="uploadForm" enctype="multipart/form-data" class="mb-4">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="question_count" class="form-label">Anzahl der Fragen:</label>
+                    <input type="number" class="form-control" name="question_count" id="question_count" 
+                           value="3" min="1" max="50">
+                </div>
+                <div class="col-md-6">
+                    <label for="answer_count" class="form-label">Anzahl der Antwortmöglichkeiten:</label>
+                    <input type="number" class="form-control" name="answer_count" id="answer_count" 
+                           value="4" min="2" max="6">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="answer_type" class="form-label">Art der richtigen Antworten:</label>
+                    <select class="form-select" name="answer_type" id="answer_type">
+                        <option value="single">Immer nur eine richtige Antwort</option>
+                        <option value="multiple">Mehrere richtige Antworten möglich</option>
+                        <option value="mixed">Gemischt (einzelne und mehrere)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="source_file" class="form-label">Datei auswählen:</label>
+                    <input type="file" class="form-control" name="source_file" id="source_file" 
+                           accept=".pdf,.jpg,.jpeg,.png,.bmp,.txt,.doc,.docx">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="webpage_url" class="form-label">ODER Webseiten-URL:</label>
+                    <input type="url" class="form-control" name="webpage_url" id="webpage_url" 
+                           placeholder="https://www.beispiel.de" value="https://de.wikipedia.org/wiki/Deutschland">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">🧪 Test generieren (Debug)</button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="debug-info">
+            <h3>Debug-Log</h3>
+            <div id="debug-log" style="max-height: 300px; overflow-y: auto; background: #000; color: #0f0; padding: 10px; font-family: monospace;">
+                <div>System bereit...</div>
+            </div>
+        </div>
+        
+        <div id="generationResult" class="mt-4"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Debug-Logging
+        function debugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('debug-log');
+            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[DEBUG] ${message}`);
+        }
+        
+        // System-Info sammeln
+        function gatherSystemInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                location: window.location.href,
+                pathname: window.location.pathname,
+                protocol: window.location.protocol,
+                host: window.location.host,
+                jQueryVersion: $ ? $.fn.jquery : 'nicht geladen',
+                isInTeacherDir: window.location.pathname.includes('/teacher/'),
+                timestamp: new Date().toISOString()
+            };
+            
+            document.getElementById('system-info').innerHTML = 
+                Object.entries(info).map(([key, value]) => 
+                    `<strong>${key}:</strong> ${value}`
+                ).join('<br>');
+                
+            debugLog('System-Info gesammelt');
+            return info;
+        }
+        
+        // JavaScript-Status prüfen
+        function checkJavaScriptStatus() {
+            const status = [];
+            
+            // jQuery prüfen
+            if (typeof $ !== 'undefined') {
+                status.push('<div class="status success">✅ jQuery geladen (v' + $.fn.jquery + ')</div>');
+                debugLog('jQuery OK: v' + $.fn.jquery);
+            } else {
+                status.push('<div class="status error">❌ jQuery nicht geladen</div>');
+                debugLog('jQuery FEHLT');
+            }
+            
+            // Event-Handler prüfen
+            const form = document.getElementById('uploadForm');
+            if (form) {
+                status.push('<div class="status success">✅ Form-Element gefunden</div>');
+                debugLog('Form-Element OK');
+            } else {
+                status.push('<div class="status error">❌ Form-Element nicht gefunden</div>');
+                debugLog('Form-Element FEHLT');
+            }
+            
+            document.getElementById('js-status').innerHTML = status.join('');
+        }
+        
+        // URL-Generator-Funktionen
+        function getTeacherUrl(filename) {
+            if (window.location.pathname.includes('/teacher/')) {
+                return filename;
+            } else {
+                return 'teacher/' + filename;
+            }
+        }
+        
+        // Form-Handler
+        function setupFormHandler() {
+            debugLog('Setting up form handler...');
+            
+            $('#uploadForm').on('submit', function(e) {
+                e.preventDefault();
+                debugLog('🚀 Form submitted!');
+                
+                const formData = new FormData(this);
+                const url = getTeacherUrl('generate_test.php');
+                
+                debugLog('URL: ' + url);
+                debugLog('FormData entries: ' + Array.from(formData.entries()).length);
+                
+                // Zeige Debug-Info
+                $('#generationResult').html(`
+                    <div class="alert alert-info">
+                        <h4>🧪 Debug: AJAX-Request wird gesendet</h4>
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Method:</strong> POST</p>
+                        <p><strong>FormData Einträge:</strong></p>
+                        <ul>
+                            ${Array.from(formData.entries()).map(([key, value]) => 
+                                `<li><strong>${key}:</strong> ${typeof value === 'object' ? value.name || 'File' : value}</li>`
+                            ).join('')}
+                        </ul>
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                        <span class="ms-2">Sende Request...</span>
+                    </div>
+                `);
+                
+                // AJAX-Request
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    timeout: 30000,
+                    beforeSend: function(xhr) {
+                        debugLog('📡 Sending AJAX request...');
+                    },
+                    success: function(response, textStatus, xhr) {
+                        debugLog('✅ AJAX Success: Status ' + xhr.status);
+                        debugLog('Response length: ' + (response ? response.length : 0));
+                        
+                        $('#generationResult').html(`
+                            <div class="alert alert-success">
+                                <h4>✅ AJAX-Request erfolgreich!</h4>
+                                <p><strong>Status:</strong> ${xhr.status} ${textStatus}</p>
+                                <p><strong>Response Type:</strong> ${typeof response}</p>
+                                <p><strong>Response Length:</strong> ${response ? response.length : 0} Zeichen</p>
+                                <details>
+                                    <summary>Response (erste 500 Zeichen)</summary>
+                                    <pre>${response ? response.substring(0, 500) : 'Leer'}</pre>
+                                </details>
+                            </div>
+                        `);
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        debugLog('❌ AJAX Error: ' + textStatus + ' - ' + errorThrown);
+                        debugLog('Status: ' + xhr.status);
+                        debugLog('Response: ' + xhr.responseText);
+                        
+                        $('#generationResult').html(`
+                            <div class="alert alert-danger">
+                                <h4>❌ AJAX-Request fehlgeschlagen!</h4>
+                                <p><strong>Status:</strong> ${xhr.status}</p>
+                                <p><strong>Error:</strong> ${textStatus} - ${errorThrown}</p>
+                                <details>
+                                    <summary>Response</summary>
+                                    <pre>${xhr.responseText || 'Keine Response'}</pre>
+                                </details>
+                            </div>
+                        `);
+                    }
+                });
+            });
+            
+            debugLog('Form handler setup complete');
+        }
+        
+        // Initialisierung
+        $(document).ready(function() {
+            debugLog('Document ready');
+            
+            gatherSystemInfo();
+            checkJavaScriptStatus();
+            setupFormHandler();
+            
+            debugLog('Initialization complete');
+            debugLog('Ready for testing!');
+        });
+    </script>
+</body>
+</html>
