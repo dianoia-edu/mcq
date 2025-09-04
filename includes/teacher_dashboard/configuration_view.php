@@ -197,7 +197,7 @@ $(document).ready(function() {
     // Konfiguration laden
     function loadConfig() {
         $.ajax({
-            url: '../includes/teacher_dashboard/get_config.php',
+            url: getIncludesUrl('teacher_dashboard/get_config.php'),
             method: 'GET',
             dataType: 'json',
             success: function(response) {
@@ -236,7 +236,7 @@ $(document).ready(function() {
         
         // Starte Synchronisation
         $.ajax({
-            url: '../includes/teacher_dashboard/sync_database.php',
+            url: getIncludesUrl('teacher_dashboard/sync_database.php'),
             method: 'POST',
             success: function(response) {
                 if (response.success) {
@@ -292,7 +292,7 @@ $(document).ready(function() {
         
         // Konfiguration speichern
         $.ajax({
-            url: '../includes/teacher_dashboard/save_config.php',
+            url: getIncludesUrl('teacher_dashboard/save_config.php'),
             method: 'POST',
             data: JSON.stringify(config),
             contentType: 'application/json',
@@ -325,7 +325,7 @@ $(document).ready(function() {
         const timestamp = new Date().getTime();
         
         $.ajax({
-            url: '../includes/teacher_dashboard/get_grade_schemas.php',
+            url: getIncludesUrl('teacher_dashboard/get_grade_schemas.php'),
             method: 'GET',
             data: { _t: timestamp }, // Cache-Buster
             dataType: 'json',
@@ -377,7 +377,7 @@ $(document).ready(function() {
                         
                         // Lade Schema explizit
                         $.ajax({
-                            url: '../includes/teacher_dashboard/set_active_schema.php',
+                            url: getIncludesUrl('teacher_dashboard/set_active_schema.php'),
                             method: 'POST',
                             data: { 
                                 schema_id: selectedId,
@@ -488,7 +488,7 @@ $(document).ready(function() {
         
         // Lade Daten über AJAX
         $.ajax({
-            url: '../includes/teacher_dashboard/get_test_results_data.php',
+            url: getIncludesUrl('teacher_dashboard/get_test_results_data.php'),
             method: 'GET',
             dataType: 'json',
             success: function(response) {
@@ -682,7 +682,7 @@ $(document).ready(function() {
         const timestamp = new Date().getTime();
         
         $.ajax({
-            url: '../includes/teacher_dashboard/set_active_schema.php',
+            url: getIncludesUrl('teacher_dashboard/set_active_schema.php'),
             method: 'POST',
             data: { 
                 schema_id: schemaId,
@@ -775,7 +775,7 @@ $(document).ready(function() {
         
         // Starte Löschvorgang
         $.ajax({
-            url: '../includes/teacher_dashboard/delete_test_results.php',
+            url: getIncludesUrl('teacher_dashboard/delete_test_results.php'),
             method: 'POST',
             data: JSON.stringify({
                 entries: itemsToDelete,

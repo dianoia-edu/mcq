@@ -35,7 +35,7 @@ $(document).ready(function() {
         
         // Starte Synchronisation
         $.ajax({
-            url: '../includes/teacher_dashboard/sync_database.php',
+            url: getIncludesUrl('teacher_dashboard/sync_database.php'),
             method: 'POST',
             success: function(response) {
                 if (response.success) {

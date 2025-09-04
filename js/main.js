@@ -3,6 +3,33 @@ let testGeneratorPreviewModal = null;
 let testHasChanges = false;
 let currentTestFilename = null;
 
+// Hilfsfunktion für dynamische URL-Erstellung basierend auf der aktuellen Position
+function getTeacherUrl(filename) {
+    // Prüfe, ob wir uns bereits im teacher-Verzeichnis befinden
+    if (window.location.pathname.includes('/teacher/')) {
+        return filename;
+    } else {
+        return 'teacher/' + filename;
+    }
+}
+
+// Hilfsfunktion für Includes-Pfade
+function getIncludesUrl(path) {
+    // Prüfe, ob wir uns im teacher-Verzeichnis befinden
+    if (window.location.pathname.includes('/teacher/')) {
+        return '../includes/' + path;
+    } else {
+        return 'includes/' + path;
+    }
+}
+
+// Globale Konfiguration für AJAX-Pfade
+window.mcqConfig = {
+    basePath: window.location.pathname.includes('/teacher/') ? '../' : '',
+    teacherPath: window.location.pathname.includes('/teacher/') ? '' : 'teacher/',
+    includesPath: window.location.pathname.includes('/teacher/') ? '../includes/' : 'includes/'
+};
+
 $(document).ready(function() {
     console.log('Document ready, initializing...');
     
@@ -472,7 +499,7 @@ $('#uploadForm').on('submit', function(e) {
     window.currentProgressInterval = progressInterval;
     
     $.ajax({
-        url: 'generate_test.php',
+        url: getTeacherUrl('generate_test.php'),
         method: 'POST',
         data: formData,
         processData: false,
@@ -1179,7 +1206,7 @@ function loadTestContent(testName) {
     
     // Lade den Testinhalt via AJAX
     $.ajax({
-        url: 'load_test.php',
+        url: getTeacherUrl('load_test.php'),
         type: 'GET',
         data: { test_name: testName },
         dataType: 'json',
@@ -1463,7 +1490,7 @@ function saveTest(overwrite = false) {
     
     // Speichere den Test via AJAX
     $.ajax({
-        url: 'save_test_xml.php',
+        url: getTeacherUrl('save_test_xml.php'),
         type: 'POST',
         data: {
             title: title,
@@ -1516,7 +1543,7 @@ function saveTest(overwrite = false) {
 // Funktion zum Neuladen der Testliste
 function reloadTestList(callback) {
     $.ajax({
-        url: 'load_test_list.php',
+        url: getTeacherUrl('load_test_list.php'),
         type: 'GET',
         dataType: 'json',
         success: function(response) {
@@ -1824,7 +1851,7 @@ function deleteTest() {
 
             // Lösche den Test via AJAX
             $.ajax({
-                url: 'delete_test.php',
+                url: getTeacherUrl('delete_test.php'),
                 type: 'POST',
                 data: { filename: currentTestFilename },
                 success: function(response) {

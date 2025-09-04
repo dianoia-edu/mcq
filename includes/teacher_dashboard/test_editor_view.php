@@ -543,7 +543,7 @@ function saveTest(forceOverwrite = false) {
     
     // Sende Daten an den Server
     $.ajax({
-        url: 'save_test.php',
+        url: getTeacherUrl('save_test.php'),
         type: 'POST',
         data: {
             title: title,
@@ -716,7 +716,7 @@ $(document).ready(function() {
         
         // Direkt AJAX-Aufruf statt saveTest-Funktion, um Probleme zu vermeiden
         $.ajax({
-            url: 'save_test.php',
+            url: getTeacherUrl('save_test.php'),
             type: 'POST',
             data: {
                 title: title,
@@ -758,7 +758,7 @@ $(document).ready(function() {
         
         // Lade die Fragen aus der XML-Datei
         $.ajax({
-            url: '../includes/load_test_questions.php',
+            url: getIncludesUrl('load_test_questions.php'),
             method: 'POST',
             data: { file: file },
             dataType: 'json',
@@ -835,7 +835,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: '../includes/load_test_questions.php',
+            url: getIncludesUrl('load_test_questions.php'),
             method: 'POST',
             data: { file: file },
             dataType: 'json',
@@ -941,7 +941,7 @@ $(document).ready(function() {
         
         // Lade den Test mit korrektem Pfad
         $.ajax({
-            url: 'load_test.php',
+            url: getTeacherUrl('load_test.php'),
             type: 'GET',
             data: { 
                 test_name: '<?php echo addslashes($selectedTest['name']); ?>'

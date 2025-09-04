@@ -1019,7 +1019,7 @@ function updateResults() {
     });
     
     // Verwende die dedizierte AJAX-Endpunkt-Datei mit absolutem Pfad
-    const ajaxUrl = '/mcq-test-system/teacher/load_test_results.php';
+    const ajaxUrl = getTeacherUrl('load_test_results.php');
     console.log('Sende AJAX-Anfrage an:', ajaxUrl);
     
     // Zeige Ladestatus an
@@ -1268,7 +1268,7 @@ function showResults(filename) {
         modalInstance.show();
         
         // Lade die Detailansicht mit korrektem Pfad
-        fetch(`../includes/teacher_dashboard/show_results.php?file=${encodeURIComponent(filename)}&format=ajax`)
+        fetch(`${getIncludesUrl('teacher_dashboard/show_results.php')}?file=${encodeURIComponent(filename)}&format=ajax`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Netzwerkantwort war nicht ok');
