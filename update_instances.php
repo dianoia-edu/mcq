@@ -6,12 +6,55 @@
 
 // Sicherheitscheck
 if (!isset($_GET['admin_key']) || $_GET['admin_key'] !== 'update_instances_2024') {
+    if (isset($_GET['ajax'])) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => 'Zugriff verweigert. Admin-Schlüssel erforderlich.']);
+        exit;
+    }
     die('Zugriff verweigert. Admin-Schlüssel erforderlich.');
 }
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// AJAX-Modus prüfen
+$isAjax = isset($_GET['ajax']) && $_GET['ajax'] === 'true';
+
+// Für AJAX-Anfragen direkt die Verarbeitung starten
+if ($isAjax) {
+    // Konfiguration für AJAX
+    $instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
+    $sourceBasePath = __DIR__;
+    
+    // Dateien die aktualisiert werden sollen
+    $filesToUpdate = [
+        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
+        'teacher/generate_test.php' => 'Test Generator (korrigierte Debug-Behandlung)',
+        'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
+        'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View',
+        'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
+        'includes/teacher_dashboard/configuration_view.php' => 'Configuration View',
+        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
+        'includes/teacher_dashboard/config_view.php' => 'Config View',
+        'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
+    ];
+    
+    // Finde alle Instanzen
+    $instances = [];
+    if (is_dir($instancesBasePath)) {
+        $dirs = scandir($instancesBasePath);
+        foreach ($dirs as $dir) {
+            if ($dir === '.' || $dir === '..') continue;
+            $instancePath = $instancesBasePath . $dir;
+            if (is_dir($instancePath) && is_dir($instancePath . '/mcq-test-system')) {
+                $instances[] = $dir;
+            }
+        }
+    }
+    
+    // Update durchführen (wird weiter unten verarbeitet)
+} else {
+    // HTML-Ausgabe für normale Ansicht
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -34,7 +77,7 @@ ini_set('display_errors', 1);
     <h1>🔄 Instanzen-Update für MCQ Test System</h1>
     
     <?php
-    // Konfiguration
+    // Konfiguration nur für HTML-Ansicht
     $instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
     $sourceBasePath = __DIR__;
     
@@ -100,29 +143,41 @@ ini_set('display_errors', 1);
     
     // Update durchführen
     if (!empty($instances)) {
-        echo '<div class="status info">';
-        echo '<h2>🚀 Starte Update...</h2>';
-        echo '</div>';
+        if (!$isAjax) {
+            echo '<div class="status info">';
+            echo '<h2>🚀 Starte Update...</h2>';
+            echo '</div>';
+        }
         
         $totalUpdated = 0;
         $totalErrors = 0;
+        $updateLog = [];
         
         foreach ($instances as $instance) {
-            echo '<h3>📁 Aktualisiere Instanz: ' . htmlspecialchars($instance) . '</h3>';
+            if (!$isAjax) {
+                echo '<h3>📁 Aktualisiere Instanz: ' . htmlspecialchars($instance) . '</h3>';
+            }
             
             $instanceBasePath = $instancesBasePath . $instance . '/mcq-test-system/';
             $instanceErrors = 0;
             $instanceUpdated = 0;
+            $instanceLog = [];
             
             foreach ($filesToUpdate as $file => $description) {
                 $sourceFile = $sourceBasePath . '/' . $file;
                 $targetFile = $instanceBasePath . $file;
                 $targetDir = dirname($targetFile);
                 
-                echo '<p><strong>' . $file . ':</strong> ';
+                if (!$isAjax) {
+                    echo '<p><strong>' . $file . ':</strong> ';
+                }
                 
                 if (!file_exists($sourceFile)) {
-                    echo '<span style="color: red;">❌ Quelldatei fehlt</span></p>';
+                    $error = 'Quelldatei fehlt';
+                    if (!$isAjax) {
+                        echo '<span style="color: red;">❌ ' . $error . '</span></p>';
+                    }
+                    $instanceLog[] = ['file' => $file, 'status' => 'error', 'message' => $error];
                     $instanceErrors++;
                     continue;
                 }
@@ -130,7 +185,11 @@ ini_set('display_errors', 1);
                 // Erstelle Zielverzeichnis falls nötig
                 if (!is_dir($targetDir)) {
                     if (!mkdir($targetDir, 0755, true)) {
-                        echo '<span style="color: red;">❌ Konnte Verzeichnis nicht erstellen</span></p>';
+                        $error = 'Konnte Verzeichnis nicht erstellen';
+                        if (!$isAjax) {
+                            echo '<span style="color: red;">❌ ' . $error . '</span></p>';
+                        }
+                        $instanceLog[] = ['file' => $file, 'status' => 'error', 'message' => $error];
                         $instanceErrors++;
                         continue;
                     }
@@ -144,25 +203,60 @@ ini_set('display_errors', 1);
                 
                 // Datei kopieren
                 if (copy($sourceFile, $targetFile)) {
-                    echo '<span style="color: green;">✅ Aktualisiert</span>';
+                    if (!$isAjax) {
+                        echo '<span style="color: green;">✅ Aktualisiert</span>';
+                    }
+                    $instanceLog[] = ['file' => $file, 'status' => 'success', 'message' => 'Aktualisiert'];
                     $instanceUpdated++;
                 } else {
-                    echo '<span style="color: red;">❌ Kopieren fehlgeschlagen</span>';
+                    $error = 'Kopieren fehlgeschlagen';
+                    if (!$isAjax) {
+                        echo '<span style="color: red;">❌ ' . $error . '</span>';
+                    }
+                    $instanceLog[] = ['file' => $file, 'status' => 'error', 'message' => $error];
                     $instanceErrors++;
                 }
-                echo '</p>';
+                if (!$isAjax) {
+                    echo '</p>';
+                }
             }
             
             $totalUpdated += $instanceUpdated;
             $totalErrors += $instanceErrors;
             
-            echo '<div class="status ' . ($instanceErrors === 0 ? 'success' : 'warning') . '">';
-            echo '<strong>Instanz ' . htmlspecialchars($instance) . ':</strong> ';
-            echo $instanceUpdated . ' Dateien aktualisiert, ' . $instanceErrors . ' Fehler';
-            echo '</div>';
+            $updateLog[] = [
+                'instance' => $instance,
+                'files_updated' => $instanceUpdated,
+                'errors' => $instanceErrors,
+                'details' => $instanceLog
+            ];
+            
+            if (!$isAjax) {
+                echo '<div class="status ' . ($instanceErrors === 0 ? 'success' : 'warning') . '">';
+                echo '<strong>Instanz ' . htmlspecialchars($instance) . ':</strong> ';
+                echo $instanceUpdated . ' Dateien aktualisiert, ' . $instanceErrors . ' Fehler';
+                echo '</div>';
+            }
         }
         
-        // Zusammenfassung
+        // AJAX-Antwort
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => $totalErrors === 0,
+                'statistics' => [
+                    'instances_processed' => count($instances),
+                    'files_updated' => $totalUpdated,
+                    'errors' => $totalErrors
+                ],
+                'instances' => array_column($updateLog, 'instance'),
+                'detailed_log' => $updateLog,
+                'error' => $totalErrors > 0 ? 'Update mit ' . $totalErrors . ' Fehlern abgeschlossen' : null
+            ]);
+            exit;
+        }
+        
+        // HTML-Ausgabe für normale Ansicht
         echo '<div class="status ' . ($totalErrors === 0 ? 'success' : 'warning') . '">';
         echo '<h2>📊 Update-Zusammenfassung</h2>';
         echo '<p><strong>Instanzen verarbeitet:</strong> ' . count($instances) . '</p>';
@@ -186,6 +280,21 @@ ini_set('display_errors', 1);
         echo '<li>Löschen Sie alte Backup-Dateien nach erfolgreichem Test</li>';
         echo '</ol>';
         echo '</div>';
+    } else {
+        // Keine Instanzen gefunden - AJAX-Antwort
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'error' => 'Keine Instanzen gefunden zum Aktualisieren',
+                'statistics' => [
+                    'instances_processed' => 0,
+                    'files_updated' => 0,
+                    'errors' => 0
+                ]
+            ]);
+            exit;
+        }
     }
     
     echo '<div class="info">';
@@ -211,3 +320,4 @@ ini_set('display_errors', 1);
     
 </body>
 </html>
+<?php } // Ende der HTML-Ausgabe ?>

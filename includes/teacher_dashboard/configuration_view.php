@@ -55,6 +55,29 @@
         </div>
     </div>
 
+    <!-- Instanzen-Update -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <i class="bi bi-arrow-repeat"></i> Instanzen-Update
+        </div>
+        <div class="card-body">
+            <p class="mb-3">
+                <strong>Aktualisiert alle bestehenden Lehrerinstanzen</strong> mit den neuesten Korrekturen und Verbesserungen aus dem Hauptsystem.
+                <br><small class="text-muted">
+                    Dies sollte nach jeder Weiterentwicklung des Hauptsystems ausgeführt werden.
+                </small>
+            </p>
+            <div class="alert alert-info small mb-3">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Was wird aktualisiert:</strong> Teacher Dashboard, Test Generator, JavaScript-Dateien, Datenbankfunktionen und alle View-Komponenten
+            </div>
+            <button id="updateInstancesBtn" class="btn btn-success">
+                <i class="bi bi-cloud-download"></i> Alle Instanzen aktualisieren
+            </button>
+            <div id="updateResult" class="mt-3"></div>
+        </div>
+    </div>
+
     <!-- Datenbank-Synchronisation -->
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
@@ -222,6 +245,136 @@ $(document).ready(function() {
             }
         });
     }
+
+    // Event-Handler für das Instanzen-Update
+    $('#updateInstancesBtn').on('click', function() {
+        const btn = $(this);
+        const result = $('#updateResult');
+        
+        // Button deaktivieren
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Update läuft...');
+        result.html('<div class="alert alert-info">Instanzen-Update wird durchgeführt...</div>');
+        
+        // AJAX-Request für Update
+        $.ajax({
+            url: 'update_instances.php?admin_key=update_instances_2024&ajax=true',
+            method: 'GET',
+            dataType: 'json',
+            timeout: 120000, // 2 Minuten Timeout
+            success: function(response) {
+                if (response.success) {
+                    // Erfolgreiche Aktualisierung
+                    const stats = response.statistics;
+                    const modal = createUpdateModal(
+                        'Instanzen-Update erfolgreich!',
+                        `
+                        <div class="alert alert-success">
+                            <h5><i class="bi bi-check-circle-fill me-2"></i>Alle Instanzen wurden erfolgreich aktualisiert!</h5>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>📊 Statistiken:</strong>
+                                    <ul class="list-unstyled mt-2">
+                                        <li>✅ <strong>Instanzen verarbeitet:</strong> ${stats.instances_processed || 0}</li>
+                                        <li>📁 <strong>Dateien aktualisiert:</strong> ${stats.files_updated || 0}</li>
+                                        <li>❌ <strong>Fehler:</strong> ${stats.errors || 0}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>📋 Aktualisierte Dateien:</strong>
+                                    <ul class="list-unstyled mt-2 small">
+                                        <li>• Teacher Dashboard</li>
+                                        <li>• Test Generator</li>
+                                        <li>• JavaScript Main</li>
+                                        <li>• Dashboard Views</li>
+                                        <li>• Database Config</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        ${response.instances && response.instances.length > 0 ? `
+                        <div class="alert alert-info">
+                            <strong>🧪 Testen Sie die aktualisierten Instanzen:</strong>
+                            <div class="mt-2">
+                                ${response.instances.map(instance => 
+                                    `<a href="/lehrer_instanzen/${instance}/mcq-test-system/teacher/teacher_dashboard.php" target="_blank" class="btn btn-sm btn-outline-primary me-2 mb-1">
+                                        🔗 ${instance}
+                                    </a>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        `,
+                        'success'
+                    );
+                    
+                    result.html(`
+                        <div class="alert alert-success">
+                            <strong>✅ Update erfolgreich!</strong> 
+                            ${stats.instances_processed || 0} Instanzen aktualisiert, ${stats.files_updated || 0} Dateien übertragen.
+                        </div>
+                    `);
+                } else {
+                    // Fehler beim Update
+                    const modal = createUpdateModal(
+                        'Fehler beim Instanzen-Update',
+                        `
+                        <div class="alert alert-danger">
+                            <h5><i class="bi bi-exclamation-triangle-fill me-2"></i>Update konnte nicht vollständig durchgeführt werden</h5>
+                            <hr>
+                            <strong>Fehlermeldung:</strong><br>
+                            <code>${response.error || 'Unbekannter Fehler'}</code>
+                        </div>
+                        <div class="alert alert-warning">
+                            <strong>Nächste Schritte:</strong>
+                            <ol>
+                                <li>Prüfen Sie die Dateiberechtigungen</li>
+                                <li>Stellen Sie sicher, dass alle Instanzen-Verzeichnisse beschreibbar sind</li>
+                                <li>Führen Sie das Update manuell aus: <code>update_instances.php?admin_key=update_instances_2024</code></li>
+                            </ol>
+                        </div>
+                        `,
+                        'error'
+                    );
+                    
+                    result.html(`
+                        <div class="alert alert-danger">
+                            <strong>❌ Update fehlgeschlagen:</strong> ${response.error || 'Unbekannter Fehler'}
+                        </div>
+                    `);
+                }
+            },
+            error: function(xhr, status, error) {
+                const modal = createUpdateModal(
+                    'Verbindungsfehler beim Update',
+                    `
+                    <div class="alert alert-danger">
+                        <h5><i class="bi bi-wifi-off me-2"></i>Verbindung zum Update-Service fehlgeschlagen</h5>
+                        <hr>
+                        <strong>Technische Details:</strong><br>
+                        <code>Status: ${status}, Fehler: ${error}</code>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Alternative:</strong> Führen Sie das Update manuell aus:<br>
+                        <a href="update_instances.php?admin_key=update_instances_2024" target="_blank" class="btn btn-primary btn-sm mt-2">
+                            🔧 Manuelles Update ausführen
+                        </a>
+                    </div>
+                    `,
+                    'error'
+                );
+                
+                result.html(`
+                    <div class="alert alert-danger">
+                        <strong>❌ Verbindungsfehler:</strong> ${error || 'Timeout oder Serverfehler'}
+                    </div>
+                `);
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="bi bi-cloud-download"></i> Alle Instanzen aktualisieren');
+            }
+        });
+    });
 
     // Event-Handler für die Datenbank-Synchronisation
     $('#syncDatabaseBtn').on('click', function() {
@@ -828,5 +981,69 @@ $(document).ready(function() {
         // Öffne das Skript in einem neuen Tab oder Fenster
         window.open('../fix_duplicate_entries.php', '_blank');
     });
+    
+    // Funktion zum Erstellen und Anzeigen eines Update-Modals
+    function createUpdateModal(title, content, type = 'info') {
+        // Entferne vorherige Modals
+        $('#updateModal').remove();
+        
+        // Icon basierend auf Typ
+        let icon = '';
+        let headerClass = '';
+        switch(type) {
+            case 'success':
+                icon = '<i class="bi bi-check-circle-fill me-2"></i>';
+                headerClass = 'bg-success text-white';
+                break;
+            case 'error':
+                icon = '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
+                headerClass = 'bg-danger text-white';
+                break;
+            case 'warning':
+                icon = '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
+                headerClass = 'bg-warning text-dark';
+                break;
+            default:
+                icon = '<i class="bi bi-info-circle-fill me-2"></i>';
+                headerClass = 'bg-primary text-white';
+        }
+        
+        // Modal HTML erstellen
+        const modalHtml = `
+            <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header ${headerClass}">
+                            <h5 class="modal-title" id="updateModalLabel">
+                                ${icon}${title}
+                            </h5>
+                            <button type="button" class="btn-close ${type === 'warning' ? '' : 'btn-close-white'}" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                        </div>
+                        <div class="modal-body">
+                            ${content}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            ${type === 'success' ? '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Verstanden</button>' : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Modal zum DOM hinzufügen
+        $('body').append(modalHtml);
+        
+        // Modal anzeigen
+        const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+        modal.show();
+        
+        // Modal nach dem Schließen aus DOM entfernen
+        $('#updateModal').on('hidden.bs.modal', function() {
+            $(this).remove();
+        });
+        
+        return modal;
+    }
 });
 </script> 
