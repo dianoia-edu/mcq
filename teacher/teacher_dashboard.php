@@ -8,12 +8,22 @@ if (!isset($_SESSION['teacher']) || $_SESSION['teacher'] !== true) {
 
 // Ermittle den korrekten Includes-Pfad basierend auf der aktuellen Position
 function getIncludesPath($relativePath) {
+    $currentDir = dirname(__FILE__);
+    $currentBasename = basename($currentDir);
+    
+    // Debug-Logging
+    error_log("getIncludesPath Debug: currentDir=$currentDir, basename=$currentBasename, relativePath=$relativePath");
+    
     // Prüfe, ob wir im teacher-Verzeichnis sind (Hauptinstanz)
-    if (basename(dirname(__FILE__)) === 'teacher') {
-        return dirname(__DIR__) . '/includes/' . $relativePath;
+    if ($currentBasename === 'teacher') {
+        $path = dirname($currentDir) . '/includes/' . $relativePath;
+        error_log("getIncludesPath: Hauptinstanz-Pfad: $path");
+        return $path;
     } else {
         // Wir sind in einer Instanz im Hauptverzeichnis
-        return 'includes/' . $relativePath;
+        $path = $currentDir . '/includes/' . $relativePath;
+        error_log("getIncludesPath: Instanz-Pfad: $path");
+        return $path;
     }
 }
 
@@ -326,6 +336,8 @@ $isInTeacherDir = basename(dirname(__FILE__)) === 'teacher';
                 success: function(response) {
                     console.log('Instanzen geladen:', response);
                     if (response.success) {
+                        // Cache die Instanzen-Daten für Details-Modal
+                        window.lastLoadedInstances = response.instances;
                         displayInstanceList(response.instances, instanceListDiv);
                     } else {
                         instanceListDiv.html(`
@@ -499,27 +511,46 @@ $isInTeacherDir = basename(dirname(__FILE__)) === 'teacher';
         }
         
         function showInstanceDetails(instanceName) {
-            // Zeige Detail-Modal mit erweiterten Informationen
-            const modal = new bootstrap.Modal(document.getElementById('instanceDetailModal'));
+            // Finde die Instanz-Daten aus der bereits geladenen Liste
+            let instanceData = null;
             
-            // Lade Details über AJAX
-            $.ajax({
-                url: getIncludesUrl('teacher_dashboard/get_instances.php'),
-                method: 'GET',
-                data: { instance: instanceName, details: 1 },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success && response.instance) {
-                        displayInstanceDetails(response.instance);
-                        modal.show();
-                    } else {
-                        alert('Fehler beim Laden der Instanz-Details: ' + (response.error || 'Unbekannt'));
+            // Suche in der zuletzt geladenen Instanzen-Liste
+            if (window.lastLoadedInstances) {
+                instanceData = window.lastLoadedInstances.find(inst => inst.name === instanceName);
+            }
+            
+            if (instanceData) {
+                // Zeige Modal mit vorhandenen Daten
+                displayInstanceDetails(instanceData);
+                const modal = new bootstrap.Modal(document.getElementById('instanceDetailModal'));
+                modal.show();
+            } else {
+                // Fallback: Lade alle Instanzen neu und zeige dann Details
+                $.ajax({
+                    url: getIncludesUrl('teacher_dashboard/get_instances.php'),
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            window.lastLoadedInstances = response.instances;
+                            const instance = response.instances.find(inst => inst.name === instanceName);
+                            
+                            if (instance) {
+                                displayInstanceDetails(instance);
+                                const modal = new bootstrap.Modal(document.getElementById('instanceDetailModal'));
+                                modal.show();
+                            } else {
+                                alert('Instanz "' + instanceName + '" nicht gefunden.');
+                            }
+                        } else {
+                            alert('Fehler beim Laden der Instanz-Details: ' + (response.error || 'Unbekannt'));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Fehler beim Laden der Instanz-Details: ' + error);
                     }
-                },
-                error: function() {
-                    alert('Fehler beim Laden der Instanz-Details.');
-                }
-            });
+                });
+            }
         }
         
         function displayInstanceDetails(instance) {
@@ -622,6 +653,10 @@ $isInTeacherDir = basename(dirname(__FILE__)) === 'teacher';
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
+                        // Entferne alle Modal-Backdrops
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open');
+                        
                         alert('Instanz "' + instanceName + '" wurde erfolgreich gelöscht.');
                         loadInstanceList(); // Liste neu laden
                     } else {
