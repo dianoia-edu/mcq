@@ -21,6 +21,131 @@ ini_set('display_errors', 1);
 $isAjax = isset($_GET['ajax']) && $_GET['ajax'] === 'true';
 
 // Für AJAX-Anfragen: Springe direkt zur Verarbeitung, kein HTML-Output
+if ($isAjax) {
+    // Führe AJAX-Update durch und beende
+    performAjaxUpdate();
+    exit;
+}
+
+function performAjaxUpdate() {
+    $instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
+    $sourceBasePath = __DIR__;
+    
+    // Dateien die aktualisiert werden sollen
+    $filesToUpdate = [
+        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
+        'teacher/generate_test.php' => 'Test Generator (korrigierte Debug-Behandlung)',
+        'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
+        'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View',
+        'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
+        'includes/teacher_dashboard/configuration_view.php' => 'Configuration View',
+        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
+        'includes/teacher_dashboard/config_view.php' => 'Config View',
+        'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
+    ];
+    
+    // Finde alle Instanzen
+    $instances = [];
+    if (is_dir($instancesBasePath)) {
+        $dirs = scandir($instancesBasePath);
+        foreach ($dirs as $dir) {
+            if ($dir === '.' || $dir === '..') continue;
+            $instancePath = $instancesBasePath . $dir;
+            if (is_dir($instancePath) && is_dir($instancePath . '/mcq-test-system')) {
+                $instances[] = $dir;
+            }
+        }
+    }
+    
+    // Keine Instanzen gefunden
+    if (empty($instances)) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'statistics' => [
+                'instances_processed' => 0,
+                'files_updated' => 0,
+                'errors' => 0
+            ],
+            'instances' => [],
+            'message' => 'Keine Instanzen gefunden zum Aktualisieren. Das ist normal wenn noch keine Lehrerinstanzen erstellt wurden.',
+            'info' => 'Erstellen Sie zuerst Lehrerinstanzen über die Instanzverwaltung.'
+        ]);
+        return;
+    }
+    
+    // Update durchführen
+    $totalUpdated = 0;
+    $totalErrors = 0;
+    $updateLog = [];
+    
+    foreach ($instances as $instance) {
+        $instanceBasePath = $instancesBasePath . $instance . '/mcq-test-system/';
+        $instanceErrors = 0;
+        $instanceUpdated = 0;
+        $instanceLog = [];
+        
+        foreach ($filesToUpdate as $file => $description) {
+            $sourceFile = $sourceBasePath . '/' . $file;
+            $targetFile = $instanceBasePath . $file;
+            $targetDir = dirname($targetFile);
+            
+            if (!file_exists($sourceFile)) {
+                $instanceLog[] = ['file' => $file, 'status' => 'error', 'message' => 'Quelldatei fehlt'];
+                $instanceErrors++;
+                continue;
+            }
+            
+            // Erstelle Zielverzeichnis falls nötig
+            if (!is_dir($targetDir)) {
+                if (!mkdir($targetDir, 0755, true)) {
+                    $instanceLog[] = ['file' => $file, 'status' => 'error', 'message' => 'Konnte Verzeichnis nicht erstellen'];
+                    $instanceErrors++;
+                    continue;
+                }
+            }
+            
+            // Backup der alten Datei erstellen
+            if (file_exists($targetFile)) {
+                $backupFile = $targetFile . '.backup.' . date('Y-m-d_H-i-s');
+                copy($targetFile, $backupFile);
+            }
+            
+            // Datei kopieren
+            if (copy($sourceFile, $targetFile)) {
+                $instanceLog[] = ['file' => $file, 'status' => 'success', 'message' => 'Aktualisiert'];
+                $instanceUpdated++;
+            } else {
+                $instanceLog[] = ['file' => $file, 'status' => 'error', 'message' => 'Kopieren fehlgeschlagen'];
+                $instanceErrors++;
+            }
+        }
+        
+        $totalUpdated += $instanceUpdated;
+        $totalErrors += $instanceErrors;
+        
+        $updateLog[] = [
+            'instance' => $instance,
+            'files_updated' => $instanceUpdated,
+            'errors' => $instanceErrors,
+            'details' => $instanceLog
+        ];
+    }
+    
+    // JSON-Antwort senden
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => $totalErrors === 0,
+        'statistics' => [
+            'instances_processed' => count($instances),
+            'files_updated' => $totalUpdated,
+            'errors' => $totalErrors
+        ],
+        'instances' => array_column($updateLog, 'instance'),
+        'detailed_log' => $updateLog,
+        'error' => $totalErrors > 0 ? 'Update mit ' . $totalErrors . ' Fehlern abgeschlossen' : null
+    ]);
+}
 
 // Gemeinsame Konfiguration für beide Modi
 $instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
