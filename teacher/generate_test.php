@@ -401,6 +401,26 @@ try {
     error_log("Request started");
     error_log("POST data: " . print_r($_POST, true));
     error_log("FILES data: " . print_r($_FILES, true));
+    
+    // Spezielle Debug-Test-Behandlung
+    if (isset($_POST['test']) && $_POST['test'] === 'true') {
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Debug-Test erfolgreich - Server erreicht und funktionsfähig',
+            'debug' => [
+                'post_data' => $_POST,
+                'files' => $_FILES,
+                'server_time' => date('Y-m-d H:i:s'),
+                'php_version' => PHP_VERSION,
+                'memory_usage' => memory_get_usage(true),
+                'working_directory' => getcwd(),
+                'script_path' => __FILE__,
+                'includes_path' => '../includes/config/openai_config.php',
+                'config_exists' => file_exists('../includes/config/openai_config.php')
+            ]
+        ]);
+        exit;
+    }
 
     // Überprüfe, ob die Konfigurationsdatei existiert
     if (!file_exists('../includes/config/openai_config.php')) {
@@ -475,9 +495,20 @@ try {
         $combinedContent .= getYoutubeTranscript($videoUrl) . "\n\n";
     }
 
+
+    // Debug: Log den gesammelten Inhalt
+    error_log("Gesamt gesammelter Inhalt, Länge: " . strlen($combinedContent));
+    error_log("POST keys: " . implode(', ', array_keys($_POST)));
+    error_log("FILES keys: " . implode(', ', array_keys($_FILES)));
+
     // Prüfe, ob mindestens eine Quelle verarbeitet wurde
     if (empty($combinedContent)) {
-        throw new Exception('Keine Inhaltsquelle gefunden. Bitte laden Sie eine Datei hoch oder geben Sie eine URL ein.');
+        error_log("FEHLER: Kein Inhalt gesammelt!");
+        error_log("webpage_url empty check: " . (empty($_POST['webpage_url']) ? 'true' : 'false'));
+        error_log("youtube_url empty check: " . (empty($_POST['youtube_url']) ? 'true' : 'false'));
+        error_log("source_file error: " . (isset($_FILES['source_file']) ? $_FILES['source_file']['error'] : 'not set'));
+        
+        throw new Exception('Keine Inhaltsquelle gefunden. Bitte laden Sie eine Datei hoch oder geben Sie eine URL ein. Debug: webpage_url=' . (isset($_POST['webpage_url']) ? $_POST['webpage_url'] : 'not set') . ', youtube_url=' . (isset($_POST['youtube_url']) ? $_POST['youtube_url'] : 'not set') . ', file_error=' . (isset($_FILES['source_file']) ? $_FILES['source_file']['error'] : 'not set'));
     }
 
     // Hole die Anzahl der gewünschten Fragen und Antworten
