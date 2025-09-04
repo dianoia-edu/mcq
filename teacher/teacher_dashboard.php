@@ -34,6 +34,10 @@ function getIncludesPath($relativePath) {
 $currentDir = dirname(__FILE__);
 $isInTeacherDir = basename($currentDir) === 'teacher';
 
+// Zusätzliche Prüfung: Sind wir im Hauptsystem oder in einer Instanz?
+$isMainSystem = (strpos($currentDir, 'lehrer_instanzen') === false);
+$showInstanceManagement = $isInTeacherDir && $isMainSystem;
+
 if ($isInTeacherDir) {
     // Hauptinstanz: Verzeichnisse eine Ebene höher erstellen
     $baseDir = dirname($currentDir);
@@ -232,7 +236,7 @@ foreach ($testFiles as $testFile) {
             <a href="#" class="tab" id="tab-editor" onclick="activateTab('editor')">Test-Editor</a>
             <a href="#" class="tab" id="tab-testResults" onclick="activateTab('testResults')">Testergebnisse</a>
             <a href="#" class="tab" id="tab-configuration" onclick="activateTab('configuration')">Konfiguration</a>
-            <?php if ($isInTeacherDir): ?>
+            <?php if ($showInstanceManagement): ?>
             <a href="#" class="tab" id="tab-instance-management" onclick="activateTab('instance-management')"><i class="bi bi-hdd-stack-fill me-1"></i>Instanzverwaltung</a>
             <?php endif; ?>
         </div>
@@ -254,7 +258,7 @@ foreach ($testFiles as $testFile) {
                 <?php include getIncludesPath('teacher_dashboard/configuration_view.php'); ?>
             </div>
 
-            <?php if ($isInTeacherDir): ?>
+            <?php if ($showInstanceManagement): ?>
             <div id="instance-management" class="tab-pane">
                 <!-- Management-Buttons -->
                 <div class="row mb-4">
