@@ -96,6 +96,10 @@ function execute_sql($pdo, $sql, $params = []) {
 
 // Hilfsfunktion zum Update einer einzelnen Instanz
 function performInstanceUpdate($instanceName, $instancesBasePath, $sourceBasePath) {
+    // DEBUG: Pfade loggen
+    error_log("UPDATE DEBUG: instanceName = $instanceName");
+    error_log("UPDATE DEBUG: instancesBasePath = $instancesBasePath");  
+    error_log("UPDATE DEBUG: sourceBasePath = $sourceBasePath");
     $filesToUpdate = [
         'teacher/teacher_dashboard.php' => 'Teacher Dashboard',
         'teacher/delete_instance.php' => 'Instanz-Lösch-Script',
@@ -110,8 +114,7 @@ function performInstanceUpdate($instanceName, $instancesBasePath, $sourceBasePat
         'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
         'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API',
         'includes/openai_models.php' => 'OpenAI Models Management',
-        'includes/database_config.php' => 'Database Config',
-        'robust_instance_index.php' => 'Robuste Index-Datei'
+        'includes/database_config.php' => 'Database Config'
     ];
     
     $instanceBasePath = $instancesBasePath . $instanceName . '/mcq-test-system/';
@@ -119,14 +122,8 @@ function performInstanceUpdate($instanceName, $instancesBasePath, $sourceBasePat
     $errors = 0;
     
     foreach ($filesToUpdate as $file => $description) {
-        $sourceFile = $sourceBasePath . '/' . $file;
-        
-        // Spezialbehandlung für robust_instance_index.php -> index.php
-        if ($file === 'robust_instance_index.php') {
-            $targetFile = $instanceBasePath . 'index.php';
-        } else {
-            $targetFile = $instanceBasePath . $file;
-        }
+        $sourceFile = $sourceBasePath . $file;
+        $targetFile = $instanceBasePath . $file;
         
         $targetDir = dirname($targetFile);
         
@@ -440,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if (file_exists($updateScriptPath)) {
                 // Führe Update nur für diese neue Instanz durch
-                $updateResult = performInstanceUpdate($instance_name, $config_create_instance['base_lehrer_instances_path'], dirname(__DIR__));
+                $updateResult = performInstanceUpdate($instance_name, $config_create_instance['base_lehrer_instances_path'], $config_create_instance['source_system_path']);
                 $updateSuccess = $updateResult['success'];
                 $updateMessage = $updateResult['message'];
             } else {
