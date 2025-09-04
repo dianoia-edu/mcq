@@ -139,8 +139,8 @@ echo "-->\n";
         // Gewählten Tab-Inhalt anzeigen (mit Null-Check)
         const tabContent = document.getElementById(tabId);
         if (tabContent) {
-            tabContent.classList.add('active');
-            tabContent.style.display = 'block';
+        tabContent.classList.add('active');
+        tabContent.style.display = 'block';
             console.log('Tab aktiviert:', tabId);
         } else {
             console.error('Tab-Inhalt nicht gefunden:', tabId);
@@ -149,9 +149,9 @@ echo "-->\n";
         
         // URL aktualisieren
         try {
-            const url = new URL(window.location.href);
-            url.searchParams.set('tab', tabId);
-            window.history.pushState({}, '', url);
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tabId);
+        window.history.pushState({}, '', url);
         } catch (e) {
             console.warn('Konnte URL nicht aktualisieren:', e);
         }
@@ -398,6 +398,15 @@ echo "-->\n";
         $(document).ready(function() {
             // ... existing code ...
 
+            // Helper-Funktion: Erstelle Pfad für includes-Dateien
+            function getIncludesUrl(path) {
+                if (window.mcqPaths && window.mcqPaths.isInTeacherDir) {
+                    return '../includes/' + path;
+                } else {
+                    return 'includes/' + path;
+                }
+            }
+
             // AJAX für Instanzerstellung
             $('#createInstanceForm').on('submit', function(e) {
                 e.preventDefault();
@@ -435,14 +444,222 @@ echo "-->\n";
 
             // Funktion zum Laden der Instanzliste
             function loadInstanceList() {
-                const listDiv = $('#instanceList');
-                // Hier könnte man später eine PHP-Datei aufrufen, die die Liste der Instanzen liefert.
-                // Für den Anfang bleibt es bei der statischen Meldung.
-                // listDiv.html('<p class="text-muted">Lade Instanzliste...</p>');
-                // $.getJSON('get_instances.php', function(data) { ... });
+                const instanceListDiv = $('#instanceList');
+                
+                // Loading-Zustand
+                instanceListDiv.html(`
+                    <div class="d-flex justify-content-center my-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Lade Instanzen...</span>
+                        </div>
+                        <span class="ms-3">Lade Instanzen...</span>
+                    </div>
+                `);
+                
+                $.ajax({
+                    url: getIncludesUrl('teacher_dashboard/get_instances.php'),
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            displayInstanceList(response.instances, instanceListDiv);
+                        } else {
+                            instanceListDiv.html(`
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    Fehler beim Laden der Instanzen: ${response.error || 'Unbekannter Fehler'}
+                                </div>
+                            `);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Fehler beim Laden der Instanzen:', error);
+                        instanceListDiv.html(`
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Verbindungsfehler: ${error}
+                            </div>
+                        `);
+                    }
+                });
             }
-
-            loadInstanceList(); // Initiales Laden
+            
+            // Funktion zur Anzeige der Instanzliste
+            function displayInstanceList(instances, container) {
+                if (instances.length === 0) {
+                    container.html(`
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Noch keine Instanzen erstellt. Erstellen Sie eine neue Instanz über das Formular oben.
+                        </div>
+                    `);
+                    return;
+                }
+                
+                let html = `
+                    <div class="row mb-3">
+                        <div class="col">
+                            <h4>Verfügbare Instanzen (${instances.length})</h4>
+                            <p class="text-muted">Verwalten Sie hier alle erstellten Lehrerinstanzen</p>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-primary btn-sm" onclick="loadInstanceList()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Aktualisieren
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Instanzen-Karten
+                html += '<div class="row">';
+                
+                instances.forEach(instance => {
+                    const statusBadge = getStatusBadge(instance.status);
+                    const statusIcon = getStatusIcon(instance.status);
+                    
+                    html += `
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 ${instance.status === 'error' ? 'border-danger' : ''}">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="card-title mb-0">
+                                        ${statusIcon} ${instance.display_name}
+                                    </h6>
+                                    ${statusBadge}
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <strong>Admin-Code:</strong>
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control" value="${instance.admin_code}" readonly id="adminCode_${instance.name}">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('adminCode_${instance.name}')" title="Kopieren">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <strong>Datenbank:</strong> <code>${instance.database}</code><br>
+                                        <strong>Erstellt:</strong> ${formatDateTime(instance.created_at)}<br>
+                                        <strong>Letzte Aktivität:</strong> ${instance.last_activity !== 'Unbekannt' ? formatDateTime(instance.last_activity) : 'Keine'}
+                                    </div>
+                                    
+                                    <div class="row text-center mb-3">
+                                        <div class="col">
+                                            <div class="fw-bold text-primary">${instance.test_count}</div>
+                                            <small class="text-muted">Tests</small>
+                                        </div>
+                                        <div class="col">
+                                            <div class="fw-bold text-success">${instance.result_count}</div>
+                                            <small class="text-muted">Ergebnisse</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-grid gap-2">
+                                        <a href="${instance.admin_url}" target="_blank" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i>Dashboard öffnen
+                                        </a>
+                                        <div class="btn-group" role="group">
+                                            <a href="${instance.url}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-house me-1"></i>Startseite
+                                            </a>
+                                            <button class="btn btn-outline-info btn-sm" onclick="showInstanceDetails('${instance.name}')">
+                                                <i class="bi bi-info-circle me-1"></i>Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                container.html(html);
+            }
+            
+            // Helper-Funktionen
+            function getStatusBadge(status) {
+                switch(status) {
+                    case 'active':
+                        return '<span class="badge bg-success">Aktiv</span>';
+                    case 'partial':
+                        return '<span class="badge bg-warning">Teilweise</span>';
+                    case 'error':
+                        return '<span class="badge bg-danger">Fehler</span>';
+                    default:
+                        return '<span class="badge bg-secondary">Unbekannt</span>';
+                }
+            }
+            
+            function getStatusIcon(status) {
+                switch(status) {
+                    case 'active':
+                        return '<i class="bi bi-check-circle-fill text-success"></i>';
+                    case 'partial':
+                        return '<i class="bi bi-exclamation-triangle-fill text-warning"></i>';
+                    case 'error':
+                        return '<i class="bi bi-x-circle-fill text-danger"></i>';
+                    default:
+                        return '<i class="bi bi-question-circle text-secondary"></i>';
+                }
+            }
+            
+            function formatDateTime(dateStr) {
+                if (!dateStr || dateStr === 'Unbekannt') return 'Unbekannt';
+                
+                try {
+                    const date = new Date(dateStr);
+                    return date.toLocaleString('de-DE', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } catch (e) {
+                    return dateStr;
+                }
+            }
+            
+            function copyToClipboard(elementId) {
+                const element = document.getElementById(elementId);
+                element.select();
+                element.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(element.value).then(() => {
+                    // Kurzes visuelles Feedback
+                    const btn = element.nextElementSibling;
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-check"></i>';
+                    btn.classList.add('btn-success');
+                    btn.classList.remove('btn-outline-secondary');
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-outline-secondary');
+                    }, 1000);
+                }).catch(err => {
+                    console.error('Fehler beim Kopieren:', err);
+                });
+            }
+            
+            function showInstanceDetails(instanceName) {
+                // TODO: Implementiere Detail-Modal
+                alert('Details für Instanz: ' + instanceName + '\n\nDetails-Ansicht wird in einer späteren Version implementiert.');
+            }
+            
+            // Lade Instanzliste beim Tab-Wechsel
+            $(document).on('tabChanged', function(event, tabId) {
+                if (tabId === '#instance-management') {
+                    loadInstanceList();
+                }
+            });
+            
+            // Lade Instanzliste beim ersten Laden falls Tab aktiv
+            if (window.location.hash === '#instance-management' || 
+                new URLSearchParams(window.location.search).get('tab') === 'instance-management') {
+                setTimeout(() => loadInstanceList(), 500);
         });
     </script>
 </body>
