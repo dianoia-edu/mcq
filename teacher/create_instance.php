@@ -351,12 +351,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         execute_sql($pdo_super, "CREATE DATABASE IF NOT EXISTS `" . $db_name . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
         // Schritt 3: Neuen Datenbankbenutzer erstellen und Rechte vergeben
-        execute_sql($pdo_super, "CREATE USER IF NOT EXISTS ?@? IDENTIFIED BY ?", [$db_user_new_instance, $config_create_instance['db_host'], $db_password_new_instance]);
-        execute_sql($pdo_super, "GRANT ALL PRIVILEGES ON `" . $db_name . "`.* TO ?@?", [$db_user_new_instance, $config_create_instance['db_host']]);
+        // Benutzer für localhost und % erstellen
+        execute_sql($pdo_super, "CREATE USER IF NOT EXISTS ?@'localhost' IDENTIFIED BY ?", [$db_user_new_instance, $db_password_new_instance]);
+        execute_sql($pdo_super, "CREATE USER IF NOT EXISTS ?@'%' IDENTIFIED BY ?", [$db_user_new_instance, $db_password_new_instance]);
+        execute_sql($pdo_super, "GRANT ALL PRIVILEGES ON `" . $db_name . "`.* TO ?@'localhost'", [$db_user_new_instance]);
+        execute_sql($pdo_super, "GRANT ALL PRIVILEGES ON `" . $db_name . "`.* TO ?@'%'", [$db_user_new_instance]);
         execute_sql($pdo_super, "FLUSH PRIVILEGES");
 
         // Schritt 4: Konfigurationsdatei der neuen Instanz anpassen (database_config.php)
-        $new_instance_db_config_path = $target_dir . '/mcq-test-system/includes/database_config.php';
+        $new_instance_db_config_path = $target_dir . '/includes/database_config.php';
         if (file_exists($new_instance_db_config_path)) {
             $config_content = file_get_contents($new_instance_db_config_path);
             // Ersetze die DB-Zugangsdaten in der geklonten Datei
@@ -377,7 +380,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Schritt 5a: Admin-Zugangscode in der neuen Instanz anpassen (index.php)
-        $new_instance_index_path = $target_dir . '/mcq-test-system/index.php';
+        $new_instance_index_path = $target_dir . '/index.php';
         if (file_exists($new_instance_index_path)) {
             $index_content = file_get_contents($new_instance_index_path);
             // Ersetze den Standard-Admin-Login-Code
@@ -439,25 +442,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Datenbankschema-Datei nicht gefunden: " . $schema_file);
         }
 
-        // Schritt 7: Automatisches Update der neuen Instanz mit aktuellen Dateien
-        $updateSuccess = false;
-        $updateMessage = '';
-        
-        try {
-            // Pfad zum Update-Script
-            $updateScriptPath = dirname(__DIR__) . '/update_instances.php';
-            
-            if (file_exists($updateScriptPath)) {
-                // Führe Update nur für diese neue Instanz durch
-                $updateResult = performInstanceUpdate($instance_name, $config_create_instance['base_lehrer_instances_path'], $config_create_instance['source_system_path']);
-                $updateSuccess = $updateResult['success'];
-                $updateMessage = $updateResult['message'];
-            } else {
-                $updateMessage = 'Update-Script nicht gefunden';
-            }
-        } catch (Exception $e) {
-            $updateMessage = 'Update-Fehler: ' . $e->getMessage();
-        }
+        // Schritt 7: Instanz erfolgreich erstellt
+        $updateSuccess = true;
+        $updateMessage = 'Instanz erfolgreich erstellt ohne zusätzliches Update';
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
