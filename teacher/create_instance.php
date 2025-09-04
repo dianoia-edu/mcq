@@ -216,17 +216,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Schritt 1: Verzeichnisse und Dateien kopieren
+    // Bestimme korrekte Basis-Pfade
+    $source_base = rtrim($config_create_instance['source_system_path'], '/');
+    $mcq_source_path = $source_base . '/mcq-test-system';
+    
+    // DEBUG: Prüfe Pfade
+    error_log("CREATE_INSTANCE DEBUG: source_base = $source_base");
+    error_log("CREATE_INSTANCE DEBUG: mcq_source_path = $mcq_source_path");
+    error_log("CREATE_INSTANCE DEBUG: tests exists = " . (is_dir($mcq_source_path . '/tests') ? 'YES' : 'NO'));
+    error_log("CREATE_INSTANCE DEBUG: results exists = " . (is_dir($mcq_source_path . '/results') ? 'YES' : 'NO'));
+    
     // Ausschlussliste: Welche Ordner/Dateien NICHT kopiert werden sollen
     $exclude_list = [
-        rtrim($config_create_instance['source_system_path'], '/') . '/lehrer_instanzen', // Nicht sich selbst rekursiv kopieren
-        rtrim($config_create_instance['source_system_path'], '/') . '/mcq-test-system/tests', // Keine Tests kopieren
-        rtrim($config_create_instance['source_system_path'], '/') . '/mcq-test-system/results', // Keine Ergebnisse kopieren
+        $source_base . '/lehrer_instanzen', // Nicht sich selbst rekursiv kopieren
+        $mcq_source_path . '/tests', // Keine Tests kopieren
+        $mcq_source_path . '/results', // Keine Ergebnisse kopieren
         // Füge hier weitere Pfade hinzu, die nicht mitkopiert werden sollen, z.B. .git, node_modules etc.
         // Wichtig: Pfade müssen absolut sein oder relativ zum $source_system_path
     ];
     
+    // DEBUG: Zeige Ausschlussliste
+    error_log("CREATE_INSTANCE DEBUG: Exclude list:");
+    foreach ($exclude_list as $i => $ex_path) {
+        $exists = is_dir($ex_path) ? 'EXISTS' : 'NOT_FOUND';
+        error_log("  [$i] $ex_path → $exists");
+    }
+    
     // Funktion zum rekursiven Kopieren mit Ausschlussliste
-    function smart_recurse_copy($src, $dst, $exclude = []) {
+    function smart_recurse_copy($src, $dst, $exclude = [], $current_path = '') {
         $dir = opendir($src);
         if (!$dir) return false;
         if (!is_dir($dst)) {
@@ -239,18 +256,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $src_path = rtrim($src, '/') . '/' . $file;
                 $dst_path = rtrim($dst, '/') . '/' . $file;
                 
+                // Relative Pfad-Information für bessere Ausschluss-Prüfung
+                $relative_path = $current_path ? $current_path . '/' . $file : $file;
+                
                 // Überprüfe, ob der aktuelle Pfad in der Ausschlussliste ist
                 $skip = false;
                 foreach ($exclude as $ex_item) {
                     if (rtrim($src_path, '/') == rtrim($ex_item, '/')) {
+                        error_log("COPY SKIP: $src_path (matched absolute exclude: $ex_item)");
                         $skip = true;
                         break;
                     }
                 }
+                
+                // Zusätzliche Prüfung: Spezielle Tests/Results-Behandlung
+                if (!$skip && strpos($relative_path, 'mcq-test-system/tests') !== false) {
+                    error_log("COPY SKIP: $src_path (tests ordner erkannt via relative path: $relative_path)");
+                    $skip = true;
+                }
+                if (!$skip && strpos($relative_path, 'mcq-test-system/results') !== false) {
+                    error_log("COPY SKIP: $src_path (results ordner erkannt via relative path: $relative_path)");
+                    $skip = true;
+                }
+                
                 if ($skip) continue;
 
                 if (is_dir($src_path)) {
-                    if (!smart_recurse_copy($src_path, $dst_path, $exclude)) {
+                    // Spezielle Debug-Ausgabe für tests/results
+                    if ($file === 'tests' || $file === 'results') {
+                        error_log("COPY DIR: $src_path → $dst_path (relative: $relative_path) - WILL BE COPIED!");
+                    }
+                    if (!smart_recurse_copy($src_path, $dst_path, $exclude, $relative_path)) {
                         closedir($dir); return false;
                     }
                 } else {
