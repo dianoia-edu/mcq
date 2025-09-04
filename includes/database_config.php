@@ -98,7 +98,7 @@ class DatabaseConfig {
             INDEX idx_access_code (access_code)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
         
-        $this->connection->exec($sql);
+        $this->getConnection()->exec($sql);
     }
     
     private function createTestAttemptsTable() {
@@ -113,11 +113,11 @@ class DatabaseConfig {
             grade VARCHAR(10) NOT NULL,
             started_at TIMESTAMP NULL,
             completed_at TIMESTAMP NULL,
-            FOREIGN KEY (test_id) REFERENCES tests(test_id),
+            FOREIGN KEY (test_id) REFERENCES tests(test_id) ON DELETE CASCADE,
             INDEX idx_test_student (test_id, student_name)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
         
-        $this->connection->exec($sql);
+        $this->getConnection()->exec($sql);
     }
     
     private function createTestStatisticsTable() {
@@ -127,10 +127,10 @@ class DatabaseConfig {
             average_percentage DECIMAL(5,2),
             average_duration INT,
             last_attempt_at TIMESTAMP NULL,
-            FOREIGN KEY (test_id) REFERENCES tests(test_id)
+            FOREIGN KEY (test_id) REFERENCES tests(test_id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
         
-        $this->connection->exec($sql);
+        $this->getConnection()->exec($sql);
     }
     
     private function createDailyAttemptsTable() {
@@ -139,12 +139,12 @@ class DatabaseConfig {
             test_id VARCHAR(50),
             student_identifier VARCHAR(64),
             attempt_date DATE,
-            FOREIGN KEY (test_id) REFERENCES tests(test_id),
+            FOREIGN KEY (test_id) REFERENCES tests(test_id) ON DELETE CASCADE,
             UNIQUE KEY unique_attempt (test_id, student_identifier, attempt_date),
             INDEX idx_attempt_date (attempt_date)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
         
-        $this->connection->exec($sql);
+        $this->getConnection()->exec($sql);
     }
     
     public function getConnection() {
