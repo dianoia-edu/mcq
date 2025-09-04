@@ -266,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("database_config.php in der neuen Instanz nicht gefunden.");
         }
 
-        // Schritt 5: Admin-Zugangscode in der neuen Instanz anpassen (index.php)
+        // Schritt 5a: Admin-Zugangscode in der neuen Instanz anpassen (index.php)
         $new_instance_index_path = $target_dir . '/mcq-test-system/index.php';
         if (file_exists($new_instance_index_path)) {
             $index_content = file_get_contents($new_instance_index_path);
@@ -278,7 +278,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Kein harter Fehler, aber Logging
         }
 
-        // Schritt 6: Datenbankschema importieren
+        // Schritt 5b: app_config.json für die neue Instanz erstellen/anpassen
+        $config_dir = $target_dir . '/mcq-test-system/config';
+        if (!is_dir($config_dir)) {
+            mkdir($config_dir, 0777, true);
+        }
+        
+        $app_config_path = $config_dir . '/app_config.json';
+        $app_config = [
+            'schoolName' => 'Instanz ' . ucfirst($instance_name),
+            'admin_access_code' => $admin_access_code,
+            'defaultTimeLimit' => 60,
+            'resultStorage' => 'database',
+            'disableAttentionButton' => false,
+            'disableDailyTestLimit' => false
+        ];
+        file_put_contents($app_config_path, json_encode($app_config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        
+        // API-Konfiguration von der Hauptinstanz kopieren
+        $main_api_config = dirname(__DIR__) . '/config/api_config.json';
+        $instance_api_config = $config_dir . '/api_config.json';
+        if (file_exists($main_api_config)) {
+            copy($main_api_config, $instance_api_config);
+        }
+
+        // Schritt 6: Datenbankschema importieren (OHNE Daten!)
         $schema_file = $config_create_instance['db_schema_file'];
         if (file_exists($schema_file)) {
             $sql_schema = file_get_contents($schema_file);
@@ -286,6 +310,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo_instance = new PDO("mysql:host=" . $config_create_instance['db_host'] . ";dbname=" . $db_name, $db_user_new_instance, $db_password_new_instance);
             $pdo_instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo_instance->exec($sql_schema); // Führe das gesamte Schema-Skript aus
+            
+            // WICHTIG: Stelle sicher, dass keine Testergebnisse aus der Hauptinstanz kopiert werden
+            // Die neue Instanz soll mit leeren Tabellen starten
+            execute_sql($pdo_instance, "DELETE FROM test_attempts WHERE 1=1");
+            execute_sql($pdo_instance, "DELETE FROM test_statistics WHERE 1=1"); 
+            execute_sql($pdo_instance, "DELETE FROM daily_attempts WHERE 1=1");
+            execute_sql($pdo_instance, "DELETE FROM tests WHERE 1=1");
+            
             $pdo_instance = null; // Verbindung schließen
         } else {
             throw new Exception("Datenbankschema-Datei nicht gefunden: " . $schema_file);

@@ -36,6 +36,7 @@ function performAjaxUpdate() {
         'teacher/teacher_dashboard.php' => 'Teacher Dashboard (Instanzverwaltung mit Details & Löschen)',
         'teacher/delete_instance.php' => 'Instanz-Lösch-Script',
         'teacher/generate_test.php' => 'Test Generator (dynamische Modell-Auswahl)',
+        'teacher/create_instance.php' => 'Instanz-Erstellung (keine Testergebnisse kopieren, korrektes Design)',
         'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
         'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (Modell-Auswahl)',
         'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
@@ -45,7 +46,8 @@ function performAjaxUpdate() {
         'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
         'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API (korrigierte Pfade + Admin-Codes)',
         'includes/openai_models.php' => 'OpenAI Models Management',
-        'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
+        'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)',
+        'robust_instance_index.php' => 'Robuste Index-Datei mit Hauptsystem-Design + QR-Code'
     ];
     
     // Finde alle Instanzen
@@ -91,7 +93,14 @@ function performAjaxUpdate() {
         
         foreach ($filesToUpdate as $file => $description) {
             $sourceFile = $sourceBasePath . '/' . $file;
-            $targetFile = $instanceBasePath . $file;
+            
+            // Spezialbehandlung für robust_instance_index.php -> index.php
+            if ($file === 'robust_instance_index.php') {
+                $targetFile = $instanceBasePath . 'index.php';
+            } else {
+                $targetFile = $instanceBasePath . $file;
+            }
+            
             $targetDir = dirname($targetFile);
             
             if (!file_exists($sourceFile)) {
@@ -117,7 +126,8 @@ function performAjaxUpdate() {
             
             // Datei kopieren
             if (copy($sourceFile, $targetFile)) {
-                $instanceLog[] = ['file' => $file, 'status' => 'success', 'message' => 'Aktualisiert'];
+                $actualFileName = ($file === 'robust_instance_index.php') ? 'index.php' : $file;
+                $instanceLog[] = ['file' => $actualFileName, 'status' => 'success', 'message' => 'Aktualisiert'];
                 $instanceUpdated++;
             } else {
                 $instanceLog[] = ['file' => $file, 'status' => 'error', 'message' => 'Kopieren fehlgeschlagen'];

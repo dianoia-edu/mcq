@@ -362,128 +362,131 @@ if (!isset($_GET['code'])) {
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
         <style>
-            body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-            .main-container {
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }
-            .login-card {
-                background: white;
-                border-radius: 20px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            .card {
+                border-radius: 15px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
                 overflow: hidden;
-                max-width: 600px;
-                width: 100%;
             }
-            .login-header {
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                color: white;
-                padding: 40px 30px;
-                text-align: center;
+            .card-access {
+                border-left: 6px solid #0d6efd;
+                background: linear-gradient(to right, #e6efff, #ffffff);
             }
-            .login-header h1 {
-                font-size: 2.5rem;
-                font-weight: 700;
-                margin-bottom: 10px;
-            }
-            .login-body {
-                padding: 40px 30px;
-            }
-            .form-control {
-                border-radius: 15px;
-                padding: 15px 20px;
-                font-size: 1.1rem;
-                border: 2px solid #e9ecef;
-                transition: all 0.3s ease;
-            }
-            .form-control:focus {
-                border-color: #4facfe;
-                box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
-            }
-            .btn-primary {
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                border: none;
-                border-radius: 15px;
-                padding: 15px 30px;
+            .form-control-large {
+                height: 60px;
                 font-size: 1.2rem;
-                font-weight: 600;
-                transition: all 0.3s ease;
-                width: 100%;
+                text-align: center;
+                letter-spacing: 3px;
+                font-weight: bold;
+                text-transform: uppercase;
             }
-            .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+            .btn-access {
+                height: 60px;
+                font-size: 1.2rem;
+                font-weight: bold;
             }
-            .alert {
-                border-radius: 15px;
-                border: none;
-                padding: 15px 20px;
+            .qr-container {
+                text-align: center;
+                margin-top: 40px;
             }
-            .access-info {
-                background: #f8f9fa;
-                border-radius: 15px;
-                padding: 25px;
-                margin-top: 20px;
-                border-left: 5px solid #4facfe;
+            .qr-code {
+                max-width: 200px;
+                margin: 0 auto;
+            }
+            .qr-text {
+                margin-top: 15px;
+                font-size: 0.9rem;
+                color: #6c757d;
             }
         </style>
     </head>
-    <body>
-        <div class="main-container">
-            <div class="login-card">
-                <div class="login-header">
-                    <h1><?php echo htmlspecialchars($schoolName); ?></h1>
-                    <p class="mb-0">Geben Sie den Zugangscode ein, um einen Test zu starten</p>
+    <body class="bg-light">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 text-center mb-4">
+                    <h1 class="display-4 fw-bold text-primary"><?php echo htmlspecialchars($schoolName); ?></h1>
+                    <p class="lead">Geben Sie den Zugangscode ein, um einen Test zu starten</p>
                 </div>
-                
-                <div class="login-body">
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-6">
                     <?php if (!empty($error)): ?>
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div class="alert alert-danger mb-4">
                             <?php echo htmlspecialchars($error); ?>
                         </div>
                     <?php endif; ?>
                     
                     <?php if (isset($_SESSION['error_message'])): ?>
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div class="alert alert-danger mb-4">
                             <?php echo htmlspecialchars($_SESSION['error_message']); ?>
                         </div>
                         <?php unset($_SESSION['error_message']); ?>
                     <?php endif; ?>
-                    
-                    <div class="access-info">
-                        <h5 class="text-primary mb-3">
-                            <i class="bi bi-key-fill me-2"></i>Zugangscode eingeben
-                        </h5>
-                        
-                        <form method="POST" action="">
-                            <div class="mb-4">
-                                <input type="text" 
-                                       class="form-control" 
-                                       name="accessCode" 
-                                       placeholder="z.B. ABC123"
-                                       required 
-                                       autocomplete="off"
-                                       autofocus>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-play-circle-fill me-2"></i>Test starten
-                            </button>
-                        </form>
+
+                    <div class="card card-access mb-4">
+                        <div class="card-body p-5">
+                            <h2 class="card-title text-primary mb-4">Zugangscode eingeben</h2>
+                            <form action="index.php" method="POST">
+                                <div class="mb-4">
+                                    <input type="text" class="form-control form-control-large" id="accessCode" name="accessCode" 
+                                        placeholder="z.B. ABC123" required
+                                        autocomplete="off">
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-access">
+                                        <i class="bi bi-arrow-right-circle me-2"></i>Test starten
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR-Code Bereich -->
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="qr-container">
+                        <h3 class="text-primary mb-3">Zugang via QR-Code</h3>
+                        <div class="qr-code">
+                            <?php
+                            // QR-Code mit dem installierten phpqrcode-Modul erstellen
+                            if (file_exists('includes/phpqrcode/qrlib.php')) {
+                                require_once('includes/phpqrcode/qrlib.php');
+                                
+                                // Aktuelle URL für den QR-Code ermitteln
+                                $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+                                $host = $_SERVER['HTTP_HOST'];
+                                $currentPath = $_SERVER['REQUEST_URI'];
+                                $baseUrl = $protocol . $host . dirname($currentPath);
+                                $qrCodeUrl = $baseUrl . "/index.php?seb=true";
+                                
+                                // Temporäres Verzeichnis für QR-Code-Dateien erstellen, falls nicht vorhanden
+                                $qrCodeDir = __DIR__ . '/temp_qrcodes';
+                                if (!is_dir($qrCodeDir)) {
+                                    mkdir($qrCodeDir, 0777, true);
+                                }
+                                
+                                // QR-Code-Dateiname generieren
+                                $qrCodeFile = $qrCodeDir . '/qrcode_' . md5($qrCodeUrl) . '.png';
+                                $qrCodeWebPath = 'temp_qrcodes/qrcode_' . md5($qrCodeUrl) . '.png';
+                                
+                                // Erzeuge den QR-Code in blauer Farbe
+                                QRcode::png($qrCodeUrl, $qrCodeFile, QR_ECLEVEL_M, 8, 2, false, 0x0000FF);
+                                ?>
+                                <img src="<?php echo $qrCodeWebPath; ?>" alt="QR-Code für Testzugang" class="img-fluid">
+                                <?php
+                            } else {
+                                // Fallback wenn QR-Library nicht verfügbar
+                                echo '<div class="alert alert-info">QR-Code-Generator nicht verfügbar</div>';
+                            }
+                            ?>
+                        </div>
+                        <p class="qr-text">Scannen Sie diesen QR-Code, um direkt zum Test-System zu gelangen</p>
                     </div>
                 </div>
             </div>
         </div>
-        
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
     </html>
