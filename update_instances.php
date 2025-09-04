@@ -34,13 +34,15 @@ function performAjaxUpdate() {
     // Dateien die aktualisiert werden sollen
     $filesToUpdate = [
         'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
-        'teacher/generate_test.php' => 'Test Generator (korrigierte Debug-Behandlung)',
+        'teacher/generate_test.php' => 'Test Generator (dynamische Modell-Auswahl)',
         'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
-        'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View',
+        'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (Modell-Auswahl)',
         'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
         'includes/teacher_dashboard/configuration_view.php' => 'Configuration View',
         'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
         'includes/teacher_dashboard/config_view.php' => 'Config View',
+        'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
+        'includes/openai_models.php' => 'OpenAI Models Management',
         'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
     ];
     
@@ -154,13 +156,15 @@ $sourceBasePath = __DIR__;
 // Dateien die aktualisiert werden sollen
 $filesToUpdate = [
     'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
-    'teacher/generate_test.php' => 'Test Generator (korrigierte Debug-Behandlung)',
+    'teacher/generate_test.php' => 'Test Generator (dynamische Modell-Auswahl)',
     'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
-    'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View',
+    'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (Modell-Auswahl)',
     'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
     'includes/teacher_dashboard/configuration_view.php' => 'Configuration View',
     'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
     'includes/teacher_dashboard/config_view.php' => 'Config View',
+    'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
+    'includes/openai_models.php' => 'OpenAI Models Management',
     'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
 ];
 

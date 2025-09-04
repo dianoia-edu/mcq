@@ -16,13 +16,28 @@
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <label for="answer_type" class="form-label">Art der richtigen Antworten:</label>
                 <select class="form-select" name="answer_type" id="answer_type">
                     <option value="single">Immer nur eine richtige Antwort</option>
                     <option value="multiple">Mehrere richtige Antworten möglich</option>
                     <option value="mixed">Gemischt (einzelne und mehrere)</option>
                 </select>
+            </div>
+            <div class="col-md-6">
+                <label for="ai_model" class="form-label">
+                    KI-Modell
+                    <button type="button" class="btn btn-link btn-sm p-0 ms-2" onclick="refreshModels()" title="Modelle aktualisieren">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </label>
+                <select class="form-select" name="ai_model" id="ai_model" required>
+                    <option value="">Modelle werden geladen...</option>
+                </select>
+                <div class="form-text">
+                    <span id="model-info" class="text-muted">Automatische Auswahl des besten verfügbaren Modells</span>
+                </div>
+                <div id="model-status" class="mt-2"></div>
             </div>
         </div>
 
@@ -87,6 +102,229 @@ window.mcqPaths = {
 };
 
 console.log('MCQ Paths configured:', window.mcqPaths);
+
+// Modell-Verwaltung
+let availableModels = [];
+let currentBestModel = null;
+
+// Lade verfügbare Modelle beim Seitenaufruf
+$(document).ready(function() {
+    loadAvailableModels();
+});
+
+// Helper-Funktion: Erstelle Pfad für includes-Dateien
+function getIncludesUrl(path) {
+    if (window.mcqPaths && window.mcqPaths.isInTeacherDir) {
+        return '../includes/' + path;
+    } else {
+        return 'includes/' + path;
+    }
+}
+
+// Lade verfügbare OpenAI-Modelle
+function loadAvailableModels(forceRefresh = false) {
+    const modelSelect = $('#ai_model');
+    const modelInfo = $('#model-info');
+    const modelStatus = $('#model-status');
+    
+    // Loading-Zustand
+    if (!forceRefresh) {
+        modelSelect.html('<option value="">Modelle werden geladen...</option>');
+    }
+    
+    const refreshParam = forceRefresh ? '&refresh=true' : '';
+    
+    $.ajax({
+        url: getIncludesUrl('teacher_dashboard/get_openai_models.php') + '?_t=' + Date.now() + refreshParam,
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success && response.models) {
+                availableModels = response.models;
+                currentBestModel = response.best_model;
+                populateModelSelect(response.models, response.best_model);
+                
+                // Zeige Statistiken
+                modelInfo.html(`${response.models.length} Modelle verfügbar. Empfohlen: <strong>${response.best_model.name}</strong>`);
+                
+                if (forceRefresh) {
+                    showModelStatus('Modelle erfolgreich aktualisiert', 'success');
+                }
+            } else {
+                // Verwende Fallback-Modelle
+                const fallbackModels = response.fallback_models || getDefaultModels();
+                availableModels = fallbackModels;
+                currentBestModel = fallbackModels[0];
+                populateModelSelect(fallbackModels, fallbackModels[0]);
+                
+                showModelStatus('API nicht verfügbar - verwende Standard-Modelle', 'warning');
+                modelInfo.html('Standard-Modelle geladen (API-Fehler)');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Fehler beim Laden der Modelle:', error);
+            
+            // Fallback zu Standard-Modellen
+            const defaultModels = getDefaultModels();
+            availableModels = defaultModels;
+            currentBestModel = defaultModels[0];
+            populateModelSelect(defaultModels, defaultModels[0]);
+            
+            showModelStatus('Verbindungsfehler - verwende Standard-Modelle', 'warning');
+            modelInfo.html('Offline-Modelle geladen');
+        }
+    });
+}
+
+// Fülle das Model-Select-Element
+function populateModelSelect(models, bestModel) {
+    const modelSelect = $('#ai_model');
+    modelSelect.empty();
+    
+    // Automatische Auswahl Option
+    modelSelect.append(new Option('🤖 Automatische Auswahl (Empfohlen)', 'auto', true, true));
+    
+    // Trennlinie
+    modelSelect.append(new Option('─────────────────', '', false, false));
+    
+    // Modelle gruppieren: Empfohlene zuerst
+    const recommendedModels = models.filter(m => m.recommended);
+    const otherModels = models.filter(m => !m.recommended);
+    
+    if (recommendedModels.length > 0) {
+        modelSelect.append(new Option('📈 EMPFOHLENE MODELLE', '', false, false));
+        recommendedModels.forEach(model => {
+            const contextInfo = model.context_window >= 32000 ? ' (Groß)' : ' (Standard)';
+            const option = new Option(
+                '  ' + model.name + contextInfo, 
+                model.id, 
+                false, 
+                false
+            );
+            modelSelect.append(option);
+        });
+    }
+    
+    if (otherModels.length > 0) {
+        modelSelect.append(new Option('📋 WEITERE MODELLE', '', false, false));
+        otherModels.forEach(model => {
+            const contextInfo = model.context_window >= 32000 ? ' (Groß)' : ' (Standard)';
+            const option = new Option(
+                '  ' + model.name + contextInfo, 
+                model.id, 
+                false, 
+                false
+            );
+            modelSelect.append(option);
+        });
+    }
+    
+    // Deaktiviere Gruppen-Optionen
+    modelSelect.find('option').each(function() {
+        if (this.value === '' || this.text.startsWith('📈') || this.text.startsWith('📋')) {
+            $(this).prop('disabled', true);
+        }
+    });
+}
+
+// Zeige Model-Status
+function showModelStatus(message, type = 'info') {
+    const statusDiv = $('#model-status');
+    const alertClass = type === 'success' ? 'alert-success' : 
+                      type === 'warning' ? 'alert-warning' : 
+                      type === 'danger' ? 'alert-danger' : 'alert-info';
+    
+    statusDiv.html(`<div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>`);
+    
+    // Auto-dismiss nach 5 Sekunden
+    setTimeout(() => {
+        statusDiv.find('.alert').alert('close');
+    }, 5000);
+}
+
+// Model-Refresh Funktion
+function refreshModels() {
+    showModelStatus('Aktualisiere verfügbare Modelle...', 'info');
+    loadAvailableModels(true);
+}
+
+// Standard-Modelle als Fallback
+function getDefaultModels() {
+    return [
+        {
+            id: 'gpt-4o',
+            name: 'GPT-4o (Neueste)',
+            context_window: 128000,
+            recommended: true
+        },
+        {
+            id: 'gpt-4o-mini',
+            name: 'GPT-4o Mini (Effizient)',
+            context_window: 128000,
+            recommended: true
+        },
+        {
+            id: 'gpt-4-turbo',
+            name: 'GPT-4 Turbo',
+            context_window: 128000,
+            recommended: true
+        },
+        {
+            id: 'gpt-3.5-turbo',
+            name: 'GPT-3.5 Turbo (Standard)',
+            context_window: 4096,
+            recommended: true
+        }
+    ];
+}
+
+// Event-Handler für Model-Auswahl-Änderung
+$('#ai_model').on('change', function() {
+    const selectedModel = $(this).val();
+    const modelInfo = $('#model-info');
+    
+    if (selectedModel === 'auto') {
+        modelInfo.html(`Automatische Auswahl: <strong>${currentBestModel ? currentBestModel.name : 'GPT-4o'}</strong>`);
+    } else if (selectedModel) {
+        const model = availableModels.find(m => m.id === selectedModel);
+        if (model) {
+            const contextInfo = model.context_window >= 32000 ? 
+                ` (${Math.floor(model.context_window / 1000)}K Context)` : 
+                ` (${model.context_window} Context)`;
+            modelInfo.html(`Ausgewählt: <strong>${model.name}</strong>${contextInfo}`);
+        }
+    }
+});
+
+// Teste ausgewähltes Modell (optional)
+function testSelectedModel() {
+    const selectedModel = $('#ai_model').val();
+    if (!selectedModel || selectedModel === 'auto') {
+        showModelStatus('Bitte wählen Sie ein spezifisches Modell zum Testen', 'warning');
+        return;
+    }
+    
+    showModelStatus('Teste Modell...', 'info');
+    
+    $.ajax({
+        url: getIncludesUrl('teacher_dashboard/get_openai_models.php') + '?test_model=' + encodeURIComponent(selectedModel),
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success && response.model_test) {
+                const test = response.model_test;
+                const message = `${test.model}: ${test.message}`;
+                showModelStatus(message, test.working ? 'success' : 'danger');
+            }
+        },
+        error: function() {
+            showModelStatus('Fehler beim Testen des Modells', 'danger');
+        }
+    });
+}
 </script>
 
 <!-- Test Preview Modal -->

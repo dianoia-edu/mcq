@@ -15,6 +15,80 @@ error_reporting(E_ALL);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
 
+/**
+ * Bestimme das zu verwendende OpenAI-Modell
+ */
+function determineModel($selectedModel, $config) {
+    require_once '../includes/openai_models.php';
+    
+    try {
+        $modelsManager = new OpenAIModels($config['api_key']);
+        
+        if ($selectedModel === 'auto' || empty($selectedModel)) {
+            // Automatische Auswahl des besten Modells
+            $bestModel = $modelsManager->getBestAvailableModel();
+            return [
+                'id' => $bestModel['id'],
+                'name' => $bestModel['name'],
+                'max_tokens' => getModelMaxTokens($bestModel['id']),
+                'context_window' => $bestModel['context_window'] ?? 4096
+            ];
+        } else {
+            // Spezifisches Modell gewählt - prüfe Verfügbarkeit
+            $availableModels = $modelsManager->getAvailableModels();
+            foreach ($availableModels as $model) {
+                if ($model['id'] === $selectedModel) {
+                    return [
+                        'id' => $model['id'],
+                        'name' => $model['name'],
+                        'max_tokens' => getModelMaxTokens($model['id']),
+                        'context_window' => $model['context_window'] ?? 4096
+                    ];
+                }
+            }
+            
+            // Fallback falls gewähltes Modell nicht verfügbar
+            error_log("Gewähltes Modell '$selectedModel' nicht verfügbar, verwende Fallback");
+            $bestModel = $modelsManager->getBestAvailableModel();
+            return [
+                'id' => $bestModel['id'],
+                'name' => $bestModel['name'],
+                'max_tokens' => getModelMaxTokens($bestModel['id']),
+                'context_window' => $bestModel['context_window'] ?? 4096
+            ];
+        }
+    } catch (Exception $e) {
+        error_log("Fehler bei Modell-Bestimmung: " . $e->getMessage());
+        
+        // Fallback auf Standard-Modell
+        return [
+            'id' => 'gpt-4o',
+            'name' => 'GPT-4o (Fallback)',
+            'max_tokens' => 4000,
+            'context_window' => 128000
+        ];
+    }
+}
+
+/**
+ * Maximale Tokens für Antwort basierend auf Modell
+ */
+function getModelMaxTokens($modelId) {
+    $maxTokens = [
+        'gpt-3.5-turbo' => 2048,
+        'gpt-3.5-turbo-16k' => 4000,
+        'gpt-4' => 4000,
+        'gpt-4-32k' => 8000,
+        'gpt-4-turbo' => 4000,
+        'gpt-4-1106-preview' => 4000,
+        'gpt-4-0125-preview' => 4000,
+        'gpt-4o' => 4000,
+        'gpt-4o-mini' => 4000
+    ];
+    
+    return $maxTokens[$modelId] ?? 4000;
+}
+
 // Setze Header für JSON
 header('Content-Type: application/json');
 
@@ -717,11 +791,18 @@ try {
             ]
         ];
 
+        // Bestimme das zu verwendende Modell
+        $selectedModel = $_POST['ai_model'] ?? 'auto';
+        $actualModel = determineModel($selectedModel, $config);
+        
+        // Logging für Modell-Verwendung
+        debug_log("Test-Generator: Gewähltes Modell='$selectedModel', Verwendetes Modell='{$actualModel['id']}' ({$actualModel['name']})");
+        
         $data = [
-            "model" => "gpt-4-1106-preview",  // Upgrade auf GPT-4-Turbo
+            "model" => $actualModel['id'],
             "messages" => $messages,
             "temperature" => 0.2,              // Reduziert für konsistentere Qualität
-            "max_tokens" => 4000,              // Angepasst für GPT-4-Turbo
+            "max_tokens" => min(4000, $actualModel['max_tokens']), // Angepasst an Modell-Limits
             "presence_penalty" => 0.1,         // Reduziert für fokussiertere Antworten
             "frequency_penalty" => 0.3,        // Erhöht für vielfältigere Antworten
             "top_p" => 0.95                   // Hinzugefügt für bessere Qualitätskontrolle
