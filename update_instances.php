@@ -33,14 +33,15 @@ function performAjaxUpdate() {
     
     // Dateien die aktualisiert werden sollen
     $filesToUpdate = [
-        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (Instanzverwaltung mit Details & Löschen)',
+        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (Instanzverwaltung mit Update/Delete-All + Tab ausgeblendet in Instanzen)',
         'teacher/delete_instance.php' => 'Instanz-Lösch-Script',
+        'teacher/delete_all_instances.php' => 'Alle Instanzen löschen Script',
         'teacher/generate_test.php' => 'Test Generator (dynamische Modell-Auswahl)',
         'teacher/create_instance.php' => 'Instanz-Erstellung (keine Testergebnisse kopieren, korrektes Design)',
         'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
         'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (Modell-Auswahl + getTeacherUrl)',
         'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View (usort-Fix)',
-        'includes/teacher_dashboard/configuration_view.php' => 'Configuration View (getTeacherUrl)',
+        'includes/teacher_dashboard/configuration_view.php' => 'Configuration View (getTeacherUrl + Update-Button entfernt)',
         'includes/teacher_dashboard/test_results_view.php' => 'Test Results View (DatabaseConfig-Fix)',
         'includes/teacher_dashboard/config_view.php' => 'Config View',
         'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',

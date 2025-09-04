@@ -232,7 +232,9 @@ foreach ($testFiles as $testFile) {
             <a href="#" class="tab" id="tab-editor" onclick="activateTab('editor')">Test-Editor</a>
             <a href="#" class="tab" id="tab-testResults" onclick="activateTab('testResults')">Testergebnisse</a>
             <a href="#" class="tab" id="tab-configuration" onclick="activateTab('configuration')">Konfiguration</a>
+            <?php if ($isInTeacherDir): ?>
             <a href="#" class="tab" id="tab-instance-management" onclick="activateTab('instance-management')"><i class="bi bi-hdd-stack-fill me-1"></i>Instanzverwaltung</a>
+            <?php endif; ?>
         </div>
 
         <div class="tab-content">
@@ -252,7 +254,38 @@ foreach ($testFiles as $testFile) {
                 <?php include getIncludesPath('teacher_dashboard/configuration_view.php'); ?>
             </div>
 
+            <?php if ($isInTeacherDir): ?>
             <div id="instance-management" class="tab-pane">
+                <!-- Management-Buttons -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="bi bi-arrow-clockwise me-2"></i>Instanzen aktualisieren</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Verteilt alle aktuellen Dateien an bestehende Instanzen.</p>
+                                <button type="button" class="btn btn-primary" id="updateInstancesBtn">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>Alle Instanzen aktualisieren
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-danger text-white">
+                                <h5 class="mb-0"><i class="bi bi-trash3 me-2"></i>Alle Instanzen löschen</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">⚠️ Löscht ALLE bestehenden Instanzen unwiderruflich!</p>
+                                <button type="button" class="btn btn-danger" id="deleteAllInstancesBtn">
+                                    <i class="bi bi-trash3 me-2"></i>Alle Instanzen löschen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <h2>Neue Instanz erstellen</h2>
                 <form id="createInstanceForm">
                     <div class="mb-3">
@@ -277,6 +310,7 @@ foreach ($testFiles as $testFile) {
                     <p class="text-muted">Hier werden erstellte Instanzen angezeigt.</p>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -817,6 +851,128 @@ foreach ($testFiles as $testFile) {
         console.log('- displayInstanceList:', typeof displayInstanceList);
         console.log('- getStatusBadge:', typeof getStatusBadge);
         console.log('- getStatusIcon:', typeof getStatusIcon);
+        
+        // Update Instances Button
+        $('#updateInstancesBtn').on('click', function() {
+            const button = $(this);
+            const originalText = button.html();
+            
+            button.prop('disabled', true).html('<i class="bi bi-arrow-clockwise spinner-border spinner-border-sm me-2"></i>Aktualisiere...');
+            
+            $.ajax({
+                url: 'update_instances.php?admin_key=update_instances_2024&ajax=true',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        showModal('Update erfolgreich', 
+                            '<div class="alert alert-success">' +
+                            '<h5>✅ Instanzen wurden aktualisiert!</h5>' +
+                            '<p><strong>Instanzen verarbeitet:</strong> ' + response.statistics.instances_processed + '</p>' +
+                            '<p><strong>Dateien aktualisiert:</strong> ' + response.statistics.files_updated + '</p>' +
+                            (response.statistics.errors > 0 ? '<p class="text-warning"><strong>Fehler:</strong> ' + response.statistics.errors + '</p>' : '') +
+                            '</div>'
+                        );
+                    } else {
+                        showModal('Update-Fehler', '<div class="alert alert-danger">Fehler: ' + (response.error || 'Unbekannter Fehler') + '</div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showModal('Update-Fehler', '<div class="alert alert-danger">Fehler beim Update: ' + error + '</div>');
+                },
+                complete: function() {
+                    button.prop('disabled', false).html(originalText);
+                }
+            });
+        });
+        
+        // Delete All Instances Button
+        $('#deleteAllInstancesBtn').on('click', function() {
+            const confirmation = prompt('⚠️ WARNUNG: Alle Instanzen werden unwiderruflich gelöscht!\n\nGeben Sie "DELETE_ALL_INSTANCES" ein, um fortzufahren:');
+            
+            if (confirmation !== 'DELETE_ALL_INSTANCES') {
+                alert('Löschung abgebrochen.');
+                return;
+            }
+            
+            const secondConfirmation = confirm('Sind Sie ABSOLUT SICHER? Diese Aktion kann nicht rückgängig gemacht werden!');
+            if (!secondConfirmation) {
+                alert('Löschung abgebrochen.');
+                return;
+            }
+            
+            const button = $(this);
+            const originalText = button.html();
+            
+            button.prop('disabled', true).html('<i class="bi bi-trash3 spinner-border spinner-border-sm me-2"></i>Lösche...');
+            
+            $.ajax({
+                url: getTeacherUrl('delete_all_instances.php'),
+                method: 'POST',
+                data: { confirmation: 'DELETE_ALL_INSTANCES' },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        showModal('Instanzen gelöscht', 
+                            '<div class="alert alert-success">' +
+                            '<h5>✅ Alle Instanzen wurden gelöscht!</h5>' +
+                            '<p><strong>Gelöschte Instanzen:</strong> ' + response.deleted_count + '</p>' +
+                            '<p><strong>Gelöschte Namen:</strong> ' + response.deleted_instances.join(', ') + '</p>' +
+                            (response.errors.length > 0 ? '<p class="text-warning"><strong>Fehler:</strong> ' + response.errors.join(', ') + '</p>' : '') +
+                            '</div>'
+                        );
+                        
+                        // Reload instance list
+                        loadInstanceList();
+                    } else {
+                        showModal('Lösch-Fehler', '<div class="alert alert-danger">Fehler: ' + (response.message || 'Unbekannter Fehler') + '</div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showModal('Lösch-Fehler', '<div class="alert alert-danger">Fehler beim Löschen: ' + error + '</div>');
+                },
+                complete: function() {
+                    button.prop('disabled', false).html(originalText);
+                }
+            });
+        });
+        
+        // Helper function for modals
+        function showModal(title, content) {
+            const modalHtml = `
+                <div class="modal fade" id="actionModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">${title}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                ${content}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal
+            $('#actionModal').remove();
+            
+            // Add new modal
+            $('body').append(modalHtml);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('actionModal'));
+            modal.show();
+            
+            // Clean up after hide
+            $('#actionModal').on('hidden.bs.modal', function() {
+                $(this).remove();
+            });
+        }
     </script>
 </body>
 </html>

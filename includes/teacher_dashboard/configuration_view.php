@@ -56,28 +56,6 @@
     </div>
 
     <!-- Instanzen-Update -->
-    <div class="card mb-4">
-        <div class="card-header bg-success text-white">
-            <i class="bi bi-arrow-repeat"></i> Instanzen-Update
-        </div>
-        <div class="card-body">
-            <p class="mb-3">
-                <strong>Aktualisiert alle bestehenden Lehrerinstanzen</strong> mit den neuesten Korrekturen und Verbesserungen aus dem Hauptsystem.
-                <br><small class="text-muted">
-                    Dies sollte nach jeder Weiterentwicklung des Hauptsystems ausgeführt werden.
-                </small>
-            </p>
-            <div class="alert alert-info small mb-3">
-                <i class="bi bi-info-circle me-2"></i>
-                <strong>Was wird aktualisiert:</strong> Teacher Dashboard, Test Generator, JavaScript-Dateien, Datenbankfunktionen und alle View-Komponenten
-            </div>
-            <button id="updateInstancesBtn" class="btn btn-success">
-                <i class="bi bi-cloud-download"></i> Alle Instanzen aktualisieren
-            </button>
-            <div id="updateResult" class="mt-3"></div>
-        </div>
-    </div>
-
     <!-- Datenbank-Synchronisation -->
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
@@ -263,8 +241,8 @@ $(document).ready(function() {
         });
     }
 
-    // Event-Handler für das Instanzen-Update
-    $('#updateInstancesBtn').on('click', function() {
+    // Event-Handler für das Instanzen-Update (entfernt - verschoben zur Instanzverwaltung)
+    // $('#updateInstancesBtn').on('click', function() {
         const btn = $(this);
         const result = $('#updateResult');
         
@@ -427,7 +405,7 @@ $(document).ready(function() {
                 btn.prop('disabled', false).html('<i class="bi bi-cloud-download"></i> Alle Instanzen aktualisieren');
             }
         });
-    });
+    }); */
 
     // Event-Handler für die Datenbank-Synchronisation
     $('#syncDatabaseBtn').on('click', function() {
