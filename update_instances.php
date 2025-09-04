@@ -37,7 +37,7 @@ function performAjaxUpdate() {
         'teacher/delete_instance.php' => 'Instanz-Lösch-Script',
         'teacher/delete_all_instances.php' => 'Alle Instanzen löschen Script',
         'teacher/generate_test.php' => 'Test Generator (dynamische Modell-Auswahl)',
-        'teacher/create_instance.php' => 'Instanz-Erstellung (keine Testergebnisse kopieren, korrektes Design)',
+        'teacher/create_instance.php' => 'Instanz-Erstellung (VERHINDERT Testergebnisse-Kopieren komplett)',
         'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
         'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (Modell-Auswahl + getTeacherUrl)',
         'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View (usort-Fix)',

@@ -219,6 +219,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Ausschlussliste: Welche Ordner/Dateien NICHT kopiert werden sollen
     $exclude_list = [
         rtrim($config_create_instance['source_system_path'], '/') . '/lehrer_instanzen', // Nicht sich selbst rekursiv kopieren
+        rtrim($config_create_instance['source_system_path'], '/') . '/mcq-test-system/tests', // Keine Tests kopieren
+        rtrim($config_create_instance['source_system_path'], '/') . '/mcq-test-system/results', // Keine Ergebnisse kopieren
         // Füge hier weitere Pfade hinzu, die nicht mitkopiert werden sollen, z.B. .git, node_modules etc.
         // Wichtig: Pfade müssen absolut sein oder relativ zum $source_system_path
     ];
@@ -268,24 +270,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Nach dem Kopieren: Ordner 'tests' und 'results' leeren (aber Ordner erhalten)
-    function empty_folder($folder) {
-        if (!is_dir($folder)) return;
-        $files = array_diff(scandir($folder), ['.', '..']);
-        foreach ($files as $file) {
-            $path = $folder . DIRECTORY_SEPARATOR . $file;
-            if (is_dir($path)) {
-                empty_folder($path);
-                rmdir($path);
-            } else {
-                unlink($path);
-            }
-        }
-    }
+    // Nach dem Kopieren: Leere 'tests' und 'results' Ordner erstellen (da sie von der Ausschlussliste nicht kopiert wurden)
     $tests_dir = $target_dir . '/mcq-test-system/tests';
     $results_dir = $target_dir . '/mcq-test-system/results';
-    empty_folder($tests_dir);
-    empty_folder($results_dir);
+    
+    // Erstelle die Ordner falls sie nicht existieren
+    if (!is_dir($tests_dir)) {
+        mkdir($tests_dir, 0777, true);
+    }
+    if (!is_dir($results_dir)) {
+        mkdir($results_dir, 0777, true);
+    }
+    
     // Setze die Rechte für die Ordner auf 0777 (nur für Instanzen)
     @chmod($tests_dir, 0777);
     @chmod($results_dir, 0777);
