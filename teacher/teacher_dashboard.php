@@ -250,7 +250,7 @@ echo "-->\n";
                         <input type="text" class="form-control" id="adminAccessCode" name="adminAccessCode" required value="admin123">
                         <div class="form-text">Der Code, mit dem sich der Lehrer in seiner neuen Instanz als Admin anmeldet.</div>
                     </div>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="button" class="btn btn-primary" id="createInstanceBtn">
                         <i class="bi bi-plus-circle-fill me-2"></i>Neue Instanz erstellen
                     </button>
                 </form>
@@ -416,13 +416,20 @@ echo "-->\n";
                 }
             }
 
-            // AJAX für Instanzerstellung
-            $('#createInstanceForm').on('submit', function(e) {
+            // AJAX für Instanzerstellung - verwende Button-Click statt Form-Submit
+            $('#createInstanceBtn').on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation(); // Verhindere Event-Bubbling
+                e.stopImmediatePropagation(); // Stoppe ALLE weiteren Event-Handler
                 const instanceName = $('#instanceName').val();
                 const adminAccessCode = $('#adminAccessCode').val();
                 const resultDiv = $('#instanceCreationResult');
+                
+                // Validierung
+                if (!instanceName || !adminAccessCode) {
+                    resultDiv.html('<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-2"></i>Bitte füllen Sie alle Felder aus.</div>');
+                    return;
+                }
 
                 resultDiv.html('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Erstelle Instanz...</span></div> <span class="ms-2">Erstelle Instanz, bitte warten...</span>');
 

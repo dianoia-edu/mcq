@@ -54,12 +54,13 @@ try {
     require_once __DIR__ . '/../config_loader.php';
     $config = loadConfig();
     
-    // Pfad zu den Instanzen - verschiedene Varianten prüfen
+    // Pfad zu den Instanzen - verschiedene Varianten prüfen (geordnet nach Wahrscheinlichkeit)
     $possiblePaths = [
+        '/var/www/dianoia-ai.de/lehrer_instanzen/', // Vollständiger Live-Server-Pfad (ERSTE PRIORITÄT)
+        dirname(__FILE__, 3) . '/lehrer_instanzen/', // Aus Script-Verzeichnis (mcq-test-system parent)
         dirname(__DIR__, 2) . '/lehrer_instanzen/',  // Standard
         dirname($_SERVER['DOCUMENT_ROOT']) . '/lehrer_instanzen/', // Webserver
-        '/var/www/lehrer_instanzen/', // Direkter Server-Pfad
-        '/var/www/dianoia-ai.de/lehrer_instanzen/' // Vollständiger Pfad
+        '/var/www/lehrer_instanzen/' // Direkter Server-Pfad
     ];
     
     $instancesBasePath = null;
