@@ -278,55 +278,87 @@ $(document).ready(function() {
                 if (response.success) {
                     // Erfolgreiche Aktualisierung
                     const stats = response.statistics;
-                    const modal = createUpdateModal(
-                        'Instanzen-Update erfolgreich!',
-                        `
-                        <div class="alert alert-success">
-                            <h5><i class="bi bi-check-circle-fill me-2"></i>Alle Instanzen wurden erfolgreich aktualisiert!</h5>
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <strong>📊 Statistiken:</strong>
-                                    <ul class="list-unstyled mt-2">
-                                        <li>✅ <strong>Instanzen verarbeitet:</strong> ${stats.instances_processed || 0}</li>
-                                        <li>📁 <strong>Dateien aktualisiert:</strong> ${stats.files_updated || 0}</li>
-                                        <li>❌ <strong>Fehler:</strong> ${stats.errors || 0}</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>📋 Aktualisierte Dateien:</strong>
-                                    <ul class="list-unstyled mt-2 small">
-                                        <li>• Teacher Dashboard</li>
-                                        <li>• Test Generator</li>
-                                        <li>• JavaScript Main</li>
-                                        <li>• Dashboard Views</li>
-                                        <li>• Database Config</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        ${response.instances && response.instances.length > 0 ? `
-                        <div class="alert alert-info">
-                            <strong>🧪 Testen Sie die aktualisierten Instanzen:</strong>
-                            <div class="mt-2">
-                                ${response.instances.map(instance => 
-                                    `<a href="/lehrer_instanzen/${instance}/mcq-test-system/teacher/teacher_dashboard.php" target="_blank" class="btn btn-sm btn-outline-primary me-2 mb-1">
-                                        🔗 ${instance}
-                                    </a>`
-                                ).join('')}
-                            </div>
-                        </div>
-                        ` : ''}
-                        `,
-                        'success'
-                    );
                     
-                    result.html(`
-                        <div class="alert alert-success">
-                            <strong>✅ Update erfolgreich!</strong> 
-                            ${stats.instances_processed || 0} Instanzen aktualisiert, ${stats.files_updated || 0} Dateien übertragen.
-                        </div>
-                    `);
+                    // Prüfe ob keine Instanzen gefunden wurden
+                    if (stats.instances_processed === 0) {
+                        const modal = createUpdateModal(
+                            'Keine Instanzen gefunden',
+                            `
+                            <div class="alert alert-info">
+                                <h5><i class="bi bi-info-circle-fill me-2"></i>Keine Lehrerinstanzen zum Aktualisieren</h5>
+                                <hr>
+                                <p><strong>Status:</strong> ${response.message || 'Keine Instanzen vorhanden'}</p>
+                                ${response.info ? `<p><strong>Hinweis:</strong> ${response.info}</p>` : ''}
+                            </div>
+                            <div class="alert alert-warning">
+                                <strong>💡 Nächste Schritte:</strong>
+                                <ol>
+                                    <li>Erstellen Sie zuerst Lehrerinstanzen über die Instanzverwaltung</li>
+                                    <li>Nach dem Erstellen von Instanzen können Sie das Update ausführen</li>
+                                    <li>Das Update-System wird dann alle korrigierten Dateien verteilen</li>
+                                </ol>
+                            </div>
+                            `,
+                            'info'
+                        );
+                        
+                        result.html(`
+                            <div class="alert alert-info">
+                                <strong>ℹ️ Keine Instanzen:</strong> Es wurden keine Lehrerinstanzen zum Aktualisieren gefunden.
+                            </div>
+                        `);
+                    } else {
+                        // Normale Erfolgs-Anzeige mit Instanzen
+                        const modal = createUpdateModal(
+                            'Instanzen-Update erfolgreich!',
+                            `
+                            <div class="alert alert-success">
+                                <h5><i class="bi bi-check-circle-fill me-2"></i>Alle Instanzen wurden erfolgreich aktualisiert!</h5>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>📊 Statistiken:</strong>
+                                        <ul class="list-unstyled mt-2">
+                                            <li>✅ <strong>Instanzen verarbeitet:</strong> ${stats.instances_processed || 0}</li>
+                                            <li>📁 <strong>Dateien aktualisiert:</strong> ${stats.files_updated || 0}</li>
+                                            <li>❌ <strong>Fehler:</strong> ${stats.errors || 0}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>📋 Aktualisierte Dateien:</strong>
+                                        <ul class="list-unstyled mt-2 small">
+                                            <li>• Teacher Dashboard</li>
+                                            <li>• Test Generator</li>
+                                            <li>• JavaScript Main</li>
+                                            <li>• Dashboard Views</li>
+                                            <li>• Database Config</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            ${response.instances && response.instances.length > 0 ? `
+                            <div class="alert alert-info">
+                                <strong>🧪 Testen Sie die aktualisierten Instanzen:</strong>
+                                <div class="mt-2">
+                                    ${response.instances.map(instance => 
+                                        `<a href="/lehrer_instanzen/${instance}/mcq-test-system/teacher/teacher_dashboard.php" target="_blank" class="btn btn-sm btn-outline-primary me-2 mb-1">
+                                            🔗 ${instance}
+                                        </a>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                            `,
+                            'success'
+                        );
+                        
+                        result.html(`
+                            <div class="alert alert-success">
+                                <strong>✅ Update erfolgreich!</strong> 
+                                ${stats.instances_processed || 0} Instanzen aktualisiert, ${stats.files_updated || 0} Dateien übertragen.
+                            </div>
+                        `);
+                    }
                 } else {
                     // Fehler beim Update
                     const modal = createUpdateModal(

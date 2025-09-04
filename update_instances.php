@@ -257,13 +257,15 @@ if (!$isAjax) {
         if ($isAjax) {
             header('Content-Type: application/json');
             echo json_encode([
-                'success' => false,
-                'error' => 'Keine Instanzen gefunden zum Aktualisieren',
+                'success' => true, // Ändere zu true für bessere UX
                 'statistics' => [
                     'instances_processed' => 0,
                     'files_updated' => 0,
                     'errors' => 0
-                ]
+                ],
+                'instances' => [],
+                'message' => 'Keine Instanzen gefunden zum Aktualisieren. Das ist normal wenn noch keine Lehrerinstanzen erstellt wurden.',
+                'info' => 'Erstellen Sie zuerst Lehrerinstanzen über die Instanzverwaltung.'
             ]);
             exit;
         }
