@@ -12,7 +12,6 @@ if (!isset($_SESSION["teacher"]) || $_SESSION["teacher"] !== true) {
 header('Content-Type: application/json');
 
 // Lade die Datenbankkonfiguration der Hauptinstanz
-// Annahme: Die Konfigurationsdatei liegt jetzt in /includes/database_config.php
 $main_db_config_path = dirname(__DIR__) . '/includes/database_config.php';
 
 if (file_exists($main_db_config_path)) {
@@ -22,9 +21,22 @@ if (file_exists($main_db_config_path)) {
     exit;
 }
 
-// Überprüfe, ob die notwendigen DB-Konstanten geladen wurden
-if (!defined('DB_HOST') || !defined('DB_USER') || !defined('DB_PASS')) {
-    echo json_encode(['success' => false, 'message' => 'Fehler: DB_HOST, DB_USER oder DB_PASS nicht in der Haupt-Konfigurationsdatei definiert.']);
+// Verwende DatabaseConfig-Klasse statt Konstanten
+try {
+    $dbConfig = DatabaseConfig::getInstance();
+    $mainConnection = $dbConfig->getConnection();
+    
+    if (!$mainConnection) {
+        throw new Exception('Hauptsystem-Datenbankverbindung fehlgeschlagen');
+    }
+    
+    // DatabaseConfig definiert automatisch DB_HOST, DB_USER, DB_PASS Konstanten
+    if (!defined('DB_HOST') || !defined('DB_USER') || !defined('DB_PASS')) {
+        throw new Exception('DB-Konstanten wurden nicht korrekt definiert');
+    }
+    
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => 'Fehler bei Datenbankkonfiguration: ' . $e->getMessage()]);
     exit;
 }
 
