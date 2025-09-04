@@ -128,20 +128,33 @@ echo "-->\n";
             pane.style.display = 'none';
         });
         
-        // Gewählten Tab aktivieren
-        document.getElementById('tab-' + tabId).classList.add('active');
+        // Gewählten Tab aktivieren (mit Null-Check)
+        const tabElement = document.getElementById('tab-' + tabId);
+        if (tabElement) {
+            tabElement.classList.add('active');
+        } else {
+            console.error('Tab-Element nicht gefunden: tab-' + tabId);
+        }
         
-        // Gewählten Tab-Inhalt anzeigen
+        // Gewählten Tab-Inhalt anzeigen (mit Null-Check)
         const tabContent = document.getElementById(tabId);
-        tabContent.classList.add('active');
-        tabContent.style.display = 'block';
+        if (tabContent) {
+            tabContent.classList.add('active');
+            tabContent.style.display = 'block';
+            console.log('Tab aktiviert:', tabId);
+        } else {
+            console.error('Tab-Inhalt nicht gefunden:', tabId);
+            console.log('Verfügbare Tab-Panes:', Array.from(document.querySelectorAll('.tab-pane')).map(p => p.id));
+        }
         
         // URL aktualisieren
-        const url = new URL(window.location.href);
-        url.searchParams.set('tab', tabId);
-        window.history.pushState({}, '', url);
-        
-        console.log('Tab aktiviert:', tabId);
+        try {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', tabId);
+            window.history.pushState({}, '', url);
+        } catch (e) {
+            console.warn('Konnte URL nicht aktualisieren:', e);
+        }
     }
     </script>
     <!-- Bootstrap CSS -->
