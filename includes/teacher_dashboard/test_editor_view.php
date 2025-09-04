@@ -749,6 +749,15 @@ $(document).ready(function() {
         importModal.show();
     });
 
+    // Helper-Funktion: Erstelle Pfad für includes-Dateien
+    function getIncludesUrl(path) {
+        if (window.mcqPaths && window.mcqPaths.isInTeacherDir) {
+            return '../includes/' + path;
+        } else {
+            return 'includes/' + path;
+        }
+    }
+
     // Event-Handler für die Import-Buttons in der Tabelle
     $(document).on('click', '.import-questions-btn', function() {
         const row = $(this).closest('tr');

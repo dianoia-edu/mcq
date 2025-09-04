@@ -1267,6 +1267,15 @@ function showResults(filename) {
         // Zeige das Modal
         modalInstance.show();
         
+        // Helper-Funktion: Erstelle Pfad für includes-Dateien
+        function getIncludesUrl(path) {
+            if (window.mcqPaths && window.mcqPaths.isInTeacherDir) {
+                return '../includes/' + path;
+            } else {
+                return 'includes/' + path;
+            }
+        }
+
         // Lade die Detailansicht mit korrektem Pfad
         fetch(`${getIncludesUrl('teacher_dashboard/show_results.php')}?file=${encodeURIComponent(filename)}&format=ajax`)
             .then(response => {

@@ -23,6 +23,15 @@
 
 <script>
 $(document).ready(function() {
+    // Helper-Funktion: Erstelle Pfad für includes-Dateien
+    function getIncludesUrl(path) {
+        if (window.mcqPaths && window.mcqPaths.isInTeacherDir) {
+            return '../includes/' + path;
+        } else {
+            return 'includes/' + path;
+        }
+    }
+
     $('#syncDatabaseBtn').on('click', function() {
         const btn = $(this);
         const progress = $('#syncProgress');
