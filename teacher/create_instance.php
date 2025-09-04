@@ -358,26 +358,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         execute_sql($pdo_super, "GRANT ALL PRIVILEGES ON `" . $db_name . "`.* TO ?@'%'", [$db_user_new_instance]);
         execute_sql($pdo_super, "FLUSH PRIVILEGES");
 
-        // Schritt 4: Konfigurationsdatei der neuen Instanz anpassen (database_config.php)
+        // Schritt 4: Erstelle eine neue database_config.php für die Instanz
         $new_instance_db_config_path = $target_dir . '/includes/database_config.php';
-        if (file_exists($new_instance_db_config_path)) {
-            $config_content = file_get_contents($new_instance_db_config_path);
-            // Ersetze die DB-Zugangsdaten in der geklonten Datei
-            // Dies ist ein einfacher Ansatz. Für komplexere Konfigs wären robustere Methoden nötig.
-            $config_content = preg_replace("/'db_host'/s*=>/s*'[^']*'/", "'db_host' => '" . $config_create_instance['db_host'] . "'", $config_content);
-            $config_content = preg_replace("/'db_user'/s*=>/s*'[^']*'/", "'db_user' => '" . $db_user_new_instance . "'", $config_content);
-            $config_content = preg_replace("/'db_password'/s*=>/s*'[^']*'/", "'db_password' => '" . $db_password_new_instance . "'", $config_content);
-            $config_content = preg_replace("/'db_name'/s*=>/s*'[^']*'/", "'db_name' => '" . $db_name . "'", $config_content);
-            // Auch die Konstanten-Definitionen anpassen, falls vorhanden und hartcodiert
-            $config_content = preg_replace("/define(/s*'DB_HOST'/s*,/s*'[^']*'/s*;/i/", "define('DB_HOST', '" . $config_create_instance['db_host'] . "');", $config_content);
-            $config_content = preg_replace("/define(/s*'DB_USER'/s*,/s*'[^']*'/s*;/i/", "define('DB_USER', '" . $db_user_new_instance . "');", $config_content);
-            $config_content = preg_replace("/define(/s*'DB_PASS'/s*,/s*'[^']*'/s*;/i/", "define('DB_PASS', '" . $db_password_new_instance . "');", $config_content);
-            $config_content = preg_replace("/define(/s*'DB_NAME'/s*,/s*'[^']*'/s*;/i/", "define('DB_NAME', '" . $db_name . "');", $config_content);
+        
+        // Erstelle eine neue, saubere database_config.php speziell für diese Instanz
+        $instance_db_config = '<?php
+// Automatisch generierte Datenbankkonfiguration für Instanz: ' . $instance_name . '
+// Datenbankverbindungskonfiguration
+class DatabaseConfig {
+    private static $instance = null;
+    private $connection = null;
+    private $config;
+    
+    private function __construct() {
+        // Instanz-spezifische Konfiguration
+        $this->config = [
+            \'db_host\' => \'' . addslashes($config_create_instance['db_host']) . '\',
+            \'db_user\' => \'' . addslashes($db_user_new_instance) . '\',
+            \'db_password\' => \'' . addslashes($db_password_new_instance) . '\',
+            \'db_name\' => \'' . addslashes($db_name) . '\'
+        ];
 
-            file_put_contents($new_instance_db_config_path, $config_content);
-        } else {
-            throw new Exception("database_config.php in der neuen Instanz nicht gefunden.");
+        // Definiere Konstanten für globalen Zugriff
+        if (!defined(\'DB_HOST\')) define(\'DB_HOST\', $this->config[\'db_host\']);
+        if (!defined(\'DB_USER\')) define(\'DB_USER\', $this->config[\'db_user\']);
+        if (!defined(\'DB_PASS\')) define(\'DB_PASS\', $this->config[\'db_password\']);
+        if (!defined(\'DB_NAME\')) define(\'DB_NAME\', $this->config[\'db_name\']);
+    }
+    
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
         }
+        return self::$instance;
+    }
+    
+    public function getConnection() {
+        if ($this->connection === null) {
+            try {
+                $dsn = "mysql:host=" . $this->config[\'db_host\'] . ";dbname=" . $this->config[\'db_name\'] . ";charset=utf8mb4";
+                $this->connection = new PDO($dsn, $this->config[\'db_user\'], $this->config[\'db_password\']);
+                $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $e) {
+                error_log("Datenbankverbindung fehlgeschlagen: " . $e->getMessage());
+                throw new Exception("Datenbankverbindung fehlgeschlagen: " . $e->getMessage());
+            }
+        }
+        return $this->connection;
+    }
+    
+    public function createDatabase() {
+        // Für Instanzen nicht nötig - DB existiert bereits
+        return true;
+    }
+    
+    public function initializeTables() {
+        // Für Instanzen nicht nötig - Tabellen existieren bereits
+        return true;
+    }
+}
+?>';
+
+        file_put_contents($new_instance_db_config_path, $instance_db_config);
 
         // Schritt 5a: Admin-Zugangscode in der neuen Instanz anpassen (index.php)
         $new_instance_index_path = $target_dir . '/index.php';
