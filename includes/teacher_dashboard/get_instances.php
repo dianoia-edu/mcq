@@ -188,16 +188,36 @@ function getInstanceInfo($instanceName, $instancePath, $mcqPath) {
     $info['files_ok'] = $filesOk;
     
     // 2. Admin-Code aus Konfiguration lesen
-    try {
-        $configFile = $mcqPath . '/includes/config/api_config.json';
-        if (file_exists($configFile)) {
-            $configData = json_decode(file_get_contents($configFile), true);
-            if (isset($configData['admin_access_code'])) {
-                $info['admin_code'] = $configData['admin_access_code'];
+    // Lade Admin-Zugangscode - verschiedene mögliche Pfade prüfen
+    $possibleConfigFiles = [
+        $mcqPath . '/includes/config/api_config.json',
+        $mcqPath . '/includes/config/app_config.php',
+        $mcqPath . '/config/api_config.json',
+        $instancePath . '/config/api_config.json'
+    ];
+    
+    foreach ($possibleConfigFiles as $configFile) {
+        try {
+            if (file_exists($configFile)) {
+                if (str_ends_with($configFile, '.json')) {
+                    $configData = json_decode(file_get_contents($configFile), true);
+                    if (isset($configData['admin_access_code'])) {
+                        $info['admin_code'] = $configData['admin_access_code'];
+                        break;
+                    }
+                } elseif (str_ends_with($configFile, '.php')) {
+                    // PHP-Config laden (vorsichtig, da es globale Variablen beeinflussen kann)
+                    $fileContent = file_get_contents($configFile);
+                    if (preg_match('/[\'"]admin_access_code[\'"].*?[\'"]([^\'"]+)[\'"]/', $fileContent, $matches)) {
+                        $info['admin_code'] = $matches[1];
+                        break;
+                    }
+                }
             }
+        } catch (Exception $e) {
+            // Dieser Konfigurationspfad konnte nicht gelesen werden, nächsten versuchen
+            continue;
         }
-    } catch (Exception $e) {
-        // Admin-Code konnte nicht gelesen werden
     }
     
     // 3. Datenbankverbindung testen

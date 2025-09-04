@@ -323,6 +323,12 @@ echo "-->\n";
                     const targetId = this.id.replace('tab-', '');
                     console.log('Tab wurde geklickt:', targetId);
                     
+                    // Wenn der Instanzverwaltung-Tab aktiviert wird
+                    if (targetId === 'instance-management') {
+                        console.log('Instanzverwaltung-Tab aktiviert - lade Instanzliste');
+                        setTimeout(() => loadInstanceList(), 100);
+                    }
+                    
                     // Wenn der Testergebnisse-Tab aktiviert wird
                     if (targetId === 'testResults') {
                         console.log('Testergebnisse-Tab wurde aktiviert, starte Synchronisation');
@@ -434,7 +440,7 @@ echo "-->\n";
                 resultDiv.html('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Erstelle Instanz...</span></div> <span class="ms-2">Erstelle Instanz, bitte warten...</span>');
 
                 $.ajax({
-                    url: 'create_instance.php', // Dieses Skript erstellen wir als Nächstes
+                    url: getTeacherUrl('create_instance.php'), // Korrekter Pfad für Instanzerstellung
                     type: 'POST',
                     data: {
                         instance_name: instanceName,
@@ -676,7 +682,13 @@ echo "-->\n";
             // Lade Instanzliste beim ersten Laden falls Tab aktiv
             if (window.location.hash === '#instance-management' || 
                 new URLSearchParams(window.location.search).get('tab') === 'instance-management') {
+                console.log('Instanzverwaltung Tab erkannt - lade Instanzliste');
                 setTimeout(() => loadInstanceList(), 500);
+            } else {
+                console.log('Tab-Check:', {
+                    hash: window.location.hash,
+                    searchParam: new URLSearchParams(window.location.search).get('tab')
+                });
         });
     </script>
 </body>

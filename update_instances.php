@@ -42,7 +42,7 @@ function performAjaxUpdate() {
         'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
         'includes/teacher_dashboard/config_view.php' => 'Config View',
         'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
-        'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API (korrigierte Pfade)',
+        'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API (korrigierte Pfade + Admin-Codes)',
         'includes/openai_models.php' => 'OpenAI Models Management',
         'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
     ];
