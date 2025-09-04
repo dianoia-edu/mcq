@@ -6,6 +6,17 @@ if (!isset($_SESSION['teacher']) || $_SESSION['teacher'] !== true) {
     exit();
 }
 
+// Ermittle den korrekten Includes-Pfad basierend auf der aktuellen Position
+function getIncludesPath($relativePath) {
+    // Prüfe, ob wir im teacher-Verzeichnis sind (Hauptinstanz)
+    if (basename(dirname(__FILE__)) === 'teacher') {
+        return dirname(__DIR__) . '/includes/' . $relativePath;
+    } else {
+        // Wir sind in einer Instanz im Hauptverzeichnis
+        return 'includes/' . $relativePath;
+    }
+}
+
 // Erstelle erforderliche Verzeichnisse
 $directories = [
     dirname(__DIR__) . '/includes',
@@ -198,19 +209,19 @@ echo "-->\n";
 
         <div class="tab-content">
             <div id="generator" class="tab-pane">
-                <?php include(dirname(__DIR__) . '/includes/teacher_dashboard/test_generator_view.php'); ?>
+                <?php include(getIncludesPath('teacher_dashboard/test_generator_view.php')); ?>
             </div>
             
             <div id="editor" class="tab-pane">
-                <?php include(dirname(__DIR__) . '/includes/teacher_dashboard/test_editor_view.php'); ?>
+                <?php include(getIncludesPath('teacher_dashboard/test_editor_view.php')); ?>
             </div>
             
             <div id="testResults" class="tab-pane">
-                <?php include(dirname(__DIR__) . '/includes/teacher_dashboard/test_results_view.php'); ?>
+                <?php include(getIncludesPath('teacher_dashboard/test_results_view.php')); ?>
             </div>
             
             <div id="configuration" class="tab-pane">
-                <?php include(dirname(__DIR__) . '/includes/teacher_dashboard/configuration_view.php'); ?>
+                <?php include(getIncludesPath('teacher_dashboard/configuration_view.php')); ?>
             </div>
 
             <div id="instance-management" class="tab-pane">
