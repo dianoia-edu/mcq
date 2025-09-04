@@ -158,7 +158,7 @@ function getInstanceInfo($instanceName, $instancePath, $mcqPath) {
         'name' => $instanceName,
         'display_name' => ucwords(str_replace(['_', '-'], ' ', $instanceName)),
         'path' => $instancePath,
-        'url' => '/lehrer_instanzen/' . $instanceName . '/mcq-test-system/',
+        'url' => '/lehrer_instanzen/' . $instanceName . '/mcq-test-system/index.php',
         'admin_url' => '/lehrer_instanzen/' . $instanceName . '/mcq-test-system/teacher/teacher_dashboard.php',
         'status' => 'unknown',
         'admin_code' => 'Unbekannt',
