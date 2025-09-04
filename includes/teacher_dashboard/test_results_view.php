@@ -1,4 +1,31 @@
 <?php
+// Sichere Einbindung der DatabaseConfig
+$possibleConfigPaths = [
+    __DIR__ . '/../../database_config.php',
+    __DIR__ . '/../database_config.php', 
+    dirname(__DIR__) . '/database_config.php',
+    dirname(dirname(__DIR__)) . '/includes/database_config.php'
+];
+
+foreach ($possibleConfigPaths as $configPath) {
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        break;
+    }
+}
+
+// Fallback wenn DatabaseConfig nicht gefunden
+if (!class_exists('DatabaseConfig')) {
+    class DatabaseConfig {
+        public static function getInstance() {
+            return new self();
+        }
+        public function getConnection() {
+            return null; // Fallback
+        }
+    }
+}
+
 // Überprüfen Sie, ob dies eine AJAX-Anfrage ist und geben Sie nur JSON zurück
 // Dies sollte vor allen anderen Anweisungen stehen
 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 

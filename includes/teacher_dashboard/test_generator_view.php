@@ -94,6 +94,17 @@
 </div>
 
 <script>
+// Lokale Helper-Funktionen für diese View
+function getTeacherUrl(filename) {
+    const isInTeacherDir = <?php echo json_encode(strpos($_SERVER['REQUEST_URI'], '/teacher/') !== false); ?>;
+    return isInTeacherDir ? filename : 'teacher/' + filename;
+}
+
+function getIncludesUrl(path) {
+    const isInTeacherDir = <?php echo json_encode(strpos($_SERVER['REQUEST_URI'], '/teacher/') !== false); ?>;
+    return isInTeacherDir ? '../includes/' + path : 'includes/' + path;
+}
+
 // Pfad-Konfiguration direkt aus PHP
 window.mcqPaths = {
     isInTeacherDir: <?php echo json_encode(strpos($_SERVER['REQUEST_URI'], '/teacher/') !== false); ?>,

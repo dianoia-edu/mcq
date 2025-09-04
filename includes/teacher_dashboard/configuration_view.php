@@ -217,12 +217,20 @@ $(document).ready(function() {
     loadGradeSchemas();
     loadConfig();
 
-    // Helper-Funktion: Erstelle Pfad für includes-Dateien
+    // Helper-Funktionen: Erstelle Pfade für includes und teacher-Dateien
     function getIncludesUrl(path) {
         if (window.mcqPaths && window.mcqPaths.isInTeacherDir) {
             return '../includes/' + path;
         } else {
             return 'includes/' + path;
+        }
+    }
+    
+    function getTeacherUrl(filename) {
+        if (window.mcqPaths && window.mcqPaths.isInTeacherDir) {
+            return filename;
+        } else {
+            return 'teacher/' + filename;
         }
     }
 

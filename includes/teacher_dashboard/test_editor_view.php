@@ -267,12 +267,16 @@
                         </thead>
                         <tbody id="availableTestsList">
                             <?php
-                            // Sortiere Tests nach Erstellungsdatum absteigend
-                            usort($tests, function($a, $b) {
-                                $timeA = filemtime($a['file']);
-                                $timeB = filemtime($b['file']);
-                                return $timeB - $timeA;
-                            });
+                            // Sortiere Tests nach Erstellungsdatum absteigend (falls Tests vorhanden)
+                            if (is_array($tests) && !empty($tests)) {
+                                usort($tests, function($a, $b) {
+                                    $timeA = filemtime($a['file']);
+                                    $timeB = filemtime($b['file']);
+                                    return $timeB - $timeA;
+                                });
+                            } else {
+                                $tests = []; // Sicherstellen dass $tests ein Array ist
+                            }
                             
                             foreach ($tests as $test): 
                                 $createdAt = date("d.m.Y H:i", filemtime($test['file']));
