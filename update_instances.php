@@ -47,7 +47,7 @@ function performAjaxUpdate() {
         'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
         'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API (korrigierte Pfade + Admin-Codes)',
         'includes/openai_models.php' => 'OpenAI Models Management',
-        'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)',
+        // WARNUNG: database_config.php NICHT updaten - jede Instanz hat instanz-spezifische DB-Daten!
         'robust_instance_index.php' => 'Robuste Index-Datei mit Hauptsystem-Design + QR-Code',
         'config/clean_schema.sql' => 'Sauberes DB-Schema ohne Testergebnisse'
     ];
@@ -179,8 +179,8 @@ $filesToUpdate = [
     'includes/teacher_dashboard/config_view.php' => 'Config View',
     'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
     'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API',
-    'includes/openai_models.php' => 'OpenAI Models Management',
-    'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
+    'includes/openai_models.php' => 'OpenAI Models Management'
+    // WARNUNG: database_config.php NICHT updaten - jede Instanz hat instanz-spezifische DB-Daten!
 ];
 
 // Finde alle Instanzen
