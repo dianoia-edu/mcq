@@ -1,0 +1,213 @@
+<?php
+/**
+ * Update-Script für bestehende Lehrerinstanzen
+ * Kopiert korrigierte Dateien in alle Instanzen
+ */
+
+// Sicherheitscheck
+if (!isset($_GET['admin_key']) || $_GET['admin_key'] !== 'update_instances_2024') {
+    die('Zugriff verweigert. Admin-Schlüssel erforderlich.');
+}
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+?>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instanzen-Update</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .file-list { background: #f8f9fa; padding: 10px; border-radius: 3px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔄 Instanzen-Update für MCQ Test System</h1>
+    
+    <?php
+    // Konfiguration
+    $instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
+    $sourceBasePath = __DIR__;
+    
+    // Dateien die aktualisiert werden sollen
+    $filesToUpdate = [
+        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
+        'teacher/generate_test.php' => 'Test Generator (korrigierte Debug-Behandlung)',
+        'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
+        'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View',
+        'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
+        'includes/teacher_dashboard/configuration_view.php' => 'Configuration View',
+        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
+        'includes/teacher_dashboard/config_view.php' => 'Config View',
+        'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
+    ];
+    
+    echo '<div class="info">';
+    echo '<h2>📋 Update-Informationen</h2>';
+    echo '<p><strong>Quell-Verzeichnis:</strong> ' . $sourceBasePath . '</p>';
+    echo '<p><strong>Instanzen-Verzeichnis:</strong> ' . $instancesBasePath . '</p>';
+    echo '<p><strong>Zu aktualisierende Dateien:</strong></p>';
+    echo '<div class="file-list">';
+    foreach ($filesToUpdate as $file => $description) {
+        $sourceFile = $sourceBasePath . '/' . $file;
+        $exists = file_exists($sourceFile);
+        echo '<p><strong>' . $file . ':</strong> ' . $description . ' ';
+        echo '<span style="color: ' . ($exists ? 'green' : 'red') . '">';
+        echo $exists ? '✅' : '❌ FEHLT';
+        echo '</span></p>';
+    }
+    echo '</div>';
+    echo '</div>';
+    
+    // Prüfe ob Instanzen-Verzeichnis existiert
+    if (!is_dir($instancesBasePath)) {
+        echo '<div class="error">❌ Instanzen-Verzeichnis nicht gefunden: ' . $instancesBasePath . '</div>';
+        exit;
+    }
+    
+    // Finde alle Instanzen
+    $instances = [];
+    $dirs = scandir($instancesBasePath);
+    foreach ($dirs as $dir) {
+        if ($dir === '.' || $dir === '..') continue;
+        $instancePath = $instancesBasePath . $dir;
+        if (is_dir($instancePath) && is_dir($instancePath . '/mcq-test-system')) {
+            $instances[] = $dir;
+        }
+    }
+    
+    echo '<div class="info">';
+    echo '<h2>🏢 Gefundene Instanzen</h2>';
+    if (empty($instances)) {
+        echo '<p>Keine Instanzen gefunden.</p>';
+    } else {
+        echo '<ul>';
+        foreach ($instances as $instance) {
+            echo '<li>' . htmlspecialchars($instance) . '</li>';
+        }
+        echo '</ul>';
+    }
+    echo '</div>';
+    
+    // Update durchführen
+    if (!empty($instances)) {
+        echo '<div class="status info">';
+        echo '<h2>🚀 Starte Update...</h2>';
+        echo '</div>';
+        
+        $totalUpdated = 0;
+        $totalErrors = 0;
+        
+        foreach ($instances as $instance) {
+            echo '<h3>📁 Aktualisiere Instanz: ' . htmlspecialchars($instance) . '</h3>';
+            
+            $instanceBasePath = $instancesBasePath . $instance . '/mcq-test-system/';
+            $instanceErrors = 0;
+            $instanceUpdated = 0;
+            
+            foreach ($filesToUpdate as $file => $description) {
+                $sourceFile = $sourceBasePath . '/' . $file;
+                $targetFile = $instanceBasePath . $file;
+                $targetDir = dirname($targetFile);
+                
+                echo '<p><strong>' . $file . ':</strong> ';
+                
+                if (!file_exists($sourceFile)) {
+                    echo '<span style="color: red;">❌ Quelldatei fehlt</span></p>';
+                    $instanceErrors++;
+                    continue;
+                }
+                
+                // Erstelle Zielverzeichnis falls nötig
+                if (!is_dir($targetDir)) {
+                    if (!mkdir($targetDir, 0755, true)) {
+                        echo '<span style="color: red;">❌ Konnte Verzeichnis nicht erstellen</span></p>';
+                        $instanceErrors++;
+                        continue;
+                    }
+                }
+                
+                // Backup der alten Datei erstellen
+                if (file_exists($targetFile)) {
+                    $backupFile = $targetFile . '.backup.' . date('Y-m-d_H-i-s');
+                    copy($targetFile, $backupFile);
+                }
+                
+                // Datei kopieren
+                if (copy($sourceFile, $targetFile)) {
+                    echo '<span style="color: green;">✅ Aktualisiert</span>';
+                    $instanceUpdated++;
+                } else {
+                    echo '<span style="color: red;">❌ Kopieren fehlgeschlagen</span>';
+                    $instanceErrors++;
+                }
+                echo '</p>';
+            }
+            
+            $totalUpdated += $instanceUpdated;
+            $totalErrors += $instanceErrors;
+            
+            echo '<div class="status ' . ($instanceErrors === 0 ? 'success' : 'warning') . '">';
+            echo '<strong>Instanz ' . htmlspecialchars($instance) . ':</strong> ';
+            echo $instanceUpdated . ' Dateien aktualisiert, ' . $instanceErrors . ' Fehler';
+            echo '</div>';
+        }
+        
+        // Zusammenfassung
+        echo '<div class="status ' . ($totalErrors === 0 ? 'success' : 'warning') . '">';
+        echo '<h2>📊 Update-Zusammenfassung</h2>';
+        echo '<p><strong>Instanzen verarbeitet:</strong> ' . count($instances) . '</p>';
+        echo '<p><strong>Dateien aktualisiert:</strong> ' . $totalUpdated . '</p>';
+        echo '<p><strong>Fehler:</strong> ' . $totalErrors . '</p>';
+        
+        if ($totalErrors === 0) {
+            echo '<p style="color: green; font-weight: bold;">✅ Alle Instanzen erfolgreich aktualisiert!</p>';
+        } else {
+            echo '<p style="color: orange; font-weight: bold;">⚠️ Update mit Fehlern abgeschlossen.</p>';
+        }
+        echo '</div>';
+        
+        // Nächste Schritte
+        echo '<div class="info">';
+        echo '<h2>📋 Nächste Schritte</h2>';
+        echo '<ol>';
+        echo '<li>Testen Sie jede Instanz im Browser</li>';
+        echo '<li>Prüfen Sie den Test-Generator in jeder Instanz</li>';
+        echo '<li>Falls Probleme auftreten, prüfen Sie die Backup-Dateien (.backup.*)</li>';
+        echo '<li>Löschen Sie alte Backup-Dateien nach erfolgreichem Test</li>';
+        echo '</ol>';
+        echo '</div>';
+    }
+    
+    echo '<div class="info">';
+    echo '<h2>🔧 Manuelle Schritte</h2>';
+    echo '<p>Falls das automatische Update nicht funktioniert, können Sie die Dateien manuell kopieren:</p>';
+    echo '<pre>';
+    echo 'Quellverzeichnis: ' . $sourceBasePath . "\n";
+    echo 'Zielverzeichnis: ' . $instancesBasePath . '[INSTANZ-NAME]/mcq-test-system/';
+    echo '</pre>';
+    echo '</div>';
+    
+    ?>
+    
+    <div class="info">
+        <h2>🔗 Test-Links</h2>
+        <p>Testen Sie nach dem Update:</p>
+        <?php foreach ($instances as $instance): ?>
+        <p><a href="/lehrer_instanzen/<?php echo urlencode($instance); ?>/mcq-test-system/teacher/teacher_dashboard.php" target="_blank">
+            🧪 Test Instanz: <?php echo htmlspecialchars($instance); ?>
+        </a></p>
+        <?php endforeach; ?>
+    </div>
+    
+</body>
+</html>
