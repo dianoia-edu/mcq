@@ -17,19 +17,37 @@ try {
     require_once __DIR__ . '/../config_loader.php';
     $config = loadConfig();
     
-    // Pfad zu den Instanzen
-    $instancesBasePath = dirname(__DIR__, 2) . '/lehrer_instanzen/';
+    // Pfad zu den Instanzen - verschiedene Varianten prüfen
+    $possiblePaths = [
+        dirname(__DIR__, 2) . '/lehrer_instanzen/',  // Standard
+        dirname($_SERVER['DOCUMENT_ROOT']) . '/lehrer_instanzen/', // Webserver
+        '/var/www/lehrer_instanzen/', // Direkter Server-Pfad
+        '/var/www/dianoia-ai.de/lehrer_instanzen/' // Vollständiger Pfad
+    ];
     
-    $instances = [];
+    $instancesBasePath = null;
+    foreach ($possiblePaths as $path) {
+        if (is_dir($path)) {
+            $instancesBasePath = $path;
+            break;
+        }
+    }
     
-    if (!is_dir($instancesBasePath)) {
+    if (!$instancesBasePath) {
         echo json_encode([
-            'success' => true,
-            'instances' => [],
-            'message' => 'Instanzen-Verzeichnis existiert noch nicht'
+            'success' => false,
+            'error' => 'Instanzen-Verzeichnis nicht gefunden',
+            'debug' => [
+                'checked_paths' => $possiblePaths,
+                'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'undefined',
+                'script_path' => __FILE__,
+                'working_dir' => getcwd()
+            ]
         ]);
         exit;
     }
+    
+    $instances = [];
     
     // Alle Verzeichnisse durchsuchen
     $dirs = scandir($instancesBasePath);

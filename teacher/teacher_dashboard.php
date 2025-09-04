@@ -310,7 +310,16 @@ echo "-->\n";
 
             // Event-Listener für Tab-Änderung
             document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
+                tab.addEventListener('click', function(e) {
+                    // Nur reagieren wenn es ein direkter Tab-Click ist
+                    if (e.target !== this) {
+                        return;
+                    }
+                    
+                    // Verhindere weitere Event-Propagation
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     const targetId = this.id.replace('tab-', '');
                     console.log('Tab wurde geklickt:', targetId);
                     
@@ -410,6 +419,7 @@ echo "-->\n";
             // AJAX für Instanzerstellung
             $('#createInstanceForm').on('submit', function(e) {
                 e.preventDefault();
+                e.stopPropagation(); // Verhindere Event-Bubbling
                 const instanceName = $('#instanceName').val();
                 const adminAccessCode = $('#adminAccessCode').val();
                 const resultDiv = $('#instanceCreationResult');
