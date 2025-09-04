@@ -1,0 +1,1 @@
+Anleitung zur Einrichtung des PHP-Servers.

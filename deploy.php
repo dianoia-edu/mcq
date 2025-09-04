@@ -33,10 +33,11 @@ try {
     
     // 2. Initialisiere Datenbank
     deployLog("Initialisiere Datenbank...");
-    require_once __DIR__ . '/includes/init_database.php';
+    require_once __DIR__ . '/includes/database_config.php';
     
-    $initializer = new DatabaseInitializer();
-    $initializer->initializeTables();
+    $dbConfig = DatabaseConfig::getInstance();
+    $dbConfig->createDatabase();
+    $dbConfig->initializeTables();
     deployLog("Datenbank-Initialisierung abgeschlossen");
     
     // 3. Synchronisiere Datenbank mit XML-Dateien
