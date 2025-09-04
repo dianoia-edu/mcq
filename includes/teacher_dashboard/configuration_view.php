@@ -264,9 +264,13 @@ $(document).ready(function() {
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Update läuft...');
         result.html('<div class="alert alert-info">Instanzen-Update wird durchgeführt...</div>');
         
-        // AJAX-Request für Update
+        // AJAX-Request für Update (Pfad relativ zum Hauptverzeichnis)
+        const updateUrl = window.mcqPaths && window.mcqPaths.isInTeacherDir 
+            ? '../update_instances.php?admin_key=update_instances_2024&ajax=true'
+            : 'update_instances.php?admin_key=update_instances_2024&ajax=true';
+        
         $.ajax({
-            url: 'update_instances.php?admin_key=update_instances_2024&ajax=true',
+            url: updateUrl,
             method: 'GET',
             dataType: 'json',
             timeout: 120000, // 2 Minuten Timeout
