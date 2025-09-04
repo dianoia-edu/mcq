@@ -860,7 +860,7 @@ foreach ($testFiles as $testFile) {
             button.prop('disabled', true).html('<i class="bi bi-arrow-clockwise spinner-border spinner-border-sm me-2"></i>Aktualisiere...');
             
             $.ajax({
-                url: 'update_instances.php?admin_key=update_instances_2024&ajax=true',
+                url: (<?php echo $isInTeacherDir ? "'../update_instances.php'" : "'update_instances.php'"; ?>) + '?admin_key=update_instances_2024&ajax=true',
                 method: 'GET',
                 dataType: 'json',
                 success: function(response) {
