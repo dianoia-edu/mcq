@@ -33,7 +33,8 @@ function performAjaxUpdate() {
     
     // Dateien die aktualisiert werden sollen
     $filesToUpdate = [
-        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
+        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (Instanzverwaltung mit Details & Löschen)',
+        'teacher/delete_instance.php' => 'Instanz-Lösch-Script',
         'teacher/generate_test.php' => 'Test Generator (dynamische Modell-Auswahl)',
         'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
         'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (Modell-Auswahl)',

@@ -246,6 +246,30 @@ $isInTeacherDir = basename(dirname(__FILE__)) === 'teacher';
         </div>
     </div>
 
+    <!-- Instance Detail Modal -->
+    <div class="modal fade" id="instanceDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Instanz-Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="instanceDetailContent">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Lädt...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Test Preview Modal -->
     <div class="modal fade" id="testPreviewModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
@@ -409,9 +433,14 @@ $isInTeacherDir = basename(dirname(__FILE__)) === 'teacher';
                                     Letzte Aktivität: ${instance.last_activity !== 'Unbekannt' ? formatDateTime(instance.last_activity) : 'Unbekannt'}
                                 </small>
                                 <div class="mt-2">
-                                    <button class="btn btn-sm btn-outline-info" onclick="showInstanceDetails('${instance.name}')">
-                                        <i class="bi bi-info-circle me-1"></i>Details
-                                    </button>
+                                    <div class="btn-group btn-group-sm w-100" role="group">
+                                        <button class="btn btn-outline-info" onclick="showInstanceDetails('${instance.name}')">
+                                            <i class="bi bi-info-circle me-1"></i>Details
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="deleteInstance('${instance.name}')" title="Instanz l\u00f6schen">
+                                            <i class="bi bi-trash me-1"></i>L\u00f6schen
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -470,7 +499,143 @@ $isInTeacherDir = basename(dirname(__FILE__)) === 'teacher';
         }
         
         function showInstanceDetails(instanceName) {
-            alert(`Detailansicht für Instanz "${instanceName}" wird in einer zukünftigen Version verfügbar sein.`);
+            // Zeige Detail-Modal mit erweiterten Informationen
+            const modal = new bootstrap.Modal(document.getElementById('instanceDetailModal'));
+            
+            // Lade Details über AJAX
+            $.ajax({
+                url: getIncludesUrl('teacher_dashboard/get_instances.php'),
+                method: 'GET',
+                data: { instance: instanceName, details: 1 },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.instance) {
+                        displayInstanceDetails(response.instance);
+                        modal.show();
+                    } else {
+                        alert('Fehler beim Laden der Instanz-Details: ' + (response.error || 'Unbekannt'));
+                    }
+                },
+                error: function() {
+                    alert('Fehler beim Laden der Instanz-Details.');
+                }
+            });
+        }
+        
+        function displayInstanceDetails(instance) {
+            const content = document.getElementById('instanceDetailContent');
+            
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Grundinformationen</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Name:</strong></td><td>${instance.display_name}</td></tr>
+                            <tr><td><strong>Verzeichnis:</strong></td><td><code>${instance.name}</code></td></tr>
+                            <tr><td><strong>Status:</strong></td><td>${getStatusBadge(instance.status)} ${getStatusIcon(instance.status)}</td></tr>
+                            <tr><td><strong>Admin-Code:</strong></td><td><code>${instance.admin_code}</code></td></tr>
+                            <tr><td><strong>Datenbank:</strong></td><td><code>${instance.database}</code></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Aktivität & Statistiken</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Erstellt:</strong></td><td>${formatDateTime(instance.created_at)}</td></tr>
+                            <tr><td><strong>Letzte Aktivität:</strong></td><td>${instance.last_activity !== 'Unbekannt' ? formatDateTime(instance.last_activity) : 'Unbekannt'}</td></tr>
+                            <tr><td><strong>Tests:</strong></td><td>${instance.test_count}</td></tr>
+                            <tr><td><strong>Ergebnisse:</strong></td><td>${instance.result_count}</td></tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>System-Status</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card ${instance.files_ok ? 'border-success' : 'border-danger'}">
+                                    <div class="card-body text-center">
+                                        <i class="bi ${instance.files_ok ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'} fs-3"></i>
+                                        <h6 class="card-title mt-2">Dateien</h6>
+                                        <p class="card-text">${instance.files_ok ? 'Alle wichtigen Dateien vorhanden' : 'Fehlende Dateien erkannt'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card ${instance.database_ok ? 'border-success' : 'border-warning'}">
+                                    <div class="card-body text-center">
+                                        <i class="bi ${instance.database_ok ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-warning'} fs-3"></i>
+                                        <h6 class="card-title mt-2">Datenbank</h6>
+                                        <p class="card-text">${instance.database_ok ? 'Datenbank verfügbar' : 'Datenbank nicht erreichbar'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Schnellzugriff</h6>
+                        <div class="btn-group w-100" role="group">
+                            <a href="${instance.url}" target="_blank" class="btn btn-outline-primary">
+                                <i class="bi bi-house-door me-1"></i>Homepage öffnen
+                            </a>
+                            <a href="${instance.admin_url}" target="_blank" class="btn btn-outline-success">
+                                <i class="bi bi-gear me-1"></i>Admin-Dashboard öffnen
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="copyToClipboard('modal_admin_code')">
+                                <i class="bi bi-clipboard me-1"></i>Admin-Code kopieren
+                            </button>
+                        </div>
+                        <input type="hidden" id="modal_admin_code" value="${instance.admin_code}">
+                    </div>
+                </div>
+            `;
+        }
+        
+        function deleteInstance(instanceName) {
+            if (!confirm(`Sind Sie sicher, dass Sie die Instanz "${instanceName}" unwiderruflich löschen möchten?\n\nDies wird folgendes entfernen:\n- Alle Dateien der Instanz\n- Die zugehörige Datenbank\n- Alle Test-Ergebnisse\n\nDieser Vorgang kann NICHT rückgängig gemacht werden!`)) {
+                return;
+            }
+            
+            // Zweite Bestätigung
+            const confirmText = prompt('Bitte geben Sie "LÖSCHEN" ein, um zu bestätigen:');
+            if (confirmText !== 'LÖSCHEN') {
+                alert('Löschvorgang abgebrochen.');
+                return;
+            }
+            
+            // Zeige Lade-Indikator
+            const button = event.target.closest('button');
+            const originalHtml = button.innerHTML;
+            button.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+            button.disabled = true;
+            
+            $.ajax({
+                url: getTeacherUrl('delete_instance.php'),
+                method: 'POST',
+                data: { 
+                    instance_name: instanceName,
+                    confirm: 'LÖSCHEN'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Instanz "' + instanceName + '" wurde erfolgreich gelöscht.');
+                        loadInstanceList(); // Liste neu laden
+                    } else {
+                        alert('Fehler beim Löschen: ' + (response.error || 'Unbekannter Fehler'));
+                        button.innerHTML = originalHtml;
+                        button.disabled = false;
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Kommunikationsfehler beim Löschen: ' + error);
+                    button.innerHTML = originalHtml;
+                    button.disabled = false;
+                }
+            });
         }
         
         // Helper für Pfad-Auflösung
