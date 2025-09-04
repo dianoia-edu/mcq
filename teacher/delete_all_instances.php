@@ -12,19 +12,44 @@ if (!isset($_SESSION["teacher"]) || $_SESSION["teacher"] !== true) {
 header('Content-Type: application/json');
 
 // Lade die Datenbankkonfiguration der Hauptinstanz
-$main_db_config_path = dirname(__DIR__) . '/includes/database_config.php';
+$possibleConfigPaths = [
+    dirname(__DIR__) . '/includes/database_config.php',
+    __DIR__ . '/../includes/database_config.php',
+    dirname(dirname(__DIR__)) . '/mcq-test-system/includes/database_config.php'
+];
 
-if (file_exists($main_db_config_path)) {
-    require_once $main_db_config_path;
-} else {
-    echo json_encode(['success' => false, 'message' => 'Fehler: Haupt-Datenbankkonfigurationsdatei nicht gefunden.']);
+$configLoaded = false;
+foreach ($possibleConfigPaths as $configPath) {
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        $configLoaded = true;
+        break;
+    }
+}
+
+if (!$configLoaded) {
+    echo json_encode(['success' => false, 'message' => 'Fehler: Haupt-Datenbankkonfigurationsdatei nicht gefunden in: ' . implode(', ', $possibleConfigPaths)]);
     exit;
 }
 
 // Überprüfe, ob die notwendigen DB-Konstanten geladen wurden
 if (!defined('DB_HOST') || !defined('DB_USER') || !defined('DB_PASS')) {
-    echo json_encode(['success' => false, 'message' => 'Fehler: DB_HOST, DB_USER oder DB_PASS nicht in der Haupt-Konfigurationsdatei definiert.']);
-    exit;
+    // Versuche DatabaseConfig-Klasse zu verwenden
+    if (class_exists('DatabaseConfig')) {
+        try {
+            $dbConfig = DatabaseConfig::getInstance();
+            // Definiere Fallback-Konstanten
+            if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+            if (!defined('DB_USER')) define('DB_USER', 'root');
+            if (!defined('DB_PASS')) define('DB_PASS', '');
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Fehler bei DatabaseConfig: ' . $e->getMessage()]);
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Fehler: DB_HOST, DB_USER oder DB_PASS nicht definiert und DatabaseConfig nicht verfügbar.']);
+        exit;
+    }
 }
 
 // Pfad-Konfiguration

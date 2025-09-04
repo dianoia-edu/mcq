@@ -911,7 +911,7 @@ foreach ($testFiles as $testFile) {
             button.prop('disabled', true).html('<i class="bi bi-trash3 spinner-border spinner-border-sm me-2"></i>Lösche...');
             
             $.ajax({
-                url: getTeacherUrl('delete_all_instances.php'),
+                url: (<?php echo $isInTeacherDir ? "'../delete_all_instances_simple.php'" : "'delete_all_instances_simple.php'"; ?>),
                 method: 'POST',
                 data: { confirmation: 'DELETE_ALL_INSTANCES' },
                 dataType: 'json',
