@@ -20,40 +20,39 @@ ini_set('display_errors', 1);
 // AJAX-Modus prüfen
 $isAjax = isset($_GET['ajax']) && $_GET['ajax'] === 'true';
 
-// Für AJAX-Anfragen direkt die Verarbeitung starten
-if ($isAjax) {
-    // Konfiguration für AJAX
-    $instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
-    $sourceBasePath = __DIR__;
-    
-    // Dateien die aktualisiert werden sollen
-    $filesToUpdate = [
-        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
-        'teacher/generate_test.php' => 'Test Generator (korrigierte Debug-Behandlung)',
-        'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
-        'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View',
-        'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
-        'includes/teacher_dashboard/configuration_view.php' => 'Configuration View',
-        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
-        'includes/teacher_dashboard/config_view.php' => 'Config View',
-        'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
-    ];
-    
-    // Finde alle Instanzen
-    $instances = [];
-    if (is_dir($instancesBasePath)) {
-        $dirs = scandir($instancesBasePath);
-        foreach ($dirs as $dir) {
-            if ($dir === '.' || $dir === '..') continue;
-            $instancePath = $instancesBasePath . $dir;
-            if (is_dir($instancePath) && is_dir($instancePath . '/mcq-test-system')) {
-                $instances[] = $dir;
-            }
+// Für AJAX-Anfragen: Springe direkt zur Verarbeitung, kein HTML-Output
+
+// Gemeinsame Konfiguration für beide Modi
+$instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
+$sourceBasePath = __DIR__;
+
+// Dateien die aktualisiert werden sollen
+$filesToUpdate = [
+    'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
+    'teacher/generate_test.php' => 'Test Generator (korrigierte Debug-Behandlung)',
+    'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
+    'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View',
+    'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
+    'includes/teacher_dashboard/configuration_view.php' => 'Configuration View',
+    'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
+    'includes/teacher_dashboard/config_view.php' => 'Config View',
+    'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
+];
+
+// Finde alle Instanzen
+$instances = [];
+if (is_dir($instancesBasePath)) {
+    $dirs = scandir($instancesBasePath);
+    foreach ($dirs as $dir) {
+        if ($dir === '.' || $dir === '..') continue;
+        $instancePath = $instancesBasePath . $dir;
+        if (is_dir($instancePath) && is_dir($instancePath . '/mcq-test-system')) {
+            $instances[] = $dir;
         }
     }
-    
-    // Update durchführen (wird weiter unten verarbeitet)
-} else {
+}
+
+if (!$isAjax) {
     // HTML-Ausgabe für normale Ansicht
 ?>
 <!DOCTYPE html>
@@ -77,22 +76,6 @@ if ($isAjax) {
     <h1>🔄 Instanzen-Update für MCQ Test System</h1>
     
     <?php
-    // Konfiguration nur für HTML-Ansicht
-    $instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
-    $sourceBasePath = __DIR__;
-    
-    // Dateien die aktualisiert werden sollen
-    $filesToUpdate = [
-        'teacher/teacher_dashboard.php' => 'Teacher Dashboard (korrigierte Tab-Funktion)',
-        'teacher/generate_test.php' => 'Test Generator (korrigierte Debug-Behandlung)',
-        'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade)',
-        'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View',
-        'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View',
-        'includes/teacher_dashboard/configuration_view.php' => 'Configuration View',
-        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View',
-        'includes/teacher_dashboard/config_view.php' => 'Config View',
-        'includes/database_config.php' => 'Database Config (korrigierte Tabellenerstellung)'
-    ];
     
     echo '<div class="info">';
     echo '<h2>📋 Update-Informationen</h2>';
@@ -115,17 +98,6 @@ if ($isAjax) {
     if (!is_dir($instancesBasePath)) {
         echo '<div class="error">❌ Instanzen-Verzeichnis nicht gefunden: ' . $instancesBasePath . '</div>';
         exit;
-    }
-    
-    // Finde alle Instanzen
-    $instances = [];
-    $dirs = scandir($instancesBasePath);
-    foreach ($dirs as $dir) {
-        if ($dir === '.' || $dir === '..') continue;
-        $instancePath = $instancesBasePath . $dir;
-        if (is_dir($instancePath) && is_dir($instancePath . '/mcq-test-system')) {
-            $instances[] = $dir;
-        }
     }
     
     echo '<div class="info">';
