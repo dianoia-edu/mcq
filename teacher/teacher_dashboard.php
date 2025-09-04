@@ -27,25 +27,47 @@ function getIncludesPath($relativePath) {
     }
 }
 
+// Ermittle Base-Pfad basierend auf aktueller Position
+$currentDir = dirname(__FILE__);
+$isInTeacherDir = basename($currentDir) === 'teacher';
+
+if ($isInTeacherDir) {
+    // Hauptinstanz: Verzeichnisse eine Ebene höher erstellen
+    $baseDir = dirname($currentDir);
+} else {
+    // Instanz: Verzeichnisse im aktuellen Verzeichnis erstellen  
+    $baseDir = $currentDir;
+}
+
+error_log("Directory creation: currentDir=$currentDir, isInTeacherDir=" . ($isInTeacherDir ? 'true' : 'false') . ", baseDir=$baseDir");
+
 // Erstelle erforderliche Verzeichnisse
 $directories = [
-    dirname(__DIR__) . '/includes',
-    dirname(__DIR__) . '/teacher',
-    dirname(__DIR__) . '/tests',
-    dirname(__DIR__) . '/results',
-    dirname(__DIR__) . '/qrcodes'
+    $baseDir . '/includes',
+    $baseDir . '/teacher', 
+    $baseDir . '/tests',
+    $baseDir . '/results',
+    $baseDir . '/qrcodes'
 ];
 
 foreach ($directories as $dir) {
     if (!is_dir($dir)) {
-        mkdir($dir, 0777, true);
+        if (mkdir($dir, 0777, true)) {
+            error_log("Created directory: $dir");
+        } else {
+            error_log("Failed to create directory: $dir");
+        }
+    } else {
+        error_log("Directory already exists: $dir");
     }
 }
 
 // Lade vorhandene Tests
 $tests = [];
 $selectedTest = null;
-$testFiles = glob(dirname(__DIR__) . '/tests/*.xml');
+$testFiles = glob($baseDir . '/tests/*.xml');
+
+error_log("Loading tests from: " . $baseDir . '/tests/*.xml - Found: ' . count($testFiles) . ' files');
 
 // Wenn ein Test ausgewählt wurde
 if (isset($_GET['test']) && !empty($_GET['test'])) {
@@ -78,8 +100,7 @@ foreach ($testFiles as $testFile) {
     }
 }
 
-// Bestimme ob Tab-Funktionen verfügbar sein sollen basierend auf der Umgebung
-$isInTeacherDir = basename(dirname(__FILE__)) === 'teacher';
+// $isInTeacherDir wurde bereits oben definiert
 ?>
 <!DOCTYPE html>
 <html lang="de">

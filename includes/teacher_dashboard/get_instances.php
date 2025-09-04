@@ -190,8 +190,9 @@ function getInstanceInfo($instanceName, $instancePath, $mcqPath) {
     // 2. Admin-Code aus Konfiguration lesen
     // Lade Admin-Zugangscode - verschiedene mögliche Pfade prüfen
     $possibleConfigFiles = [
+        $mcqPath . '/config/app_config.json',  // HAUPTPFAD - hier sind sie gespeichert!
         $mcqPath . '/includes/config/api_config.json',
-        $mcqPath . '/includes/config/app_config.php',
+        $mcqPath . '/includes/config/app_config.php', 
         $mcqPath . '/config/api_config.json',
         $instancePath . '/config/api_config.json'
     ];
