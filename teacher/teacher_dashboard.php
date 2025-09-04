@@ -16,11 +16,14 @@ function getIncludesPath($relativePath) {
     
     // Prüfe, ob wir im teacher-Verzeichnis sind (Hauptinstanz)
     if ($currentBasename === 'teacher') {
+        // Hauptinstanz: /xampp/htdocs/mcq-test-system/teacher -> /xampp/htdocs/mcq-test-system/includes
         $path = dirname($currentDir) . '/includes/' . $relativePath;
         error_log("getIncludesPath: Hauptinstanz-Pfad: $path");
         return $path;
     } else {
-        // Wir sind in einer Instanz im Hauptverzeichnis
+        // Instanz: Dashboard liegt in /lehrer_instanzen/instanzX/mcq-test-system/teacher
+        // aber currentDir ist /lehrer_instanzen/instanzX/mcq-test-system, da das Dashboard im Root liegt
+        // Korrigiere: Wenn wir das teacher_dashboard.php direkt im Root haben
         $path = $currentDir . '/includes/' . $relativePath;
         error_log("getIncludesPath: Instanz-Pfad: $path");
         return $path;
