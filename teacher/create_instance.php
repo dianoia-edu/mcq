@@ -31,9 +31,15 @@ if (!defined('DB_HOST') || !defined('DB_USER') || !defined('DB_PASS')) {
 // Pfad-Konfiguration
 // Annahme: Das Verzeichnis 'lehrer_instanzen' soll auf derselben Ebene wie 'mcq-test-system' liegen.
 // z.B. /xampp/htdocs/mcq-test-system UND /xampp/htdocs/lehrer_instanzen
-$base_lehrer_instances_path = dirname(dirname(__DIR__)) . '/lehrer_instanzen/';
-// Pfad zur aktuellen Super-Admin MCQ-System-Installation (die als Quelle dient)
-$source_system_path = dirname(dirname(__DIR__)) . '/';
+// Korrigierte Pfad-Berechnung für Live-Server
+// __DIR__ = /var/www/dianoia-ai.de/mcq-test-system/teacher/
+// dirname(__DIR__) = /var/www/dianoia-ai.de/mcq-test-system/  ← DAS ist unser MCQ-System!
+// dirname(dirname(__DIR__)) = /var/www/dianoia-ai.de/
+$mcq_system_root = dirname(__DIR__);  // /var/www/dianoia-ai.de/mcq-test-system/
+$server_root = dirname($mcq_system_root);  // /var/www/dianoia-ai.de/
+$base_lehrer_instances_path = $server_root . '/lehrer_instanzen/';
+// WICHTIG: Wir kopieren das MCQ-System selbst, nicht den Server-Root!
+$source_system_path = $mcq_system_root . '/';
 
 $config_create_instance = [
     'base_lehrer_instances_path' => $base_lehrer_instances_path,
@@ -179,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $target_dir = rtrim($config_create_instance['base_lehrer_instances_path'], '/') . '/' . $instance_name;
+    $target_dir = rtrim($config_create_instance['base_lehrer_instances_path'], '/') . '/' . $instance_name . '/mcq-test-system';
     $db_name = 'mcq_inst_' . $instance_name; 
     $db_user_new_instance = $config_create_instance['default_new_db_user_prefix'] . $instance_name;
     $db_password_new_instance = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*', ceil(16/62))),1,16) . bin2hex(random_bytes(4));
@@ -218,19 +224,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Schritt 1: Verzeichnisse und Dateien kopieren
     // Bestimme korrekte Basis-Pfade
     $source_base = rtrim($config_create_instance['source_system_path'], '/');
-    $mcq_source_path = $source_base . '/mcq-test-system';
+    // source_base ist jetzt /var/www/dianoia-ai.de/mcq-test-system
     
     // DEBUG: Prüfe Pfade
     error_log("CREATE_INSTANCE DEBUG: source_base = $source_base");
-    error_log("CREATE_INSTANCE DEBUG: mcq_source_path = $mcq_source_path");
-    error_log("CREATE_INSTANCE DEBUG: tests exists = " . (is_dir($mcq_source_path . '/tests') ? 'YES' : 'NO'));
-    error_log("CREATE_INSTANCE DEBUG: results exists = " . (is_dir($mcq_source_path . '/results') ? 'YES' : 'NO'));
+    error_log("CREATE_INSTANCE DEBUG: tests exists = " . (is_dir($source_base . '/tests') ? 'YES' : 'NO'));
+    error_log("CREATE_INSTANCE DEBUG: results exists = " . (is_dir($source_base . '/results') ? 'YES' : 'NO'));
     
     // Ausschlussliste: Welche Ordner/Dateien NICHT kopiert werden sollen
     $exclude_list = [
-        $source_base . '/lehrer_instanzen', // Nicht sich selbst rekursiv kopieren
-        $mcq_source_path . '/tests', // Keine Tests kopieren
-        $mcq_source_path . '/results', // Keine Ergebnisse kopieren
+        $source_base . '/tests', // Keine Tests kopieren (direkt im MCQ-System)
+        $source_base . '/results', // Keine Ergebnisse kopieren (direkt im MCQ-System)
         // Füge hier weitere Pfade hinzu, die nicht mitkopiert werden sollen, z.B. .git, node_modules etc.
         // Wichtig: Pfade müssen absolut sein oder relativ zum $source_system_path
     ];
@@ -307,8 +311,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Nach dem Kopieren: Leere 'tests' und 'results' Ordner erstellen (da sie von der Ausschlussliste nicht kopiert wurden)
-    $tests_dir = $target_dir . '/mcq-test-system/tests';
-    $results_dir = $target_dir . '/mcq-test-system/results';
+    $tests_dir = $target_dir . '/tests';
+    $results_dir = $target_dir . '/results';
     
     // Erstelle die Ordner falls sie nicht existieren
     if (!is_dir($tests_dir)) {
@@ -323,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     @chmod($results_dir, 0777);
 
     // Error-Reporting für die Instanz aktivieren (nur in der Instanz)
-    $instanz_index_php = $target_dir . '/mcq-test-system/index.php';
+    $instanz_index_php = $target_dir . '/index.php';
     if (file_exists($instanz_index_php)) {
         $index_content = file_get_contents($instanz_index_php);
         $error_reporting_code = "\nini_set('display_errors', 1);\nini_set('display_startup_errors', 1);\nerror_reporting(E_ALL);\n";
@@ -376,7 +380,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Schritt 5b: app_config.json für die neue Instanz erstellen/anpassen
-        $config_dir = $target_dir . '/mcq-test-system/config';
+        $config_dir = $target_dir . '/config';
         if (!is_dir($config_dir)) {
             mkdir($config_dir, 0777, true);
         }
