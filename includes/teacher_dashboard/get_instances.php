@@ -4,8 +4,45 @@
  * Liefert alle erstellten Lehrerinstanzen mit Details
  */
 
+// Debug-Parameter prüfen
+$isDebug = isset($_GET['debug']) && $_GET['debug'] == '1';
+$testPaths = isset($_GET['test_paths']) && $_GET['test_paths'] == '1';
+
 header('Content-Type: application/json');
 header('Cache-Control: no-cache, must-revalidate');
+
+// Test-Modus für Pfade
+if ($testPaths) {
+    $paths = [
+        'dirname(__DIR__, 2)' => dirname(__DIR__, 2) . '/lehrer_instanzen/',
+        'dirname($_SERVER[DOCUMENT_ROOT])' => dirname($_SERVER['DOCUMENT_ROOT']) . '/lehrer_instanzen/',
+        '/var/www/lehrer_instanzen/' => '/var/www/lehrer_instanzen/',
+        '/var/www/dianoia-ai.de/lehrer_instanzen/' => '/var/www/dianoia-ai.de/lehrer_instanzen/'
+    ];
+    
+    $result = [
+        'path_test' => true,
+        'server_info' => [
+            'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'undefined',
+            'script_filename' => $_SERVER['SCRIPT_FILENAME'] ?? 'undefined', 
+            'script_path' => __FILE__,
+            'working_dir' => getcwd()
+        ],
+        'paths_tested' => []
+    ];
+    
+    foreach ($paths as $label => $path) {
+        $result['paths_tested'][$label] = [
+            'path' => $path,
+            'exists' => is_dir($path),
+            'readable' => is_dir($path) ? is_readable($path) : false,
+            'contents' => is_dir($path) ? scandir($path) : null
+        ];
+    }
+    
+    echo json_encode($result, JSON_PRETTY_PRINT);
+    exit;
+}
 
 try {
     // Sicherheitscheck für Admin-Zugang
@@ -75,12 +112,32 @@ try {
         return strtotime($b['created_at']) - strtotime($a['created_at']);
     });
     
-    echo json_encode([
+    $response = [
         'success' => true,
         'instances' => $instances,
         'count' => count($instances),
         'instances_path' => $instancesBasePath
-    ]);
+    ];
+    
+    // Debug-Informationen hinzufügen wenn angefordert
+    if ($isDebug) {
+        $response['debug_info'] = [
+            'script_path' => __FILE__,
+            'working_dir' => getcwd(),
+            'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'undefined',
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? 'undefined',
+            'instances_found' => count($instances),
+            'scan_result' => is_dir($instancesBasePath) ? scandir($instancesBasePath) : 'path_not_found',
+            'all_tested_paths' => [
+                dirname(__DIR__, 2) . '/lehrer_instanzen/' => is_dir(dirname(__DIR__, 2) . '/lehrer_instanzen/'),
+                dirname($_SERVER['DOCUMENT_ROOT']) . '/lehrer_instanzen/' => is_dir(dirname($_SERVER['DOCUMENT_ROOT']) . '/lehrer_instanzen/'),
+                '/var/www/lehrer_instanzen/' => is_dir('/var/www/lehrer_instanzen/'),
+                '/var/www/dianoia-ai.de/lehrer_instanzen/' => is_dir('/var/www/dianoia-ai.de/lehrer_instanzen/')
+            ]
+        ];
+    }
+    
+    echo json_encode($response, $isDebug ? JSON_PRETTY_PRINT : 0);
     
 } catch (Exception $e) {
     error_log("Instanzen-Übersicht Fehler: " . $e->getMessage());
