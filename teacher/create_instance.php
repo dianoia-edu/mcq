@@ -88,6 +88,71 @@ function execute_sql($pdo, $sql, $params = []) {
     }
 }
 
+// Hilfsfunktion zum Update einer einzelnen Instanz
+function performInstanceUpdate($instanceName, $instancesBasePath, $sourceBasePath) {
+    $filesToUpdate = [
+        'teacher/teacher_dashboard.php' => 'Teacher Dashboard',
+        'teacher/delete_instance.php' => 'Instanz-Lösch-Script',
+        'teacher/generate_test.php' => 'Test Generator',
+        'teacher/create_instance.php' => 'Instanz-Erstellung',
+        'js/main.js' => 'JavaScript Main',
+        'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (korrigiert)',
+        'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View (korrigiert)',
+        'includes/teacher_dashboard/configuration_view.php' => 'Configuration View (korrigiert)',
+        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View (korrigiert)',
+        'includes/teacher_dashboard/config_view.php' => 'Config View',
+        'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
+        'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API',
+        'includes/openai_models.php' => 'OpenAI Models Management',
+        'includes/database_config.php' => 'Database Config',
+        'robust_instance_index.php' => 'Robuste Index-Datei'
+    ];
+    
+    $instanceBasePath = $instancesBasePath . $instanceName . '/mcq-test-system/';
+    $updated = 0;
+    $errors = 0;
+    
+    foreach ($filesToUpdate as $file => $description) {
+        $sourceFile = $sourceBasePath . '/' . $file;
+        
+        // Spezialbehandlung für robust_instance_index.php -> index.php
+        if ($file === 'robust_instance_index.php') {
+            $targetFile = $instanceBasePath . 'index.php';
+        } else {
+            $targetFile = $instanceBasePath . $file;
+        }
+        
+        $targetDir = dirname($targetFile);
+        
+        if (!file_exists($sourceFile)) {
+            $errors++;
+            continue;
+        }
+        
+        // Erstelle Zielverzeichnis falls nötig
+        if (!is_dir($targetDir)) {
+            if (!mkdir($targetDir, 0755, true)) {
+                $errors++;
+                continue;
+            }
+        }
+        
+        // Datei kopieren
+        if (copy($sourceFile, $targetFile)) {
+            $updated++;
+        } else {
+            $errors++;
+        }
+    }
+    
+    return [
+        'success' => $errors === 0,
+        'message' => "Update: $updated Dateien aktualisiert" . ($errors > 0 ? ", $errors Fehler" : ''),
+        'updated' => $updated,
+        'errors' => $errors
+    ];
+}
+
 if (!is_dir($config_create_instance['base_lehrer_instances_path'])) {
     if (!mkdir($config_create_instance['base_lehrer_instances_path'], 0777, true)) {
         echo json_encode(['success' => false, 'message' => 'Fehler: Basisverzeichnis für Instanzen konnte nicht erstellt werden.']);
@@ -323,6 +388,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Datenbankschema-Datei nicht gefunden: " . $schema_file);
         }
 
+        // Schritt 7: Automatisches Update der neuen Instanz mit aktuellen Dateien
+        $updateSuccess = false;
+        $updateMessage = '';
+        
+        try {
+            // Pfad zum Update-Script
+            $updateScriptPath = dirname(__DIR__) . '/update_instances.php';
+            
+            if (file_exists($updateScriptPath)) {
+                // Führe Update nur für diese neue Instanz durch
+                $updateResult = performInstanceUpdate($instance_name, $config_create_instance['base_lehrer_instances_path'], dirname(__DIR__));
+                $updateSuccess = $updateResult['success'];
+                $updateMessage = $updateResult['message'];
+            } else {
+                $updateMessage = 'Update-Script nicht gefunden';
+            }
+        } catch (Exception $e) {
+            $updateMessage = 'Update-Fehler: ' . $e->getMessage();
+        }
+
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
         $web_path_to_instances = str_replace($_SERVER['DOCUMENT_ROOT'], '', $config_create_instance['base_lehrer_instances_path']);
@@ -331,12 +416,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo json_encode([
             'success' => true,
-            'message' => 'Instanz erfolgreich erstellt!',
+            'message' => 'Instanz erfolgreich erstellt!' . ($updateSuccess ? ' (Dateien aktualisiert)' : ' (Update-Warnung: ' . $updateMessage . ')'),
             'url' => $instance_url,
             'admin_code' => $admin_access_code,
             'db_name' => $db_name,
             'db_user' => $db_user_new_instance,
-            'db_password' => $db_password_new_instance // Zeige das generierte Passwort dem Admin
+            'db_password' => $db_password_new_instance, // Zeige das generierte Passwort dem Admin
+            'update_status' => $updateSuccess,
+            'update_message' => $updateMessage
         ]);
 
     } catch (PDOException $e) {
