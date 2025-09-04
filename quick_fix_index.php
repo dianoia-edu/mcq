@@ -8,7 +8,7 @@ if (!isset($_GET['quick_fix']) || $_GET['quick_fix'] !== 'fix_500_now') {
 }
 
 $instancesBasePath = '/var/www/dianoia-ai.de/lehrer_instanzen/';
-$templatePath = __DIR__ . '/simple_instance_index.php';
+$templatePath = __DIR__ . '/robust_instance_index.php';
 
 $results = ['fixed' => 0, 'errors' => 0, 'details' => []];
 
@@ -80,7 +80,7 @@ if (is_dir($instancesBasePath)) {
     <?php if ($results['fixed'] > 0): ?>
         <div class="success">
             <h3>✅ Reparatur abgeschlossen!</h3>
-            <p>Die index.php Dateien wurden durch eine vereinfachte, fehlerfreie Version ersetzt.</p>
+            <p>Die index.php Dateien wurden durch eine robuste Version ersetzt, die alle wichtigen Features behält.</p>
             <p><strong>Nächster Schritt:</strong> Testen Sie die Homepage-Links in der Instanzverwaltung.</p>
         </div>
     <?php endif; ?>
