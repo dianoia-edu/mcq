@@ -145,7 +145,7 @@ class YouTubeTranscriptExtractor:
                 if response.status_code == 200:
                     html = response.text
                     
-                    # Suche nach Caption-Daten im HTML
+                    # Suche nach Caption-Daten im HTML (funktionierendes Pattern zuerst)
                     patterns = [
                         r'"captions":\{"playerCaptionsTracklistRenderer":\{"captionTracks":\[(.*?)\]',
                         r'"captionTracks":\[(.*?)\]',
@@ -155,14 +155,46 @@ class YouTubeTranscriptExtractor:
                     for pattern in patterns:
                         match = re.search(pattern, html, re.DOTALL)
                         if match:
+                            print(f"  🎯 Pattern gefunden: {len(match.group(1))} Zeichen", file=sys.stderr)
                             caption_data = '[' + match.group(1) + ']'
-                            captions = json.loads(caption_data)
                             
-                            for caption in captions:
-                                if 'baseUrl' in caption:
-                                    transcript_response = self.session.get(caption['baseUrl'])
-                                    if transcript_response.status_code == 200:
-                                        return self.parse_xml_transcript(transcript_response.text)
+                            try:
+                                captions = json.loads(caption_data)
+                                print(f"  📋 JSON geparst: {len(captions)} Tracks", file=sys.stderr)
+                                
+                                for i, caption in enumerate(captions):
+                                    if 'baseUrl' in caption:
+                                        lang = caption.get('languageCode', 'unknown')
+                                        print(f"  🌐 Track {i+1} ({lang}): Versuche BaseURL...", file=sys.stderr)
+                                        
+                                        # Bessere Headers für BaseURL-Request
+                                        headers = {
+                                            'User-Agent': self.session.headers['User-Agent'],
+                                            'Referer': 'https://www.youtube.com/',
+                                            'Accept': 'application/xml,text/xml,*/*',
+                                            'Accept-Language': 'de,en;q=0.9',
+                                            'Origin': 'https://www.youtube.com'
+                                        }
+                                        
+                                        transcript_response = self.session.get(
+                                            caption['baseUrl'], 
+                                            headers=headers,
+                                            timeout=15
+                                        )
+                                        
+                                        print(f"  📊 BaseURL Status: {transcript_response.status_code}, Länge: {len(transcript_response.content)}", file=sys.stderr)
+                                        
+                                        if transcript_response.status_code == 200 and transcript_response.content:
+                                            transcript = self.parse_xml_transcript(transcript_response.text)
+                                            if transcript and len(transcript.strip()) > 50:
+                                                print(f"  ✅ Transcript erfolgreich: {len(transcript)} Zeichen", file=sys.stderr)
+                                                return transcript
+                                        else:
+                                            print(f"  ❌ BaseURL fehlgeschlagen: HTTP {transcript_response.status_code}", file=sys.stderr)
+                                            
+                            except json.JSONDecodeError as e:
+                                print(f"  ❌ JSON-Fehler: {str(e)}", file=sys.stderr)
+                                continue
                     
                     # Alternative: Suche nach JavaScript-Variablen
                     if 'ytInitialPlayerResponse' in html:
