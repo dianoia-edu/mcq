@@ -37,7 +37,22 @@ if (file_exists($pythonScript)) {
         echo "<pre>" . htmlspecialchars($command) . "</pre>\n";
         
         $startTime = microtime(true);
-        $output = shell_exec($command . " 2>&1");
+        // STDERR separat abfangen
+        $descriptorspec = [
+            0 => ['pipe', 'r'],  // stdin
+            1 => ['pipe', 'w'],  // stdout
+            2 => ['pipe', 'w'],  // stderr
+        ];
+        
+        $process = proc_open($command, $descriptorspec, $pipes);
+        $stdout = stream_get_contents($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[0]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($process);
+        
+        $output = $stdout . "\n--- STDERR ---\n" . $stderr;
         $duration = microtime(true) - $startTime;
         
         echo "<p><strong>Dauer:</strong> " . round($duration, 2) . "s</p>\n";

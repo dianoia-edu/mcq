@@ -163,7 +163,8 @@ foreach ($headerVariants as $variantName => $headers) {
                     echo "<p>Header-Kombination '$variantName' funktioniert!</p>\n";
                     echo "<p>Kann jetzt in Python-Script übernommen werden.</p>\n";
                     echo "</div>\n";
-                    break 2; // Stoppe beide Schleifen
+                    echo "<script>document.querySelectorAll('h3').forEach(h => h.style.display = 'none');</script>\n";
+                    break; // Stoppe aktuelle Schleife
                 }
             } else {
                 echo "<div style='background: #fff3e0; padding: 10px;'>⚠️ XML-Parse-Fehler</div>\n";
