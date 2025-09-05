@@ -70,6 +70,8 @@ class YouTubeTranscriptExtractor:
             ('youtube_innertube_api', self.method_innertube_api)
         ]
         
+        errors = {}
+        
         for method_name, method_func in methods:
             try:
                 print(f"🔄 Versuche Methode: {method_name}", file=sys.stderr)
@@ -84,12 +86,18 @@ class YouTubeTranscriptExtractor:
                         'source': method_name,
                         'length': len(cleaned)
                     }
+                else:
+                    error_msg = f"Transcript zu kurz oder leer (Länge: {len(result) if result else 0})"
+                    print(f"⚠️ {method_name}: {error_msg}", file=sys.stderr)
+                    errors[method_name] = error_msg
                     
             except Exception as e:
-                print(f"❌ {method_name} fehlgeschlagen: {str(e)}", file=sys.stderr)
+                error_msg = str(e)
+                print(f"❌ {method_name} fehlgeschlagen: {error_msg}", file=sys.stderr)
+                errors[method_name] = error_msg
                 continue
         
-        return {'success': False, 'error': 'Alle Methoden fehlgeschlagen'}
+        return {'success': False, 'error': 'Alle Methoden fehlgeschlagen', 'details': errors}
     
     def method_direct_api(self, video_id, video_url):
         """Methode 1: Direkte YouTube Caption API"""
@@ -101,13 +109,19 @@ class YouTubeTranscriptExtractor:
                 url = f"https://www.youtube.com/api/timedtext?lang={lang}&v={video_id}&fmt={fmt}"
                 
                 try:
+                    print(f"  🌐 API-URL: {url}", file=sys.stderr)
                     response = self.session.get(url, timeout=10)
+                    print(f"  📊 Status: {response.status_code}, Länge: {len(response.content)}", file=sys.stderr)
+                    
                     if response.status_code == 200 and response.content:
                         if fmt == 'json3':
                             return self.parse_json3_transcript(response.text)
                         else:
                             return self.parse_xml_transcript(response.text)
-                except:
+                    elif response.status_code != 200:
+                        print(f"  ❌ HTTP {response.status_code}: {response.text[:200]}", file=sys.stderr)
+                except Exception as e:
+                    print(f"  ❌ Request-Fehler: {str(e)}", file=sys.stderr)
                     continue
         
         raise Exception("Direkte API liefert keine Captions")
@@ -124,7 +138,10 @@ class YouTubeTranscriptExtractor:
         
         for url in urls:
             try:
+                print(f"  🌐 HTML-URL: {url}", file=sys.stderr)
                 response = self.session.get(url, timeout=15)
+                print(f"  📊 HTML Status: {response.status_code}, Länge: {len(response.content)}", file=sys.stderr)
+                
                 if response.status_code == 200:
                     html = response.text
                     
