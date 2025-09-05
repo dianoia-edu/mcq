@@ -87,7 +87,7 @@ echo "<h2>🧪 YouTube Video testen</h2>\n";
 
 <form method="post">
     <label><strong>YouTube-URL eingeben:</strong></label>
-    <input type="url" name="test_url" value="<?= isset($_POST['test_url']) ? htmlspecialchars($_POST['test_url']) : 'https://www.youtube.com/watch?v=uCGJr448RgI&t=12s' ?>" placeholder="https://www.youtube.com/watch?v=...">
+    <input type="url" name="test_url" value="<?= isset($_POST['test_url']) ? htmlspecialchars($_POST['test_url']) : '' ?>" placeholder="https://www.youtube.com/watch?v=...">
     <button type="submit" name="test_transcript">🚀 Transcript extrahieren</button>
 </form>
 
