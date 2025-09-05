@@ -47,9 +47,37 @@ if (!file_exists($apiConfigPath)) {
     $existingConfig = json_decode($existingContent, true);
     
     if ($existingConfig && isset($existingConfig['api_key'])) {
-        $apiConfig = $existingConfig; // Verwende existierende
+        // WICHTIG: Verwende IMMER die existierende Konfiguration wenn sie einen API-Key hat
+        $apiConfig = $existingConfig;
         echo "📄 Verwende existierende Konfiguration<br>\n";
         echo "🔑 API-Key: " . substr($existingConfig['api_key'], 0, 12) . "... (" . strlen($existingConfig['api_key']) . " Zeichen)<br>\n";
+        
+        // Aktualisiere nur fehlende Felder, aber NIEMALS den API-Key
+        $defaultFields = [
+            'api_base_url' => 'https://api.openai.com/v1',
+            'default_model' => 'gpt-4o-mini', 
+            'max_tokens' => 4000,
+            'timeout' => 30,
+            'temperature' => 0.7
+        ];
+        
+        $updated = false;
+        foreach ($defaultFields as $field => $defaultValue) {
+            if (!isset($apiConfig[$field])) {
+                $apiConfig[$field] = $defaultValue;
+                $updated = true;
+            }
+        }
+        
+        if ($updated) {
+            // Speichere nur wenn neue Felder hinzugefügt wurden
+            file_put_contents($apiConfigPath, json_encode($apiConfig, JSON_PRETTY_PRINT));
+            echo "✅ Konfiguration erweitert (API-Key beibehalten)<br>\n";
+        }
+    } else {
+        echo "⚠️ Existierende Datei hat keinen API-Key - wird überschrieben<br>\n";
+        // Nur überschreiben wenn kein API-Key vorhanden
+        file_put_contents($apiConfigPath, json_encode($apiConfig, JSON_PRETTY_PRINT));
     }
 }
 
@@ -62,9 +90,23 @@ if (!is_dir($includesConfigDir)) {
     echo "📁 includes/config-Verzeichnis erstellt<br>\n";
 }
 
+// Kopiere nur wenn die Zieldatei nicht existiert oder älter ist
+$shouldCopy = false;
 if (!file_exists($includesApiConfigPath)) {
+    $shouldCopy = true;
+} else {
+    $mainModified = filemtime($apiConfigPath);
+    $includesModified = filemtime($includesApiConfigPath);
+    if ($mainModified > $includesModified) {
+        $shouldCopy = true;
+    }
+}
+
+if ($shouldCopy) {
     copy($apiConfigPath, $includesApiConfigPath);
-    echo "✅ includes/config/api_config.json erstellt (Kopie)<br>\n";
+    echo "✅ includes/config/api_config.json aktualisiert<br>\n";
+} else {
+    echo "📄 includes/config/api_config.json ist aktuell<br>\n";
 }
 
 echo "<h2>🔍 Schritt 2: API-Key Status prüfen</h2>\n";
