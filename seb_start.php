@@ -23,18 +23,39 @@ $currentDir = dirname(__FILE__);
 $isInTeacherDir = (basename($currentDir) === 'teacher');
 $baseDir = $isInTeacherDir ? dirname($currentDir) : $currentDir;
 
-// Validiere Test-Code (prüfe ob Test existiert)
+// Validiere Test-Code (prüfe ob Test existiert mit Pattern-Matching)
+// Erste Variante: Exakter Name
 $testFile = $baseDir . '/tests/' . $testCode . '.xml';
-error_log("SEB Start: Suche Test-Datei: " . $testFile);
+
+// Zweite Variante: Mit Titel-Suffix (z.B. POT_die-potsdamer-konferenz...)
+if (!file_exists($testFile)) {
+    $testPattern = $baseDir . '/tests/' . $testCode . '_*.xml';
+    $matchingFiles = glob($testPattern);
+    
+    if (!empty($matchingFiles)) {
+        $testFile = $matchingFiles[0]; // Nimm die erste gefundene Datei
+        error_log("SEB Start: Test gefunden mit Pattern: " . $testFile);
+    }
+}
+
+error_log("SEB Start: Finale Test-Datei: " . $testFile);
 
 if (!file_exists($testFile)) {
     // Debug: Zeige verfügbare Tests
     $availableTests = glob($baseDir . '/tests/*.xml');
-    error_log("SEB Start: Verfügbare Tests: " . print_r($availableTests, true));
+    $testCodes = [];
+    foreach ($availableTests as $file) {
+        $filename = basename($file, '.xml');
+        $code = explode('_', $filename)[0]; // Extrahiere Code vor dem ersten _
+        $testCodes[] = $code;
+    }
+    
+    error_log("SEB Start: Verfügbare Test-Codes: " . implode(', ', array_unique($testCodes)));
     
     die('❌ Fehler: Test "' . htmlspecialchars($testCode) . '" nicht gefunden.<br>' .
         'Gesuchte Datei: ' . htmlspecialchars($testFile) . '<br>' .
-        'Verfügbare Tests: ' . count($availableTests) . ' Tests im Verzeichnis');
+        'Verfügbare Test-Codes: ' . implode(', ', array_unique($testCodes)) . '<br>' .
+        'Verfügbare Dateien: ' . count($availableTests) . ' Tests im Verzeichnis');
 }
 
 // Debug-Logging

@@ -19,16 +19,36 @@ $currentDir = dirname(__FILE__);
 $isInTeacherDir = (basename($currentDir) === 'teacher');
 $baseDir = $isInTeacherDir ? dirname($currentDir) : $currentDir;
 
-// Validiere Test
+// Validiere Test mit Pattern-Matching
+// Erste Variante: Exakter Name
 $testFile = $baseDir . '/tests/' . $testCode . '.xml';
-error_log("SEB Config: Suche Test-Datei: " . $testFile);
+
+// Zweite Variante: Mit Titel-Suffix (z.B. POT_die-potsdamer-konferenz...)
+if (!file_exists($testFile)) {
+    $testPattern = $baseDir . '/tests/' . $testCode . '_*.xml';
+    $matchingFiles = glob($testPattern);
+    
+    if (!empty($matchingFiles)) {
+        $testFile = $matchingFiles[0]; // Nimm die erste gefundene Datei
+        error_log("SEB Config: Test gefunden mit Pattern: " . $testFile);
+    }
+}
+
+error_log("SEB Config: Finale Test-Datei: " . $testFile);
 
 if (!file_exists($testFile)) {
     $availableTests = glob($baseDir . '/tests/*.xml');
-    error_log("SEB Config: Verfügbare Tests: " . print_r($availableTests, true));
+    $testCodes = [];
+    foreach ($availableTests as $file) {
+        $filename = basename($file, '.xml');
+        $code = explode('_', $filename)[0];
+        $testCodes[] = $code;
+    }
+    
+    error_log("SEB Config: Verfügbare Test-Codes: " . implode(', ', array_unique($testCodes)));
     
     http_response_code(404);
-    die('Fehler: Test "' . htmlspecialchars($testCode) . '" nicht gefunden. Gesuchte Datei: ' . $testFile);
+    die('Fehler: Test "' . htmlspecialchars($testCode) . '" nicht gefunden. Verfügbare Codes: ' . implode(', ', array_unique($testCodes)));
 }
 
 // Lade Test-Titel aus XML
