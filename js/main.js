@@ -417,20 +417,47 @@ function isValidUrl(url) {
 function isValidYoutubeUrl(url) {
     if (!isValidUrl(url)) return false;
     
-    // Erlaubte YouTube-Domains
-    const validDomains = ['youtube.com', 'youtu.be', 'www.youtube.com'];
-    const urlObj = new URL(url);
-    
-    // Prüfe Domain
-    if (!validDomains.some(domain => urlObj.hostname === domain)) {
+    try {
+        // Edge-kompatible URL-Parsing
+        let urlObj;
+        if (typeof URL !== 'undefined') {
+            urlObj = new URL(url);
+        } else {
+            // Fallback für ältere Browser
+            const a = document.createElement('a');
+            a.href = url;
+            urlObj = {
+                hostname: a.hostname,
+                pathname: a.pathname,
+                search: a.search
+            };
+        }
+        
+        // Erlaubte YouTube-Domains
+        const validDomains = ['youtube.com', 'youtu.be', 'www.youtube.com'];
+        
+        // Prüfe Domain (Edge-kompatibel)
+        let domainMatch = false;
+        for (let i = 0; i < validDomains.length; i++) {
+            if (urlObj.hostname === validDomains[i]) {
+                domainMatch = true;
+                break;
+            }
+        }
+        if (!domainMatch) {
+            return false;
+        }
+        
+        // Prüfe auf Video-ID
+        if (urlObj.hostname === 'youtu.be') {
+            return urlObj.pathname.length > 1; // Mindestens ein Zeichen nach "/"
+        } else {
+            // Einfache Regex-Prüfung für v-Parameter (Edge-kompatibel)
+            return /[?&]v=([^&]+)/.test(urlObj.search || '');
+        }
+    } catch (e) {
+        console.error('Fehler bei YouTube-URL Validierung:', e);
         return false;
-    }
-    
-    // Prüfe auf Video-ID
-    if (urlObj.hostname === 'youtu.be') {
-        return urlObj.pathname.length > 1; // Mindestens ein Zeichen nach "/"
-    } else {
-        return urlObj.searchParams.has('v'); // Muss einen "v" Parameter haben
     }
 }
 
@@ -465,20 +492,19 @@ function openSubtitleToModal(youtubeUrl) {
     
     console.log('✅ Alle Modal-Elemente gefunden');
     
-    // Erstelle subtitle.to URL
-    const subtitleToUrl = `https://www.subtitle.to/${youtubeUrl}`;
+    // Erstelle subtitle.to URL (Edge-kompatibel)
+    const subtitleToUrl = 'https://www.subtitle.to/' + youtubeUrl;
     console.log('📝 Erstelle URL:', subtitleToUrl);
     
-    // Reset Frame Container
-    frameContainer.innerHTML = `
-        <div class="text-center p-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Lade subtitle.to...</span>
-            </div>
-            <p class="mt-3">Lade subtitle.to Seite...</p>
-            <p class="text-muted">URL: ${subtitleToUrl}</p>
-        </div>
-    `;
+    // Reset Frame Container (Edge-kompatibel)
+    frameContainer.innerHTML = 
+        '<div class="text-center p-5">' +
+            '<div class="spinner-border text-primary" role="status">' +
+                '<span class="visually-hidden">Lade subtitle.to...</span>' +
+            '</div>' +
+            '<p class="mt-3">Lade subtitle.to Seite...</p>' +
+            '<p class="text-muted">URL: ' + subtitleToUrl + '</p>' +
+        '</div>';
     
     // External Button Handler
     if (externalBtn) {
@@ -539,17 +565,16 @@ function openSubtitleToModal(youtubeUrl) {
             }, 3000);
             
             function showFallbackButton() {
-                frameContainer.innerHTML = `
-                    <div class="alert alert-info m-3">
-                        <h6>🔗 subtitle.to öffnen</h6>
-                        <p>iframe wird blockiert - öffnen Sie subtitle.to in einem neuen Tab:</p>
-                        <div class="text-center">
-                            <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary btn-lg">
-                                🔗 subtitle.to öffnen
-                            </a>
-                        </div>
-                    </div>
-                `;
+                frameContainer.innerHTML = 
+                    '<div class="alert alert-info m-3">' +
+                        '<h6>🔗 subtitle.to öffnen</h6>' +
+                        '<p>iframe wird blockiert - öffnen Sie subtitle.to in einem neuen Tab:</p>' +
+                        '<div class="text-center">' +
+                            '<a href="' + subtitleToUrl + '" target="_blank" class="btn btn-primary btn-lg">' +
+                                '🔗 subtitle.to öffnen' +
+                            '</a>' +
+                        '</div>' +
+                    '</div>';
             }
         }, 500);
         
