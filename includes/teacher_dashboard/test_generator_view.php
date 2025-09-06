@@ -66,10 +66,18 @@
         <div class="row mb-3">
             <div class="col-md-12">
                 <label for="youtube_url" class="form-label">YouTube-Video-URL:</label>
-                <input type="url" class="form-control" name="youtube_url" id="youtube_url" 
-                       placeholder="https://www.youtube.com/watch?v=...">
+                <div class="input-group">
+                    <input type="url" class="form-control" name="youtube_url" id="youtube_url" 
+                           placeholder="https://www.youtube.com/watch?v=...">
+                    <button type="button" class="btn btn-outline-primary" id="subtitleToBtn" 
+                            title="Öffne subtitle.to für Untertitel-Download">
+                        📥 Untertitel laden
+                    </button>
+                </div>
                 <div class="invalid-feedback" id="youtube_url_error"></div>
-                <div class="form-text">Geben Sie die URL eines YouTube-Videos ein, dessen Inhalt für die Testgenerierung verwendet werden soll.</div>
+                <div class="form-text">
+                    Geben Sie die URL eines YouTube-Videos ein. Mit "Untertitel laden" öffnen Sie subtitle.to zum direkten Download.
+                </div>
             </div>
         </div>
 
@@ -91,6 +99,45 @@
         </div>
     </form>
     <div id="generationResult" class="mt-4"></div>
+</div>
+
+<!-- Subtitle.to Modal -->
+<div class="modal fade" id="subtitleToModal" tabindex="-1" aria-labelledby="subtitleToModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="subtitleToModalLabel">
+                    📥 Untertitel mit subtitle.to herunterladen
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="alert alert-info m-3 mb-0">
+                    <h6><strong>📋 Anleitung:</strong></h6>
+                    <ol class="mb-0">
+                        <li>Warten Sie, bis die Seite geladen ist</li>
+                        <li>Klicken Sie auf "Download" bei den gewünschten Untertiteln</li>
+                        <li>Laden Sie die .txt oder .srt Datei herunter</li>
+                        <li>Schließen Sie dieses Fenster und laden Sie die Datei im "Datei-Upload" hoch</li>
+                    </ol>
+                </div>
+                <div id="subtitleToFrame" style="height: 70vh;">
+                    <div class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Lade subtitle.to...</span>
+                        </div>
+                        <p class="mt-3">Lade subtitle.to Seite...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary" id="openSubtitleToExternal">
+                    🔗 In neuem Tab öffnen
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>

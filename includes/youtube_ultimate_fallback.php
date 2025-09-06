@@ -20,20 +20,20 @@ class YouTubeUltimateFallback {
             error_log("🚀 ULTIMATE FALLBACK aktiviert für: $videoUrl");
         }
         
-        // Strategie 1: Whisper-API (OpenAI)
+        // Strategie 1: Video-Content-Generierung ohne Transcript (PRIORITÄT!)
+        $result = $this->generateContentFromMetadata($videoUrl);
+        if ($result['success']) {
+            return $result;
+        }
+        
+        // Strategie 2: Whisper-API (OpenAI) - Falls Audio verfügbar
         $result = $this->tryWhisperAPI($videoUrl);
         if ($result['success']) {
             return $result;
         }
         
-        // Strategie 2: Audio-Download + lokale Verarbeitung
+        // Strategie 3: Audio-Download + lokale Verarbeitung
         $result = $this->tryLocalAudioProcessing($videoUrl);
-        if ($result['success']) {
-            return $result;
-        }
-        
-        // Strategie 3: Video-Content-Generierung ohne Transcript
-        $result = $this->generateContentFromMetadata($videoUrl);
         if ($result['success']) {
             return $result;
         }
@@ -302,31 +302,39 @@ class YouTubeUltimateFallback {
      * 📊 Video-Metadaten extrahieren
      */
     private function getVideoMetadata($videoUrl) {
-        // Versuche verschiedene Methoden für Metadaten
-        
-        // 1. yt-dlp für Metadaten (oft weniger blockiert)
-        $command = sprintf(
-            'yt-dlp --dump-json --no-download %s 2>/dev/null',
-            escapeshellarg($videoUrl)
-        );
-        
-        $output = shell_exec($command);
-        
-        if ($output) {
-            $data = json_decode($output, true);
-            if ($data && isset($data['title'])) {
-                return [
-                    'title' => $data['title'] ?? '',
-                    'description' => $data['description'] ?? '',
-                    'duration' => $data['duration'] ?? 0,
-                    'uploader' => $data['uploader'] ?? '',
-                    'upload_date' => $data['upload_date'] ?? ''
-                ];
-            }
+        // 1. PRIMÄR: HTML-Scraping für Open Graph Tags (zuverlässiger)
+        $metadata = $this->scrapeVideoMetadata($videoUrl);
+        if ($metadata && !empty($metadata['title'])) {
+            return $metadata;
         }
         
-        // 2. Fallback: HTML-Scraping für Open Graph Tags
-        return $this->scrapeVideoMetadata($videoUrl);
+        // 2. Fallback: yt-dlp für Metadaten (wird wahrscheinlich auch blockiert)
+        try {
+            $command = sprintf(
+                'yt-dlp --dump-json --no-download --no-warnings %s 2>/dev/null',
+                escapeshellarg($videoUrl)
+            );
+            
+            $output = shell_exec($command);
+            
+            if ($output) {
+                $data = json_decode($output, true);
+                if ($data && isset($data['title'])) {
+                    return [
+                        'title' => $data['title'] ?? '',
+                        'description' => $data['description'] ?? '',
+                        'duration' => $data['duration'] ?? 0,
+                        'uploader' => $data['uploader'] ?? '',
+                        'upload_date' => $data['upload_date'] ?? ''
+                    ];
+                }
+            }
+        } catch (Exception $e) {
+            // Ignoriere yt-dlp Fehler
+        }
+        
+        // 3. Fallback: Video-ID basierte Dummy-Metadaten
+        return $this->createDummyMetadata($videoUrl);
     }
     
     /**
@@ -362,6 +370,21 @@ class YouTubeUltimateFallback {
         }
         
         return null;
+    }
+    
+    /**
+     * 🎬 Dummy-Metadaten erstellen
+     */
+    private function createDummyMetadata($videoUrl) {
+        $videoId = $this->extractVideoId($videoUrl);
+        
+        return [
+            'title' => "YouTube-Video: $videoId",
+            'description' => "Dieses YouTube-Video konnte aufgrund von Zugriffsbeschränkungen nicht vollständig analysiert werden. Video-ID: $videoId",
+            'duration' => 0,
+            'uploader' => 'Unbekannt',
+            'upload_date' => date('Y-m-d')
+        ];
     }
     
     /**

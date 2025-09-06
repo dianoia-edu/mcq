@@ -145,14 +145,38 @@ $(document).ready(function() {
     // Automatische YouTube-URL-Validierung während der Eingabe
     $('input[name="youtube_url"]').on('input', function() {
         const url = $(this).val().trim();
+        const subtitleBtn = $('#subtitleToBtn');
+        
         if (url && !isValidYoutubeUrl(url)) {
             $(this).addClass('is-invalid');
+            subtitleBtn.prop('disabled', true);
             if (!$(this).next('.invalid-feedback').length) {
                 $(this).after('<div class="invalid-feedback">Bitte geben Sie eine gültige YouTube-URL ein.</div>');
             }
         } else {
             $(this).removeClass('is-invalid');
+            subtitleBtn.prop('disabled', !url);
         }
+    });
+    
+    // Subtitle.to Button Handler
+    $('#subtitleToBtn').on('click', function() {
+        const youtubeUrl = $('#youtube_url').val().trim();
+        
+        if (!youtubeUrl) {
+            alert('Bitte geben Sie zuerst eine YouTube-URL ein.');
+            $('#youtube_url').focus();
+            return;
+        }
+        
+        if (!isValidYoutubeUrl(youtubeUrl)) {
+            alert('Bitte geben Sie eine gültige YouTube-URL ein.');
+            $('#youtube_url').focus();
+            return;
+        }
+        
+        // Öffne subtitle.to Modal
+        openSubtitleToModal(youtubeUrl);
     });
     
     // Modals initialisieren
@@ -373,6 +397,58 @@ function isValidYoutubeUrl(url) {
     } else {
         return urlObj.searchParams.has('v'); // Muss einen "v" Parameter haben
     }
+}
+
+// Subtitle.to Modal Funktionen
+function openSubtitleToModal(youtubeUrl) {
+    const modal = new bootstrap.Modal(document.getElementById('subtitleToModal'));
+    const frameContainer = document.getElementById('subtitleToFrame');
+    const externalBtn = document.getElementById('openSubtitleToExternal');
+    
+    // Erstelle subtitle.to URL
+    const subtitleToUrl = `https://www.subtitle.to/${youtubeUrl}`;
+    
+    // Reset Frame Container
+    frameContainer.innerHTML = `
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Lade subtitle.to...</span>
+            </div>
+            <p class="mt-3">Lade subtitle.to Seite...</p>
+            <p class="text-muted">URL: ${subtitleToUrl}</p>
+        </div>
+    `;
+    
+    // External Button Handler
+    externalBtn.onclick = function() {
+        window.open(subtitleToUrl, '_blank');
+    };
+    
+    // Zeige Modal
+    modal.show();
+    
+    // Lade iframe nach kurzer Verzögerung
+    setTimeout(() => {
+        try {
+            frameContainer.innerHTML = `
+                <iframe 
+                    src="${subtitleToUrl}" 
+                    style="width: 100%; height: 100%; border: none;"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-downloads allow-top-navigation"
+                    loading="lazy">
+                </iframe>
+            `;
+        } catch (error) {
+            console.error('Fehler beim Laden der subtitle.to Seite:', error);
+            frameContainer.innerHTML = `
+                <div class="alert alert-warning m-3">
+                    <h6>⚠️ iframe konnte nicht geladen werden</h6>
+                    <p>Verwenden Sie den Button "In neuem Tab öffnen" um subtitle.to direkt zu öffnen.</p>
+                    <p><strong>URL:</strong> <a href="${subtitleToUrl}" target="_blank">${subtitleToUrl}</a></p>
+                </div>
+            `;
+        }
+    }, 500);
 }
 
 // Form Submit Handler
