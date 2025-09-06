@@ -1413,9 +1413,29 @@ function showXMLPreview(xmlContent, modalType = 'generator') {
             $('.modal-footer #saveTest').remove();
             
             // Setze Access-Code für "Test bearbeiten" Button
+            let accessCodeToSet = '';
+            
+            // Versuche verschiedene Quellen für den Access-Code
             if (window.currentGeneratedTest && window.currentGeneratedTest.access_code) {
-                $('#editGeneratedTest').attr('data-access-code', window.currentGeneratedTest.access_code);
-                console.log('✅ Access-Code für editGeneratedTest gesetzt:', window.currentGeneratedTest.access_code);
+                accessCodeToSet = window.currentGeneratedTest.access_code;
+                console.log('✅ Access-Code aus currentGeneratedTest:', accessCodeToSet);
+            } else if (window.currentTestXML) {
+                // Extrahiere Access-Code aus XML
+                try {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(window.currentTestXML, "text/xml");
+                    accessCodeToSet = xmlDoc.getElementsByTagName("access_code")[0]?.textContent || '';
+                    console.log('✅ Access-Code aus XML extrahiert:', accessCodeToSet);
+                } catch (error) {
+                    console.error('❌ Fehler beim Extrahieren des Access-Codes aus XML:', error);
+                }
+            }
+            
+            if (accessCodeToSet) {
+                $('#editGeneratedTest').attr('data-access-code', accessCodeToSet);
+                console.log('✅ Access-Code für editGeneratedTest gesetzt:', accessCodeToSet);
+            } else {
+                console.error('❌ Kein Access-Code für editGeneratedTest verfügbar!');
             }
             
             testGeneratorPreviewModal.show();
@@ -2641,8 +2661,9 @@ function showQrCode(automatisch = false, modalType = 'editor') {
                     const optionText = $(this).text();
                     const optionValue = $(this).val();
                     
-                    // Prüfe ob der Access-Code in der Option enthalten ist
-                    if (optionText.includes(accessCode) || optionValue.includes(accessCode)) {
+                    // Prüfe genau den Access-Code
+                    const optionAccessCode = $(this).data('access-code');
+                    if (optionAccessCode === accessCode) {
                         console.log('✅ Test gefunden und auswählen:', optionText);
                         $(this).prop('selected', true);
                         $('#testSelector').trigger('change');
@@ -2709,25 +2730,57 @@ $(document).on('click', '#editGeneratedTest', function() {
                 if (typeof reloadTestList === 'function') {
                     reloadTestList(() => {
                         // Nach Reload: Setze den Test im Dropdown
+                        let testFound = false;
                         $('#testSelector option').each(function() {
-                            if ($(this).text().includes(accessCode)) {
+                            const optionAccessCode = $(this).data('access-code');
+                            if (optionAccessCode === accessCode) {
                                 $(this).prop('selected', true);
                                 $('#testSelector').trigger('change');
                                 console.log('✅ Test automatisch ausgewählt (Vorschau):', accessCode);
+                                testFound = true;
                                 return false;
                             }
                         });
+                        
+                        if (!testFound) {
+                            console.error('❌ Test mit Access-Code nicht gefunden:', accessCode);
+                            // Fallback: Suche im Text
+                            $('#testSelector option').each(function() {
+                                if ($(this).text().includes('[' + accessCode + ']')) {
+                                    $(this).prop('selected', true);
+                                    $('#testSelector').trigger('change');
+                                    console.log('✅ Test über Text-Suche gefunden (Vorschau):', accessCode);
+                                    return false;
+                                }
+                            });
+                        }
                     });
                 } else {
                     // Fallback: Setze den Test direkt im Dropdown
+                    let testFound = false;
                     $('#testSelector option').each(function() {
-                        if ($(this).text().includes(accessCode)) {
+                        const optionAccessCode = $(this).data('access-code');
+                        if (optionAccessCode === accessCode) {
                             $(this).prop('selected', true);
                             $('#testSelector').trigger('change');
-                            console.log('✅ Test automatisch ausgewählt (Vorschau):', accessCode);
+                            console.log('✅ Test automatisch ausgewählt (Vorschau, Fallback):', accessCode);
+                            testFound = true;
                             return false;
                         }
                     });
+                    
+                    if (!testFound) {
+                        console.error('❌ Test mit Access-Code nicht gefunden (Fallback):', accessCode);
+                        // Letzte Chance: Suche im Text
+                        $('#testSelector option').each(function() {
+                            if ($(this).text().includes('[' + accessCode + ']')) {
+                                $(this).prop('selected', true);
+                                $('#testSelector').trigger('change');
+                                console.log('✅ Test über Text-Suche gefunden (Fallback):', accessCode);
+                                return false;
+                            }
+                        });
+                    }
                 }
             }, 500);
         }, 500);
