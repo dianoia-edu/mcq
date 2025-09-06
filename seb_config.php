@@ -114,7 +114,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>allowQuit</key>
     <true/>
     <key>hashedQuitPassword</key>
-    <string>' . hash('sha256', 'LEHRER2024_' . $testCode) . '</string>
+    <string>' . hash('sha256', 'admin123') . '</string>
     <key>showReloadWarning</key>
     <true/>
     <key>showQuitWarning</key>
