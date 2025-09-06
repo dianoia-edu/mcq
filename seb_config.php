@@ -83,11 +83,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>restartExamURL</key>
     <string>seb://quit</string>
     
-    <!-- URL-Filter (Whitelist) -->
+    <!-- URL-Filter (Whitelist) - Erlaube nur sichere URLs -->
     <key>URLFilterEnable</key>
     <true/>
+    <key>URLFilterEnableContentFilter</key>
+    <false/>
     <key>URLFilterRules</key>
     <array>
+        <!-- Erlaube Basis-URLs der Anwendung -->
         <dict>
             <key>action</key>
             <integer>1</integer>
@@ -98,6 +101,37 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
             <key>regex</key>
             <true/>
         </dict>
+        <!-- WICHTIG: Erlaube SEB-Quit-URLs -->
+        <dict>
+            <key>action</key>
+            <integer>1</integer>
+            <key>active</key>
+            <true/>
+            <key>expression</key>
+            <string>seb://quit</string>
+            <key>regex</key>
+            <false/>
+        </dict>
+        <dict>
+            <key>action</key>
+            <integer>1</integer>
+            <key>active</key>
+            <true/>
+            <key>expression</key>
+            <string>safeexambrowser://quit</string>
+            <key>regex</key>
+            <false/>
+        </dict>
+        <dict>
+            <key>action</key>
+            <integer>1</integer>
+            <key>active</key>
+            <true/>
+            <key>expression</key>
+            <string>seb-quit://</string>
+            <key>regex</key>
+            <false/>
+        </dict>
     </array>
     
     <!-- Browser-Einstellungen -->
@@ -105,6 +139,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <false/>
     <key>browserWindowShowURL</key>
     <false/>
+    
+    <!-- Erlaube URL-Schema-Handler für SEB-Quit -->
+    <key>allowCustomDownloadLocation</key>
+    <false/>
+    <key>allowDownUploads</key>
+    <false/>
+    <key>allowedDownloadFileTypes</key>
+    <string></string>
     <key>browserWindowAllowBackForward</key>
     <false/>
     <key>browserWindowAllowSpellCheck</key>
