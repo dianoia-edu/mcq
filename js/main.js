@@ -778,6 +778,12 @@ $(document).on('click', '#startTestGeneration', function() {
 $(document).on('hidden.bs.modal', '#subtitleToModal', function() {
     console.log('🔄 Modal wird zurückgesetzt...');
     
+    // Markiere YouTube-URL als "bearbeitet" für subtitle.to
+    markYouTubeUrlAsProcessed();
+    
+    // Zeige Hinweis für Datei-Upload
+    showSubtitleUploadReminder();
+    
     // Reset nur die Daten-Variablen (da wir jetzt einfaches Modal haben)
     subtitleFileContent = null;
     subtitleFileName = null;
@@ -815,6 +821,84 @@ $(document).on('hidden.bs.modal', '#subtitleToModal', function() {
     
     console.log('✅ Modal zurückgesetzt');
 });
+
+// YouTube-URL als verarbeitet markieren
+function markYouTubeUrlAsProcessed() {
+    const youtubeInput = document.getElementById('youtube_url');
+    const subtitleBtn = document.getElementById('subtitleToBtn');
+    
+    if (youtubeInput && subtitleBtn) {
+        // Input-Feld styling ändern
+        youtubeInput.style.backgroundColor = '#d4edda';
+        youtubeInput.style.borderColor = '#28a745';
+        youtubeInput.style.color = '#155724';
+        youtubeInput.readOnly = true;
+        
+        // Button ändern
+        subtitleBtn.innerHTML = '✅ Untertitel verarbeitet';
+        subtitleBtn.className = 'btn btn-success';
+        subtitleBtn.disabled = false;
+        
+        // Verstecktes Flag setzen für Form-Submit
+        let processedFlag = document.getElementById('youtube_processed_flag');
+        if (!processedFlag) {
+            processedFlag = document.createElement('input');
+            processedFlag.type = 'hidden';
+            processedFlag.id = 'youtube_processed_flag';
+            processedFlag.name = 'youtube_processed';
+            processedFlag.value = '1';
+            youtubeInput.parentNode.appendChild(processedFlag);
+        }
+        
+        console.log('✅ YouTube-URL als verarbeitet markiert');
+    }
+}
+
+// Upload-Hinweis anzeigen
+function showSubtitleUploadReminder() {
+    // Entferne vorherige Hinweise
+    $('.subtitle-upload-reminder').remove();
+    
+    // Finde das Upload-Formular
+    const uploadArea = document.querySelector('#uploadForm, .upload-area, [data-upload-area]');
+    if (!uploadArea) {
+        console.warn('Upload-Bereich nicht gefunden');
+        return;
+    }
+    
+    // Erstelle Hinweis
+    const reminder = document.createElement('div');
+    reminder.className = 'alert alert-warning subtitle-upload-reminder';
+    reminder.innerHTML = `
+        <h6><i class="bi bi-exclamation-triangle-fill me-2"></i>Nächster Schritt: Untertitel hochladen</h6>
+        <p class="mb-2">
+            <strong>Sie haben subtitle.to verwendet.</strong> Laden Sie jetzt die heruntergeladene Untertitel-Datei hier hoch:
+        </p>
+        <ul class="mb-3">
+            <li>📁 <strong>Suchen Sie die .txt oder .srt Datei</strong> in Ihrem Download-Ordner</li>
+            <li>📤 <strong>Ziehen Sie die Datei in diesen Bereich</strong> oder klicken Sie "Datei auswählen"</li>
+            <li>🚀 <strong>Generieren Sie dann Ihren Test</strong></li>
+        </ul>
+        <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+                💡 <strong>Tipp:</strong> Die Datei ist normalerweise im Download-Ordner und heißt wie das YouTube-Video.
+            </small>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="$(this).closest('.alert').fadeOut()">
+                ✕ Ausblenden
+            </button>
+        </div>
+    `;
+    
+    // Hinweis vor Upload-Bereich einfügen
+    uploadArea.parentNode.insertBefore(reminder, uploadArea);
+    
+    // Auto-Hide nach 15 Sekunden
+    setTimeout(() => {
+        $(reminder).fadeOut();
+    }, 15000);
+    
+    console.log('✅ Upload-Hinweis angezeigt');
+}
 
 // Form Submit Handler
 $('#uploadForm').on('submit', function(e) {

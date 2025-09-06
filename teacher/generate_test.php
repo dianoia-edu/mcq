@@ -562,11 +562,13 @@ try {
         $combinedContent .= extractWebpageContent($url) . "\n\n";
     }
 
-    // Verarbeite YouTube-URL, falls vorhanden
-    if (!empty($_POST['youtube_url'])) {
+    // Verarbeite YouTube-URL, falls vorhanden und nicht bereits durch subtitle.to verarbeitet
+    if (!empty($_POST['youtube_url']) && empty($_POST['youtube_processed'])) {
         error_log("Processing YouTube URL: " . $_POST['youtube_url']);
         $videoUrl = $_POST['youtube_url'];
         $combinedContent .= getYoutubeTranscript($videoUrl) . "\n\n";
+    } elseif (!empty($_POST['youtube_url']) && !empty($_POST['youtube_processed'])) {
+        error_log("YouTube URL ignoriert - bereits durch subtitle.to verarbeitet: " . $_POST['youtube_url']);
     }
 
 
