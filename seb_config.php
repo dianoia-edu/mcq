@@ -110,15 +110,13 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>browserWindowAllowConfigFileDownload</key>
     <false/>
     
-    <!-- ERWEITERTE SICHERHEITSEINSTELLUNGEN MIT QUIT-PASSWORD -->
+    <!-- VEREINFACHTE SICHERHEITSEINSTELLUNGEN (ohne Passwort-Konflikt) -->
     <key>allowQuit</key>
-    <true/>
-    <key>hashedQuitPassword</key>
-    <string>' . hash('sha256', 'TEACHER_' . $testCode . '_EXIT') . '</string>
+    <false/>
     <key>showReloadWarning</key>
-    <true/>
+    <false/>
     <key>showQuitWarning</key>
-    <true/>
+    <false/>
     <key>allowSwitchToApplications</key>
     <false/>
     <key>enableAppSwitcherCheck</key>
@@ -126,13 +124,15 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>forceAppFolderInstall</key>
     <true/>
     
-    <!-- KONFIGURATION-RELOAD ERLAUBEN (für QR-Codes) -->
+    <!-- KONFIGURATION-VERHALTEN -->
     <key>allowPreferencesWindow</key>
     <false/>
     <key>allowReconfiguration</key>
-    <true/>
-    <key>hashedAdminPassword</key>
-    <string>' . hash('sha256', 'ADMIN_' . $testCode . '_CONFIG') . '</string>
+    <false/>
+    <key>sebConfigPurpose</key>
+    <integer>1</integer>
+    <key>allowBrowsingBackForward</key>
+    <false/>
     
     <!-- KIOSK-MODUS (VOLLSTÄNDIG GESPERRT) -->
     <key>createNewDesktop</key>

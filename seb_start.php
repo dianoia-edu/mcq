@@ -177,22 +177,22 @@ if ($isSEB) {
         </div>
         
         <div class="d-grid gap-3">
-            <!-- Automatischer SEB-Start (für mobile Geräte) -->
-            <a href="javascript:void(0)" id="autoStartBtn" class="btn-seb">
-                <i class="bi bi-play-fill me-2"></i>
-                Automatisch starten
-            </a>
-            
-            <!-- SEB-Config Download -->
+            <!-- Hauptempfehlung: SEB-Datei Download -->
             <a href="seb_config.php?code=<?php echo urlencode($testCode); ?>" class="btn-seb">
                 <i class="bi bi-download me-2"></i>
                 SEB-Konfiguration herunterladen
             </a>
             
+            <!-- Workflow-Anleitung -->
+            <a href="seb_workflow.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-outline-primary">
+                <i class="bi bi-list-check me-2"></i>
+                Schritt-für-Schritt Anleitung
+            </a>
+            
             <!-- Direkter Test-Start (Fallback) -->
-            <a href="name_form.php?code=<?php echo urlencode($testCode); ?>&seb=manual" class="btn btn-outline-primary">
+            <a href="name_form.php?code=<?php echo urlencode($testCode); ?>&seb=manual" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-right me-2"></i>
-                Direkt zum Test (ohne SEB)
+                Notfall: Test ohne SEB
             </a>
         </div>
         
@@ -220,19 +220,18 @@ if ($isSEB) {
             // Methode 2: SEB-Config-URL
             const configUrl = baseUrl + 'seb_config.php?code=' + testCode;
             
-            // Versuche SEB-Start
+            // Versuche verschiedene SEB-Start-Methoden
             try {
-                window.location.href = sebUrl;
-                
-                // Fallback nach 3 Sekunden
-                setTimeout(function() {
-                    console.log('🔒 Fallback zu Config-Download');
-                    window.location.href = configUrl;
-                }, 3000);
+                // Methode 1: Direkte .seb-Config (empfohlen)
+                console.log('🔒 Starte mit .seb-Config-Download');
+                window.location.href = configUrl;
                 
             } catch (e) {
                 console.error('🔒 SEB-Start fehlgeschlagen:', e);
-                window.location.href = configUrl;
+                // Fallback: Zeige Anleitung
+                setTimeout(function() {
+                    window.location.href = 'seb_anleitung.php?code=' + testCode;
+                }, 2000);
             }
         });
         
