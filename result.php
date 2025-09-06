@@ -114,10 +114,11 @@ if (isset($_POST['back_to_home'])) {
         
         .action-buttons {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             margin-top: 30px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
+            align-items: center;
         }
         
         .btn-primary {
@@ -189,7 +190,9 @@ if (isset($_POST['back_to_home'])) {
                         </div>
                         
         <div class="action-buttons">
-            <a href="result.php?download=xml" class="btn btn-success">XML-Ergebnis herunterladen</a>
+            <a href="result.php?download=xml" class="btn btn-success">
+                <i class="bi bi-download me-2"></i>XML-Ergebnis herunterladen
+            </a>
             
             <!-- SEB-Exit Button (nur im SEB) oder Back-Button (normaler Browser) -->
             <div id="dynamicActionButton">
@@ -348,14 +351,14 @@ if (isset($_POST['back_to_home'])) {
                     // iPad: Direkter seb://quit Link (offizielle Methode)
                     dynamicButtonContainer.innerHTML = `
                         <a href="seb://quit" class="btn btn-seb-exit">
-                            <i class="bi bi-power"></i>SEB beenden (Direkter Quit-Link)
+                            <i class="bi bi-power me-2"></i>SEB beenden
                         </a>
                     `;
                 } else {
                     // Desktop: JavaScript-Button
                     dynamicButtonContainer.innerHTML = `
                         <button onclick="exitSEBNow()" class="btn btn-seb-exit">
-                            <i class="bi bi-power"></i>SEB beenden
+                            <i class="bi bi-power me-2"></i>SEB beenden
                         </button>
                     `;
                 }
@@ -365,11 +368,9 @@ if (isset($_POST['back_to_home'])) {
                 
                 // Normaler Zurück-Button (wie vorher)
                 dynamicButtonContainer.innerHTML = `
-                    <form method="post" action="" style="margin: 0;">
-                        <button type="submit" name="back_to_home" class="btn btn-primary">
-                            <i class="bi bi-house"></i> Zurück zur Startseite
-                        </button>
-                    </form>
+                    <button onclick="window.location.href='index.php'" class="btn btn-primary">
+                        <i class="bi bi-house me-2"></i>Zurück zur Startseite
+                    </button>
                 `;
             }
         });
