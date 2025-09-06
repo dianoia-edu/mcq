@@ -2,7 +2,23 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+// SEB-Sicherheitscheck
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$isSEB = (strpos($userAgent, 'SEB') !== false || 
+          strpos($userAgent, 'SafeExamBrowser') !== false ||
+          isset($_SESSION['seb_browser']));
+
+if (!$isSEB) {
+    echo '<div style="background:red;color:white;padding:20px;text-align:center;font-size:18px;">
+    ⚠️ SICHERHEITSWARNUNG: Dieser Test muss im Safe Exam Browser geöffnet werden!<br>
+    <a href="seb_start.php?code=' . urlencode($_SESSION['test_code'] ?? '') . '" style="color:yellow;">
+    Hier klicken um den Test im SEB zu öffnen
+    </a></div>';
+}
+
 echo '<div style="background:yellow;color:black;padding:10px;z-index:9999;">test.php wurde geladen<br>';
+echo 'SEB erkannt: ' . ($isSEB ? 'JA ✅' : 'NEIN ❌') . '<br>';
+echo 'User-Agent: ' . htmlspecialchars(substr($userAgent, 0, 100)) . '<br>';
 echo 'Session: <pre>' . print_r($_SESSION, true) . '</pre>';
 echo 'GET: <pre>' . print_r($_GET, true) . '</pre>';
 echo 'POST: <pre>' . print_r($_POST, true) . '</pre>';
@@ -647,6 +663,129 @@ function getTestModeWarning() {
                 form.submit();
             });
         });
+        
+        // 🔒 SEB-SICHERHEITSÜBERWACHUNG (IPAD-OPTIMIERT)
+        function sebSecurityMonitor() {
+            // Kontinuierliche SEB-Erkennung (erweitert für iPad)
+            const userAgent = navigator.userAgent;
+            const isSEB = userAgent.includes('SEB') || 
+                         userAgent.includes('SafeExamBrowser') ||
+                         userAgent.includes('SEB_iOS') ||
+                         userAgent.includes('SEB/');
+            
+            const isiPad = /iPad|iPhone|iPod/.test(userAgent);
+            
+            console.log('🔒 SEB-Check:', {
+                userAgent: userAgent.substring(0, 50),
+                isSEB: isSEB,
+                isiPad: isiPad
+            });
+            
+            if (!isSEB && !window.sebWarningShown) {
+                window.sebWarningShown = true;
+                
+                document.body.style.filter = 'blur(10px)';
+                document.body.style.pointerEvents = 'none';
+                
+                const warning = document.createElement('div');
+                warning.innerHTML = isiPad ? 
+                    '🍎 IPAD-WARNUNG: Kehren Sie zur SEB-App zurück!' : 
+                    '🔒 SICHERHEITSWARNUNG: Kehren Sie zum Safe Exam Browser zurück!';
+                warning.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,0,0,0.95);color:white;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:999999;text-align:center;padding:20px;';
+                document.body.appendChild(warning);
+                
+                if (isiPad) {
+                    // iPad-spezifische Weiterleitung
+                    setTimeout(() => {
+                        window.location.href = 'seb://start?url=' + encodeURIComponent(window.location.href);
+                    }, 2000);
+                } else {
+                    setTimeout(() => {
+                        window.location.href = 'seb_start.php?code=<?php echo urlencode($_SESSION['test_code'] ?? ''); ?>';
+                    }, 3000);
+                }
+            }
+            
+            // Tastenkombination-Blocker
+            document.addEventListener('keydown', function(e) {
+                // Alt+Tab, Ctrl+Alt+Del, F-Tasten, etc. blockieren
+                if (e.altKey || e.ctrlKey || e.metaKey || 
+                    (e.keyCode >= 112 && e.keyCode <= 123) || // F1-F12
+                    e.keyCode === 27 || // ESC
+                    e.keyCode === 9    // TAB
+                ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.warn('🔒 Tastenkombination blockiert:', e.keyCode);
+                    return false;
+                }
+            });
+            
+            // Rechtsklick blockieren
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // iPad-spezifische Touch-Überwachung
+            if (isiPad) {
+                // Verhindere iPad-spezifische Gesten
+                document.addEventListener('touchstart', function(e) {
+                    // Verhindere 4-Finger-Swipe (App-Switcher)
+                    if (e.touches.length >= 4) {
+                        e.preventDefault();
+                        console.warn('🍎 4-Finger-Geste blockiert');
+                    }
+                }, { passive: false });
+                
+                // Verhindere Long-Press auf Links
+                document.addEventListener('touchend', function(e) {
+                    if (e.target.tagName === 'A') {
+                        e.preventDefault();
+                    }
+                });
+                
+                // Verhindere Zoom-Gesten
+                document.addEventListener('gesturestart', function(e) {
+                    e.preventDefault();
+                    console.warn('🍎 Zoom-Geste blockiert');
+                });
+                
+                // Überwache App-Switcher Aktivierung (iOS 13+)
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        console.warn('🍎 App wurde in den Hintergrund verschoben!');
+                        // Sofortige Rückkehr zur SEB erzwingen
+                        setTimeout(() => {
+                            if (document.hidden) {
+                                window.location.href = 'seb://start?url=' + encodeURIComponent(window.location.href);
+                            }
+                        }, 1000);
+                    }
+                });
+            }
+            
+            // Fokus-Verlust überwachen
+            window.addEventListener('blur', function() {
+                console.warn('🔒 Fenster hat Fokus verloren!');
+                document.title = '⚠️ WARNUNG: Kehren Sie zum Test zurück!';
+                
+                // Bei iPad: Sofortige SEB-Rückkehr
+                if (isiPad) {
+                    setTimeout(() => {
+                        window.location.href = 'seb://start?url=' + encodeURIComponent(window.location.href);
+                    }, 1500);
+                }
+            });
+            
+            window.addEventListener('focus', function() {
+                document.title = 'Test läuft...';
+            });
+        }
+        
+        // Starte SEB-Überwachung
+        sebSecurityMonitor();
+        setInterval(sebSecurityMonitor, 5000); // Alle 5 Sekunden prüfen
     </script>
 </body>
 </html>

@@ -110,7 +110,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>browserWindowAllowConfigFileDownload</key>
     <false/>
     
-    <!-- Sicherheitseinstellungen -->
+    <!-- ERWEITERTE SICHERHEITSEINSTELLUNGEN -->
     <key>allowQuit</key>
     <false/>
     <key>showReloadWarning</key>
@@ -124,10 +124,66 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>forceAppFolderInstall</key>
     <true/>
     
-    <!-- Kiosk-Modus -->
+    <!-- KIOSK-MODUS (VOLLSTÄNDIG GESPERRT) -->
     <key>createNewDesktop</key>
     <true/>
     <key>killExplorerShell</key>
+    <true/>
+    <key>enableKioskMode</key>
+    <true/>
+    
+    <!-- IPAD/IOS-SPEZIFISCHE SICHERHEITSEINSTELLUNGEN -->
+    <key>allowedDisplaysMaxNumber</key>
+    <integer>1</integer>
+    <key>allowDisplayMirroring</key>
+    <false/>
+    <key>allowScreenSharing</key>
+    <false/>
+    <key>allowVideoCapture</key>
+    <false/>
+    <key>allowAudioCapture</key>
+    <false/>
+    
+    <!-- IPAD TOUCH/GESTURE EINSTELLUNGEN -->
+    <key>enableTouchExit</key>
+    <false/>
+    <key>touchOptimized</key>
+    <true/>
+    <key>enableAppSwitcherCheck</key>
+    <true/>
+    <key>forceAppFolderInstall</key>
+    <true/>
+    
+    <!-- IOS APP-SWITCHER BLOCKIEREN -->
+    <key>iOSEnableGuidedAccessLinkTransform</key>
+    <true/>
+    <key>iOSAllowCameraApp</key>
+    <false/>
+    <key>iOSAllowDictation</key>
+    <false/>
+    <key>iOSAllowKeyboardShortcuts</key>
+    <false/>
+    <key>iOSAllowSpellCheck</key>
+    <false/>
+    <key>iOSAllowAutoCorrect</key>
+    <false/>
+    <key>iOSAllowPredictiveText</key>
+    <false/>
+    
+    <!-- IPAD HARDWARE-BUTTONS SPERREN -->
+    <key>iOSDisableHomeButton</key>
+    <true/>
+    <key>iOSDisableVolumeButtons</key>
+    <true/>
+    <key>iOSDisablePowerButton</key>
+    <true/>
+    <key>iOSDisableScreenRotation</key>
+    <true/>
+    
+    <!-- GUIDED ACCESS EINSTELLUNGEN -->
+    <key>iOSGuidedAccessRequireAutomaticAssessmentConfiguration</key>
+    <true/>
+    <key>iOSEnableGuidedAccessLinkTransform</key>
     <true/>
     
     <!-- Mobile Einstellungen -->
@@ -140,12 +196,32 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>enableJavaScriptPrompt</key>
     <true/>
     
-    <!-- Zusätzliche Sicherheit -->
+    <!-- EXTREME TASTENKOMBINATION-SPERREN -->
     <key>detectStoppedProcess</key>
     <true/>
+    <key>enableF1</key>
+    <false/>
+    <key>enableF2</key>
+    <false/>
     <key>enableF3</key>
     <false/>
-    <key>enableF1</key>
+    <key>enableF4</key>
+    <false/>
+    <key>enableF5</key>
+    <false/>
+    <key>enableF6</key>
+    <false/>
+    <key>enableF7</key>
+    <false/>
+    <key>enableF8</key>
+    <false/>
+    <key>enableF9</key>
+    <false/>
+    <key>enableF10</key>
+    <false/>
+    <key>enableF11</key>
+    <false/>
+    <key>enableF12</key>
     <false/>
     <key>enableEsc</key>
     <false/>
@@ -160,7 +236,33 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>enableStartMenu</key>
     <false/>
     <key>enableRightMouse</key>
+    <false/>
+    <key>enablePrintScreen</key>
+    <false/>
+    <key>enableSystemKey</key>
+    <false/>
+    <key>enableTouchExit</key>
+    <false/>
+    
+    <!-- WINDOWS-SPEZIFISCHE SPERREN -->
+    <key>hookKeys</key>
     <true/>
+    <key>enableLogging</key>
+    <true/>
+    <key>logLevel</key>
+    <integer>4</integer>
+    <key>enableZoomPage</key>
+    <false/>
+    <key>enableZoomText</key>
+    <false/>
+    
+    <!-- ALT+TAB VOLLSTÄNDIG BLOCKIEREN -->
+    <key>enableAltMouseWheel</key>
+    <false/>
+    <key>enableCtrlAltDel</key>
+    <false/>
+    <key>enableWindowsUpdate</key>
+    <false/>
     
     <!-- Exam-Konfiguration -->
     <key>examKeySalt</key>

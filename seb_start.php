@@ -156,10 +156,23 @@ if ($isSEB) {
         <h2 class="h5 text-muted mb-4">Test: <?php echo htmlspecialchars($testCode); ?></h2>
         
         <div class="info-box">
-            <h6><i class="bi bi-info-circle me-2"></i>Klausurumgebung starten</h6>
+            <h6><i class="bi bi-info-circle me-2"></i>
+                <?php if (strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'iPad') !== false): ?>
+                    🍎 iPad-Klausurumgebung starten
+                <?php else: ?>
+                    Klausurumgebung starten
+                <?php endif; ?>
+            </h6>
             <p class="mb-0">
-                Der Test wird in der sicheren SEB-Umgebung geöffnet. 
-                Bitte wählen Sie eine der folgenden Optionen:
+                <?php if (strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'iPad') !== false): ?>
+                    <strong>iPad-Hinweis:</strong> Der Test wird in der SEB-App geöffnet. 
+                    Nach dem Start ist das Verlassen der App gesperrt.
+                    <br><br>
+                    <small>⚠️ Home-Button, App-Switcher und Kontrollzentrum werden deaktiviert.</small>
+                <?php else: ?>
+                    Der Test wird in der sicheren SEB-Umgebung geöffnet. 
+                    Bitte wählen Sie eine der folgenden Optionen:
+                <?php endif; ?>
             </p>
         </div>
         
