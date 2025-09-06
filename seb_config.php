@@ -101,10 +101,18 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>browserURLSalt</key>
     <true/>
     
-    <!-- SEB-Schema-URLs explizit erlauben -->
+    <!-- SEB-KONFIGURATION UND NEUSTART-EINSTELLUNGEN -->
     <key>allowSwitchToApplications</key>
     <false/>
     <key>enableSebBrowser</key>
+    <true/>
+    
+    <!-- WICHTIG: Erlaube Konfigurationswechsel -->
+    <key>downloadAndOpenSebConfig</key>
+    <true/>
+    <key>examSessionClearCookiesOnStart</key>
+    <true/>
+    <key>restartExamUseStartURL</key>
     <true/>
     <key>browserWindowAllowBackForward</key>
     <false/>
@@ -124,10 +132,18 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <true/>
     <key>hashedQuitPassword</key>
     <string>' . hash('sha256', 'admin123') . '</string>
+    
+    <!-- ERLAUBE NEUES LADEN VON SEB-KONFIGURATIONEN -->
+    <key>allowReconfiguration</key>
+    <true/>
+    <key>forceReconfiguration</key>
+    <true/>
     <key>showReloadWarning</key>
-    <true/>
+    <false/>
     <key>showQuitWarning</key>
-    <true/>
+    <false/>
+    <key>restartExamPasswordHash</key>
+    <string>' . hash('sha256', 'admin123') . '</string>
     <key>allowSwitchToApplications</key>
     <false/>
     <key>enableAppSwitcherCheck</key>

@@ -3077,14 +3077,16 @@ function showSEBQRCode(accessCode, title) {
     const sebConfigUrl = baseUrl + 'seb_config.php?code=' + accessCode;
     
     // DIREKTE SEB-URL-SCHEMAS FÜR AUTOMATISCHES LADEN
-    const sebDirectUrl = 'seb://' + encodeURIComponent(sebConfigUrl);
-    const sebStartConfigUrl = 'seb://start?config=' + encodeURIComponent(sebConfigUrl);
-    const safeExamBrowserUrl = 'safeexambrowser://config?url=' + encodeURIComponent(sebConfigUrl);
+    const sebConfigFlexibleUrl = baseUrl + 'seb_config_flexible.php?code=' + accessCode;
+    const sebDirectUrl = 'seb://' + encodeURIComponent(sebConfigFlexibleUrl);
+    const sebStartConfigUrl = 'seb://start?config=' + encodeURIComponent(sebConfigFlexibleUrl);
+    const safeExamBrowserUrl = 'safeexambrowser://config?url=' + encodeURIComponent(sebConfigFlexibleUrl);
     
     console.log('🔒 Base URL:', baseUrl);
     console.log('🔒 Access Code:', accessCode);
     
     console.log('🔒 SEB-Config URL:', sebConfigUrl);
+    console.log('🔧 SEB-Flexible URL:', sebConfigFlexibleUrl);
     console.log('🔗 SEB-Direct URL:', sebDirectUrl);
     console.log('▶️ SEB-Start URL:', sebStartConfigUrl);
     console.log('🌐 SafeExamBrowser URL:', safeExamBrowserUrl);
@@ -3102,8 +3104,12 @@ function showSEBQRCode(accessCode, title) {
                     '</div>' +
                     '<div class="modal-body text-center">' +
                         '<div class="alert alert-success">' +
-                            '<h6><i class="bi bi-qr-code me-2"></i>Automatisches SEB-Laden</h6>' +
-                            '<p class="mb-0">Diese QR-Codes starten SEB automatisch ohne manuelles Eingreifen.</p>' +
+                            '<h6><i class="bi bi-qr-code me-2"></i>Automatisches SEB-Laden (Flexible Config)</h6>' +
+                            '<p class="mb-0">Diese QR-Codes verwenden eine flexible SEB-Konfiguration die Konfigurationswechsel erlaubt.</p>' +
+                        '</div>' +
+                        '<div class="alert alert-warning alert-sm">' +
+                            '<strong><i class="bi bi-info-circle me-2"></i>Tipp:</strong> ' +
+                            'Falls "Laden neuer Einstellungen nicht erlaubt" erscheint, SEB komplett schließen und QR-Code erneut scannen.' +
                         '</div>' +
                         
                         '<div class="row">' +
