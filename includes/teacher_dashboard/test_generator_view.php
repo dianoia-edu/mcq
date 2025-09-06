@@ -112,29 +112,165 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
-                <div class="alert alert-info m-3 mb-0">
-                    <h6><strong>📋 Anleitung:</strong></h6>
-                    <ol class="mb-0">
-                        <li>Warten Sie, bis die Seite geladen ist</li>
-                        <li>Klicken Sie auf "Download" bei den gewünschten Untertiteln</li>
-                        <li>Laden Sie die .txt oder .srt Datei herunter</li>
-                        <li>Schließen Sie dieses Fenster und laden Sie die Datei im "Datei-Upload" hoch</li>
-                    </ol>
-                </div>
-                <div id="subtitleToFrame" style="height: 70vh;">
-                    <div class="text-center p-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Lade subtitle.to...</span>
+                <!-- Workflow-Tabs -->
+                <ul class="nav nav-tabs" id="subtitleWorkflowTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="download-tab" data-bs-toggle="tab" data-bs-target="#download-pane" type="button" role="tab">
+                            📥 1. Download
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-pane" type="button" role="tab">
+                            📤 2. Upload
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="generate-tab" data-bs-toggle="tab" data-bs-target="#generate-pane" type="button" role="tab">
+                            🚀 3. Generieren
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="subtitleWorkflowContent">
+                    <!-- Tab 1: Download -->
+                    <div class="tab-pane fade show active" id="download-pane" role="tabpanel">
+                        <div class="alert alert-info m-3 mb-0">
+                            <h6><strong>📋 Schritt 1: Untertitel herunterladen</strong></h6>
+                            <ol class="mb-2">
+                                <li>Warten Sie, bis die subtitle.to Seite geladen ist</li>
+                                <li>Klicken Sie auf "Download" bei den gewünschten Untertiteln</li>
+                                <li>Speichern Sie die .txt oder .srt Datei auf Ihrem Computer</li>
+                                <li>Wechseln Sie dann zum "Upload" Tab</li>
+                            </ol>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="openSubtitleToExternal">
+                                    🔗 In neuem Tab öffnen
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success" onclick="$('#upload-tab').tab('show')">
+                                    ➡️ Weiter zu Upload
+                                </button>
+                            </div>
                         </div>
-                        <p class="mt-3">Lade subtitle.to Seite...</p>
+                        <div id="subtitleToFrame" style="height: 60vh;">
+                            <div class="text-center p-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Lade subtitle.to...</span>
+                                </div>
+                                <p class="mt-3">Lade subtitle.to Seite...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 2: Upload -->
+                    <div class="tab-pane fade" id="upload-pane" role="tabpanel">
+                        <div class="p-4">
+                            <div class="alert alert-success">
+                                <h6><strong>📤 Schritt 2: Untertitel-Datei hochladen</strong></h6>
+                                <p>Laden Sie die heruntergeladene Untertitel-Datei (.txt, .srt) hier hoch:</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="subtitleFileUpload" class="form-label">
+                                    <strong>Untertitel-Datei auswählen:</strong>
+                                </label>
+                                <input type="file" class="form-control" id="subtitleFileUpload" 
+                                       accept=".txt,.srt,.vtt,.sbv" 
+                                       onchange="handleSubtitleFileUpload(this)">
+                                <div class="form-text">
+                                    Unterstützte Formate: .txt, .srt, .vtt, .sbv (max. 10MB)
+                                </div>
+                            </div>
+                            
+                            <div id="uploadStatus" class="mb-3" style="display: none;">
+                                <div class="alert alert-info">
+                                    <h6>📄 Datei-Vorschau:</h6>
+                                    <div id="filePreview" style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px;"></div>
+                                    <div class="mt-2">
+                                        <strong>Dateiname:</strong> <span id="fileName"></span><br>
+                                        <strong>Größe:</strong> <span id="fileSize"></span><br>
+                                        <strong>Zeichen:</strong> <span id="fileLength"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" onclick="$('#download-tab').tab('show')">
+                                    ⬅️ Zurück zu Download
+                                </button>
+                                <button type="button" class="btn btn-success" id="proceedToGenerate" disabled onclick="$('#generate-tab').tab('show')">
+                                    ➡️ Weiter zur Generierung
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 3: Generate -->
+                    <div class="tab-pane fade" id="generate-pane" role="tabpanel">
+                        <div class="p-4">
+                            <div class="alert alert-warning">
+                                <h6><strong>🚀 Schritt 3: Test generieren</strong></h6>
+                                <p>Bereit für die Test-Generierung mit den Untertiteln!</p>
+                            </div>
+                            
+                            <!-- Test-Optionen -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="modalQuestionCount" class="form-label">Anzahl Fragen:</label>
+                                    <select class="form-select" id="modalQuestionCount">
+                                        <option value="5">5 Fragen</option>
+                                        <option value="10" selected>10 Fragen</option>
+                                        <option value="15">15 Fragen</option>
+                                        <option value="20">20 Fragen</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="modalAnswerCount" class="form-label">Antworten pro Frage:</label>
+                                    <select class="form-select" id="modalAnswerCount">
+                                        <option value="3">3 Antworten</option>
+                                        <option value="4" selected>4 Antworten</option>
+                                        <option value="5">5 Antworten</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="modalTestTitle" class="form-label">Test-Titel (optional):</label>
+                                <input type="text" class="form-control" id="modalTestTitle" 
+                                       placeholder="Automatisch basierend auf Video-Inhalt">
+                            </div>
+                            
+                            <div id="generationProgress" style="display: none;">
+                                <div class="alert alert-info">
+                                    <h6>⏳ Test wird generiert...</h6>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                             role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div id="progressText" class="mt-2">Vorbereitung...</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" onclick="$('#upload-tab').tab('show')">
+                                    ⬅️ Zurück zu Upload
+                                </button>
+                                <button type="button" class="btn btn-primary btn-lg" id="startTestGeneration">
+                                    🚀 Test jetzt generieren
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                <button type="button" class="btn btn-primary" id="openSubtitleToExternal">
-                    🔗 In neuem Tab öffnen
-                </button>
+            <div class="modal-footer border-0 bg-light">
+                <div class="d-flex justify-content-between w-100">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        ❌ Abbrechen
+                    </button>
+                    <div class="text-muted small">
+                        💡 Tipp: Sie können jederzeit zwischen den Tabs wechseln
+                    </div>
+                </div>
             </div>
         </div>
     </div>

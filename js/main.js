@@ -532,6 +532,237 @@ function openSubtitleToModal(youtubeUrl) {
     }
 }
 
+// Subtitle Modal Workflow Funktionen
+let subtitleFileContent = null;
+let subtitleFileName = null;
+
+function handleSubtitleFileUpload(input) {
+    const file = input.files[0];
+    
+    if (!file) {
+        document.getElementById('uploadStatus').style.display = 'none';
+        document.getElementById('proceedToGenerate').disabled = true;
+        return;
+    }
+    
+    console.log('📤 Datei ausgewählt:', file.name, file.size, 'bytes');
+    
+    // Validierung
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+        alert('Datei ist zu groß! Maximum: 10MB');
+        input.value = '';
+        return;
+    }
+    
+    const validTypes = ['text/plain', 'application/x-subrip', 'text/vtt', 'text/srt'];
+    const validExtensions = ['.txt', '.srt', '.vtt', '.sbv'];
+    const hasValidExtension = validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    
+    if (!hasValidExtension) {
+        alert('Ungültiger Dateityp! Erlaubt: .txt, .srt, .vtt, .sbv');
+        input.value = '';
+        return;
+    }
+    
+    // Datei lesen
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        
+        console.log('📄 Datei gelesen:', content.length, 'Zeichen');
+        
+        // Content validieren
+        if (content.length < 50) {
+            alert('Datei ist zu kurz! Mindestens 50 Zeichen erforderlich.');
+            input.value = '';
+            return;
+        }
+        
+        // Content speichern
+        subtitleFileContent = content;
+        subtitleFileName = file.name;
+        
+        // UI aktualisieren
+        showFilePreview(file, content);
+        document.getElementById('proceedToGenerate').disabled = false;
+        
+        console.log('✅ Datei erfolgreich verarbeitet');
+    };
+    
+    reader.onerror = function() {
+        alert('Fehler beim Lesen der Datei!');
+        input.value = '';
+    };
+    
+    reader.readAsText(file, 'UTF-8');
+}
+
+function showFilePreview(file, content) {
+    // Datei-Info anzeigen
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = formatFileSize(file.size);
+    document.getElementById('fileLength').textContent = content.length.toLocaleString() + ' Zeichen';
+    
+    // Preview-Text (erste 500 Zeichen)
+    const preview = content.substring(0, 500);
+    const previewElement = document.getElementById('filePreview');
+    previewElement.textContent = preview;
+    
+    if (content.length > 500) {
+        previewElement.innerHTML += '<br><br><em>... (' + (content.length - 500) + ' weitere Zeichen)</em>';
+    }
+    
+    // Status anzeigen
+    document.getElementById('uploadStatus').style.display = 'block';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Test-Generierung im Modal
+$(document).on('click', '#startTestGeneration', function() {
+    if (!subtitleFileContent) {
+        alert('Bitte laden Sie zuerst eine Untertitel-Datei hoch!');
+        $('#upload-tab').tab('show');
+        return;
+    }
+    
+    console.log('🚀 Starte Test-Generierung mit Subtitle-Content');
+    
+    // Progress anzeigen
+    const progressDiv = document.getElementById('generationProgress');
+    const progressBar = progressDiv.querySelector('.progress-bar');
+    const progressText = document.getElementById('progressText');
+    const startButton = document.getElementById('startTestGeneration');
+    
+    progressDiv.style.display = 'block';
+    startButton.disabled = true;
+    
+    // Sammle Form-Daten
+    const questionCount = document.getElementById('modalQuestionCount').value;
+    const answerCount = document.getElementById('modalAnswerCount').value;
+    const testTitle = document.getElementById('modalTestTitle').value;
+    
+    // Progress-Simulation
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        
+        progressBar.style.width = progress + '%';
+        
+        if (progress < 30) {
+            progressText.textContent = 'Verarbeite Untertitel...';
+        } else if (progress < 60) {
+            progressText.textContent = 'Analysiere Inhalt...';
+        } else {
+            progressText.textContent = 'Generiere Fragen...';
+        }
+    }, 200);
+    
+    // FormData für AJAX-Request vorbereiten
+    const formData = new FormData();
+    
+    // Erstelle Blob für File-Upload-Simulation
+    const blob = new Blob([subtitleFileContent], { type: 'text/plain' });
+    formData.append('source_file', blob, subtitleFileName);
+    formData.append('question_count', questionCount);
+    formData.append('answer_count', answerCount);
+    if (testTitle) {
+        formData.append('test_title', testTitle);
+    }
+    formData.append('debug', '1');
+    
+    console.log('📤 Sende Test-Generierung Request...');
+    
+    // AJAX-Request
+    $.ajax({
+        url: getTeacherUrl('generate_test.php'),
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        timeout: 300000, // 5 Minuten
+        xhr: function() {
+            const xhr = new window.XMLHttpRequest();
+            xhr.upload.addEventListener("progress", function(evt) {
+                if (evt.lengthComputable) {
+                    const percentComplete = (evt.loaded / evt.total) * 100;
+                    if (percentComplete < 90) {
+                        progressBar.style.width = percentComplete + '%';
+                    }
+                }
+            }, false);
+            return xhr;
+        },
+        success: function(response) {
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Test erfolgreich generiert!';
+            
+            console.log('✅ Test-Generierung erfolgreich:', response);
+            
+            setTimeout(() => {
+                // Modal schließen
+                const modal = bootstrap.Modal.getInstance(document.getElementById('subtitleToModal'));
+                modal.hide();
+                
+                // Erfolg anzeigen
+                $('#generationResult').html(`
+                    <div class="alert alert-success">
+                        <h4>✅ Test erfolgreich generiert!</h4>
+                        <p><strong>Datei:</strong> ${subtitleFileName}</p>
+                        <p><strong>Fragen:</strong> ${questionCount}</p>
+                        <p><strong>Antworten pro Frage:</strong> ${answerCount}</p>
+                        ${response}
+                    </div>
+                `);
+                
+                // Scroll zu Ergebnis
+                document.getElementById('generationResult').scrollIntoView({ behavior: 'smooth' });
+                
+            }, 1000);
+        },
+        error: function(xhr, status, error) {
+            clearInterval(progressInterval);
+            console.error('❌ Test-Generierung fehlgeschlagen:', error);
+            
+            progressDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6>❌ Fehler bei der Test-Generierung</h6>
+                    <p><strong>Status:</strong> ${status}</p>
+                    <p><strong>Fehler:</strong> ${error}</p>
+                    <p><strong>Response:</strong> ${xhr.responseText}</p>
+                </div>
+            `;
+            
+            startButton.disabled = false;
+        }
+    });
+});
+
+// Modal Reset bei Schließen
+$(document).on('hidden.bs.modal', '#subtitleToModal', function() {
+    // Reset aller Tabs und Daten
+    $('#download-tab').tab('show');
+    subtitleFileContent = null;
+    subtitleFileName = null;
+    
+    document.getElementById('subtitleFileUpload').value = '';
+    document.getElementById('uploadStatus').style.display = 'none';
+    document.getElementById('proceedToGenerate').disabled = true;
+    document.getElementById('generationProgress').style.display = 'none';
+    document.getElementById('startTestGeneration').disabled = false;
+    document.getElementById('modalTestTitle').value = '';
+    
+    console.log('🔄 Modal zurückgesetzt');
+});
+
 // Form Submit Handler
 $('#uploadForm').on('submit', function(e) {
     e.preventDefault();
