@@ -133,17 +133,17 @@ error_log("SEB Manual Exit iPad: Test-Code=$testCode, SEB=" . ($isSEB ? 'ja' : '
         <?php endif; ?>
         
         <div class="warning-box">
-            <h6><i class="bi bi-exclamation-triangle text-danger me-2"></i>WICHTIG: Klicken Sie auf den roten Button!</h6>
+            <h6><i class="bi bi-info-circle text-primary me-2"></i>OFFIZIELLER SEB iOS QUIT-LINK</h6>
             <p class="mb-0">
-                Der Safe Exam Browser kann sich auf iPad nicht automatisch beenden. 
-                Sie <strong>müssen</strong> den Button unten anklicken, um SEB zu verlassen.
+                Nach der SEB-Dokumentation: <em>"Place a quit link on the feedback page of the exam"</em><br>
+                <strong>Klicken Sie den Button unten</strong> - das ist der offizielle Weg, SEB auf iPad zu beenden.
             </p>
         </div>
         
-        <!-- GROSSER EXIT-BUTTON -->
+        <!-- OFFIZIELLER SEB iOS QUIT-LINK -->
         <a href="seb://quit" class="btn exit-button d-block" id="exitButton">
             <i class="bi bi-power me-3"></i>
-            SEB JETZT BEENDEN
+            SEB BEENDEN (OFFIZIELLER QUIT-LINK)
         </a>
         
         <div class="instruction-box">
