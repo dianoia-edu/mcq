@@ -175,5 +175,143 @@ if (isset($_POST['back_to_home'])) {
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SEB AUTO-EXIT NACH TEST-ABSCHLUSS -->
+    <script>
+        // 🚪 SEB AUTO-EXIT NACH TESTERGEBNIS
+        function handleSEBAutoExit() {
+            const userAgent = navigator.userAgent;
+            const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+            
+            if (!isSEB) {
+                console.log('🔒 Nicht im SEB - kein Auto-Exit');
+                return;
+            }
+            
+            console.log('🚪 Test abgeschlossen - SEB Auto-Exit wird gestartet...');
+            
+            // Prüfe ob Auto-Exit vorbereitet wurde
+            fetch('seb_auto_exit_check.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.auto_exit_prepared) {
+                        console.log('✅ Auto-Exit war vorbereitet - starte SEB-Beendigung');
+                        
+                        // Zeige Beendigungs-Modal für 5 Sekunden
+                        showSEBExitModal();
+                        
+                        // SEB automatisch beenden nach 5 Sekunden
+                        setTimeout(() => {
+                            exitSEB();
+                        }, 5000);
+                        
+                    } else {
+                        console.log('ℹ️ Auto-Exit nicht vorbereitet - SEB läuft weiter');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Auto-Exit Check Fehler:', error);
+                });
+        }
+        
+        function showSEBExitModal() {
+            // Erstelle Modal-HTML
+            const modalHTML = `
+                <div class="modal fade" id="sebExitModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-check-circle me-2"></i>Test erfolgreich abgeschlossen
+                                </h5>
+                            </div>
+                            <div class="modal-body text-center">
+                                <div class="mb-3">
+                                    <i class="bi bi-shield-check text-success" style="font-size: 3rem;"></i>
+                                </div>
+                                <h6>SEB wird automatisch beendet...</h6>
+                                <div class="progress mb-3">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%" id="exitProgress">
+                                    </div>
+                                </div>
+                                <p class="small text-muted">Sie können das Gerät nach dem Beenden normal nutzen.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" onclick="cancelAutoExit()">
+                                    Abbrechen (SEB weiterlaufen lassen)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Modal zum DOM hinzufügen
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Modal anzeigen
+            const modal = new bootstrap.Modal(document.getElementById('sebExitModal'));
+            modal.show();
+            
+            // Progress-Bar animieren
+            animateProgressBar();
+        }
+        
+        function animateProgressBar() {
+            const progressBar = document.getElementById('exitProgress');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += 2; // 2% pro 100ms = 5 Sekunden
+                progressBar.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+        
+        function exitSEB() {
+            console.log('🚪 Beende SEB automatisch...');
+            
+            // Versuche verschiedene SEB-Exit-Methoden
+            try {
+                // Methode 1: SEB beenden ohne Passwort (falls konfiguriert)
+                if (window.seb && window.seb.quit) {
+                    window.seb.quit();
+                    return;
+                }
+                
+                // Methode 2: JavaScript-basierter Exit
+                window.location.href = 'seb-exit://';
+                
+                // Methode 3: Weiterleitung zur Exit-Seite
+                setTimeout(() => {
+                    window.location.href = 'seb_exit_page.php';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ SEB Auto-Exit fehlgeschlagen:', error);
+                console.log('ℹ️ Fallback: Manueller Exit erforderlich');
+            }
+        }
+        
+        function cancelAutoExit() {
+            console.log('🛑 Auto-Exit abgebrochen von Benutzer');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('sebExitModal'));
+            modal.hide();
+        }
+        
+        // Starte Auto-Exit-Check nach Seiten-Load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Warte 2 Sekunden damit Benutzer Ergebnis sehen kann
+            setTimeout(() => {
+                handleSEBAutoExit();
+            }, 2000);
+        });
+        
+        console.log('🚪 SEB Auto-Exit System geladen');
+    </script>
 </body>
 </html> 
