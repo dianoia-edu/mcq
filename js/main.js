@@ -3110,85 +3110,37 @@ function showSEBQRCode(accessCode, title) {
                         '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>' +
                     '</div>' +
                     '<div class="modal-body text-center">' +
-                        '<div class="alert alert-success">' +
-                            '<h6><i class="bi bi-star-fill me-2"></i>Embedded SEB-Konfiguration</h6>' +
-                            '<p class="mb-0">Ein QR-Code für Konfiguration UND Test-Start. Verwendet sebs:// Schema für automatisches Laden.</p>' +
+                        '<div class="alert alert-warning">' +
+                            '<h6><i class="bi bi-qr-code-scan me-2"></i>SEB Embedded Configuration</h6>' +
+                            '<p class="mb-0">Ein QR-Code für Konfiguration UND Test-Start. Scanne mit SEB oder QR-Code-App.</p>' +
                         '</div>' +
-                        '<div class="alert alert-warning alert-sm">' +
-                            '<strong><i class="bi bi-exclamation-triangle me-2"></i>SEB startet mit alter Config?</strong><br>' +
-                            'Verwende die <a href="seb_reset_strategies.php?code=' + accessCode + '" target="_blank" class="alert-link">SEB-Reset Strategien</a> ' +
-                            'um SEB zu zwingen, eine neue Konfiguration zu laden.' +
-                        '</div>' +
-                        
-                        '<div class="row">' +
-                            '<div class="col-md-4">' +
-                                '<div class="card h-100">' +
-                                    '<div class="card-header bg-success text-center">' +
-                                        '<h6 class="mb-0"><i class="bi bi-star-fill me-2"></i>Embedded Config</h6>' +
-                                    '</div>' +
-                                    '<div class="card-body text-center">' +
-                                        '<div id="sebQrcodeStart" class="mb-2"></div>' +
-                                        '<small class="text-muted">sebs://[config-url] (EMPFOHLEN)</small>' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="col-md-4">' +
-                                '<div class="card h-100">' +
-                                    '<div class="card-header bg-info text-center">' +
-                                        '<h6 class="mb-0"><i class="bi bi-globe me-2"></i>Direkte URL</h6>' +
-                                    '</div>' +
-                                    '<div class="card-body text-center">' +
-                                        '<div id="sebQrcode" class="mb-2"></div>' +
-                                        '<small class="text-muted">https://[test-url] (Fallback)</small>' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="col-md-4">' +
-                                '<div class="card h-100">' +
-                                    '<div class="card-header bg-warning text-center">' +
-                                        '<h6 class="mb-0"><i class="bi bi-download me-2"></i>Manual Download</h6>' +
-                                    '</div>' +
-                                    '<div class="card-body text-center">' +
-                                        '<div id="sebQrcodeDirect" class="mb-2"></div>' +
-                                        '<small class="text-muted">seb://[config-url] (HTTP)</small>' +
-                                    '</div>' +
-                                '</div>' +
+                        '<div class="text-center mb-4">' +
+                            '<div class="d-inline-block p-4 border border-warning rounded" style="background: #fff3cd;">' +
+                                '<div id="sebMainQrcode" class="mb-3"></div>' +
+                                '<h6 class="text-warning"><i class="bi bi-star-fill me-2"></i>Embedded SEB Config</h6>' +
+                                '<small class="text-muted">sebs:// Schema - automatisches Laden</small>' +
                             '</div>' +
                         '</div>' +
-                        '<div class="input-group mb-3">' +
-                            '<input type="text" id="sebTestUrlInput" class="form-control" value="' + sebConfigUrl + '" readonly>' +
-                            '<button class="btn btn-outline-secondary copy-seb-url-btn" type="button" title="SEB-URL kopieren">' +
-                                '<i class="bi bi-clipboard"></i>' +
-                            '</button>' +
+                        '<div class="alert alert-light">' +
+                            '<small><strong>URL:</strong></small><br>' +
+                            '<code style="font-size: 0.8rem; word-break: break-all;" id="sebMainUrl"></code>' +
                         '</div>' +
                         '<div class="d-grid gap-2">' +
-                            '<button type="button" class="btn btn-primary btn-lg test-seb-btn">' +
-                                '<i class="bi bi-download me-2"></i>.seb-Datei direkt herunterladen' +
-                            '</button>' +
-                            '<button type="button" class="btn btn-warning copy-seb-qr-btn">' +
-                                '<i class="bi bi-clipboard me-2"></i>QR-Code kopieren' +
-                            '</button>' +
-                            '<button type="button" class="btn btn-success save-seb-qr-btn">' +
-                                '<i class="bi bi-download me-2"></i>QR-Code speichern' +
-                            '</button>' +
-                        '</div>' +
-                        '<hr>' +
-                        '<div class="row">' +
-                            '<div class="col-4">' +
-                                '<button type="button" class="btn btn-outline-info btn-sm w-100 preview-seb-btn">' +
-                                    '<i class="bi bi-eye me-1"></i>Einschränkungen' +
-                                '</button>' +
+                            '<div class="row g-2">' +
+                                '<div class="col-md-6">' +
+                                    '<button type="button" class="btn btn-warning w-100 copy-seb-qr-btn">' +
+                                        '<i class="bi bi-clipboard me-2"></i>QR-URL kopieren' +
+                                    '</button>' +
+                                '</div>' +
+                                '<div class="col-md-6">' +
+                                    '<button type="button" class="btn btn-primary w-100 test-seb-btn">' +
+                                        '<i class="bi bi-download me-2"></i>.seb-Datei' +
+                                    '</button>' +
+                                '</div>' +
                             '</div>' +
-                            '<div class="col-4">' +
-                                '<a href="' + baseUrl + 'seb_reset_strategies.php?code=' + accessCode + '" target="_blank" class="btn btn-outline-danger btn-sm w-100">' +
-                                    '<i class="bi bi-arrow-clockwise me-1"></i>SEB-Reset' +
-                                '</a>' +
-                            '</div>' +
-                            '<div class="col-4">' +
-                                '<a href="' + baseUrl + 'seb_start.php?code=' + accessCode + '" target="_blank" class="btn btn-outline-secondary btn-sm w-100">' +
-                                    '<i class="bi bi-box-arrow-up-right me-1"></i>Test-Seite' +
-                                '</a>' +
-                            '</div>' +
+                            '<button type="button" class="btn btn-outline-info seb-reset-btn">' +
+                                '<i class="bi bi-arrow-clockwise me-2"></i>SEB-Reset Strategien' +
+                            '</button>' +
                         '</div>' +
                     '</div>' +
                     '<div class="modal-footer">' +
@@ -3205,10 +3157,11 @@ function showSEBQRCode(accessCode, title) {
     const sebQrModal = new bootstrap.Modal(document.getElementById('sebQrCodeModal'));
     sebQrModal.show();
     
-    // Generiere QR-Codes für verschiedene SEB-Schemas
-    generateSEBQRCode(directTestUrl, accessCode);          // Direkte Test-URL (Blau)
-    generateSEBQRCodeDirect(sebDirectUrl, accessCode);    // .seb-Config Download (Orange)
-    generateSEBQRCodeStart(sebsEmbeddedUrl, accessCode);   // SEBS Embedded Config (Grün - EMPFOHLEN)
+    // Generiere einen zentralen QR-Code (Orange) für SEBS Embedded Config
+    generateMainSEBQRCode(sebsEmbeddedUrl, accessCode);
+    
+    // URL in die Anzeige setzen
+    document.getElementById('sebMainUrl').textContent = sebsEmbeddedUrl;
     
     // Event-Handler für SEB-Modal Buttons
     setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebStartConfigUrl);
@@ -3261,25 +3214,31 @@ function generateSEBQRCodeDirect(sebDirectUrl, accessCode) {
     }
 }
 
-// Hilfsfunktion zum Generieren des SEBS Embedded Config QR-Codes (EMPFOHLEN)
-function generateSEBQRCodeStart(sebsEmbeddedUrl, accessCode) {
+// Hilfsfunktion zum Generieren des zentralen SEB QR-Codes (Orange)
+function generateMainSEBQRCode(sebsEmbeddedUrl, accessCode) {
     if (typeof QRCode !== 'undefined') {
-        new QRCode(document.getElementById("sebQrcodeStart"), {
+        new QRCode(document.getElementById("sebMainQrcode"), {
             text: sebsEmbeddedUrl,
-            width: 200,
-            height: 200,
-            colorDark: "#28a745",  // Grün für empfohlenes SEBS Embedded Schema
+            width: 250,
+            height: 250,
+            colorDark: "#fd7e14",  // Orange für Default QR-Code
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
-        console.log('✅ SEBS Embedded Config QR-Code (EMPFOHLEN) mit QRCode.js generiert:', sebsEmbeddedUrl);
+        console.log('✅ Zentraler SEB QR-Code (Orange) mit QRCode.js generiert:', sebsEmbeddedUrl);
     } else {
-        $('#sebQrcodeStart').html(
-            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=28a745&data=' + 
-            encodeURIComponent(sebsEmbeddedUrl) + '" alt="SEBS Embedded Config QR-Code (EMPFOHLEN) für ' + accessCode + '" class="img-fluid">'
+        $('#sebMainQrcode').html(
+            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&color=fd7e14&data=' + 
+            encodeURIComponent(sebsEmbeddedUrl) + '" alt="Zentraler SEB QR-Code für ' + accessCode + '" class="img-fluid">'
         );
-        console.log('✅ SEBS Embedded Config QR-Code (EMPFOHLEN) mit Online-Generator erstellt');
+        console.log('✅ Zentraler SEB QR-Code (Orange) mit Online-Generator erstellt');
     }
+}
+
+// Legacy-Funktion für SEBS Embedded Config QR-Codes (wird nicht mehr verwendet)
+function generateSEBQRCodeStart(sebsEmbeddedUrl, accessCode) {
+    // Diese Funktion wird durch generateMainSEBQRCode ersetzt
+    console.log('⚠️ generateSEBQRCodeStart ist deprecated - verwende generateMainSEBQRCode');
 }
 
 // Event-Handler für SEB-Modal Buttons
@@ -3292,39 +3251,24 @@ function setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebS
         showSuccessMessage('SEB-URL wurde in die Zwischenablage kopiert!');
     });
     
-    // QR-Code kopieren
+    // QR-URL kopieren
     $('.copy-seb-qr-btn').off('click').on('click', function() {
-        const qrImg = $('#sebQrcode img').get(0);
-        if (qrImg) {
-            const canvas = document.createElement('canvas');
-            canvas.width = qrImg.width;
-            canvas.height = qrImg.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(qrImg, 0, 0);
-            
-            canvas.toBlob(function(blob) {
-                navigator.clipboard.write([
-                    new ClipboardItem({ 'image/png': blob })
-                ]).then(function() {
-                    showSuccessMessage('SEB-QR-Code wurde in die Zwischenablage kopiert!');
-                });
+        const sebUrl = document.getElementById('sebMainUrl').textContent;
+        if (sebUrl) {
+            navigator.clipboard.writeText(sebUrl).then(function() {
+                console.log('✅ SEB-URL in Zwischenablage kopiert:', sebUrl);
+                showSuccessMessage('SEB-URL wurde in die Zwischenablage kopiert!');
+            }, function(err) {
+                console.error('❌ Fehler beim Kopieren der SEB-URL:', err);
+                // Fallback: manueller Text-Prompt
+                prompt('URL manuell kopieren:', sebUrl);
             });
+        } else {
+            console.error('❌ SEB-URL nicht gefunden');
+            alert('❌ SEB-URL konnte nicht gefunden werden.');
         }
     });
     
-    // QR-Code speichern
-    $('.save-seb-qr-btn').off('click').on('click', function() {
-        const qrImg = $('#sebQrcode img').attr('src');
-        if (qrImg) {
-            const a = document.createElement('a');
-            a.href = qrImg;
-            a.download = 'seb_qrcode_' + accessCode + '.png';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showSuccessMessage('SEB-QR-Code wurde als Bild gespeichert!');
-        }
-    });
     
     // SEB-Einschränkungen anzeigen
     $('#sebQrModal').off('click', '.preview-seb-btn').on('click', '.preview-seb-btn', function() {
