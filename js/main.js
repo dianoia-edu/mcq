@@ -483,97 +483,191 @@ function isValidYoutubeUrl(url) {
     }
 }
 
-// Sanfte Werbung-Entfernung Funktion
-function removeAdsGently(iframe) {
+// AGGRESSIVE Anti-Werbung Funktion
+function removeAdsAggressively(iframe) {
+    console.log('💥 AGGRESSIVE Werbung-Entfernung gestartet!');
+    
+    // Methode 1: Direkte iframe-Manipulation (wenn möglich)
     try {
         var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        if (!iframeDoc) {
-            console.log('ℹ️ iframe-Dokument nicht zugänglich (CORS-Schutz)');
-            return;
+        if (iframeDoc) {
+            console.log('🎯 iframe-Dokument zugänglich - direkte Manipulation');
+            injectAggressiveAdBlock(iframeDoc);
+        } else {
+            console.log('🔒 iframe-Dokument blockiert - verwende CSS-Override');
+            applyExternalAdBlock(iframe);
         }
-        
-        console.log('🧹 iframe-Dokument zugänglich, entferne bekannte Werbung...');
-        
-        // CSS für sanfte Werbung-Entfernung (Edge-kompatibel)
-        var adBlockCSS = 
-            '/* Bekannte Werbung-Selektoren - vorsichtig! */' +
-            '.taboola-wrapper, .taboola-container, [id*="taboola"], [class*="taboola"], ' +
-            '.advertisement, .ads, .ad-container, .ad-banner, .ad-space, ' +
-            '.google-ads, .adsbygoogle, [id*="google_ads"], [class*="google-ads"], ' +
-            '.popup-overlay, .modal-backdrop.show, .notification-popup, ' +
-            '.cookie-banner, .cookie-notice, .cookie-consent, ' +
-            '[data-testid*="ad"], [data-testid*="banner"] { ' +
-                'display: none !important; ' +
-                'visibility: hidden !important; ' +
-                'height: 0 !important; ' +
-                'max-height: 0 !important; ' +
-                'overflow: hidden !important; ' +
-            '} ' +
-            '/* Entferne störende Overlays */ ' +
-            '.overlay, .popup, [style*="position: fixed"], [style*="z-index: 999"] { ' +
-                'z-index: auto !important; ' +
-            '} ' +
-            '/* Verbessere Hauptinhalt-Sichtbarkeit */ ' +
-            '.main-content, .content, .download-section, .video-info { ' +
-                'visibility: visible !important; ' +
-                'display: block !important; ' +
-            '}';
-        
-        // Injiziere CSS in iframe
-        var style = iframeDoc.createElement('style');
-        style.textContent = adBlockCSS;
-        
-        var head = iframeDoc.head || iframeDoc.getElementsByTagName('head')[0];
-        if (head) {
-            head.appendChild(style);
-            console.log('✅ Werbung-Entfernungs-CSS erfolgreich injiziert');
-            
-            // Zusätzliche JavaScript-basierte Entfernung (vorsichtig)
-            setTimeout(() => {
-                removeAdElementsGently(iframeDoc);
-            }, 2000);
-        }
-        
     } catch (e) {
-        console.log('ℹ️ Werbung-Entfernung nicht möglich:', e.message);
+        console.log('🔒 CORS blockiert - verwende CSS-Override:', e.message);
+        applyExternalAdBlock(iframe);
+    }
+    
+    // Methode 2: Continuous Monitoring für dynamische Werbung
+    setInterval(() => {
+        try {
+            monitorAndRemoveAds(iframe);
+        } catch (e) {
+            // Ignoriere Fehler
+        }
+    }, 1000);
+}
+
+function injectAggressiveAdBlock(doc) {
+    console.log('💉 Injiziere AGGRESSIVE Anti-Werbung CSS...');
+    
+    // HARDCORE CSS - entfernt fast alles außer Hauptinhalt
+    var aggressiveCSS = 
+        '/* AGGRESSIVE AD BLOCKING - NUCLEAR OPTION */' +
+        '/* Taboola und verwandte */ ' +
+        'div[class*="taboola"], div[id*="taboola"], .taboola, [data-name*="taboola"], ' +
+        'div[class*="outbrain"], div[id*="outbrain"], .outbrain, ' +
+        '/* Google Ads */ ' +
+        '.adsbygoogle, div[id*="google_ads"], div[class*="google-ad"], ' +
+        'ins.adsbygoogle, .google-ads, .google-ad, ' +
+        '/* Generische Werbung */ ' +
+        '.advertisement, .ad, .ads, .ad-container, .ad-wrapper, .ad-banner, ' +
+        '.ad-space, .ad-unit, .ad-block, .ad-section, ' +
+        '/* Popups und Overlays */ ' +
+        '.popup, .popup-overlay, .overlay, .modal-backdrop, ' +
+        '.notification, .notification-bar, .notification-popup, ' +
+        '/* Cookie Banner */ ' +
+        '.cookie-banner, .cookie-notice, .cookie-consent, .gdpr-banner, ' +
+        '/* Störende Elemente */ ' +
+        'div[style*="position: fixed"][style*="z-index"], ' +
+        'div[style*="position: absolute"][style*="z-index"], ' +
+        '[data-testid*="ad"], [data-name*="ad"], [class*="sponsored"], ' +
+        'iframe[src*="doubleclick"], iframe[src*="googlesyndication"], ' +
+        'iframe[src*="googleadservices"], iframe[src*="amazon-adsystem"] ' +
+        '{ ' +
+            'display: none !important; ' +
+            'visibility: hidden !important; ' +
+            'opacity: 0 !important; ' +
+            'height: 0 !important; ' +
+            'width: 0 !important; ' +
+            'max-height: 0 !important; ' +
+            'max-width: 0 !important; ' +
+            'margin: 0 !important; ' +
+            'padding: 0 !important; ' +
+            'overflow: hidden !important; ' +
+            'position: absolute !important; ' +
+            'left: -9999px !important; ' +
+            'top: -9999px !important; ' +
+        '} ' +
+        '/* Entferne störende Styles */ ' +
+        'body { ' +
+            'overflow: auto !important; ' +
+        '} ' +
+        '/* Stelle sicher dass wichtige Inhalte sichtbar sind */ ' +
+        '.main, .main-content, .content, .container, ' +
+        '.download, .download-section, .video-info, .subtitle-info, ' +
+        'form, .form, input, button, .btn, .download-btn ' +
+        '{ ' +
+            'display: block !important; ' +
+            'visibility: visible !important; ' +
+            'opacity: 1 !important; ' +
+            'position: relative !important; ' +
+        '}';
+    
+    // CSS injizieren
+    var style = doc.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = aggressiveCSS;
+    
+    var head = doc.head || doc.getElementsByTagName('head')[0];
+    if (head) {
+        head.appendChild(style);
+        console.log('✅ AGGRESSIVE CSS injiziert');
+    }
+    
+    // JavaScript-basierte Entfernung nach Delay
+    setTimeout(() => {
+        removeAdElementsAggressively(doc);
+    }, 1000);
+    
+    setTimeout(() => {
+        removeAdElementsAggressively(doc);
+    }, 3000);
+    
+    setTimeout(() => {
+        removeAdElementsAggressively(doc);
+    }, 5000);
+}
+
+function removeAdElementsAggressively(doc) {
+    console.log('🔥 AGGRESSIVE Element-Entfernung...');
+    
+    var removedCount = 0;
+    
+    // Aggressive Selektoren
+    var aggressiveSelectors = [
+        // Taboola
+        'div[class*="taboola"]', 'div[id*="taboola"]', '.taboola-wrapper',
+        // Outbrain  
+        'div[class*="outbrain"]', 'div[id*="outbrain"]',
+        // Google Ads
+        '.adsbygoogle', 'ins.adsbygoogle', 'div[id*="google_ads"]',
+        // Generische Werbung
+        '.advertisement', '.ad', '.ads', '.ad-container', '.ad-banner',
+        // Popups
+        '.popup', '.popup-overlay', '.modal-backdrop.show',
+        // Störende iframes
+        'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]',
+        'iframe[src*="amazon-adsystem"]', 'iframe[src*="googleadservices"]'
+    ];
+    
+    aggressiveSelectors.forEach(function(selector) {
+        try {
+            var elements = doc.querySelectorAll(selector);
+            for (var i = 0; i < elements.length; i++) {
+                var el = elements[i];
+                if (el && el.parentNode) {
+                    el.parentNode.removeChild(el);
+                    removedCount++;
+                }
+            }
+        } catch (e) {
+            // Ignoriere Fehler
+        }
+    });
+    
+    console.log('🔥 ' + removedCount + ' Werbung-Elemente VERNICHTET');
+}
+
+function applyExternalAdBlock(iframe) {
+    console.log('🛡️ Externe CSS-Override für iframe...');
+    
+    // CSS für das iframe-Element selbst
+    iframe.style.filter = 'contrast(1.1) brightness(1.1)';
+    
+    // Versuche iframe-URL zu modifizieren (Ad-Block Parameter)
+    var originalSrc = iframe.src;
+    if (originalSrc && !originalSrc.includes('adblock=1')) {
+        iframe.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'adblock=1&no_ads=1';
+        console.log('🔧 iframe-URL modifiziert für Ad-Blocking');
     }
 }
 
-function removeAdElementsGently(doc) {
+function monitorAndRemoveAds(iframe) {
     try {
-        console.log('🧹 Entferne Werbung-Elemente sanft...');
-        
-        // Bekannte Werbung-Selektoren
-        var adSelectors = [
-            '.taboola-wrapper',
-            '.taboola-container',
-            '[id*="taboola"]',
-            '.advertisement',
-            '.google-ads',
-            '.popup-overlay'
-        ];
-        
-        var removedCount = 0;
-        adSelectors.forEach(function(selector) {
-            try {
-                var elements = doc.querySelectorAll(selector);
-                elements.forEach(function(el) {
-                    if (el && el.parentNode) {
-                        el.style.display = 'none';
-                        removedCount++;
-                    }
-                });
-            } catch (e) {
-                // Ignoriere Fehler bei einzelnen Selektoren
+        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        if (iframeDoc) {
+            // Kontinuierliche Überwachung für neue Werbung
+            var newAds = iframeDoc.querySelectorAll(
+                'div[class*="taboola"]:not([data-removed]), ' +
+                '.adsbygoogle:not([data-removed]), ' +
+                '.advertisement:not([data-removed])'
+            );
+            
+            if (newAds.length > 0) {
+                console.log('🎯 ' + newAds.length + ' neue Werbung-Elemente erkannt');
+                for (var i = 0; i < newAds.length; i++) {
+                    newAds[i].style.display = 'none';
+                    newAds[i].setAttribute('data-removed', 'true');
+                }
             }
-        });
-        
-        if (removedCount > 0) {
-            console.log('✅ ' + removedCount + ' Werbung-Elemente entfernt');
         }
-        
     } catch (e) {
-        console.log('ℹ️ JavaScript-Werbung-Entfernung fehlgeschlagen:', e.message);
+        // CORS blockiert - ignoriere
     }
 }
 
@@ -608,9 +702,14 @@ function openSubtitleToModal(youtubeUrl) {
     
     console.log('✅ Alle Modal-Elemente gefunden');
     
-    // Erstelle subtitle.to URL (Edge-kompatibel)
-    const subtitleToUrl = 'https://www.subtitle.to/' + youtubeUrl;
-    console.log('📝 Erstelle URL:', subtitleToUrl);
+    // Erstelle subtitle.to URL mit Ad-Blocking Parametern (Edge-kompatibel)
+    var subtitleToUrl = 'https://www.subtitle.to/' + youtubeUrl;
+    
+    // NUCLEAR OPTION: Füge Ad-Blocking Parameter hinzu
+    subtitleToUrl += (subtitleToUrl.includes('?') ? '&' : '?') + 
+                     'adblock=1&no_ads=1&block_ads=true&disable_ads=1';
+    
+    console.log('📝 Erstelle URL mit Ad-Blocking:', subtitleToUrl);
     
     // Reset Frame Container (Edge-kompatibel)
     frameContainer.innerHTML = 
@@ -656,8 +755,8 @@ function openSubtitleToModal(youtubeUrl) {
             iframe.onload = function() {
                 console.log('✅ iframe erfolgreich geladen!');
                 try {
-                    console.log('🧹 Versuche sanfte Werbung-Entfernung...');
-                    removeAdsGently(iframe);
+                    console.log('💥 Starte AGGRESSIVE Werbung-Entfernung...');
+                    removeAdsAggressively(iframe);
                 } catch (e) {
                     console.log('ℹ️ Werbung-Entfernung nicht möglich (CORS):', e.message);
                 }
