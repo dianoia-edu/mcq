@@ -515,29 +515,44 @@ function removeAdsAggressively(iframe) {
 function injectAggressiveAdBlock(doc) {
     console.log('💉 Injiziere AGGRESSIVE Anti-Werbung CSS...');
     
-    // HARDCORE CSS - entfernt fast alles außer Hauptinhalt
+    // LASER-PRÄZISE CSS für downsub.com basierend auf dem DOM
     var aggressiveCSS = 
-        '/* AGGRESSIVE AD BLOCKING - NUCLEAR OPTION */' +
-        '/* Taboola und verwandte */ ' +
-        'div[class*="taboola"], div[id*="taboola"], .taboola, [data-name*="taboola"], ' +
-        'div[class*="outbrain"], div[id*="outbrain"], .outbrain, ' +
-        '/* Google Ads */ ' +
-        '.adsbygoogle, div[id*="google_ads"], div[class*="google-ad"], ' +
-        'ins.adsbygoogle, .google-ads, .google-ad, ' +
-        '/* Generische Werbung */ ' +
-        '.advertisement, .ad, .ads, .ad-container, .ad-wrapper, .ad-banner, ' +
-        '.ad-space, .ad-unit, .ad-block, .ad-section, ' +
-        '/* Popups und Overlays */ ' +
-        '.popup, .popup-overlay, .overlay, .modal-backdrop, ' +
-        '.notification, .notification-bar, .notification-popup, ' +
-        '/* Cookie Banner */ ' +
-        '.cookie-banner, .cookie-notice, .cookie-consent, .gdpr-banner, ' +
-        '/* Störende Elemente */ ' +
-        'div[style*="position: fixed"][style*="z-index"], ' +
-        'div[style*="position: absolute"][style*="z-index"], ' +
-        '[data-testid*="ad"], [data-name*="ad"], [class*="sponsored"], ' +
-        'iframe[src*="doubleclick"], iframe[src*="googlesyndication"], ' +
-        'iframe[src*="googleadservices"], iframe[src*="amazon-adsystem"] ' +
+        '/* === DOWNSUB.COM SPEZIFISCHE WERBUNG-ENTFERNUNG === */' +
+        
+        '/* TABOOLA WERBUNG - KOMPLETT VERNICHTEN */ ' +
+        'link[href*="taboola"], ' +
+        'link[href*="popup.taboola.com"], ' +
+        'a[href*="taboola"], ' +
+        'a[href*="popup.taboola.com"], ' +
+        'a[href*="fragebogen.geers.de"], ' +
+        'a[href*="artikel.enpal.de"], ' +
+        'a[href*="fragebogen.gutes-hoeren.de"], ' +
+        '[href*="taboola"], ' +
+        '[href*="popup.taboola"], ' +
+        '[href*="Taboola"], ' +
+        
+        '/* WERBUNG LINKS */ ' +
+        'link[href*="ai-denoise-image"], ' +
+        'link[href*="Upscale Images"], ' +
+        'link[href*="videoproc.com"], ' +
+        'a[href*="ai-denoise-image"], ' +
+        'a[href*="Upscale Images"], ' +
+        'a[href*="videoproc.com"], ' +
+        'a[href*="aiarty.com"], ' +
+        
+        '/* SPONSORED CONTENT */ ' +
+        'a[href*="youtube.com"][href*="adblock"], ' +
+        'link[href*="youtube.com"][href*="adblock"], ' +
+        
+        '/* PREMIUM WERBUNG */ ' +
+        'button[contains(text(), "PREMIUM")], ' +
+        'button:contains("PREMIUM"), ' +
+        '[focusable]:contains("PREMIUM"), ' +
+        
+        '/* ALLE EXTERNEN LINKS AUßER WICHTIGE */ ' +
+        'a[href*="youtube.com"]:not([href*="youtu.be"]):not([href*="/watch"]), ' +
+        'link[href*="youtube.com"]:not([href*="youtu.be"]):not([href*="/watch"]) ' +
+        
         '{ ' +
             'display: none !important; ' +
             'visibility: hidden !important; ' +
@@ -550,22 +565,60 @@ function injectAggressiveAdBlock(doc) {
             'padding: 0 !important; ' +
             'overflow: hidden !important; ' +
             'position: absolute !important; ' +
-            'left: -9999px !important; ' +
-            'top: -9999px !important; ' +
+            'left: -10000px !important; ' +
+            'top: -10000px !important; ' +
+            'pointer-events: none !important; ' +
         '} ' +
-        '/* Entferne störende Styles */ ' +
-        'body { ' +
-            'overflow: auto !important; ' +
-        '} ' +
-        '/* Stelle sicher dass wichtige Inhalte sichtbar sind */ ' +
-        '.main, .main-content, .content, .container, ' +
-        '.download, .download-section, .video-info, .subtitle-info, ' +
-        'form, .form, input, button, .btn, .download-btn ' +
+        
+        '/* === NUR WICHTIGE ELEMENTE SICHTBAR MACHEN === */ ' +
+        '/* Hauptnavigation */ ' +
+        'link[href*="downsub.com/history"], ' +
+        'link[href*="downsub.com/contact"], ' +
+        'link[href*="downsub.com/donate"], ' +
+        'a[href*="downsub.com/history"], ' +
+        'a[href*="downsub.com/contact"], ' +
+        'a[href*="downsub.com/donate"], ' +
+        
+        '/* Eingabefeld und wichtige Buttons */ ' +
+        'textbox, input[type="text"], input[type="url"], ' +
+        'button[focusable="true"]:contains("clear"), ' +
+        'button[focusable="true"]:contains("DOWNLOAD"), ' +
+        'button[focusable="true"]:contains("Settings"), ' +
+        'button[focusable="true"]:contains("SRT"), ' +
+        'button[focusable="true"]:contains("TXT"), ' +
+        'button[focusable="true"]:contains("RAW"), ' +
+        
+        '/* Status und wichtige Infos */ ' +
+        'StaticText, ' +
+        'text:contains("Duration"), ' +
+        'text:contains("German"), ' +
+        'separator ' +
+        
         '{ ' +
             'display: block !important; ' +
             'visibility: visible !important; ' +
             'opacity: 1 !important; ' +
             'position: relative !important; ' +
+            'pointer-events: auto !important; ' +
+            'z-index: 999999 !important; ' +
+        '} ' +
+        
+        '/* === SPEZIELLE HERVORHEBUNG FÜR TXT BUTTON === */ ' +
+        'button[focusable="true"]:contains("TXT") { ' +
+            'background-color: #28a745 !important; ' +
+            'color: white !important; ' +
+            'border: 3px solid #20c997 !important; ' +
+            'font-weight: bold !important; ' +
+            'font-size: 16px !important; ' +
+            'padding: 10px 20px !important; ' +
+            'border-radius: 8px !important; ' +
+            'box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3) !important; ' +
+        '} ' +
+        
+        '/* === BODY BEREINIGUNG === */ ' +
+        'body { ' +
+            'overflow: auto !important; ' +
+            'background: white !important; ' +
         '}';
     
     // CSS injizieren
@@ -598,21 +651,35 @@ function removeAdElementsAggressively(doc) {
     
     var removedCount = 0;
     
-    // Aggressive Selektoren
+    // DOWNSUB.COM SPEZIFISCHE Selektoren basierend auf DOM-Analyse
     var aggressiveSelectors = [
-        // Taboola
-        'div[class*="taboola"]', 'div[id*="taboola"]', '.taboola-wrapper',
-        // Outbrain  
-        'div[class*="outbrain"]', 'div[id*="outbrain"]',
-        // Google Ads
-        '.adsbygoogle', 'ins.adsbygoogle', 'div[id*="google_ads"]',
-        // Generische Werbung
-        '.advertisement', '.ad', '.ads', '.ad-container', '.ad-banner',
-        // Popups
-        '.popup', '.popup-overlay', '.modal-backdrop.show',
-        // Störende iframes
-        'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]',
-        'iframe[src*="amazon-adsystem"]', 'iframe[src*="googleadservices"]'
+        // Taboola Links (die Hauptplage!)
+        'a[href*="taboola"]',
+        'a[href*="popup.taboola.com"]', 
+        'a[href*="fragebogen.geers.de"]',
+        'a[href*="artikel.enpal.de"]',
+        'a[href*="fragebogen.gutes-hoeren.de"]',
+        'link[href*="taboola"]',
+        'link[href*="popup.taboola.com"]',
+        
+        // Werbung für andere Tools
+        'a[href*="aiarty.com"]',
+        'a[href*="videoproc.com"]', 
+        'a[href*="ai-denoise-image"]',
+        'link[href*="ai-denoise-image"]',
+        
+        // Sponsored YouTube Content
+        'a[href*="youtube.com"][href*="adblock"]',
+        'a[href*="youtube.com"][href*="disable_ads"]',
+        'link[href*="youtube.com"][href*="adblock"]',
+        
+        // Generische Werbung-Container falls vorhanden
+        'div[class*="taboola"]', 
+        'div[id*="taboola"]',
+        '.advertisement', 
+        '.ad-container',
+        'iframe[src*="taboola"]',
+        'iframe[src*="doubleclick"]'
     ];
     
     aggressiveSelectors.forEach(function(selector) {
@@ -631,6 +698,29 @@ function removeAdElementsAggressively(doc) {
     });
     
     console.log('🔥 ' + removedCount + ' Werbung-Elemente VERNICHTET');
+    
+    // SPEZIELLE TXT-BUTTON HERVORHEBUNG
+    try {
+        var txtButtons = doc.querySelectorAll('button');
+        for (var i = 0; i < txtButtons.length; i++) {
+            var btn = txtButtons[i];
+            if (btn.textContent && btn.textContent.trim() === 'TXT') {
+                btn.style.backgroundColor = '#28a745';
+                btn.style.color = 'white';
+                btn.style.border = '3px solid #20c997';
+                btn.style.fontWeight = 'bold';
+                btn.style.fontSize = '18px';
+                btn.style.padding = '12px 24px';
+                btn.style.borderRadius = '8px';
+                btn.style.boxShadow = '0 4px 12px rgba(40, 167, 69, 0.5)';
+                btn.style.zIndex = '999999';
+                btn.style.position = 'relative';
+                console.log('✅ TXT-Button hervorgehoben!');
+            }
+        }
+    } catch (e) {
+        console.log('ℹ️ TXT-Button Hervorhebung fehlgeschlagen');
+    }
 }
 
 function applyExternalAdBlock(iframe) {
