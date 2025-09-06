@@ -742,54 +742,116 @@ function removeAdElementsAggressively(doc) {
 }
 
 function applyExternalAdBlock(iframe) {
-    console.log('🛡️ Externe CSS-Override für iframe...');
+    console.log('🛡️ CORS blockiert - verwende NUCLEAR REPLACEMENT STRATEGIE...');
     
-    // METHODE 1: CSS-Override auf Parent-Level
+    // NUCLEAR OPTION: Ersetze iframe durch bereinigten Inhalt
+    setTimeout(() => {
+        console.log('🚀 NUCLEAR OPTION: iframe-Replacement mit werbefreiem Inhalt');
+        replaceIframeWithCleanVersion(iframe);
+    }, 5000); // Warte 5 Sekunden bis Seite vollständig geladen
+    
+    // METHODE 1: CSS-Override auf Parent-Level für sofortigen Effekt
     var parentContainer = iframe.parentElement;
     if (parentContainer) {
-        // Injiziere CSS in das Parent-Document (unser MCQ-System)
         var externalCSS = document.createElement('style');
         externalCSS.innerHTML = `
-            /* IFRAME CONTENT OVERRIDE - Versuche durch iframe zu "durchdringen" */
+            /* AGGRESSIVE iframe-Override */
             iframe {
                 filter: contrast(1.2) brightness(1.1) !important;
+                border: 3px solid #28a745 !important;
             }
             
-            /* Verstecke bekannte Werbung-URLs über iframe src */
+            /* Verstecke bekannte Werbung-URLs */
             iframe[src*="taboola"],
             iframe[src*="doubleclick"],
-            iframe[src*="googlesyndication"],
-            iframe[src*="amazon-adsystem"] {
+            iframe[src*="googlesyndication"] {
                 display: none !important;
-                height: 0 !important;
-                width: 0 !important;
             }
         `;
         document.head.appendChild(externalCSS);
-        console.log('✅ External CSS injiziert');
+        console.log('✅ Aggressive CSS injiziert');
     }
     
-    // METHODE 2: iframe-URL Manipulation
-    var originalSrc = iframe.src;
-    if (originalSrc && !originalSrc.includes('adblock=1')) {
-        var newSrc = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 
-                     'adblock=1&no_ads=1&block_ads=true&ublock=1';
-        iframe.src = newSrc;
-        console.log('🔧 iframe-URL modifiziert:', newSrc);
-    }
-    
-    // METHODE 3: iframe-Attribute Manipulation
-    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-downloads');
-    iframe.setAttribute('referrerpolicy', 'no-referrer');
-    console.log('🔧 iframe-Attribute für Ad-Blocking gesetzt');
-    
-    // METHODE 4: Periodische iframe-Neuladung mit Ad-Block URL
-    setTimeout(() => {
-        console.log('🔄 Versuche iframe-Reload mit erweiterten Ad-Block Parametern...');
-        if (iframe.src && !iframe.src.includes('disable_ads=1')) {
-            iframe.src = iframe.src + '&disable_ads=1&adblock_detected=false';
+    // METHODE 2: Kontinuierliche URL-Manipulation
+    var attempts = 0;
+    var urlManipulation = setInterval(() => {
+        attempts++;
+        if (attempts > 10) {
+            clearInterval(urlManipulation);
+            return;
         }
-    }, 3000);
+        
+        var currentSrc = iframe.src;
+        if (currentSrc && !currentSrc.includes('adblocknow=1')) {
+            iframe.src = currentSrc + '&adblocknow=1&ublock_origin=true&ghostery=true';
+            console.log('🔧 Attempt ' + attempts + ': URL modifiziert');
+        }
+    }, 2000);
+}
+
+function replaceIframeWithCleanVersion(iframe) {
+    console.log('💥 IFRAME REPLACEMENT GESTARTET...');
+    
+    var parentContainer = iframe.parentElement;
+    if (!parentContainer) {
+        console.log('❌ Parent-Container nicht gefunden');
+        return;
+    }
+    
+    // Erstelle werbefreien Ersatz-Inhalt
+    var cleanContent = document.createElement('div');
+    cleanContent.style.width = '100%';
+    cleanContent.style.height = '70vh';
+    cleanContent.style.border = '1px solid #ddd';
+    cleanContent.style.backgroundColor = '#f8f9fa';
+    cleanContent.style.padding = '20px';
+    cleanContent.style.overflow = 'auto';
+    
+    var youtubeUrl = iframe.src.replace('https://www.subtitle.to/', '').split('&')[0];
+    
+    cleanContent.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h4 style="color: #28a745;">📥 Werbefreier Untertitel-Download</h4>
+            <p style="color: #666;">Direkte Links ohne Werbung für: <code>${youtubeUrl}</code></p>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;">
+                <button onclick="window.open('https://www.subtitle.to/${youtubeUrl}', '_blank')" 
+                        style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    🔗 Original Seite öffnen
+                </button>
+                <button onclick="window.open('https://downsub.com/?url=${youtubeUrl}', '_blank')" 
+                        style="background: #17a2b8; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    📥 DownSub verwenden
+                </button>
+                <button onclick="window.open('https://savesubs.com/url=${youtubeUrl}', '_blank')" 
+                        style="background: #6f42c1; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    💾 SaveSubs verwenden
+                </button>
+            </div>
+            
+            <div style="background: #e9ecef; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                <h6 style="margin-bottom: 10px; color: #495057;">📋 Anleitung:</h6>
+                <ol style="margin: 0; color: #6c757d; line-height: 1.6;">
+                    <li>Klicken Sie auf einen der obigen Buttons</li>
+                    <li>Wählen Sie das gewünschte Untertitel-Format (TXT, SRT, VTT)</li>
+                    <li>Laden Sie die Datei herunter</li>
+                    <li>Verwenden Sie die Datei im Test-Generator</li>
+                </ol>
+            </div>
+            
+            <div style="background: #d4edda; padding: 10px; border-radius: 6px; margin-top: 15px; border-left: 4px solid #28a745;">
+                <small style="color: #155724;">
+                    ✅ <strong>Werbefrei:</strong> Diese Lösung umgeht alle Taboola-Werbung und Pop-ups.
+                </small>
+            </div>
+        </div>
+    `;
+    
+    // Ersetze iframe durch bereinigten Inhalt
+    parentContainer.replaceChild(cleanContent, iframe);
+    console.log('✅ iframe erfolgreich durch werbefreien Inhalt ersetzt!');
 }
 
 function monitorAndRemoveAds(iframe) {
