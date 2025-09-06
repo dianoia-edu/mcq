@@ -497,37 +497,61 @@ function openSubtitleToModal(youtubeUrl) {
         modal.show();
         console.log('✅ Modal wird angezeigt');
         
-        // Zeige direkt den Öffnen-Button (iframe ist nicht zuverlässig)
-        console.log('📥 Zeige subtitle.to Öffnen-Button');
-        frameContainer.innerHTML = `
-            <div class="alert alert-primary m-3">
-                <h6><i class="bi bi-download me-2"></i>Schritt 1: Untertitel herunterladen</h6>
-                <p class="mb-3">Öffnen Sie subtitle.to in einem neuen Tab um die Untertitel herunterzuladen:</p>
-                
-                <div class="text-center mb-3">
-                    <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary btn-lg">
-                        <i class="bi bi-box-arrow-up-right me-2"></i>subtitle.to öffnen
-                    </a>
-                </div>
-                
-                <div class="alert alert-light">
-                    <h6><i class="bi bi-list-ol me-2"></i>Anleitung:</h6>
-                    <ol class="mb-0">
-                        <li><strong>Klicken Sie den Button oben</strong> → öffnet subtitle.to in neuem Tab</li>
-                        <li><strong>Warten Sie</strong> bis die Seite geladen ist</li>
-                        <li><strong>Klicken Sie "Download"</strong> bei den gewünschten Untertiteln</li>
-                        <li><strong>Speichern Sie die .txt/.srt Datei</strong> auf Ihrem Computer</li>
-                        <li><strong>Wechseln Sie zum "Upload" Tab</strong> in diesem Modal</li>
-                    </ol>
-                </div>
-                
-                <div class="text-center">
-                    <button type="button" class="btn btn-success" onclick="$('#upload-tab').tab('show')">
-                        <i class="bi bi-arrow-right me-2"></i>Weiter zu Schritt 2: Upload
-                    </button>
-                </div>
-            </div>
-        `;
+        // Versuche iframe zu laden, Fallback zu Button
+        setTimeout(() => {
+            console.log('🔄 Lade iframe...');
+            
+            // Erstelle iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = subtitleToUrl;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.sandbox = 'allow-same-origin allow-scripts allow-forms allow-downloads allow-top-navigation';
+            
+            // Event-Listener
+            iframe.onload = function() {
+                console.log('✅ iframe erfolgreich geladen!');
+            };
+            
+            iframe.onerror = function() {
+                console.log('❌ iframe Fehler - zeige Fallback');
+                showFallbackButton();
+            };
+            
+            // iframe hinzufügen
+            frameContainer.innerHTML = '';
+            frameContainer.appendChild(iframe);
+            
+            console.log('✅ iframe erstellt und hinzugefügt');
+            
+            // Nach 3 Sekunden prüfen ob iframe blockiert ist
+            setTimeout(() => {
+                try {
+                    if (!iframe.contentDocument && !iframe.contentWindow) {
+                        console.log('⚠️ iframe blockiert - zeige Fallback');
+                        showFallbackButton();
+                    }
+                } catch (e) {
+                    console.log('⚠️ iframe Cross-Origin - zeige Fallback');
+                    showFallbackButton();
+                }
+            }, 3000);
+            
+            function showFallbackButton() {
+                frameContainer.innerHTML = `
+                    <div class="alert alert-info m-3">
+                        <h6>🔗 subtitle.to öffnen</h6>
+                        <p>iframe wird blockiert - öffnen Sie subtitle.to in einem neuen Tab:</p>
+                        <div class="text-center">
+                            <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary btn-lg">
+                                🔗 subtitle.to öffnen
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        }, 500);
         
     } catch (modalError) {
         console.error('❌ Fehler beim Erstellen/Anzeigen des Modals:', modalError);
