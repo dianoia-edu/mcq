@@ -2500,8 +2500,10 @@ function showQrCode(automatisch = false, modalType = 'editor') {
             </div>
             <div class="modal-footer">
                 ${modalType === 'generator' ? `
-                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Schließen</button>
-                    <button type="button" class="btn btn-success" id="editTest">Test bearbeiten</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-primary" id="editTest" data-access-code="${accessCode}">
+                        <i class="bi bi-pencil-square me-2"></i>Test bearbeiten
+                    </button>
                 ` : `
                     <button type="button" class="btn btn-success" data-bs-dismiss="modal">Schließen</button>
                 `}
@@ -2595,6 +2597,67 @@ function showQrCode(automatisch = false, modalType = 'editor') {
             document.body.removeChild(a);
             
             showSuccessMessage('QR-Code wurde als Bild gespeichert!');
+        }
+    });
+    
+    // Event-Handler für "Test bearbeiten" Button
+    $(document).on('click', '#editTest', function() {
+        const accessCode = $(this).data('access-code');
+        console.log('🔧 Test bearbeiten geklickt für Code:', accessCode);
+        
+        if (accessCode) {
+            // Modal schließen
+            const qrModal = bootstrap.Modal.getInstance(document.getElementById('qrCodeModal'));
+            if (qrModal) {
+                qrModal.hide();
+            }
+            
+            // Zum Editor-Tab wechseln
+            console.log('🔧 Wechsle zum Editor-Tab');
+            activateTab('editor');
+            
+            // Test im Editor laden
+            setTimeout(() => {
+                console.log('🔧 Lade Test im Editor:', accessCode);
+                
+                // Finde und wähle den Test in der Dropdown aus
+                let testFound = false;
+                $('#testSelector option').each(function() {
+                    const optionText = $(this).text();
+                    const optionValue = $(this).val();
+                    
+                    // Prüfe ob der Access-Code in der Option enthalten ist
+                    if (optionText.includes(accessCode) || optionValue.includes(accessCode)) {
+                        console.log('✅ Test gefunden und auswählen:', optionText);
+                        $(this).prop('selected', true);
+                        $('#testSelector').trigger('change');
+                        testFound = true;
+                        return false; // break
+                    }
+                });
+                
+                // Falls Test nicht in Dropdown gefunden, lade Testliste neu
+                if (!testFound) {
+                    console.log('🔧 Test nicht in Dropdown, lade Testliste neu...');
+                    reloadTestList(() => {
+                        // Nochmal versuchen nach Reload
+                        $('#testSelector option').each(function() {
+                            const optionText = $(this).text();
+                            const optionValue = $(this).val();
+                            
+                            if (optionText.includes(accessCode) || optionValue.includes(accessCode)) {
+                                console.log('✅ Test nach Reload gefunden:', optionText);
+                                $(this).prop('selected', true);
+                                $('#testSelector').trigger('change');
+                                return false;
+                            }
+                        });
+                    });
+                }
+            }, 500);
+        } else {
+            console.error('❌ Kein Access-Code für Test bearbeiten gefunden');
+            alert('Fehler: Test-Code nicht gefunden. Bitte wählen Sie den Test manuell im Editor aus.');
         }
     });
     
