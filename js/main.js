@@ -3074,7 +3074,7 @@ function showSEBQRCode(accessCode, title) {
     
     // Erstelle die SEB-URL (führt zur SEB-Konfiguration)
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
-    const sebConfigUrl = baseUrl + 'seb_start.php?code=' + accessCode;
+    const sebConfigUrl = baseUrl + 'seb_config.php?code=' + accessCode;
     
     console.log('🔒 Base URL:', baseUrl);
     console.log('🔒 Access Code:', accessCode);
@@ -3093,9 +3093,9 @@ function showSEBQRCode(accessCode, title) {
                         '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>' +
                     '</div>' +
                     '<div class="modal-body text-center">' +
-                        '<div class="alert alert-info">' +
-                            '<h6><i class="bi bi-info-circle me-2"></i>Safe Exam Browser (SEB)</h6>' +
-                            '<p class="mb-0">Dieser QR-Code startet den Test direkt in der sicheren Klausurumgebung.</p>' +
+                        '<div class="alert alert-success">' +
+                            '<h6><i class="bi bi-download me-2"></i>SEB-Konfiguration herunterladen</h6>' +
+                            '<p class="mb-0">Dieser QR-Code lädt die .seb-Datei herunter. Nach dem Öffnen startet der Test automatisch in der sicheren Umgebung.</p>' +
                         '</div>' +
                         '<div id="sebQrcode" class="mb-3 d-inline-block"></div>' +
                         '<div class="input-group mb-3">' +
@@ -3105,18 +3105,28 @@ function showSEBQRCode(accessCode, title) {
                             '</button>' +
                         '</div>' +
                         '<div class="d-grid gap-2">' +
+                            '<button type="button" class="btn btn-primary btn-lg test-seb-btn">' +
+                                '<i class="bi bi-download me-2"></i>.seb-Datei direkt herunterladen' +
+                            '</button>' +
                             '<button type="button" class="btn btn-warning copy-seb-qr-btn">' +
-                                '<i class="bi bi-clipboard"></i> SEB-QR-Code kopieren' +
+                                '<i class="bi bi-clipboard me-2"></i>QR-Code kopieren' +
                             '</button>' +
                             '<button type="button" class="btn btn-success save-seb-qr-btn">' +
-                                '<i class="bi bi-download"></i> SEB-QR-Code speichern' +
+                                '<i class="bi bi-download me-2"></i>QR-Code speichern' +
                             '</button>' +
-                            '<button type="button" class="btn btn-info preview-seb-btn">' +
-                                '<i class="bi bi-eye"></i> SEB-Einschränkungen anzeigen' +
-                            '</button>' +
-                            '<button type="button" class="btn btn-primary test-seb-btn">' +
-                                '<i class="bi bi-play-fill"></i> SEB-Config testen' +
-                            '</button>' +
+                        '</div>' +
+                        '<hr>' +
+                        '<div class="row">' +
+                            '<div class="col-6">' +
+                                '<button type="button" class="btn btn-outline-info btn-sm w-100 preview-seb-btn">' +
+                                    '<i class="bi bi-eye me-1"></i>Einschränkungen' +
+                                '</button>' +
+                            '</div>' +
+                            '<div class="col-6">' +
+                                '<a href="' + baseUrl + 'seb_start.php?code=' + accessCode + '" target="_blank" class="btn btn-outline-secondary btn-sm w-100">' +
+                                    '<i class="bi bi-box-arrow-up-right me-1"></i>Test-Seite' +
+                                '</a>' +
+                            '</div>' +
                         '</div>' +
                     '</div>' +
                     '<div class="modal-footer">' +
@@ -3212,14 +3222,14 @@ function setupSEBModalEventHandlers(accessCode, sebConfigUrl) {
     });
     
     // SEB-Einschränkungen anzeigen
-    $('.preview-seb-btn').off('click').on('click', function() {
+    $('#sebQrModal').off('click', '.preview-seb-btn').on('click', '.preview-seb-btn', function() {
         console.log('👁️ Zeige SEB-Einschränkungen für:', accessCode);
         const previewUrl = baseUrl + 'seb_config_preview.php?code=' + accessCode;
         window.open(previewUrl, '_blank');
     });
     
     // SEB-Config testen
-    $('.test-seb-btn').off('click').on('click', function() {
+    $('#sebQrModal').off('click', '.test-seb-btn').on('click', '.test-seb-btn', function() {
         console.log('🧪 Teste SEB-Konfiguration:', sebConfigUrl);
         window.open(sebConfigUrl, '_blank');
     });

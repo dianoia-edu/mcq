@@ -196,12 +196,20 @@ if ($isSEB) {
             </a>
         </div>
         
-        <div class="debug-info">
-            <strong>Debug-Info:</strong><br>
-            Test-Code: <?php echo htmlspecialchars($testCode); ?><br>
-            SEB erkannt: <?php echo $isSEB ? 'Ja' : 'Nein'; ?><br>
-            User-Agent: <?php echo htmlspecialchars(substr($userAgent, 0, 100)); ?>...
+        <div class="alert alert-info mt-4">
+            <h6><i class="bi bi-info-circle me-2"></i>Anleitung</h6>
+            <ol class="mb-0">
+                <li><strong>SEB-Konfiguration herunterladen</strong> (Button oben)</li>
+                <li><strong>.seb-Datei öffnen</strong> mit Safe Exam Browser</li>
+                <li><strong>Test startet automatisch</strong> in sicherer Umgebung</li>
+            </ol>
         </div>
+        
+        <?php if (!$isSEB): ?>
+        <div class="debug-info">
+            <small>Test-Code: <?php echo htmlspecialchars($testCode); ?> | Nicht im SEB</small>
+        </div>
+        <?php endif; ?>
     </div>
 
     <script>
