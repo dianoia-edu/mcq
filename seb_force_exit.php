@@ -40,11 +40,20 @@ try {
     </script>
     ";
     
-    // 2. HTTP-Headers für SEB
+    // 2. ERWEITERTE HTTP-Headers für SEB
+    header('X-SafeExamBrowser-Quit-URL: seb://quit?password=' . urlencode($password));
+    header('X-SafeExamBrowser-ConfigKey-Quit: true');
+    header('X-SafeExamBrowser-RequestHash: ' . hash('sha256', $testCode . $password . time()));
+    header('X-SafeExamBrowser-Quit-Secret: ' . hash('sha256', $password));
+    header('X-SafeExamBrowser-Quit-Password: ' . hash('sha256', $password));
     header('X-SEB-Quit: true');
     header('X-SEB-Password: ' . $password);
     header('X-SEB-Force-Exit: 1');
+    header('X-SEB-Exit: immediate');
+    header('X-SEB-Terminate: ' . $testCode);
+    header('X-SEB-Close-Browser: true');
     header('Connection: close');
+    header('Refresh: 1; url=seb://quit?password=' . urlencode($password));
     
     // 3. Response Body
     echo "SEB-FORCE-EXIT-SIGNAL\n";

@@ -157,41 +157,113 @@ error_log("SEB Auto-Exit Simple: Test-Code=$testCode, SEB-erkannt=" . ($isSEB ? 
             document.getElementById('countdown').textContent = 'BEENDEN...';
             document.getElementById('countdown').style.color = '#dc3545';
             
-            // 🔧 METHODE 1: SEB-spezifische URLs
+            // 🔧 METHODE 1: Erweiterte SEB-Exit-URLs
             const sebExitUrls = [
+                'seb://quit?password=' + encodeURIComponent(password),
+                'safeexambrowser://quit',
                 'seb-quit://',
-                'seb://quit',
                 'seb://exit',
-                'safeexambrowser://quit'
+                'seb://close',
+                'safeexambrowser://close',
+                'seb://terminate',
+                'seb://shutdown'
             ];
             
             sebExitUrls.forEach((url, index) => {
                 setTimeout(() => {
                     try {
                         console.log(`🔧 Versuche Exit-URL ${index + 1}: ${url}`);
-                        window.location.href = url;
+                        
+                        // Erstelle versteckten iframe für URL-Aufruf
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = url;
+                        document.body.appendChild(iframe);
+                        
+                        // Entferne iframe nach kurzer Zeit
+                        setTimeout(() => {
+                            if (iframe.parentNode) {
+                                iframe.parentNode.removeChild(iframe);
+                            }
+                        }, 1000);
+                        
+                        // Auch direkter window.location Versuch
+                        if (index < 3) {  // Nur für die ersten URLs
+                            window.location.href = url;
+                        }
                     } catch (e) {
                         console.warn(`⚠️ Exit-URL ${index + 1} fehlgeschlagen:`, e);
                     }
-                }, index * 500);
+                }, index * 300);
             });
             
-            // 🔧 METHODE 2: JavaScript-Events
+            // 🔧 METHODE 2: Erweiterte JavaScript-Events und DOM-Manipulation
             setTimeout(() => {
                 try {
-                    console.log('🔧 Versuche JavaScript-Events...');
+                    console.log('🔧 Versuche erweiterte JavaScript-Events...');
                     
-                    // Custom Events
-                    window.dispatchEvent(new CustomEvent('seb-quit', {
-                        detail: { password: password, testCode: testCode }
-                    }));
+                    // SEB-spezifische Events
+                    const sebEvents = [
+                        'seb-quit',
+                        'sebQuit',
+                        'SEB_QUIT',
+                        'safexam-quit',
+                        'browser-exit',
+                        'application-quit'
+                    ];
                     
-                    // Keyboard Events
-                    document.dispatchEvent(new KeyboardEvent('keydown', {
-                        key: 'F4',
-                        altKey: true,
-                        bubbles: true
-                    }));
+                    sebEvents.forEach(eventName => {
+                        try {
+                            window.dispatchEvent(new CustomEvent(eventName, {
+                                detail: { 
+                                    password: password, 
+                                    testCode: testCode,
+                                    action: 'quit',
+                                    source: 'auto-exit'
+                                }
+                            }));
+                            
+                            document.dispatchEvent(new CustomEvent(eventName, {
+                                detail: { 
+                                    password: password, 
+                                    testCode: testCode,
+                                    action: 'quit',
+                                    source: 'auto-exit'
+                                }
+                            }));
+                        } catch (e) {
+                            console.warn(`Event ${eventName} fehlgeschlagen:`, e);
+                        }
+                    });
+                    
+                    // Keyboard-Kombinationen für SEB
+                    const keyEvents = [
+                        { key: 'F4', altKey: true },           // Alt+F4
+                        { key: 'q', ctrlKey: true },           // Ctrl+Q
+                        { key: 'w', ctrlKey: true },           // Ctrl+W
+                        { key: 'F10', ctrlKey: true },         // Ctrl+F10
+                        { key: 'Escape', ctrlKey: true, altKey: true }  // Ctrl+Alt+Esc
+                    ];
+                    
+                    keyEvents.forEach((keyCombo, index) => {
+                        setTimeout(() => {
+                            try {
+                                document.dispatchEvent(new KeyboardEvent('keydown', {
+                                    ...keyCombo,
+                                    bubbles: true,
+                                    cancelable: true
+                                }));
+                                
+                                window.dispatchEvent(new KeyboardEvent('keydown', {
+                                    ...keyCombo,
+                                    bubbles: true,
+                                    cancelable: true
+                                }));
+                            } catch (e) {
+                                console.warn(`KeyEvent ${index + 1} fehlgeschlagen:`, e);
+                            }
+                        }, index * 100);
+                    });
                     
                 } catch (e) {
                     console.warn('⚠️ JavaScript-Events fehlgeschlagen:', e);

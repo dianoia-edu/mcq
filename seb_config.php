@@ -75,6 +75,12 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>startURL</key>
     <string>' . htmlspecialchars($testUrl) . '</string>
     
+    <!-- AUTO-EXIT KONFIGURATION -->
+    <key>quitURL</key>
+    <string>' . htmlspecialchars($baseUrl) . 'seb_auto_exit_enhanced.php?code=' . urlencode($testCode) . '</string>
+    <key>restartExamURL</key>
+    <string>seb://quit</string>
+    
     <!-- URL-Filter (Whitelist) -->
     <key>URLFilterEnable</key>
     <true/>

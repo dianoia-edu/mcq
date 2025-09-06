@@ -27,8 +27,12 @@ $testCode = $_GET['code'] ?? 'TEST123';
                         <p><strong>SEB erkannt:</strong> <span id="sebStatus"></span></p>
                         
                         <div class="d-grid gap-2">
-                            <a href="seb_auto_exit_simple.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-success">
-                                🚪 Auto-Exit testen
+                            <a href="seb_auto_exit_enhanced.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-success">
+                                🚪 Enhanced Auto-Exit testen
+                            </a>
+                            
+                            <a href="seb_auto_exit_simple.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-outline-success">
+                                🚪 Simple Auto-Exit testen
                             </a>
                             
                             <a href="seb_force_exit.php?test_code=<?php echo urlencode($testCode); ?>&password=admin123" class="btn btn-warning">

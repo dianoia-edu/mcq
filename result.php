@@ -314,7 +314,7 @@ if (isset($_POST['back_to_home'])) {
                 if (isSEB) {
                     console.log('✅ SEB erkannt - leite zu Auto-Exit weiter');
                     const testCode = '<?php echo $_SESSION['test_code'] ?? 'UNKNOWN'; ?>';
-                    window.location.href = 'seb_auto_exit_simple.php?code=' + encodeURIComponent(testCode);
+                    window.location.href = 'seb_auto_exit_enhanced.php?code=' + encodeURIComponent(testCode);
                 } else {
                     console.log('ℹ️ Nicht im SEB - kein Auto-Exit nötig');
                 }
