@@ -1568,12 +1568,10 @@ function initTestEditor() {
     // Verstecke die Buttons am Anfang, wenn kein Test geladen ist
     updateButtonVisibility();
     
-    // Event-Handler für QR-Code-Button
-    $('.button-container').on('click', '#showQrCodeBtn', function() {
-        showQrCode(false, 'editor');
-    });
+    // Event-Handler für QR-Code-Button wird unten global definiert
     
-    // Event-Handler für den Reset-Button
+    // Event-Handler für Reset-Button wird unten global definiert
+    /*
     $('.button-container').on('click', '#resetBtn', function() {
         if (testHasChanges) {
             // Entferne ein möglicherweise vorhandenes altes Modal
@@ -1626,6 +1624,7 @@ function initTestEditor() {
             resetTestEditor();
         }
     });
+    */
     
     // Event-Handler für Test-Auswahl
     $('#testSelector').on('change', function(e, skipQrCode) {
