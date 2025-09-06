@@ -79,8 +79,8 @@ $testCode = $_SESSION['test_code'] ?? $_GET['code'] ?? 'unknown';
         </div>
         
         <div class="password-display">
-            <h6><i class="bi bi-key me-2"></i>Beenden-Passwort:</h6>
-            <strong>LEHRER2024_<?php echo htmlspecialchars($testCode); ?></strong>
+            <h6><i class="bi bi-key me-2"></i>Universelles Beenden-Passwort:</h6>
+            <strong>admin123</strong>
         </div>
         
         <div class="alert alert-info">
@@ -147,11 +147,11 @@ $testCode = $_SESSION['test_code'] ?? $_GET['code'] ?? 'unknown';
                 },
                 () => {
                     // Methode 3: Custom Event
-                    console.log('🔧 Methode 3: Custom Event');
-                    const customEvent = new CustomEvent('seb-quit', {
-                        detail: { password: 'LEHRER2024_<?php echo htmlspecialchars($testCode); ?>' }
-                    });
-                    window.dispatchEvent(customEvent);
+                        console.log('🔧 Methode 3: Custom Event');
+                        const customEvent = new CustomEvent('seb-quit', {
+                            detail: { password: 'admin123' }
+                        });
+                        window.dispatchEvent(customEvent);
                     return true;
                 },
                 () => {
@@ -176,14 +176,14 @@ $testCode = $_SESSION['test_code'] ?? $_GET['code'] ?? 'unknown';
             
             if (!success) {
                 console.log('⚠️ Automatisches Beenden nicht möglich - zeige manuelle Anweisungen');
-                alert('Automatisches Beenden nicht möglich.\n\nBitte verwenden Sie:\n• Rechtsklick → "SEB beenden"\n• Passwort: LEHRER2024_<?php echo htmlspecialchars($testCode); ?>');
+                alert('Automatisches Beenden nicht möglich.\n\nBitte verwenden Sie:\n• Rechtsklick → "SEB beenden"\n• Passwort: admin123');
             } else {
                 console.log('✅ SEB-Exit erfolgreich ausgelöst');
             }
         }
         
         function copyPassword() {
-            const password = 'LEHRER2024_<?php echo htmlspecialchars($testCode); ?>';
+            const password = 'admin123';
             
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(password).then(() => {

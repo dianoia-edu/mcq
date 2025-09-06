@@ -148,9 +148,9 @@ $testCode = $_GET['code'] ?? 'XXX';
                         <p>Falls Sie SEB beenden oder rekonfigurieren müssen:</p>
                         
                         <div class="password-box">
-                            <h6>Für Test-Code: <strong><?php echo htmlspecialchars($testCode); ?></strong></h6>
-                            <p><strong>SEB beenden:</strong> <code>LEHRER2024_<?php echo htmlspecialchars($testCode); ?></code></p>
-                            <p><strong>Einstellungen/Admin:</strong> <code>ADMIN2024_<?php echo htmlspecialchars($testCode); ?></code></p>
+                            <h6>✅ Universelles Passwort für alle Tests</h6>
+                            <p><strong>SEB beenden:</strong> <code>admin123</code></p>
+                            <p><strong>Einstellungen/Admin:</strong> <code>admin123</code></p>
                         </div>
                         
                         <div class="alert alert-info mt-3">

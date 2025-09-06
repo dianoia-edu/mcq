@@ -119,19 +119,14 @@ $testCode = $_GET['code'] ?? 'TEST';
                     <div class="card-body">
                         <h3><i class="bi bi-key text-warning me-2"></i>Ihre Passwörter für Test <?php echo htmlspecialchars($testCode); ?></h3>
                         
-                        <div class="row">
-                            <div class="col-md-6">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
                                 <div class="password-highlight">
-                                    <h6>🔐 Beenden-Passwort</h6>
-                                    <strong>LEHRER2024_<?php echo htmlspecialchars($testCode); ?></strong>
-                                    <p class="small mt-2 mb-0">Zum Beenden von SEB nach dem Test</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="password-highlight">
-                                    <h6>⚙️ Admin-Passwort</h6>
-                                    <strong>ADMIN2024_<?php echo htmlspecialchars($testCode); ?></strong>
-                                    <p class="small mt-2 mb-0">Für SEB-Einstellungen während des Tests</p>
+                                    <h6>🔑 Universelles Passwort</h6>
+                                    <h2 style="color: #dc3545; margin: 1rem 0;">admin123</h2>
+                                    <p class="mb-2">✅ <strong>Beenden von SEB</strong> nach dem Test</p>
+                                    <p class="mb-0">⚙️ <strong>Admin-Einstellungen</strong> während des Tests</p>
+                                    <small class="text-muted mt-2 d-block">Gilt für alle Tests - einfach zu merken!</small>
                                 </div>
                             </div>
                         </div>

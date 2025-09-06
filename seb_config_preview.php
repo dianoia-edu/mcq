@@ -122,11 +122,11 @@ $testUrl = $baseUrl . dirname($_SERVER['PHP_SELF']) . '/name_form.php?code=' . u
                                     <li><strong>Sicherheitslevel:</strong> <span class="security-level level-extreme">EXTREM</span></li>
                                 </ul>
                                 
-                                <div class="mt-3 p-3 bg-warning rounded">
-                                    <h6><i class="bi bi-key me-2"></i>SEB-Passwörter</h6>
-                                    <p class="mb-1"><strong>Beenden-Passwort:</strong><br><code>LEHRER2024_<?php echo htmlspecialchars($testCode); ?></code></p>
-                                    <p class="mb-0"><strong>Admin-Passwort:</strong><br><code>ADMIN2024_<?php echo htmlspecialchars($testCode); ?></code></p>
-                                    <small class="text-muted">Diese Passwörter ermöglichen Ihnen das Beenden/Rekonfigurieren von SEB.</small>
+                                <div class="mt-3 p-3 bg-success text-white rounded">
+                                    <h6><i class="bi bi-key me-2"></i>SEB-Passwörter (Universal)</h6>
+                                    <p class="mb-1"><strong>Beenden-Passwort:</strong><br><code style="color: #fff; background: rgba(0,0,0,0.2); padding: 0.25rem 0.5rem; border-radius: 4px;">admin123</code></p>
+                                    <p class="mb-0"><strong>Admin-Passwort:</strong><br><code style="color: #fff; background: rgba(0,0,0,0.2); padding: 0.25rem 0.5rem; border-radius: 4px;">admin123</code></p>
+                                    <small class="text-light">✅ Universelles Passwort für alle Tests - einfach zu merken!</small>
                                 </div>
                             </div>
                             <div class="col-md-6 text-end">

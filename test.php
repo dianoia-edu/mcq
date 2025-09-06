@@ -634,8 +634,7 @@ function getTestModeWarning() {
                     // Alle Fragen beantwortet - Formular absenden
                     console.log("Alle Fragen wurden beantwortet, sende Formular ab...");
                     
-                    // SEB Auto-Exit vorbereiten (nach Test-Abschicken)
-                    prepareSEBAutoExit();
+                    // SEB Auto-Exit wird in result.php gehandelt
                     
                     form.submit();
                 } else {
@@ -665,8 +664,7 @@ function getTestModeWarning() {
                 // Formular absenden auch wenn nicht alle Fragen beantwortet wurden
                 console.log("Bestätigung zum Absenden erhalten, sende Formular ab...");
                 
-                // SEB Auto-Exit vorbereiten (auch bei unvollständigen Tests)
-                prepareSEBAutoExit();
+                // SEB Auto-Exit wird in result.php gehandelt
                 
                 form.submit();
             });
@@ -791,36 +789,7 @@ function getTestModeWarning() {
             });
         }
         
-        // 🚪 SEB AUTO-EXIT FUNKTION
-        function prepareSEBAutoExit() {
-            const userAgent = navigator.userAgent;
-            const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
-            
-            if (!isSEB) {
-                console.log('🔒 Nicht im SEB - kein Auto-Exit nötig');
-                return;
-            }
-            
-            console.log('🚪 SEB Auto-Exit wird vorbereitet...');
-            
-            // Setze Session-Variable für Auto-Exit
-            fetch('seb_auto_exit.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'action=prepare_exit&test_code=<?php echo urlencode($_SESSION['test_code'] ?? ''); ?>'
-            }).then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('✅ SEB Auto-Exit vorbereitet');
-                } else {
-                    console.warn('⚠️ SEB Auto-Exit Vorbereitung fehlgeschlagen:', data.error);
-                }
-            }).catch(error => {
-                console.error('❌ SEB Auto-Exit Fehler:', error);
-            });
-        }
+        // 🚪 SEB AUTO-EXIT - Vereinfacht in result.php gehandelt
         
         // Starte SEB-Überwachung
         sebSecurityMonitor();

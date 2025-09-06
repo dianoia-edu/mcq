@@ -305,10 +305,20 @@ if (isset($_POST['back_to_home'])) {
         
         // Starte Auto-Exit-Check nach Seiten-Load
         document.addEventListener('DOMContentLoaded', function() {
-            // Warte 2 Sekunden damit Benutzer Ergebnis sehen kann
+            // Warte 3 Sekunden damit Benutzer Ergebnis sehen kann
             setTimeout(() => {
-                handleSEBAutoExit();
-            }, 2000);
+                // Prüfe ob SEB läuft
+                const userAgent = navigator.userAgent;
+                const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+                
+                if (isSEB) {
+                    console.log('✅ SEB erkannt - leite zu Auto-Exit weiter');
+                    const testCode = '<?php echo $_SESSION['test_code'] ?? 'UNKNOWN'; ?>';
+                    window.location.href = 'seb_auto_exit_simple.php?code=' + encodeURIComponent(testCode);
+                } else {
+                    console.log('ℹ️ Nicht im SEB - kein Auto-Exit nötig');
+                }
+            }, 3000);
         });
         
         console.log('🚪 SEB Auto-Exit System geladen');

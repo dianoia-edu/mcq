@@ -130,7 +130,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>allowPreferencesWindow</key>
     <true/>
     <key>hashedAdminPassword</key>
-    <string>' . hash('sha256', 'ADMIN2024_' . $testCode) . '</string>
+    <string>' . hash('sha256', 'admin123') . '</string>
     
     <!-- KIOSK-MODUS ERZWINGEN -->
     <key>touchOptimized</key>
