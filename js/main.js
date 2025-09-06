@@ -1082,6 +1082,14 @@ $('#uploadForm').on('submit', function(e) {
                         window.currentTestXML = response.preview_data.xml_content;
                         window.currentTestId = response.preview_data.xml_path.split('/').pop();
                         
+                        // Speichere Test-Daten für den "Test bearbeiten" Button
+                        window.currentGeneratedTest = {
+                            access_code: response.access_code,
+                            title: response.title,
+                            test_id: response.test_id || window.currentTestId
+                        };
+                        console.log('✅ currentGeneratedTest gespeichert:', window.currentGeneratedTest);
+                        
                         // Zeige Vorschau direkt an
                         showXMLPreview(response.preview_data.xml_content, 'generator');
                     }
@@ -1403,6 +1411,13 @@ function showXMLPreview(xmlContent, modalType = 'generator') {
         if (modalType === 'generator' && testGeneratorPreviewModal) {
             // Entferne den Speichern-Button aus der Vorschau im Generator-Modus
             $('.modal-footer #saveTest').remove();
+            
+            // Setze Access-Code für "Test bearbeiten" Button
+            if (window.currentGeneratedTest && window.currentGeneratedTest.access_code) {
+                $('#editGeneratedTest').attr('data-access-code', window.currentGeneratedTest.access_code);
+                console.log('✅ Access-Code für editGeneratedTest gesetzt:', window.currentGeneratedTest.access_code);
+            }
+            
             testGeneratorPreviewModal.show();
         } else if (modalType === 'editor' && testEditorPreviewModal) {
             testEditorPreviewModal.show();
@@ -2670,6 +2685,57 @@ function showQrCode(automatisch = false, modalType = 'editor') {
         $('body').removeClass('modal-open').css('padding-right', '');
     });
 }
+
+// Event-Handler für "Test bearbeiten" Button (Test-Vorschau Modal)
+$(document).on('click', '#editGeneratedTest', function() {
+    const accessCode = $(this).data('access-code');
+    console.log('🔧 Test bearbeiten (Vorschau) geklickt für Code:', accessCode);
+    
+    if (accessCode) {
+        // Modal schließen
+        const previewModal = bootstrap.Modal.getInstance(document.getElementById('testGeneratorPreviewModal'));
+        if (previewModal) {
+            previewModal.hide();
+        }
+        
+        // Delay für sauberen Übergang
+        setTimeout(() => {
+            // Wechsle zum Editor-Tab
+            activateTab('test-editor');
+            
+            // Warte bis Tab geladen ist, dann Test laden
+            setTimeout(() => {
+                // Reload Test-Liste falls nötig
+                if (typeof reloadTestList === 'function') {
+                    reloadTestList(() => {
+                        // Nach Reload: Setze den Test im Dropdown
+                        $('#testSelector option').each(function() {
+                            if ($(this).text().includes(accessCode)) {
+                                $(this).prop('selected', true);
+                                $('#testSelector').trigger('change');
+                                console.log('✅ Test automatisch ausgewählt (Vorschau):', accessCode);
+                                return false;
+                            }
+                        });
+                    });
+                } else {
+                    // Fallback: Setze den Test direkt im Dropdown
+                    $('#testSelector option').each(function() {
+                        if ($(this).text().includes(accessCode)) {
+                            $(this).prop('selected', true);
+                            $('#testSelector').trigger('change');
+                            console.log('✅ Test automatisch ausgewählt (Vorschau):', accessCode);
+                            return false;
+                        }
+                    });
+                }
+            }, 500);
+        }, 500);
+    } else {
+        console.error('❌ Kein Access-Code für Test bearbeiten (Vorschau) gefunden');
+        alert('Fehler: Test-Code nicht gefunden. Bitte wählen Sie den Test manuell im Editor aus.');
+    }
+});
 
 // Hilfsfunktion zum Anzeigen von Fehlermeldungen
 function showErrorMessage(message) {

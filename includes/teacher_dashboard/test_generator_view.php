@@ -399,7 +399,9 @@ function testSelectedModel() {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
                 <button type="button" class="btn btn-success" id="saveTest">Test speichern</button>
-                <button type="button" class="btn btn-primary" id="editTest">Test bearbeiten</button>
+                <button type="button" class="btn btn-primary" id="editGeneratedTest" data-access-code="">
+                    <i class="bi bi-pencil-square me-2"></i>Test bearbeiten
+                </button>
             </div>
         </div>
     </div>
