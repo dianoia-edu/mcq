@@ -1014,7 +1014,10 @@ $(document).ready(function() {
     });
     
     // Funktion zum Erstellen und Anzeigen eines Update-Modals
-    function createUpdateModal(title, content, type = 'info') {
+    function createUpdateModal(title, content, type) {
+        if (typeof type === 'undefined') {
+            type = 'info';
+        }
         // Entferne vorherige Modals
         $('#updateModal').remove();
         
