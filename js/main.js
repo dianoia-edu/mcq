@@ -1547,12 +1547,19 @@ function initTestEditor() {
     
     // Dupliziere die Buttons am Anfang des Formulars
     const buttonContainer = $('.button-container').first().clone();
+    
+    // Ändere IDs der geklonten Buttons um Konflikte zu vermeiden
+    buttonContainer.find('#previewTestBtn').attr('id', 'previewTestBtn2');
+    buttonContainer.find('#saveTestBtn').attr('id', 'saveTestBtn2');
+    buttonContainer.find('#deleteTestBtn').attr('id', 'deleteTestBtn2');
+    buttonContainer.find('#showQrCodeBtn').attr('id', 'showQrCodeBtn2');
+    
     $('#testEditorForm').prepend(buttonContainer);
     
     // Füge nur den Reset-Button zu beiden Button-Containern hinzu
     $('.button-container').each(function() {
         $(this).append(`
-            <button type="button" id="resetBtn" class="btn btn-secondary ms-2" title="Test-Editor zurücksetzen">
+            <button type="button" class="reset-btn btn btn-secondary ms-2" title="Test-Editor zurücksetzen">
                 <i class="bi bi-arrow-counterclockwise"></i> Reset
             </button>
         `);
@@ -1673,19 +1680,31 @@ function initTestEditor() {
         markAsChanged();
     });
     
-    // Event-Handler für Speichern-Button
-    $('#saveTestBtn').on('click', function() {
+    // Event-Handler für Speichern-Button (beide)
+    $(document).on('click', '#saveTestBtn, #saveTestBtn2', function() {
         saveTest();
     });
     
-    // Event-Handler für Vorschau-Button
-    $('.button-container').on('click', '#previewTestBtn', function() {
+    // Event-Handler für Vorschau-Button (beide)
+    $(document).on('click', '#previewTestBtn, #previewTestBtn2', function() {
         previewTest();
     });
     
-    // Event-Handler für Löschen-Button
-    $('.button-container').on('click', '#deleteTestBtn', function() {
+    // Event-Handler für Löschen-Button (beide)
+    $(document).on('click', '#deleteTestBtn, #deleteTestBtn2', function() {
         deleteTest();
+    });
+    
+    // Event-Handler für QR-Code-Button (beide)
+    $(document).on('click', '#showQrCodeBtn, #showQrCodeBtn2', function() {
+        showQrCode(false, 'editor');
+    });
+    
+    // Event-Handler für Reset-Button (beide)
+    $(document).on('click', '.reset-btn', function() {
+        if (confirm('Möchten Sie den Test-Editor wirklich zurücksetzen? Alle ungespeicherten Änderungen gehen verloren.')) {
+            resetTestEditor();
+        }
     });
     
     // Event-Handler für Frage entfernen (delegiert)
@@ -2366,19 +2385,26 @@ function updateButtonVisibility() {
     
     // Speichern-Button: Nur aktiv wenn Änderungen gemacht wurden UND Fragen vorhanden sind
     const enableSaveButton = hasQuestions && testHasChanges;
-    $('.button-container #saveTestBtn').prop('disabled', !enableSaveButton);
+    $('#saveTestBtn, #saveTestBtn2').prop('disabled', !enableSaveButton);
+    
+    // Färbe Speichern-Button orange wenn aktiviert, grau wenn deaktiviert
+    if (enableSaveButton) {
+        $('#saveTestBtn, #saveTestBtn2').removeClass('btn-secondary').addClass('btn-warning');
+    } else {
+        $('#saveTestBtn, #saveTestBtn2').removeClass('btn-warning').addClass('btn-secondary');
+    }
     
     // QR-Code Button: Immer aktiv wenn ein Test geladen ist (hasTest) ODER wenn neue Fragen mit Access-Code vorhanden sind
     const enableQrButton = hasTest || currentTestFilename || (hasQuestions && hasAccessCode);
-    $('.button-container #showQrCodeBtn').prop('disabled', !enableQrButton);
+    $('#showQrCodeBtn, #showQrCodeBtn2').prop('disabled', !enableQrButton);
     
     // Löschen-Button: Immer aktiv wenn ein Test geladen ist (wie QR-Code Button)
     const enableDeleteButton = hasTest || currentTestFilename || (hasQuestions && hasAccessCode);
-    $('.button-container #deleteTestBtn').prop('disabled', !enableDeleteButton);
+    $('#deleteTestBtn, #deleteTestBtn2').prop('disabled', !enableDeleteButton);
     
     // Vorschau-Button ist immer aktiv und grün
-    $('#previewTestBtn').prop('disabled', false);
-    $('#previewTestBtn').removeClass('btn-secondary').addClass('btn-success');
+    $('#previewTestBtn, #previewTestBtn2').prop('disabled', false);
+    $('#previewTestBtn, #previewTestBtn2').removeClass('btn-secondary').addClass('btn-success');
 }
 
 function deleteTest() {

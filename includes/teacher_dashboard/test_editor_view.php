@@ -940,10 +940,10 @@ $(document).ready(function() {
         // Setze currentTestFilename direkt hier
         window.currentTestFilename = '<?php echo basename($selectedTest['file']); ?>';
         
-        // Aktiviere die Buttons sofort
+        // Aktiviere die Buttons sofort (außer Speichern-Button)
         $('#deleteTestBtn').prop('disabled', false);
         $('#showQrCodeBtn').prop('disabled', false);
-        $('#saveTestBtn').prop('disabled', false);
+        // Speichern-Button wird durch updateButtonVisibility() gesteuert
         updateButtonVisibility();
         
         // Zeige die Button-Container an
