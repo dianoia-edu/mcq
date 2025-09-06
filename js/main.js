@@ -2700,8 +2700,8 @@ $(document).on('click', '#editGeneratedTest', function() {
         
         // Delay für sauberen Übergang
         setTimeout(() => {
-            // Wechsle zum Editor-Tab
-            activateTab('test-editor');
+                // Wechsle zum Editor-Tab
+                activateTab('editor');
             
             // Warte bis Tab geladen ist, dann Test laden
             setTimeout(() => {
@@ -2736,6 +2736,54 @@ $(document).on('click', '#editGeneratedTest', function() {
         alert('Fehler: Test-Code nicht gefunden. Bitte wählen Sie den Test manuell im Editor aus.');
     }
 });
+
+// Funktion zum Neuladen der Test-Liste im Editor
+function reloadTestList(callback) {
+    console.log('🔄 Lade Test-Liste neu...');
+    
+    $.ajax({
+        url: getIncludesUrl('teacher_dashboard/reload_test_list.php'),
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success && response.tests) {
+                console.log('✅ Test-Liste erfolgreich geladen:', response.tests.length, 'Tests');
+                
+                // Aktualisiere das Dropdown
+                const $selector = $('#testSelector');
+                const currentValue = $selector.val();
+                
+                // Behalte die erste Option bei
+                $selector.find('option:first').siblings().remove();
+                
+                // Füge Tests hinzu (bereits sortiert vom Server)
+                response.tests.forEach(test => {
+                    $selector.append(`
+                        <option value="${escapeHTML(test.name)}" 
+                                data-access-code="${escapeHTML(test.accessCode)}"
+                                data-title="${escapeHTML(test.title)}">
+                            [${escapeHTML(test.accessCode)}] ${escapeHTML(test.title)}
+                        </option>
+                    `);
+                });
+                
+                console.log('✅ Test-Dropdown aktualisiert');
+                
+                if (callback) {
+                    callback();
+                }
+            } else {
+                console.error('❌ Fehler beim Laden der Test-Liste:', response.error || 'Unbekannter Fehler');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('❌ AJAX-Fehler beim Laden der Test-Liste:', error);
+            if (callback) {
+                callback();
+            }
+        }
+    });
+}
 
 // Hilfsfunktion zum Anzeigen von Fehlermeldungen
 function showErrorMessage(message) {

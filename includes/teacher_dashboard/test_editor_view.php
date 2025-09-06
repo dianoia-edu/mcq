@@ -113,7 +113,7 @@
                             <option value="<?php echo htmlspecialchars($test['name']); ?>" 
                                     data-access-code="<?php echo htmlspecialchars($test['accessCode']); ?>"
                                     data-title="<?php echo htmlspecialchars($test['title']); ?>">
-                                <?php echo htmlspecialchars($test['accessCode']); ?> - <?php echo htmlspecialchars($test['title']); ?>
+[<?php echo htmlspecialchars($test['accessCode']); ?>] <?php echo htmlspecialchars($test['title']); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>

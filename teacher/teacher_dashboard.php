@@ -90,9 +90,11 @@ foreach ($testFiles as $testFile) {
         }
         
         $testName = pathinfo($testFile, PATHINFO_FILENAME);
+        $accessCode = (string)$xml->access_code ?: substr($testName, 0, 3);
         $tests[$testName] = [
             'name' => $testName,
             'title' => (string)$xml->title ?: $testName,
+            'accessCode' => $accessCode,
             'questions' => count($xml->questions->question),
             'file' => $testFile
         ];
@@ -105,6 +107,15 @@ foreach ($testFiles as $testFile) {
     } catch (Exception $e) {
         error_log("Error loading test file {$testFile}: " . $e->getMessage());
     }
+}
+
+// Sortiere Tests nach Erstellungszeit (neueste zuerst)
+if (!empty($tests)) {
+    uasort($tests, function($a, $b) {
+        $timeA = filemtime($a['file']);
+        $timeB = filemtime($b['file']);
+        return $timeB - $timeA; // Neueste zuerst
+    });
 }
 
 // $isInTeacherDir wurde bereits oben definiert
