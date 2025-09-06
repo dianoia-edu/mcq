@@ -247,18 +247,15 @@ foreach ($testFiles as $testFile) {
             </div>
 
             <div id="editor" class="tab-pane">
-                <!-- <?php include getIncludesPath('teacher_dashboard/test_editor_view.php'); ?> -->
-                <p>Test Editor temporär deaktiviert</p>
+                <?php include getIncludesPath('teacher_dashboard/test_editor_view.php'); ?>
             </div>
 
             <div id="testResults" class="tab-pane">
-                <!-- <?php include getIncludesPath('teacher_dashboard/test_results_view.php'); ?> -->
-                <p>Test Results temporär deaktiviert</p>
+                <?php include getIncludesPath('teacher_dashboard/test_results_view.php'); ?>
             </div>
 
             <div id="configuration" class="tab-pane">
-                <!-- <?php include getIncludesPath('teacher_dashboard/configuration_view.php'); ?> -->
-                <p>Configuration temporär deaktiviert</p>
+                <?php include getIncludesPath('teacher_dashboard/configuration_view.php'); ?>
             </div>
 
             <?php if ($showInstanceManagement): ?>
