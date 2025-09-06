@@ -110,9 +110,11 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>browserWindowAllowConfigFileDownload</key>
     <false/>
     
-    <!-- ERWEITERTE SICHERHEITSEINSTELLUNGEN -->
+    <!-- ERWEITERTE SICHERHEITSEINSTELLUNGEN MIT QUIT-PASSWORD -->
     <key>allowQuit</key>
-    <false/>
+    <true/>
+    <key>hashedQuitPassword</key>
+    <string>' . hash('sha256', 'TEACHER_' . $testCode . '_EXIT') . '</string>
     <key>showReloadWarning</key>
     <true/>
     <key>showQuitWarning</key>
@@ -123,6 +125,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <true/>
     <key>forceAppFolderInstall</key>
     <true/>
+    
+    <!-- KONFIGURATION-RELOAD ERLAUBEN (für QR-Codes) -->
+    <key>allowPreferencesWindow</key>
+    <false/>
+    <key>allowReconfiguration</key>
+    <true/>
+    <key>hashedAdminPassword</key>
+    <string>' . hash('sha256', 'ADMIN_' . $testCode . '_CONFIG') . '</string>
     
     <!-- KIOSK-MODUS (VOLLSTÄNDIG GESPERRT) -->
     <key>createNewDesktop</key>

@@ -3111,6 +3111,9 @@ function showSEBQRCode(accessCode, title) {
                             '<button type="button" class="btn btn-success save-seb-qr-btn">' +
                                 '<i class="bi bi-download"></i> SEB-QR-Code speichern' +
                             '</button>' +
+                            '<button type="button" class="btn btn-info preview-seb-btn">' +
+                                '<i class="bi bi-eye"></i> SEB-Einschränkungen anzeigen' +
+                            '</button>' +
                             '<button type="button" class="btn btn-primary test-seb-btn">' +
                                 '<i class="bi bi-play-fill"></i> SEB-Config testen' +
                             '</button>' +
@@ -3206,6 +3209,13 @@ function setupSEBModalEventHandlers(accessCode, sebConfigUrl) {
             document.body.removeChild(a);
             showSuccessMessage('SEB-QR-Code wurde als Bild gespeichert!');
         }
+    });
+    
+    // SEB-Einschränkungen anzeigen
+    $('.preview-seb-btn').off('click').on('click', function() {
+        console.log('👁️ Zeige SEB-Einschränkungen für:', accessCode);
+        const previewUrl = baseUrl + 'seb_config_preview.php?code=' + accessCode;
+        window.open(previewUrl, '_blank');
     });
     
     // SEB-Config testen
