@@ -405,7 +405,7 @@ $(document).ready(function() {
                 btn.prop('disabled', false).html('<i class="bi bi-cloud-download"></i> Alle Instanzen aktualisieren');
             }
         });
-    });
+    }); 
 
     // Event-Handler für die Datenbank-Synchronisation
     $('#syncDatabaseBtn').on('click', function() {

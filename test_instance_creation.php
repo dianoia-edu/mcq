@@ -19,7 +19,7 @@ echo "Debug-Log: <code>" . __DIR__ . '/create_instance_debug.log</code><br>\n";
 echo "<h2>2. Test-Aufruf</h2>\n";
 
 // Simuliere POST-Anfrage
-$_POST['instance_name'] = 'debugtest';
+//$_POST['instance_name'] = 'debugtest';
 $_POST['admin_access_code'] = 'admin123';
 $_SERVER['REQUEST_METHOD'] = 'POST';
 
