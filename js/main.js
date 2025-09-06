@@ -501,25 +501,84 @@ function openSubtitleToModal(youtubeUrl) {
         setTimeout(() => {
             try {
                 console.log('🔄 Lade iframe...');
-                frameContainer.innerHTML = `
-                    <iframe 
-                        src="${subtitleToUrl}" 
-                        style="width: 100%; height: 100%; border: none;"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-downloads allow-top-navigation"
-                        loading="lazy"
-                        onload="console.log('✅ iframe geladen')"
-                        onerror="console.error('❌ iframe Fehler')">
-                    </iframe>
-                `;
-                console.log('✅ iframe HTML eingefügt');
+                console.log('🔗 URL:', subtitleToUrl);
+                
+                // Erstelle iframe mit Debug-Output
+                const iframe = document.createElement('iframe');
+                iframe.src = subtitleToUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.sandbox = 'allow-same-origin allow-scripts allow-forms allow-downloads allow-top-navigation allow-popups allow-popups-to-escape-sandbox';
+                iframe.loading = 'lazy';
+                
+                // Event-Listener für iframe
+                iframe.onload = function() {
+                    console.log('✅ iframe erfolgreich geladen!');
+                };
+                
+                iframe.onerror = function(error) {
+                    console.error('❌ iframe Fehler:', error);
+                    frameContainer.innerHTML = `
+                        <div class="alert alert-warning m-3">
+                            <h6>⚠️ iframe konnte nicht geladen werden</h6>
+                            <p><strong>Grund:</strong> subtitle.to blockiert iframe-Einbettung (X-Frame-Options)</p>
+                            <p>Das ist normal und aus Sicherheitsgründen so.</p>
+                            <p><strong>Lösung:</strong> Nutzen Sie den Button unten um subtitle.to in einem neuen Tab zu öffnen.</p>
+                            <div class="text-center mt-3">
+                                <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary">
+                                    🔗 subtitle.to in neuem Tab öffnen
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                };
+                
+                // Timeout für iframe-Laden
+                setTimeout(() => {
+                    if (!iframe.contentDocument && !iframe.contentWindow) {
+                        console.warn('⚠️ iframe scheint blockiert zu sein');
+                        frameContainer.innerHTML = `
+                            <div class="alert alert-info m-3">
+                                <h6>ℹ️ iframe wird blockiert</h6>
+                                <p><strong>Das ist normal!</strong> Viele Websites (inkl. subtitle.to) blockieren iframe-Einbettung aus Sicherheitsgründen.</p>
+                                <p><strong>Lösung:</strong> Öffnen Sie subtitle.to direkt in einem neuen Tab:</p>
+                                <div class="text-center mt-3">
+                                    <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary btn-lg">
+                                        🔗 subtitle.to öffnen
+                                    </a>
+                                </div>
+                                <hr>
+                                <p class="small text-muted">
+                                    <strong>Workflow:</strong>
+                                    1. Klicken Sie den Button oben<br>
+                                    2. Laden Sie die Untertitel-Datei herunter<br>
+                                    3. Wechseln Sie zum "Upload" Tab in diesem Modal<br>
+                                    4. Laden Sie die Datei hoch und generieren Sie den Test
+                                </p>
+                            </div>
+                        `;
+                    }
+                }, 3000);
+                
+                // iframe zum Container hinzufügen
+                frameContainer.innerHTML = '';
+                frameContainer.appendChild(iframe);
+                
+                console.log('✅ iframe erstellt und hinzugefügt');
+                
             } catch (error) {
-                console.error('❌ Fehler beim Laden der subtitle.to Seite:', error);
+                console.error('❌ Fehler beim Erstellen des iframes:', error);
                 frameContainer.innerHTML = `
                     <div class="alert alert-warning m-3">
-                        <h6>⚠️ iframe konnte nicht geladen werden</h6>
-                        <p>Verwenden Sie den Button "In neuem Tab öffnen" um subtitle.to direkt zu öffnen.</p>
-                        <p><strong>URL:</strong> <a href="${subtitleToUrl}" target="_blank">${subtitleToUrl}</a></p>
+                        <h6>⚠️ iframe konnte nicht erstellt werden</h6>
                         <p><strong>Fehler:</strong> ${error.message}</p>
+                        <p><strong>Lösung:</strong> Öffnen Sie subtitle.to direkt:</p>
+                        <div class="text-center mt-3">
+                            <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary">
+                                🔗 subtitle.to öffnen
+                            </a>
+                        </div>
                     </div>
                 `;
             }
