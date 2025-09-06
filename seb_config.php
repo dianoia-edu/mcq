@@ -110,19 +110,29 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>browserWindowAllowConfigFileDownload</key>
     <false/>
     
-    <!-- VEREINFACHTE SICHERHEITSEINSTELLUNGEN (ohne Passwort-Konflikt) -->
+    <!-- ERWEITERTE SICHERHEITSEINSTELLUNGEN (ohne Passwort-Konflikt) -->
     <key>allowQuit</key>
     <false/>
     <key>showReloadWarning</key>
-    <false/>
+    <true/>
     <key>showQuitWarning</key>
-    <false/>
+    <true/>
     <key>allowSwitchToApplications</key>
     <false/>
     <key>enableAppSwitcherCheck</key>
     <true/>
     <key>forceAppFolderInstall</key>
     <true/>
+    
+    <!-- KIOSK-MODUS ERZWINGEN -->
+    <key>touchOptimized</key>
+    <true/>
+    <key>browserViewMode</key>
+    <integer>0</integer>
+    <key>mainBrowserWindowWidth</key>
+    <string>100%</string>
+    <key>mainBrowserWindowHeight</key>
+    <string>100%</string>
     
     <!-- KONFIGURATION-VERHALTEN -->
     <key>allowPreferencesWindow</key>
@@ -137,6 +147,29 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <true/>
     <key>enableKioskMode</key>
     <true/>
+    
+    <!-- PROZESS-ÜBERWACHUNG (vereinfacht) -->
+    <key>monitorProcesses</key>
+    <true/>
+    <key>prohibitedProcesses</key>
+    <array>
+        <dict>
+            <key>active</key>
+            <true/>
+            <key>currentUser</key>
+            <true/>
+            <key>executable</key>
+            <string>taskmgr.exe</string>
+        </dict>
+        <dict>
+            <key>active</key>
+            <true/>
+            <key>currentUser</key>
+            <true/>
+            <key>executable</key>
+            <string>cmd.exe</string>
+        </dict>
+    </array>
     
     <!-- IPAD/IOS-SPEZIFISCHE SICHERHEITSEINSTELLUNGEN -->
     <key>allowedDisplaysMaxNumber</key>
@@ -200,7 +233,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>enableJavaScriptPrompt</key>
     <true/>
     
-    <!-- VEREINFACHTE TASTENSPERREN -->
+    <!-- WICHTIGE TASTENSPERREN -->
     <key>enableAltTab</key>
     <false/>
     <key>enableAltF4</key>
@@ -211,6 +244,32 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <false/>
     <key>enableTouchExit</key>
     <false/>
+    <key>enableEsc</key>
+    <false/>
+    <key>enableCtrlEsc</key>
+    <false/>
+    <key>enableAltEsc</key>
+    <false/>
+    <key>enableF1</key>
+    <false/>
+    <key>enableF3</key>
+    <false/>
+    <key>enableF4</key>
+    <false/>
+    <key>enableF5</key>
+    <false/>
+    <key>enableF11</key>
+    <false/>
+    <key>enableF12</key>
+    <false/>
+    <key>enablePrintScreen</key>
+    <false/>
+    
+    <!-- SYSTEM-SPERREN -->
+    <key>detectStoppedProcess</key>
+    <true/>
+    <key>hookKeys</key>
+    <true/>
     
     <!-- Exam-Konfiguration -->
     <key>examKeySalt</key>
