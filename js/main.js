@@ -752,19 +752,44 @@ $(document).on('click', '#startTestGeneration', function() {
 
 // Modal Reset bei Schließen
 $(document).on('hidden.bs.modal', '#subtitleToModal', function() {
-    // Reset aller Tabs und Daten
-    $('#download-tab').tab('show');
+    console.log('🔄 Modal wird zurückgesetzt...');
+    
+    // Reset nur die Daten-Variablen (da wir jetzt einfaches Modal haben)
     subtitleFileContent = null;
     subtitleFileName = null;
     
-    document.getElementById('subtitleFileUpload').value = '';
-    document.getElementById('uploadStatus').style.display = 'none';
-    document.getElementById('proceedToGenerate').disabled = true;
-    document.getElementById('generationProgress').style.display = 'none';
-    document.getElementById('startTestGeneration').disabled = false;
-    document.getElementById('modalTestTitle').value = '';
+    // Reset nur Elemente die auch existieren (Sicherheitsprüfung)
+    const subtitleFileUpload = document.getElementById('subtitleFileUpload');
+    if (subtitleFileUpload) {
+        subtitleFileUpload.value = '';
+    }
     
-    console.log('🔄 Modal zurückgesetzt');
+    const uploadStatus = document.getElementById('uploadStatus');
+    if (uploadStatus) {
+        uploadStatus.style.display = 'none';
+    }
+    
+    const proceedToGenerate = document.getElementById('proceedToGenerate');
+    if (proceedToGenerate) {
+        proceedToGenerate.disabled = true;
+    }
+    
+    const generationProgress = document.getElementById('generationProgress');
+    if (generationProgress) {
+        generationProgress.style.display = 'none';
+    }
+    
+    const startTestGeneration = document.getElementById('startTestGeneration');
+    if (startTestGeneration) {
+        startTestGeneration.disabled = false;
+    }
+    
+    const modalTestTitle = document.getElementById('modalTestTitle');
+    if (modalTestTitle) {
+        modalTestTitle.value = '';
+    }
+    
+    console.log('✅ Modal zurückgesetzt');
 });
 
 // Form Submit Handler
