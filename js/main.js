@@ -3072,14 +3072,22 @@ function showSEBQRCode(accessCode, title) {
     // Entferne eventuell vorhandenes SEB-Modal
     $('#sebQrCodeModal').remove();
     
-    // Erstelle die SEB-URL (führt zur SEB-Konfiguration)
+    // Erstelle verschiedene SEB-URLs für automatisches Laden
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
     const sebConfigUrl = baseUrl + 'seb_config.php?code=' + accessCode;
+    
+    // DIREKTE SEB-URL-SCHEMAS FÜR AUTOMATISCHES LADEN
+    const sebDirectUrl = 'seb://' + encodeURIComponent(sebConfigUrl);
+    const sebStartConfigUrl = 'seb://start?config=' + encodeURIComponent(sebConfigUrl);
+    const safeExamBrowserUrl = 'safeexambrowser://config?url=' + encodeURIComponent(sebConfigUrl);
     
     console.log('🔒 Base URL:', baseUrl);
     console.log('🔒 Access Code:', accessCode);
     
     console.log('🔒 SEB-Config URL:', sebConfigUrl);
+    console.log('🔗 SEB-Direct URL:', sebDirectUrl);
+    console.log('▶️ SEB-Start URL:', sebStartConfigUrl);
+    console.log('🌐 SafeExamBrowser URL:', safeExamBrowserUrl);
     
     // Erstelle das SEB-Modal
     const modalContent = 
@@ -3094,10 +3102,45 @@ function showSEBQRCode(accessCode, title) {
                     '</div>' +
                     '<div class="modal-body text-center">' +
                         '<div class="alert alert-success">' +
-                            '<h6><i class="bi bi-download me-2"></i>SEB-Konfiguration herunterladen</h6>' +
-                            '<p class="mb-0">Dieser QR-Code lädt die .seb-Datei herunter. Nach dem Öffnen startet der Test automatisch in der sicheren Umgebung.</p>' +
+                            '<h6><i class="bi bi-qr-code me-2"></i>Automatisches SEB-Laden</h6>' +
+                            '<p class="mb-0">Diese QR-Codes starten SEB automatisch ohne manuelles Eingreifen.</p>' +
                         '</div>' +
-                        '<div id="sebQrcode" class="mb-3 d-inline-block"></div>' +
+                        
+                        '<div class="row">' +
+                            '<div class="col-md-4">' +
+                                '<div class="card h-100">' +
+                                    '<div class="card-header bg-warning text-center">' +
+                                        '<h6 class="mb-0"><i class="bi bi-star me-2"></i>Direkt-Schema</h6>' +
+                                    '</div>' +
+                                    '<div class="card-body text-center">' +
+                                        '<div id="sebQrcodeDirect" class="mb-2"></div>' +
+                                        '<small class="text-muted">seb://[config-url]</small>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="col-md-4">' +
+                                '<div class="card h-100">' +
+                                    '<div class="card-header bg-info text-center">' +
+                                        '<h6 class="mb-0"><i class="bi bi-play me-2"></i>Start-Schema</h6>' +
+                                    '</div>' +
+                                    '<div class="card-body text-center">' +
+                                        '<div id="sebQrcodeStart" class="mb-2"></div>' +
+                                        '<small class="text-muted">seb://start?config=...</small>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="col-md-4">' +
+                                '<div class="card h-100">' +
+                                    '<div class="card-header bg-success text-center">' +
+                                        '<h6 class="mb-0"><i class="bi bi-download me-2"></i>Fallback</h6>' +
+                                    '</div>' +
+                                    '<div class="card-body text-center">' +
+                                        '<div id="sebQrcode" class="mb-2"></div>' +
+                                        '<small class="text-muted">.seb-Datei direkt</small>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
                         '<div class="input-group mb-3">' +
                             '<input type="text" id="sebTestUrlInput" class="form-control" value="' + sebConfigUrl + '" readonly>' +
                             '<button class="btn btn-outline-secondary copy-seb-url-btn" type="button" title="SEB-URL kopieren">' +
@@ -3143,11 +3186,13 @@ function showSEBQRCode(accessCode, title) {
     const sebQrModal = new bootstrap.Modal(document.getElementById('sebQrCodeModal'));
     sebQrModal.show();
     
-    // Generiere den SEB-QR-Code
+    // Generiere QR-Codes für verschiedene SEB-Schemas
     generateSEBQRCode(sebConfigUrl, accessCode);
+    generateSEBQRCodeDirect(sebDirectUrl, accessCode);
+    generateSEBQRCodeStart(sebStartConfigUrl, accessCode);
     
     // Event-Handler für SEB-Modal Buttons
-    setupSEBModalEventHandlers(accessCode, sebConfigUrl);
+    setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebStartConfigUrl);
     
     // Auto-remove Modal nach schließen
     $('#sebQrCodeModal').on('hidden.bs.modal', function() {
@@ -3155,30 +3200,71 @@ function showSEBQRCode(accessCode, title) {
     });
 }
 
-// Hilfsfunktion zum Generieren des SEB-QR-Codes
+// Hilfsfunktion zum Generieren des SEB-QR-Codes (Fallback)
 function generateSEBQRCode(sebConfigUrl, accessCode) {
     if (typeof QRCode !== 'undefined') {
         new QRCode(document.getElementById("sebQrcode"), {
             text: sebConfigUrl,
-            width: 256,
-            height: 256,
-            colorDark: "#ff6b35",  // Orange für SEB
+            width: 200,
+            height: 200,
+            colorDark: "#28a745",  // Grün für Fallback
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
-        console.log('✅ SEB-QR-Code mit QRCode.js generiert');
+        console.log('✅ SEB-QR-Code (Fallback) mit QRCode.js generiert');
     } else {
-        // Fallback zu Online-Generator
         $('#sebQrcode').html(
-            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&color=ff6b35&data=' + 
-            encodeURIComponent(sebConfigUrl) + '" alt="SEB-QR-Code für ' + accessCode + '" class="img-fluid">'
+            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=28a745&data=' + 
+            encodeURIComponent(sebConfigUrl) + '" alt="SEB-QR-Code Fallback für ' + accessCode + '" class="img-fluid">'
         );
-        console.log('✅ SEB-QR-Code mit Online-Generator erstellt');
+        console.log('✅ SEB-QR-Code (Fallback) mit Online-Generator erstellt');
+    }
+}
+
+// Hilfsfunktion zum Generieren des direkten SEB-Schema QR-Codes
+function generateSEBQRCodeDirect(sebDirectUrl, accessCode) {
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(document.getElementById("sebQrcodeDirect"), {
+            text: sebDirectUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#ff6b35",  // Orange für direkte SEB-URL
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        console.log('✅ SEB-Direct-QR-Code mit QRCode.js generiert:', sebDirectUrl);
+    } else {
+        $('#sebQrcodeDirect').html(
+            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=ff6b35&data=' + 
+            encodeURIComponent(sebDirectUrl) + '" alt="SEB-Direct-QR-Code für ' + accessCode + '" class="img-fluid">'
+        );
+        console.log('✅ SEB-Direct-QR-Code mit Online-Generator erstellt');
+    }
+}
+
+// Hilfsfunktion zum Generieren des SEB-Start-Schema QR-Codes
+function generateSEBQRCodeStart(sebStartConfigUrl, accessCode) {
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(document.getElementById("sebQrcodeStart"), {
+            text: sebStartConfigUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#007bff",  // Blau für Start-Schema
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        console.log('✅ SEB-Start-QR-Code mit QRCode.js generiert:', sebStartConfigUrl);
+    } else {
+        $('#sebQrcodeStart').html(
+            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=007bff&data=' + 
+            encodeURIComponent(sebStartConfigUrl) + '" alt="SEB-Start-QR-Code für ' + accessCode + '" class="img-fluid">'
+        );
+        console.log('✅ SEB-Start-QR-Code mit Online-Generator erstellt');
     }
 }
 
 // Event-Handler für SEB-Modal Buttons
-function setupSEBModalEventHandlers(accessCode, sebConfigUrl) {
+function setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebStartConfigUrl) {
     // URL kopieren
     $('.copy-seb-url-btn').off('click').on('click', function() {
         const urlInput = document.getElementById('sebTestUrlInput');
