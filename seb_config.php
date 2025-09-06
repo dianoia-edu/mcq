@@ -83,56 +83,11 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>restartExamURL</key>
     <string>seb://quit</string>
     
-    <!-- URL-Filter (Whitelist) - Erlaube nur sichere URLs -->
+    <!-- URL-Filter DEAKTIVIERT für SEB-Quit-URLs -->
     <key>URLFilterEnable</key>
-    <true/>
+    <false/>
     <key>URLFilterEnableContentFilter</key>
     <false/>
-    <key>URLFilterRules</key>
-    <array>
-        <!-- Erlaube Basis-URLs der Anwendung -->
-        <dict>
-            <key>action</key>
-            <integer>1</integer>
-            <key>active</key>
-            <true/>
-            <key>expression</key>
-            <string>' . preg_quote($baseUrl, '/') . '/.*</string>
-            <key>regex</key>
-            <true/>
-        </dict>
-        <!-- WICHTIG: Erlaube SEB-Quit-URLs -->
-        <dict>
-            <key>action</key>
-            <integer>1</integer>
-            <key>active</key>
-            <true/>
-            <key>expression</key>
-            <string>seb://quit</string>
-            <key>regex</key>
-            <false/>
-        </dict>
-        <dict>
-            <key>action</key>
-            <integer>1</integer>
-            <key>active</key>
-            <true/>
-            <key>expression</key>
-            <string>safeexambrowser://quit</string>
-            <key>regex</key>
-            <false/>
-        </dict>
-        <dict>
-            <key>action</key>
-            <integer>1</integer>
-            <key>active</key>
-            <true/>
-            <key>expression</key>
-            <string>seb-quit://</string>
-            <key>regex</key>
-            <false/>
-        </dict>
-    </array>
     
     <!-- Browser-Einstellungen -->
     <key>browserWindowAllowReload</key>
@@ -140,13 +95,17 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>browserWindowShowURL</key>
     <false/>
     
-    <!-- Erlaube URL-Schema-Handler für SEB-Quit -->
-    <key>allowCustomDownloadLocation</key>
+    <!-- WICHTIG: URLs für App-Quit zulassen -->
+    <key>sebServicePolicy</key>
+    <integer>1</integer>
+    <key>browserURLSalt</key>
+    <true/>
+    
+    <!-- SEB-Schema-URLs explizit erlauben -->
+    <key>allowSwitchToApplications</key>
     <false/>
-    <key>allowDownUploads</key>
-    <false/>
-    <key>allowedDownloadFileTypes</key>
-    <string></string>
+    <key>enableSebBrowser</key>
+    <true/>
     <key>browserWindowAllowBackForward</key>
     <false/>
     <key>browserWindowAllowSpellCheck</key>
@@ -164,7 +123,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>allowQuit</key>
     <true/>
     <key>hashedQuitPassword</key>
-    <string>' . hash('sha256', 'admin123') . '</string>
+    <string><?php echo hash('sha256', 'admin123'); ?></string>
     <key>showReloadWarning</key>
     <true/>
     <key>showQuitWarning</key>
