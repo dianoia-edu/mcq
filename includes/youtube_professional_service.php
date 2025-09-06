@@ -7,17 +7,20 @@
 class YouTubeProfessionalService {
     
     private $pythonScript;
+    private $nuclearScript;
     private $timeout;
     private $debug;
     private $fallbackMethods;
     
     public function __construct($timeout = 120, $debug = true) {
         $this->pythonScript = __DIR__ . '/youtube_advanced_extractor.py';
+        $this->nuclearScript = __DIR__ . '/youtube_nuclear_option.py';  // ☢️ NUCLEAR OPTION!
         $this->timeout = $timeout;
         $this->debug = $debug;
         
         // Fallback-Methoden falls Python fehlschlägt
         $this->fallbackMethods = [
+            'nuclear_option',           // ☢️ NUCLEAR FIRST!
             'direct_php_extraction',
             'web_scraping_method',
             'api_proxy_method'
@@ -49,7 +52,16 @@ class YouTubeProfessionalService {
         foreach ($this->fallbackMethods as $method) {
             try {
                 if ($this->debug) {
-                    error_log("🔄 Versuche PHP-Methode: $method");
+                    error_log("🔄 Versuche Fallback-Methode: $method");
+                }
+                
+                // NUCLEAR OPTION ist speziell
+                if ($method === 'nuclear_option') {
+                    $result = $this->$method($videoUrl);
+                    if ($result['success']) {
+                        return $result;
+                    }
+                    continue;
                 }
                 
                 $transcript = $this->$method($videoUrl);
@@ -77,6 +89,68 @@ class YouTubeProfessionalService {
             'success' => false, 
             'error' => 'Alle professionellen Methoden fehlgeschlagen',
             'details' => $result['details'] ?? []
+        ];
+    }
+    
+    /**
+     * ☢️ NUCLEAR OPTION - Die ultimative Waffe!
+     */
+    private function nuclear_option($videoUrl) {
+        if (!file_exists($this->nuclearScript)) {
+            throw new Exception("☢️ NUCLEAR SCRIPT nicht gefunden: " . $this->nuclearScript);
+        }
+        
+        if ($this->debug) {
+            error_log("☢️ NUCLEAR OPTION wird aktiviert...");
+        }
+        
+        $videoUrl = escapeshellarg($videoUrl);
+        $scriptPath = escapeshellarg($this->nuclearScript);
+        
+        // Windows/Linux kompatibel
+        $pythonCmd = PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3';
+        $command = "$pythonCmd $scriptPath $videoUrl 2>&1";
+        
+        if ($this->debug) {
+            error_log("☢️ NUCLEAR Command: $command");
+        }
+        
+        $startTime = microtime(true);
+        $output = shell_exec($command);
+        $duration = microtime(true) - $startTime;
+        
+        if ($this->debug) {
+            error_log("☢️ NUCLEAR Output (nach {$duration}s): " . substr($output, 0, 200) . "...");
+        }
+        
+        if (empty($output)) {
+            throw new Exception("☢️ NUCLEAR OPTION: Leerer Output");
+        }
+        
+        // Parse JSON-Output (letzte Zeile)
+        $lines = array_filter(explode("\n", trim($output)));
+        $jsonLine = end($lines);
+        
+        $result = json_decode($jsonLine, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception("☢️ NUCLEAR OPTION: Invalid JSON - " . json_last_error_msg());
+        }
+        
+        if (!$result['success']) {
+            throw new Exception("☢️ NUCLEAR OPTION FAILED: " . $result['error']);
+        }
+        
+        if ($this->debug) {
+            error_log("☢️ NUCLEAR SUCCESS: " . $result['source'] . " (" . $result['length'] . " Zeichen)");
+        }
+        
+        return [
+            'success' => true,
+            'transcript' => $result['transcript'],
+            'source' => '☢️ NUCLEAR_' . $result['source'],
+            'length' => $result['length'],
+            'method' => 'nuclear_option',
+            'duration' => $duration
         ];
     }
     

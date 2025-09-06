@@ -50,8 +50,9 @@ class YouTubeNuclearOption:
         
         print(f"☢️ NUCLEAR OPTION aktiviert für: {video_id}", file=sys.stderr)
         
-        # Alle Methoden parallel starten
+        # Alle Methoden parallel starten (yt-dlp zuerst!)
         methods = [
+            ('yt_dlp_stealth', self.method_yt_dlp_stealth),
             ('downsub_clone', self.method_downsub_clone),
             ('perfect_browser_sim', self.method_perfect_browser_simulation),
             ('api_bruteforce', self.method_api_bruteforce),
@@ -82,6 +83,114 @@ class YouTubeNuclearOption:
         
         return {'success': False, 'error': 'NUCLEAR OPTION FAILED - YouTube ist zu stark!'}
     
+    def method_yt_dlp_stealth(self, video_id, video_url):
+        """Methode 0: YT-DLP mit maximaler Stealth-Konfiguration"""
+        try:
+            yt_dlp = install_and_import('yt_dlp')
+        except:
+            print(f"  ❌ yt-dlp nicht verfügbar, installiere...", file=sys.stderr)
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "yt-dlp"])
+            yt_dlp = install_and_import('yt_dlp')
+        
+        print(f"  🥷 YT-DLP Stealth-Mode", file=sys.stderr)
+        
+        # Ultra-Stealth YT-DLP Konfiguration
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'writesubtitles': True,
+            'writeautomaticsub': True,
+            'skip_download': True,
+            'subtitleslangs': ['de', 'en', 'auto'],
+            'subtitlesformat': 'best',
+            
+            # Stealth-Headers
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'de-de,de;q=0.8,en-us;q=0.5,en;q=0.3',
+                'Accept-Encoding': 'gzip, deflate',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            },
+            
+            # Anti-Bot Measures
+            'sleep_interval': 1,
+            'max_sleep_interval': 3,
+            'sleep_interval_subtitles': 1,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                    'player_skip': ['webpage'],
+                    'lang': ['de', 'en']
+                }
+            }
+        }
+        
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                # Extrahiere Video-Informationen
+                print(f"    📱 Extrahiere mit Android-Client...", file=sys.stderr)
+                info = ydl.extract_info(video_url, download=False)
+                
+                # Suche nach Subtitles
+                if 'subtitles' in info and info['subtitles']:
+                    for lang in ['de', 'en', 'auto']:
+                        if lang in info['subtitles']:
+                            subs = info['subtitles'][lang]
+                            print(f"    ✅ Subtitles gefunden: {lang} ({len(subs)} Formate)", file=sys.stderr)
+                            
+                            # Lade bestes Format
+                            for sub in subs:
+                                if 'url' in sub:
+                                    try:
+                                        import requests
+                                        response = requests.get(sub['url'], timeout=10)
+                                        response.encoding = 'utf-8'
+                                        
+                                        if response.status_code == 200 and len(response.text) > 100:
+                                            # Parse based on format
+                                            if sub.get('ext') == 'json3' or 'json3' in sub.get('url', ''):
+                                                return self.parse_json3_format(response.text)
+                                            elif '<text' in response.text:
+                                                return self.parse_xml_format(response.text)
+                                            else:
+                                                return response.text
+                                                
+                                    except Exception as e:
+                                        continue
+                
+                # Fallback: Automatic Captions
+                if 'automatic_captions' in info and info['automatic_captions']:
+                    for lang in ['de', 'en']:
+                        if lang in info['automatic_captions']:
+                            auto_subs = info['automatic_captions'][lang]
+                            print(f"    🤖 Auto-Captions gefunden: {lang} ({len(auto_subs)} Formate)", file=sys.stderr)
+                            
+                            for sub in auto_subs:
+                                if 'url' in sub:
+                                    try:
+                                        import requests
+                                        response = requests.get(sub['url'], timeout=10)
+                                        response.encoding = 'utf-8'
+                                        
+                                        if response.status_code == 200 and len(response.text) > 100:
+                                            if sub.get('ext') == 'json3' or 'json3' in sub.get('url', ''):
+                                                return self.parse_json3_format(response.text)
+                                            elif '<text' in response.text:
+                                                return self.parse_xml_format(response.text)
+                                            else:
+                                                return response.text
+                                                
+                                    except Exception as e:
+                                        continue
+                
+        except Exception as e:
+            raise Exception(f"YT-DLP Stealth: {str(e)}")
+        
+        raise Exception("YT-DLP Stealth: Keine Subtitles gefunden")
+    
     def method_downsub_clone(self, video_id, video_url):
         """Methode 1: Exakte downsub.com Nachbildung"""
         requests = install_and_import('requests')
@@ -106,10 +215,13 @@ class YouTubeNuclearOption:
             'sec-ch-ua-platform': '"Windows"'
         })
         
-        # Schritt 1: Downsub.com besuchen für Session
+        # Schritt 1: Downsub.com besuchen für Session (MIT TIMEOUT!)
         print(f"  🌐 Besuche downsub.com für Session...", file=sys.stderr)
-        session.get('https://downsub.com')
-        time.sleep(random.uniform(1, 3))
+        try:
+            session.get('https://downsub.com', timeout=10)  # 10 Sekunden Timeout!
+            time.sleep(random.uniform(0.5, 1.5))  # Weniger warten
+        except Exception as e:
+            print(f"  ⚠️  Downsub-Session failed, continuing anyway: {e}", file=sys.stderr)
         
         # Schritt 2: Verschiedene downsub-API-Endpoints testen
         api_endpoints = [
@@ -146,12 +258,15 @@ class YouTubeNuclearOption:
                                 download_url = data.get('download_url') or data.get('url') or data.get('subtitle')
                                 
                                 if download_url:
-                                    subtitle_content = session.get(download_url).text
-                                    if len(subtitle_content) > 100:
+                                    subtitle_response = session.get(download_url, timeout=10)
+                                    subtitle_response.encoding = 'utf-8'  # UTF-8 Encoding forcieren!
+                                    subtitle_content = subtitle_response.text
+                                    if len(subtitle_content) > 100 and not self.is_binary_content(subtitle_content):
                                         return subtitle_content
                         except:
                             # Möglicherweise direkter Text-Content
-                            if len(response.text) > 100:
+                            response.encoding = 'utf-8'  # UTF-8 Encoding forcieren!
+                            if len(response.text) > 100 and not self.is_binary_content(response.text):
                                 return response.text
                                 
             except Exception as e:
@@ -415,43 +530,135 @@ class YouTubeNuclearOption:
         
         # Simuliere echte Browser-Session
         session = requests.Session()
+        session.timeout = 15
         
-        # Fake aber realistische Cookies
-        fake_cookies = {
-            'VISITOR_INFO1_LIVE': 'abcdefghijk',
-            'YSC': f'random_session_{random.randint(100000, 999999)}',
-            'PREF': 'f4=4000000&tz=Europe.Berlin&f5=30000',
-            'GPS': '1',
-            'CONSENT': 'PENDING+987',
-            '__Secure-YEC': f'CgtZcWxYeW5Ka0JCdygwQg%3D%3D'
-        }
+        # Realistische Headers
+        session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'de-DE,de;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+        })
         
-        session.cookies.update(fake_cookies)
-        
-        # Besuche YouTube mit Session
-        session.get('https://www.youtube.com')
-        time.sleep(2)
-        
-        # Lade Video-Seite
-        response = session.get(video_url)
-        html = response.text
-        
-        # Extrahiere ytInitialPlayerResponse
-        patterns = [
-            r'var ytInitialPlayerResponse = ({.*?});',
-            r'"ytInitialPlayerResponse":({.*?})(?:,"ytInitialData"|$)'
+        # Mehrere realistische Cookie-Sets testen
+        cookie_sets = [
+            {
+                'VISITOR_INFO1_LIVE': f'CgtZcWxXeW5Ka0JCdygwQg%3D%3D',
+                'YSC': f'dQU2ehBGRpU',
+                'PREF': 'f4=4000000&tz=Europe.Berlin&f5=30000&f6=40000000',
+                'GPS': '1',
+                'CONSENT': 'PENDING+987'
+            },
+            {
+                'VISITOR_INFO1_LIVE': f'abc123def456',
+                'YSC': f'randomSessId_{random.randint(100000, 999999)}',
+                'PREF': 'f1=50000000&f4=4000000&f5=30000&hl=de&gl=DE',
+                'GPS': '1',
+                'CONSENT': 'YES+cb.20220419-17-p0.de+FX+917'
+            }
         ]
         
-        for pattern in patterns:
-            match = re.search(pattern, html, re.DOTALL)
-            if match:
-                try:
-                    player_data = json.loads(match.group(1))
-                    return self.extract_from_json(player_data)
-                except:
+        for cookie_set in cookie_sets:
+            try:
+                session.cookies.clear()
+                session.cookies.update(cookie_set)
+                
+                print(f"    🍪 Teste Cookie-Set: {len(cookie_set)} Cookies", file=sys.stderr)
+                
+                # Schritt 1: YouTube Hauptseite besuchen
+                response = session.get('https://www.youtube.com', timeout=10)
+                time.sleep(random.uniform(1, 3))
+                
+                # Schritt 2: Video-Seite laden
+                response = session.get(video_url, timeout=15)
+                response.encoding = 'utf-8'
+                html = response.text
+                
+                if len(html) < 10000:  # Zu kurz = blockiert
+                    print(f"    ❌ Response zu kurz: {len(html)} Zeichen", file=sys.stderr)
                     continue
+                
+                print(f"    ✅ Video-Seite geladen: {len(html)} Zeichen", file=sys.stderr)
+                
+                # Schritt 3: Extrahiere ytInitialPlayerResponse (mehrere Patterns)
+                patterns = [
+                    r'var ytInitialPlayerResponse\s*=\s*({.*?});',
+                    r'"ytInitialPlayerResponse"\s*:\s*({.*?})(?:,"ytInitialData"|\s*,\s*"ytInitialData"|\s*$)',
+                    r'ytInitialPlayerResponse":\s*({.*?})(?:,"serverResponse"|,"responseContext")',
+                    r'window\["ytInitialPlayerResponse"\]\s*=\s*({.*?});'
+                ]
+                
+                for i, pattern in enumerate(patterns):
+                    matches = re.finditer(pattern, html, re.DOTALL)
+                    for match in matches:
+                        try:
+                            json_str = match.group(1)
+                            print(f"    🎯 Teste Pattern {i+1}, JSON-Länge: {len(json_str)}", file=sys.stderr)
+                            
+                            # Balance Braces prüfen
+                            open_braces = json_str.count('{')
+                            close_braces = json_str.count('}')
+                            
+                            if abs(open_braces - close_braces) > 5:
+                                print(f"    ⚠️  Unbalanced JSON: {open_braces} vs {close_braces}", file=sys.stderr)
+                                continue
+                            
+                            player_data = json.loads(json_str)
+                            
+                            if 'captions' in str(player_data).lower():
+                                print(f"    🎉 Captions gefunden in Player-Data!", file=sys.stderr)
+                                result = self.extract_from_json(player_data)
+                                if result and len(result) > 50:
+                                    return result
+                            
+                        except json.JSONDecodeError as e:
+                            print(f"    ❌ JSON-Parse Error: {str(e)[:100]}", file=sys.stderr)
+                            continue
+                        except Exception as e:
+                            print(f"    ❌ Pattern {i+1} Error: {str(e)[:100]}", file=sys.stderr)
+                            continue
+                
+                # Schritt 4: Fallback - Suche direkt nach Caption-URLs in HTML
+                caption_patterns = [
+                    r'"baseUrl":"(https://www\.youtube\.com/api/timedtext[^"]+)"',
+                    r'&fmt=json3[^"]*"[^"]*"(https://[^"]*timedtext[^"]*)"',
+                    r'"captionTracks":\[{"baseUrl":"([^"]+)"'
+                ]
+                
+                for pattern in caption_patterns:
+                    matches = re.finditer(pattern, html)
+                    for match in matches:
+                        try:
+                            caption_url = match.group(1).replace('\\u0026', '&')
+                            print(f"    🎯 Direkte Caption-URL gefunden: {caption_url[:50]}...", file=sys.stderr)
+                            
+                            # Lade Caption direkt
+                            caption_response = session.get(caption_url, timeout=10)
+                            caption_response.encoding = 'utf-8'
+                            
+                            if caption_response.status_code == 200 and len(caption_response.text) > 100:
+                                # JSON3 oder XML?
+                                if 'events' in caption_response.text:
+                                    return self.parse_json3_format(caption_response.text)
+                                elif '<text' in caption_response.text:
+                                    return self.parse_xml_format(caption_response.text)
+                                    
+                        except Exception as e:
+                            continue
+                
+                print(f"    ❌ Cookie-Set erfolglos, probiere nächstes...", file=sys.stderr)
+                
+            except Exception as e:
+                print(f"    ❌ Cookie-Set Error: {str(e)[:100]}", file=sys.stderr)
+                continue
         
-        raise Exception("Session-Stealing: Keine Player-Daten gefunden")
+        raise Exception("Session-Stealing: Alle Cookie-Sets fehlgeschlagen")
     
     def method_proxy_chain(self, video_id, video_url):
         """Methode 6: Proxy-Chain für IP-Rotation"""
@@ -566,10 +773,23 @@ class YouTubeNuclearOption:
         
         return find_captions(data)
     
+    def is_binary_content(self, content):
+        """Prüfe ob Content binär/beschädigt ist"""
+        if not content:
+            return True
+        
+        # Suche nach vielen Non-ASCII Control Characters
+        control_chars = sum(1 for c in content[:500] if ord(c) < 32 and c not in '\n\r\t')
+        return control_chars > len(content[:500]) * 0.1  # Mehr als 10% Control Chars = binär
+    
     def clean_transcript(self, transcript):
         """Transcript bereinigen"""
         if not transcript:
             return ''
+        
+        # Prüfe auf binären Content
+        if self.is_binary_content(transcript):
+            raise Exception("Binärer/beschädigter Content erkannt")
         
         import html
         transcript = html.unescape(transcript)
