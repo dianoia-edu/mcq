@@ -129,10 +129,6 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <false/>
     <key>allowReconfiguration</key>
     <false/>
-    <key>sebConfigPurpose</key>
-    <integer>1</integer>
-    <key>allowBrowsingBackForward</key>
-    <false/>
     
     <!-- KIOSK-MODUS (VOLLSTÄNDIG GESPERRT) -->
     <key>createNewDesktop</key>
@@ -190,9 +186,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>iOSDisableScreenRotation</key>
     <true/>
     
-    <!-- GUIDED ACCESS EINSTELLUNGEN -->
-    <key>iOSGuidedAccessRequireAutomaticAssessmentConfiguration</key>
-    <true/>
+    <!-- GUIDED ACCESS EINSTELLUNGEN (vereinfacht) -->
     <key>iOSEnableGuidedAccessLinkTransform</key>
     <true/>
     
@@ -206,39 +200,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>enableJavaScriptPrompt</key>
     <true/>
     
-    <!-- EXTREME TASTENKOMBINATION-SPERREN -->
-    <key>detectStoppedProcess</key>
-    <true/>
-    <key>enableF1</key>
-    <false/>
-    <key>enableF2</key>
-    <false/>
-    <key>enableF3</key>
-    <false/>
-    <key>enableF4</key>
-    <false/>
-    <key>enableF5</key>
-    <false/>
-    <key>enableF6</key>
-    <false/>
-    <key>enableF7</key>
-    <false/>
-    <key>enableF8</key>
-    <false/>
-    <key>enableF9</key>
-    <false/>
-    <key>enableF10</key>
-    <false/>
-    <key>enableF11</key>
-    <false/>
-    <key>enableF12</key>
-    <false/>
-    <key>enableEsc</key>
-    <false/>
-    <key>enableCtrlEsc</key>
-    <false/>
-    <key>enableAltEsc</key>
-    <false/>
+    <!-- VEREINFACHTE TASTENSPERREN -->
     <key>enableAltTab</key>
     <false/>
     <key>enableAltF4</key>
@@ -247,31 +209,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <false/>
     <key>enableRightMouse</key>
     <false/>
-    <key>enablePrintScreen</key>
-    <false/>
-    <key>enableSystemKey</key>
-    <false/>
     <key>enableTouchExit</key>
-    <false/>
-    
-    <!-- WINDOWS-SPEZIFISCHE SPERREN -->
-    <key>hookKeys</key>
-    <true/>
-    <key>enableLogging</key>
-    <true/>
-    <key>logLevel</key>
-    <integer>4</integer>
-    <key>enableZoomPage</key>
-    <false/>
-    <key>enableZoomText</key>
-    <false/>
-    
-    <!-- ALT+TAB VOLLSTÄNDIG BLOCKIEREN -->
-    <key>enableAltMouseWheel</key>
-    <false/>
-    <key>enableCtrlAltDel</key>
-    <false/>
-    <key>enableWindowsUpdate</key>
     <false/>
     
     <!-- Exam-Konfiguration -->
@@ -282,13 +220,11 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>examSessionClearCookiesOnEnd</key>
     <true/>
     
-    <!-- Metadata -->
+    <!-- Metadata (korrigiert) -->
     <key>sebConfigPurpose</key>
     <integer>1</integer>
     <key>originatorVersion</key>
     <string>3.4.0</string>
-    <key>sebServerConfiguration</key>
-    <false/>
 </dict>
 </plist>';
 

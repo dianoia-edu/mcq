@@ -250,12 +250,18 @@ $testCode = $_GET['code'] ?? 'TEST';
                     <div class="card-body text-center">
                         <h5>Direkte Aktionen</h5>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <a href="seb_config.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-success btn-lg w-100 mb-2">
-                                    <i class="bi bi-download me-2"></i>SEB-Datei herunterladen
+                                    <i class="bi bi-download me-2"></i>SEB-Datei (vollständig)
                                 </a>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <a href="seb_test.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-warning btn-lg w-100 mb-2">
+                                    <i class="bi bi-wrench me-2"></i>SEB-Datei (minimal)
+                                </a>
+                                <small class="text-muted">Bei Problemen versuchen</small>
+                            </div>
+                            <div class="col-md-4">
                                 <a href="seb_config_preview.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-info btn-lg w-100 mb-2">
                                     <i class="bi bi-eye me-2"></i>Einschränkungen ansehen
                                 </a>
@@ -278,3 +284,4 @@ $testCode = $_GET['code'] ?? 'TEST';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
