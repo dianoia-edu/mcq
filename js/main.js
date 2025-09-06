@@ -162,8 +162,11 @@ $(document).ready(function() {
     // Subtitle.to Button Handler (Event Delegation für dynamische Inhalte)
     $(document).on('click', '#subtitleToBtn', function() {
         console.log('📥 Subtitle.to Button geklickt!');
+        console.log('🔍 Browser:', navigator.userAgent);
+        console.log('🔍 jQuery verfügbar:', typeof $ !== 'undefined');
+        console.log('🔍 Bootstrap verfügbar:', typeof bootstrap !== 'undefined');
         
-        const youtubeUrl = $('#youtube_url').val().trim();
+        var youtubeUrl = $('#youtube_url').val().trim();
         console.log('YouTube-URL:', youtubeUrl);
         
         if (!youtubeUrl) {
@@ -172,7 +175,11 @@ $(document).ready(function() {
             return;
         }
         
-        if (!isValidYoutubeUrl(youtubeUrl)) {
+        console.log('🔍 Prüfe YouTube-URL...');
+        var isValid = isValidYoutubeUrl(youtubeUrl);
+        console.log('🔍 URL-Validierung Ergebnis:', isValid);
+        
+        if (!isValid) {
             alert('Bitte geben Sie eine gültige YouTube-URL ein.');
             $('#youtube_url').focus();
             return;
@@ -406,16 +413,31 @@ function formatTestPreview(content) {
 
 // Hilfsfunktionen zur URL-Validierung
 function isValidUrl(url) {
+    console.log('🔍 isValidUrl aufgerufen mit:', url);
     try {
-        new URL(url);
-        return true;
+        if (typeof URL !== 'undefined') {
+            new URL(url);
+            console.log('🔍 URL-Validierung mit URL() erfolgreich');
+            return true;
+        } else {
+            // Fallback für ältere Browser - einfache Regex-Prüfung
+            const urlPattern = /^https?:\/\/.+/i;
+            const result = urlPattern.test(url);
+            console.log('🔍 URL-Validierung mit Regex:', result);
+            return result;
+        }
     } catch (e) {
+        console.log('🔍 URL-Validierung Fehler:', e);
         return false;
     }
 }
 
 function isValidYoutubeUrl(url) {
-    if (!isValidUrl(url)) return false;
+    console.log('🔍 isValidYoutubeUrl aufgerufen mit:', url);
+    
+    const basicValid = isValidUrl(url);
+    console.log('🔍 Basis-URL-Validierung:', basicValid);
+    if (!basicValid) return false;
     
     try {
         // Edge-kompatible URL-Parsing
