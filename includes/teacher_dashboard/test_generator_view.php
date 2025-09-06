@@ -112,29 +112,25 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
-                <!-- Tab-Navigation -->
-                <ul class="nav nav-tabs" id="subtitleWorkflowTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="download-tab" data-bs-toggle="tab" data-bs-target="#download-pane" type="button" role="tab">
+                <!-- Einfache Tab-Navigation -->
+                <div class="bg-light border-bottom">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="simpleDownloadTab" onclick="showSimpleTab('download')">
                             📥 1. Download
                         </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-pane" type="button" role="tab">
+                        <button type="button" class="btn btn-outline-primary" id="simpleUploadTab" onclick="showSimpleTab('upload')">
                             📤 2. Upload
                         </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="generate-tab" data-bs-toggle="tab" data-bs-target="#generate-pane" type="button" role="tab">
+                        <button type="button" class="btn btn-outline-primary" id="simpleGenerateTab" onclick="showSimpleTab('generate')">
                             🚀 3. Generieren
                         </button>
-                    </li>
-                </ul>
+                    </div>
+                </div>
                 
-                <!-- Tab-Inhalt -->
-                <div class="tab-content" id="subtitleWorkflowContent">
-                    <!-- Tab 1: Download (UNVERÄNDERT zum funktionierenden iframe) -->
-                    <div class="tab-pane fade show active" id="download-pane" role="tabpanel">
+                <!-- Tab-Inhalte -->
+                <div id="simpleTabContent">
+                    <!-- Download Content (sichtbar) -->
+                    <div id="simpleDownloadContent" class="simple-tab-pane">
                         <div class="alert alert-info m-3 mb-0">
                             <h6><strong>📋 Anleitung:</strong></h6>
                             <ol class="mb-0">
@@ -154,8 +150,8 @@
                         </div>
                     </div>
                     
-                    <!-- Tab 2: Upload (erstmal nur Platzhalter) -->
-                    <div class="tab-pane fade" id="upload-pane" role="tabpanel">
+                    <!-- Upload Content (versteckt) -->
+                    <div id="simpleUploadContent" class="simple-tab-pane" style="display: none;">
                         <div class="p-4">
                             <div class="alert alert-success">
                                 <h6><strong>📤 Upload Tab</strong></h6>
@@ -164,8 +160,8 @@
                         </div>
                     </div>
                     
-                    <!-- Tab 3: Generate (erstmal nur Platzhalter) -->
-                    <div class="tab-pane fade" id="generate-pane" role="tabpanel">
+                    <!-- Generate Content (versteckt) -->
+                    <div id="simpleGenerateContent" class="simple-tab-pane" style="display: none;">
                         <div class="p-4">
                             <div class="alert alert-warning">
                                 <h6><strong>🚀 Generate Tab</strong></h6>
@@ -186,6 +182,35 @@
 </div>
 
 <script>
+// Einfache Tab-Switching Funktion
+function showSimpleTab(tabName) {
+    console.log('🔄 Wechsle zu Tab:', tabName);
+    
+    // Alle Tab-Buttons zurücksetzen
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Alle Tab-Inhalte verstecken
+    document.querySelectorAll('.simple-tab-pane').forEach(pane => {
+        pane.style.display = 'none';
+    });
+    
+    // Gewählten Tab aktivieren
+    const activeButton = document.getElementById('simple' + tabName.charAt(0).toUpperCase() + tabName.slice(1) + 'Tab');
+    const activeContent = document.getElementById('simple' + tabName.charAt(0).toUpperCase() + tabName.slice(1) + 'Content');
+    
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+    
+    if (activeContent) {
+        activeContent.style.display = 'block';
+    }
+    
+    console.log('✅ Tab gewechselt zu:', tabName);
+}
+</script>
 // Lokale Helper-Funktionen für diese View
 function getTeacherUrl(filename) {
     const isInTeacherDir = <?php echo json_encode(strpos($_SERVER['REQUEST_URI'], '/teacher/') !== false); ?>;
