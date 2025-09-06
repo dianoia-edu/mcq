@@ -497,92 +497,37 @@ function openSubtitleToModal(youtubeUrl) {
         modal.show();
         console.log('✅ Modal wird angezeigt');
         
-        // Lade iframe nach kurzer Verzögerung
-        setTimeout(() => {
-            try {
-                console.log('🔄 Lade iframe...');
-                console.log('🔗 URL:', subtitleToUrl);
+        // Zeige direkt den Öffnen-Button (iframe ist nicht zuverlässig)
+        console.log('📥 Zeige subtitle.to Öffnen-Button');
+        frameContainer.innerHTML = `
+            <div class="alert alert-primary m-3">
+                <h6><i class="bi bi-download me-2"></i>Schritt 1: Untertitel herunterladen</h6>
+                <p class="mb-3">Öffnen Sie subtitle.to in einem neuen Tab um die Untertitel herunterzuladen:</p>
                 
-                // Erstelle iframe mit Debug-Output
-                const iframe = document.createElement('iframe');
-                iframe.src = subtitleToUrl;
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.sandbox = 'allow-same-origin allow-scripts allow-forms allow-downloads allow-top-navigation allow-popups allow-popups-to-escape-sandbox';
-                iframe.loading = 'lazy';
+                <div class="text-center mb-3">
+                    <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>subtitle.to öffnen
+                    </a>
+                </div>
                 
-                // Event-Listener für iframe
-                iframe.onload = function() {
-                    console.log('✅ iframe erfolgreich geladen!');
-                };
+                <div class="alert alert-light">
+                    <h6><i class="bi bi-list-ol me-2"></i>Anleitung:</h6>
+                    <ol class="mb-0">
+                        <li><strong>Klicken Sie den Button oben</strong> → öffnet subtitle.to in neuem Tab</li>
+                        <li><strong>Warten Sie</strong> bis die Seite geladen ist</li>
+                        <li><strong>Klicken Sie "Download"</strong> bei den gewünschten Untertiteln</li>
+                        <li><strong>Speichern Sie die .txt/.srt Datei</strong> auf Ihrem Computer</li>
+                        <li><strong>Wechseln Sie zum "Upload" Tab</strong> in diesem Modal</li>
+                    </ol>
+                </div>
                 
-                iframe.onerror = function(error) {
-                    console.error('❌ iframe Fehler:', error);
-                    frameContainer.innerHTML = `
-                        <div class="alert alert-warning m-3">
-                            <h6>⚠️ iframe konnte nicht geladen werden</h6>
-                            <p><strong>Grund:</strong> subtitle.to blockiert iframe-Einbettung (X-Frame-Options)</p>
-                            <p>Das ist normal und aus Sicherheitsgründen so.</p>
-                            <p><strong>Lösung:</strong> Nutzen Sie den Button unten um subtitle.to in einem neuen Tab zu öffnen.</p>
-                            <div class="text-center mt-3">
-                                <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary">
-                                    🔗 subtitle.to in neuem Tab öffnen
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                };
-                
-                // Timeout für iframe-Laden
-                setTimeout(() => {
-                    if (!iframe.contentDocument && !iframe.contentWindow) {
-                        console.warn('⚠️ iframe scheint blockiert zu sein');
-                        frameContainer.innerHTML = `
-                            <div class="alert alert-info m-3">
-                                <h6>ℹ️ iframe wird blockiert</h6>
-                                <p><strong>Das ist normal!</strong> Viele Websites (inkl. subtitle.to) blockieren iframe-Einbettung aus Sicherheitsgründen.</p>
-                                <p><strong>Lösung:</strong> Öffnen Sie subtitle.to direkt in einem neuen Tab:</p>
-                                <div class="text-center mt-3">
-                                    <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary btn-lg">
-                                        🔗 subtitle.to öffnen
-                                    </a>
-                                </div>
-                                <hr>
-                                <p class="small text-muted">
-                                    <strong>Workflow:</strong>
-                                    1. Klicken Sie den Button oben<br>
-                                    2. Laden Sie die Untertitel-Datei herunter<br>
-                                    3. Wechseln Sie zum "Upload" Tab in diesem Modal<br>
-                                    4. Laden Sie die Datei hoch und generieren Sie den Test
-                                </p>
-                            </div>
-                        `;
-                    }
-                }, 3000);
-                
-                // iframe zum Container hinzufügen
-                frameContainer.innerHTML = '';
-                frameContainer.appendChild(iframe);
-                
-                console.log('✅ iframe erstellt und hinzugefügt');
-                
-            } catch (error) {
-                console.error('❌ Fehler beim Erstellen des iframes:', error);
-                frameContainer.innerHTML = `
-                    <div class="alert alert-warning m-3">
-                        <h6>⚠️ iframe konnte nicht erstellt werden</h6>
-                        <p><strong>Fehler:</strong> ${error.message}</p>
-                        <p><strong>Lösung:</strong> Öffnen Sie subtitle.to direkt:</p>
-                        <div class="text-center mt-3">
-                            <a href="${subtitleToUrl}" target="_blank" class="btn btn-primary">
-                                🔗 subtitle.to öffnen
-                            </a>
-                        </div>
-                    </div>
-                `;
-            }
-        }, 500);
+                <div class="text-center">
+                    <button type="button" class="btn btn-success" onclick="$('#upload-tab').tab('show')">
+                        <i class="bi bi-arrow-right me-2"></i>Weiter zu Schritt 2: Upload
+                    </button>
+                </div>
+            </div>
+        `;
         
     } catch (modalError) {
         console.error('❌ Fehler beim Erstellen/Anzeigen des Modals:', modalError);
