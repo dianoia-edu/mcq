@@ -2865,6 +2865,9 @@ function showQrCode(automatisch = false, modalType = 'editor') {
                     <button type="button" class="btn btn-secondary save-qr-btn">
                         <i class="bi bi-download"></i> QR-Code als Bild speichern
                     </button>
+                    <button type="button" class="btn btn-warning seb-qr-btn">
+                        <i class="bi bi-shield-lock me-2"></i>SEB-QR-Code anzeigen
+                    </button>
                 </div>
             </div>
             <div class="modal-footer">
@@ -2982,6 +2985,12 @@ function showQrCode(automatisch = false, modalType = 'editor') {
         }
     });
     
+    // Event-Handler für SEB-QR-Code Button (nur einmal registrieren)
+    $('.seb-qr-btn').off('click').on('click', function() {
+        console.log('🔒 SEB-QR-Code Button geklickt für Test:', accessCode);
+        showSEBQRCode(accessCode, title);
+    });
+    
     // Event-Handler für "Test bearbeiten" Button
     $(document).on('click', '#editTest', function() {
         const accessCode = $(this).data('access-code');
@@ -3054,6 +3063,153 @@ function showQrCode(automatisch = false, modalType = 'editor') {
     });
     
     }, 100); // Ende setTimeout - 100ms Debounce
+}
+
+// Funktion zum Anzeigen des SEB-QR-Codes (parallel zur normalen QR-Code Funktion)
+function showSEBQRCode(accessCode, title) {
+    console.log('🔒 Generiere SEB-QR-Code für Test:', accessCode);
+    
+    // Entferne eventuell vorhandenes SEB-Modal
+    $('#sebQrCodeModal').remove();
+    
+    // Erstelle die SEB-URL (führt zur SEB-Konfiguration)
+    const baseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
+    const sebConfigUrl = baseUrl + 'seb_start.php?code=' + accessCode;
+    
+    console.log('🔒 SEB-Config URL:', sebConfigUrl);
+    
+    // Erstelle das SEB-Modal
+    const modalContent = 
+        '<div class="modal fade" id="sebQrCodeModal" tabindex="-1" aria-labelledby="sebQrCodeModalLabel" aria-hidden="true">' +
+            '<div class="modal-dialog modal-dialog-centered">' +
+                '<div class="modal-content">' +
+                    '<div class="modal-header bg-warning">' +
+                        '<h5 class="modal-title" id="sebQrCodeModalLabel">' +
+                            '<i class="bi bi-shield-lock me-2"></i>SEB-QR-Code für Test: ' + title +
+                        '</h5>' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>' +
+                    '</div>' +
+                    '<div class="modal-body text-center">' +
+                        '<div class="alert alert-info">' +
+                            '<h6><i class="bi bi-info-circle me-2"></i>Safe Exam Browser (SEB)</h6>' +
+                            '<p class="mb-0">Dieser QR-Code startet den Test direkt in der sicheren Klausurumgebung.</p>' +
+                        '</div>' +
+                        '<div id="sebQrcode" class="mb-3 d-inline-block"></div>' +
+                        '<div class="input-group mb-3">' +
+                            '<input type="text" id="sebTestUrlInput" class="form-control" value="' + sebConfigUrl + '" readonly>' +
+                            '<button class="btn btn-outline-secondary copy-seb-url-btn" type="button" title="SEB-URL kopieren">' +
+                                '<i class="bi bi-clipboard"></i>' +
+                            '</button>' +
+                        '</div>' +
+                        '<div class="d-grid gap-2">' +
+                            '<button type="button" class="btn btn-warning copy-seb-qr-btn">' +
+                                '<i class="bi bi-clipboard"></i> SEB-QR-Code kopieren' +
+                            '</button>' +
+                            '<button type="button" class="btn btn-success save-seb-qr-btn">' +
+                                '<i class="bi bi-download"></i> SEB-QR-Code speichern' +
+                            '</button>' +
+                            '<button type="button" class="btn btn-primary test-seb-btn">' +
+                                '<i class="bi bi-play-fill"></i> SEB-Config testen' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="modal-footer">' +
+                        '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    
+    // Füge das Modal zum DOM hinzu
+    $('body').append(modalContent);
+    
+    // Zeige das Modal an
+    const sebQrModal = new bootstrap.Modal(document.getElementById('sebQrCodeModal'));
+    sebQrModal.show();
+    
+    // Generiere den SEB-QR-Code
+    generateSEBQRCode(sebConfigUrl, accessCode);
+    
+    // Event-Handler für SEB-Modal Buttons
+    setupSEBModalEventHandlers(accessCode, sebConfigUrl);
+    
+    // Auto-remove Modal nach schließen
+    $('#sebQrCodeModal').on('hidden.bs.modal', function() {
+        $(this).remove();
+    });
+}
+
+// Hilfsfunktion zum Generieren des SEB-QR-Codes
+function generateSEBQRCode(sebConfigUrl, accessCode) {
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(document.getElementById("sebQrcode"), {
+            text: sebConfigUrl,
+            width: 256,
+            height: 256,
+            colorDark: "#ff6b35",  // Orange für SEB
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        console.log('✅ SEB-QR-Code mit QRCode.js generiert');
+    } else {
+        // Fallback zu Online-Generator
+        $('#sebQrcode').html(
+            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&color=ff6b35&data=' + 
+            encodeURIComponent(sebConfigUrl) + '" alt="SEB-QR-Code für ' + accessCode + '" class="img-fluid">'
+        );
+        console.log('✅ SEB-QR-Code mit Online-Generator erstellt');
+    }
+}
+
+// Event-Handler für SEB-Modal Buttons
+function setupSEBModalEventHandlers(accessCode, sebConfigUrl) {
+    // URL kopieren
+    $('.copy-seb-url-btn').off('click').on('click', function() {
+        const urlInput = document.getElementById('sebTestUrlInput');
+        urlInput.select();
+        document.execCommand('copy');
+        showSuccessMessage('SEB-URL wurde in die Zwischenablage kopiert!');
+    });
+    
+    // QR-Code kopieren
+    $('.copy-seb-qr-btn').off('click').on('click', function() {
+        const qrImg = $('#sebQrcode img').get(0);
+        if (qrImg) {
+            const canvas = document.createElement('canvas');
+            canvas.width = qrImg.width;
+            canvas.height = qrImg.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(qrImg, 0, 0);
+            
+            canvas.toBlob(function(blob) {
+                navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                ]).then(function() {
+                    showSuccessMessage('SEB-QR-Code wurde in die Zwischenablage kopiert!');
+                });
+            });
+        }
+    });
+    
+    // QR-Code speichern
+    $('.save-seb-qr-btn').off('click').on('click', function() {
+        const qrImg = $('#sebQrcode img').attr('src');
+        if (qrImg) {
+            const a = document.createElement('a');
+            a.href = qrImg;
+            a.download = 'seb_qrcode_' + accessCode + '.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showSuccessMessage('SEB-QR-Code wurde als Bild gespeichert!');
+        }
+    });
+    
+    // SEB-Config testen
+    $('.test-seb-btn').off('click').on('click', function() {
+        console.log('🧪 Teste SEB-Konfiguration:', sebConfigUrl);
+        window.open(sebConfigUrl, '_blank');
+    });
 }
 
 // Event-Handler für "Test bearbeiten" Button (Test-Vorschau Modal)
