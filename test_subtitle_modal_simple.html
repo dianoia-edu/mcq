@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>🧪 subtitle.to Modal Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 30px; background: #1a1a1a; color: #fff; }
+        .test-section { background: #2a2a2a; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        input { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 subtitle.to Modal Direkttest</h1>
+        
+        <div class="test-section success">
+            <h3>✅ Funktioniert das Modal grundsätzlich?</h3>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#testModal">
+                📱 Test Modal öffnen
+            </button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 subtitle.to Integration Test</h3>
+            <div class="input-group mb-3">
+                <input type="url" class="form-control" id="testYoutubeUrl" 
+                       placeholder="https://www.youtube.com/watch?v=..." 
+                       value="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+                <button class="btn btn-outline-primary" type="button" id="openSubtitleToBtn">
+                    📥 subtitle.to öffnen
+                </button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔍 Debug-Ausgabe</h3>
+            <div id="debugOutput" style="background: #000; padding: 15px; font-family: monospace; border-radius: 5px;">
+                Warte auf Test...
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Modal -->
+    <div class="modal fade" id="testModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">📱 Test Modal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>✅ Wenn du das siehst, funktioniert Bootstrap Modal!</p>
+                    <button type="button" class="btn btn-success" id="testSubtitleBtn">
+                        🎯 Jetzt subtitle.to Modal testen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- subtitle.to Modal (Kopie aus unserem Code) -->
+    <div class="modal fade" id="subtitleToModal" tabindex="-1" aria-labelledby="subtitleToModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="subtitleToModalLabel">
+                        📥 Untertitel mit subtitle.to herunterladen
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="alert alert-info m-3 mb-0">
+                        <h6><strong>📋 Anleitung:</strong></h6>
+                        <ol class="mb-0">
+                            <li>Warten Sie, bis die Seite geladen ist</li>
+                            <li>Klicken Sie auf "Download" bei den gewünschten Untertiteln</li>
+                            <li>Laden Sie die .txt oder .srt Datei herunter</li>
+                            <li>Schließen Sie dieses Fenster und laden Sie die Datei im "Datei-Upload" hoch</li>
+                        </ol>
+                    </div>
+                    <div id="subtitleToFrame" style="height: 70vh;">
+                        <div class="text-center p-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Lade subtitle.to...</span>
+                            </div>
+                            <p class="mt-3">Lade subtitle.to Seite...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-primary" id="openSubtitleToExternal">
+                        🔗 In neuem Tab öffnen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function debugLog(message) {
+            const output = document.getElementById('debugOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        debugLog('✅ Script geladen');
+        debugLog('✅ Bootstrap verfügbar: ' + (typeof bootstrap !== 'undefined'));
+
+        // Test subtitle.to Modal öffnen
+        function openSubtitleToModal(youtubeUrl) {
+            debugLog('🚀 openSubtitleToModal aufgerufen: ' + youtubeUrl);
+            
+            const modalElement = document.getElementById('subtitleToModal');
+            const frameContainer = document.getElementById('subtitleToFrame');
+            const externalBtn = document.getElementById('openSubtitleToExternal');
+            
+            if (!modalElement) {
+                debugLog('❌ Modal-Element nicht gefunden!');
+                return;
+            }
+            
+            debugLog('✅ Modal-Element gefunden');
+            
+            const subtitleToUrl = `https://www.subtitle.to/${youtubeUrl}`;
+            debugLog('📝 URL erstellt: ' + subtitleToUrl);
+            
+            // External Button Handler
+            if (externalBtn) {
+                externalBtn.onclick = function() {
+                    debugLog('🔗 Öffne in neuem Tab');
+                    window.open(subtitleToUrl, '_blank');
+                };
+            }
+            
+            try {
+                const modal = new bootstrap.Modal(modalElement);
+                debugLog('✅ Modal-Instanz erstellt');
+                
+                modal.show();
+                debugLog('✅ Modal wird angezeigt');
+                
+                // iframe laden
+                setTimeout(() => {
+                    frameContainer.innerHTML = `
+                        <iframe 
+                            src="${subtitleToUrl}" 
+                            style="width: 100%; height: 100%; border: none;"
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-downloads allow-top-navigation"
+                            loading="lazy">
+                        </iframe>
+                    `;
+                    debugLog('✅ iframe eingefügt');
+                }, 1000);
+                
+            } catch (error) {
+                debugLog('❌ Modal-Fehler: ' + error.message);
+            }
+        }
+
+        // Event-Handler
+        document.getElementById('openSubtitleToBtn').addEventListener('click', function() {
+            const url = document.getElementById('testYoutubeUrl').value;
+            debugLog('🎯 Button geklickt, URL: ' + url);
+            
+            if (!url) {
+                alert('Bitte YouTube-URL eingeben!');
+                return;
+            }
+            
+            openSubtitleToModal(url);
+        });
+
+        document.getElementById('testSubtitleBtn').addEventListener('click', function() {
+            debugLog('🧪 Test-Button im Modal geklickt');
+            openSubtitleToModal('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+        });
+
+        debugLog('✅ Event-Handler registriert');
+    </script>
+</body>
+</html>

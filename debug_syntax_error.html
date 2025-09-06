@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔍 Debug Syntax Error</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #000; color: #0f0; }
+        .error { color: #f00; background: #300; padding: 10px; margin: 10px 0; }
+        .info { color: #0ff; background: #003; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Syntax Error Debug</h1>
+    
+    <div class="error">
+        <h3>❌ Gefundener Fehler:</h3>
+        <p><strong>Uncaught SyntaxError: Unexpected token '*' (at teacher_dashboard.php?tab=generator:6074:9)</strong></p>
+        <p>Das bedeutet: In Zeile 6074, Zeichen 9 steht ein '*' wo er nicht hingehört</p>
+    </div>
+    
+    <div class="info">
+        <h3>📋 LÖSUNGSSCHRITTE:</h3>
+        <ol>
+            <li><strong>Browser-Entwicklertools öffnen (F12)</strong></li>
+            <li><strong>Zum "Sources" Tab wechseln</strong></li>
+            <li><strong>Die Datei "teacher_dashboard.php?tab=generator" finden</strong></li>
+            <li><strong>Zu Zeile 6074 springen (Ctrl+G)</strong></li>
+            <li><strong>Das problematische '*' Zeichen finden</strong></li>
+        </ol>
+    </div>
+    
+    <div class="info">
+        <h3>🔧 SCHNELLE FIX-OPTIONEN:</h3>
+        
+        <h4>Option 1: Browser-Cache leeren</h4>
+        <p>Drücke <strong>Ctrl+F5</strong> um den Cache zu leeren</p>
+        
+        <h4>Option 2: JavaScript temporär deaktivieren</h4>
+        <p>F12 → Settings → Disable JavaScript → Seite neu laden</p>
+        
+        <h4>Option 3: Direkte URL testen</h4>
+        <p>Gehe zu: <strong>/teacher/teacher_dashboard.php?tab=generator</strong></p>
+    </div>
+    
+    <div class="error">
+        <h3>⚠️ WAHRSCHEINLICHE URSACHEN:</h3>
+        <ul>
+            <li><strong>PHP generiert fehlerhaftes JavaScript</strong></li>
+            <li><strong>Kommentar-Block nicht richtig geschlossen</strong></li>
+            <li><strong>Template-Variable enthält '*' Zeichen</strong></li>
+            <li><strong>RegEx-Pattern im JavaScript</strong></li>
+        </ul>
+    </div>
+    
+    <script>
+        console.log('🔍 Dieser Debug-Test läuft ohne Fehler');
+        console.log('✅ JavaScript-Engine funktioniert korrekt');
+        
+        // Test verschiedene * Verwendungen
+        const testPattern = /test\*pattern/;  // OK
+        const testMath = 5 * 3;               // OK
+        // const invalid = test*;             // Würde Fehler verursachen
+        
+        console.log('🎯 Pattern-Test:', testPattern);
+        console.log('🧮 Math-Test:', testMath);
+    </script>
+</body>
+</html>
