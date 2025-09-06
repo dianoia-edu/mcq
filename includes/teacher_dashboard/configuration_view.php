@@ -1075,6 +1075,5 @@ $(document).ready(function() {
         });
         
         return modal;
-    }
 });
 </script> 
