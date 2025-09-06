@@ -123,7 +123,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>allowQuit</key>
     <true/>
     <key>hashedQuitPassword</key>
-    <string><?php echo hash('sha256', 'admin123'); ?></string>
+    <string>' . hash('sha256', 'admin123') . '</string>
     <key>showReloadWarning</key>
     <true/>
     <key>showQuitWarning</key>
