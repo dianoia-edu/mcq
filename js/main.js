@@ -2592,6 +2592,9 @@ function showQrCode(automatisch = false, modalType = 'editor') {
 </div>
 `;
     
+    // Entferne eventuell vorhandenes QR-Modal
+    $('#qrCodeModal').remove();
+    
     // Füge das Modal zum DOM hinzu
     $('body').append(modalContent);
     
@@ -2619,8 +2622,8 @@ function showQrCode(automatisch = false, modalType = 'editor') {
         `);
     }
     
-    // Event-Handler zum Kopieren der URL
-    $('.copy-url-btn').on('click', function() {
+    // Event-Handler zum Kopieren der URL (nur einmal registrieren)
+    $('.copy-url-btn').off('click').on('click', function() {
         const urlInput = document.getElementById('testUrlInput');
         urlInput.select();
         document.execCommand('copy');
@@ -2634,8 +2637,8 @@ function showQrCode(automatisch = false, modalType = 'editor') {
         showSuccessMessage('URL wurde in die Zwischenablage kopiert!');
     });
     
-    // Event-Handler zum Kopieren des QR-Codes
-    $('.copy-qr-btn').on('click', function() {
+    // Event-Handler zum Kopieren des QR-Codes (nur einmal registrieren)
+    $('.copy-qr-btn').off('click').on('click', function() {
         const qrImg = $('#qrcode img').get(0);
         if (qrImg) {
             const canvas = document.createElement('canvas');
@@ -2664,8 +2667,8 @@ function showQrCode(automatisch = false, modalType = 'editor') {
         }
     });
     
-    // Event-Handler zum Speichern des QR-Codes
-    $('.save-qr-btn').on('click', function() {
+    // Event-Handler zum Speichern des QR-Codes (nur einmal registrieren)
+    $('.save-qr-btn').off('click').on('click', function() {
         const qrImg = $('#qrcode img').attr('src');
         if (qrImg) {
             const a = document.createElement('a');
@@ -2741,8 +2744,8 @@ function showQrCode(automatisch = false, modalType = 'editor') {
         }
     });
     
-    // Event-Handler zum Entfernen des Modals
-    $('#qrCodeModal').on('hidden.bs.modal', function() {
+    // Event-Handler zum Entfernen des Modals (nur einmal registrieren)
+    $('#qrCodeModal').off('hidden.bs.modal').on('hidden.bs.modal', function() {
         $(this).remove();
         // Entferne auch den Modal-Backdrop
         $('.modal-backdrop').remove();
