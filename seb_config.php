@@ -110,9 +110,11 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>browserWindowAllowConfigFileDownload</key>
     <false/>
     
-    <!-- ERWEITERTE SICHERHEITSEINSTELLUNGEN (ohne Passwort-Konflikt) -->
+    <!-- SICHERHEITSEINSTELLUNGEN MIT BEENDEN-PASSWORT -->
     <key>allowQuit</key>
-    <false/>
+    <true/>
+    <key>hashedQuitPassword</key>
+    <string>' . hash('sha256', 'LEHRER2024_' . $testCode) . '</string>
     <key>showReloadWarning</key>
     <true/>
     <key>showQuitWarning</key>
@@ -123,6 +125,12 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <true/>
     <key>forceAppFolderInstall</key>
     <true/>
+    
+    <!-- ADMIN-PASSWORT FÜR EINSTELLUNGEN -->
+    <key>allowPreferencesWindow</key>
+    <true/>
+    <key>hashedAdminPassword</key>
+    <string>' . hash('sha256', 'ADMIN2024_' . $testCode) . '</string>
     
     <!-- KIOSK-MODUS ERZWINGEN -->
     <key>touchOptimized</key>
@@ -135,8 +143,6 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <string>100%</string>
     
     <!-- KONFIGURATION-VERHALTEN -->
-    <key>allowPreferencesWindow</key>
-    <false/>
     <key>allowReconfiguration</key>
     <false/>
     

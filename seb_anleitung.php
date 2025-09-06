@@ -149,8 +149,8 @@ $testCode = $_GET['code'] ?? 'XXX';
                         
                         <div class="password-box">
                             <h6>Für Test-Code: <strong><?php echo htmlspecialchars($testCode); ?></strong></h6>
-                            <p><strong>SEB beenden:</strong> <code>TEACHER_<?php echo htmlspecialchars($testCode); ?>_EXIT</code></p>
-                            <p><strong>Rekonfiguration:</strong> <code>ADMIN_<?php echo htmlspecialchars($testCode); ?>_CONFIG</code></p>
+                            <p><strong>SEB beenden:</strong> <code>LEHRER2024_<?php echo htmlspecialchars($testCode); ?></code></p>
+                            <p><strong>Einstellungen/Admin:</strong> <code>ADMIN2024_<?php echo htmlspecialchars($testCode); ?></code></p>
                         </div>
                         
                         <div class="alert alert-info mt-3">

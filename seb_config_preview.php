@@ -124,8 +124,8 @@ $testUrl = $baseUrl . dirname($_SERVER['PHP_SELF']) . '/name_form.php?code=' . u
                                 
                                 <div class="mt-3 p-3 bg-warning rounded">
                                     <h6><i class="bi bi-key me-2"></i>SEB-Passwörter</h6>
-                                    <p class="mb-1"><strong>Beenden-Passwort:</strong><br><code>TEACHER_<?php echo htmlspecialchars($testCode); ?>_EXIT</code></p>
-                                    <p class="mb-0"><strong>Admin-Passwort:</strong><br><code>ADMIN_<?php echo htmlspecialchars($testCode); ?>_CONFIG</code></p>
+                                    <p class="mb-1"><strong>Beenden-Passwort:</strong><br><code>LEHRER2024_<?php echo htmlspecialchars($testCode); ?></code></p>
+                                    <p class="mb-0"><strong>Admin-Passwort:</strong><br><code>ADMIN2024_<?php echo htmlspecialchars($testCode); ?></code></p>
                                     <small class="text-muted">Diese Passwörter ermöglichen Ihnen das Beenden/Rekonfigurieren von SEB.</small>
                                 </div>
                             </div>
