@@ -85,10 +85,33 @@ class YouTubeProfessionalService {
             }
         }
         
+        // 🚀 ULTIMATE FALLBACK: Wenn YouTube komplett blockiert
+        if ($this->debug) {
+            error_log("🚀 Aktiviere ULTIMATE FALLBACK...");
+        }
+        
+        require_once __DIR__ . '/youtube_ultimate_fallback.php';
+        $fallback = new YouTubeUltimateFallback($this->debug);
+        
+        try {
+            $fallbackResult = $fallback->getTranscript($videoUrl);
+            if ($fallbackResult['success']) {
+                if ($this->debug) {
+                    error_log("🚀 ULTIMATE FALLBACK SUCCESS: " . $fallbackResult['source']);
+                }
+                return $fallbackResult;
+            }
+        } catch (Exception $e) {
+            if ($this->debug) {
+                error_log("❌ ULTIMATE FALLBACK Error: " . $e->getMessage());
+            }
+        }
+        
         return [
             'success' => false, 
-            'error' => 'Alle professionellen Methoden fehlgeschlagen',
-            'details' => $result['details'] ?? []
+            'error' => 'Alle Methoden fehlgeschlagen - YouTube komplett blockiert (auch Fallback-Strategien)',
+            'details' => $result['details'] ?? [],
+            'fallback_attempted' => true
         ];
     }
     
