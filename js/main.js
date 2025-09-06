@@ -187,8 +187,31 @@ $(document).ready(function() {
     $(document).ready(function() {
         console.log('🔍 Bootstrap Modal verfügbar:', typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined');
         console.log('🔍 jQuery verfügbar:', typeof $ !== 'undefined');
-        console.log('🔍 Subtitle-Button vorhanden:', $('#subtitleToBtn').length > 0);
-        console.log('🔍 Modal vorhanden:', $('#subtitleToModal').length > 0);
+        
+        // Warte auf Tab-Laden
+        setTimeout(() => {
+            console.log('🔍 Subtitle-Button vorhanden:', $('#subtitleToBtn').length > 0);
+            console.log('🔍 Modal vorhanden:', $('#subtitleToModal').length > 0);
+            console.log('🔍 YouTube-Input vorhanden:', $('input[name="youtube_url"]').length > 0);
+            
+            // Detailcheck für Generator-Tab
+            if ($('#generator').length > 0) {
+                console.log('🔍 Generator-Tab gefunden');
+                console.log('🔍 Generator aktiv:', $('#generator').hasClass('active') || $('#generator').is(':visible'));
+                
+                // Suche alle Input-Felder
+                console.log('🔍 Alle Input-Felder:', $('input').length);
+                $('input').each(function(i, el) {
+                    if (el.name) console.log(`  - Input ${i}: name="${el.name}" id="${el.id}"`);
+                });
+                
+                // Suche alle Buttons  
+                console.log('🔍 Alle Buttons:', $('button').length);
+                $('button').each(function(i, el) {
+                    if (el.id) console.log(`  - Button ${i}: id="${el.id}" text="${$(el).text().trim()}"`);
+                });
+            }
+        }, 2000); // 2 Sekunden warten
     });
     
     // Modals initialisieren
