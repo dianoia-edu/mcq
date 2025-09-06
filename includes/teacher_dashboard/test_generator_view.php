@@ -112,21 +112,66 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
-                <div class="alert alert-info m-3 mb-0">
-                    <h6><strong>📋 Anleitung:</strong></h6>
-                    <ol class="mb-0">
-                        <li>Warten Sie, bis die Seite geladen ist</li>
-                        <li>Klicken Sie auf "Download" bei den gewünschten Untertiteln</li>
-                        <li>Laden Sie die .txt oder .srt Datei herunter</li>
-                        <li>Schließen Sie dieses Fenster und laden Sie die Datei im "Datei-Upload" hoch</li>
-                    </ol>
-                </div>
-                <div id="subtitleToFrame" style="height: 70vh;">
-                    <div class="text-center p-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Lade subtitle.to...</span>
+                <!-- Tab-Navigation -->
+                <ul class="nav nav-tabs" id="subtitleWorkflowTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="download-tab" data-bs-toggle="tab" data-bs-target="#download-pane" type="button" role="tab">
+                            📥 1. Download
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-pane" type="button" role="tab">
+                            📤 2. Upload
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="generate-tab" data-bs-toggle="tab" data-bs-target="#generate-pane" type="button" role="tab">
+                            🚀 3. Generieren
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab-Inhalt -->
+                <div class="tab-content" id="subtitleWorkflowContent">
+                    <!-- Tab 1: Download (UNVERÄNDERT zum funktionierenden iframe) -->
+                    <div class="tab-pane fade show active" id="download-pane" role="tabpanel">
+                        <div class="alert alert-info m-3 mb-0">
+                            <h6><strong>📋 Anleitung:</strong></h6>
+                            <ol class="mb-0">
+                                <li>Warten Sie, bis die Seite geladen ist</li>
+                                <li>Klicken Sie auf "Download" bei den gewünschten Untertiteln</li>
+                                <li>Laden Sie die .txt oder .srt Datei herunter</li>
+                                <li>Wechseln Sie dann zum "Upload" Tab</li>
+                            </ol>
                         </div>
-                        <p class="mt-3">Lade subtitle.to Seite...</p>
+                        <div id="subtitleToFrame" style="height: 70vh;">
+                            <div class="text-center p-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Lade subtitle.to...</span>
+                                </div>
+                                <p class="mt-3">Lade subtitle.to Seite...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 2: Upload (erstmal nur Platzhalter) -->
+                    <div class="tab-pane fade" id="upload-pane" role="tabpanel">
+                        <div class="p-4">
+                            <div class="alert alert-success">
+                                <h6><strong>📤 Upload Tab</strong></h6>
+                                <p>Hier kommt später der Datei-Upload...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 3: Generate (erstmal nur Platzhalter) -->
+                    <div class="tab-pane fade" id="generate-pane" role="tabpanel">
+                        <div class="p-4">
+                            <div class="alert alert-warning">
+                                <h6><strong>🚀 Generate Tab</strong></h6>
+                                <p>Hier kommt später die Test-Generierung...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
