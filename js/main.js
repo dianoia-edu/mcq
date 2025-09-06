@@ -1510,7 +1510,17 @@ $(document).on('click', '#editTest', function() {
     }
 });
 
+// Flag um mehrfache Initialisierung zu verhindern
+let testEditorInitialized = false;
+
 function initTestEditor() {
+    if (testEditorInitialized) {
+        console.log('🔧 initTestEditor bereits initialisiert, überspringe');
+        return;
+    }
+    testEditorInitialized = true;
+    console.log('🔧 initTestEditor wird initialisiert');
+    
     // Generiere zufälligen Zugangscode beim Laden
     generateRandomAccessCode();
     
@@ -2631,9 +2641,19 @@ function showQrCode(automatisch = false, modalType = 'editor') {
     // Füge das Modal zum DOM hinzu
     $('body').append(modalContent);
     
+    // Entferne Focus vom aktiven Element um Aria-Warnungen zu vermeiden
+    if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+    }
+    
     // Zeige das Modal an
     const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
     qrModal.show();
+    
+    // Setze Focus auf das Modal nach dem Öffnen
+    $('#qrCodeModal').on('shown.bs.modal', function() {
+        $(this).focus();
+    });
     
     // Lösche alten QR-Code falls vorhanden
     $('#qrcode').empty();
