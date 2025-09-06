@@ -1694,8 +1694,23 @@ function initTestEditor() {
         deleteTest();
     });
     
-    // Event-Handler für QR-Code-Button (beide)
-    $(document).on('click', '#showQrCodeBtn, #showQrCodeBtn2', function() {
+    // Event-Handler für QR-Code-Button (beide) - mit Debounce
+    $(document).off('click', '#showQrCodeBtn, #showQrCodeBtn2').on('click', '#showQrCodeBtn, #showQrCodeBtn2', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Verhindere mehrfache schnelle Klicks
+        if ($(this).data('processing')) {
+            console.log('QR-Button bereits in Verarbeitung, ignoriere Klick');
+            return;
+        }
+        
+        $(this).data('processing', true);
+        
+        setTimeout(() => {
+            $(this).data('processing', false);
+        }, 500);
+        
         showQrCode(false, 'editor');
     });
     
@@ -2507,11 +2522,29 @@ function resetTestEditor() {
     updateButtonVisibility();
 }
 
+// Variable für Debouncing
+let qrModalTimeout = null;
+
 // Funktion zum Anzeigen des QR-Codes
 function showQrCode(automatisch = false, modalType = 'editor') {
-    // Hole den Zugangscode - im Generator-Kontext aus der Response
-    let accessCode = '';
-    let title = '';
+    // Debounce - verhindere mehrfaches schnelles Öffnen
+    if (qrModalTimeout) {
+        clearTimeout(qrModalTimeout);
+    }
+    
+    // Prüfe ob Modal bereits offen ist
+    if ($('#qrCodeModal').hasClass('show')) {
+        console.log('QR-Modal bereits offen, ignoriere weiteren Aufruf');
+        return;
+    }
+    
+    qrModalTimeout = setTimeout(() => {
+        qrModalTimeout = null;
+        console.log('🎯 showQrCode() gestartet - modalType:', modalType, 'automatisch:', automatisch);
+        
+        // Hole den Zugangscode - im Generator-Kontext aus der Response
+        let accessCode = '';
+        let title = '';
     
     if (modalType === 'generator' && window.currentTestXML) {
         try {
@@ -2752,6 +2785,8 @@ function showQrCode(automatisch = false, modalType = 'editor') {
         // Entferne die modal-open Klasse vom Body
         $('body').removeClass('modal-open').css('padding-right', '');
     });
+    
+    }, 100); // Ende setTimeout - 100ms Debounce
 }
 
 // Event-Handler für "Test bearbeiten" Button (Test-Vorschau Modal)
