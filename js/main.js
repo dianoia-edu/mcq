@@ -3076,6 +3076,9 @@ function showSEBQRCode(accessCode, title) {
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
     const sebConfigUrl = baseUrl + 'seb_start.php?code=' + accessCode;
     
+    console.log('🔒 Base URL:', baseUrl);
+    console.log('🔒 Access Code:', accessCode);
+    
     console.log('🔒 SEB-Config URL:', sebConfigUrl);
     
     // Erstelle das SEB-Modal

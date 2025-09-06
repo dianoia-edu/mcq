@@ -14,11 +14,21 @@ if (empty($testCode)) {
     die('Fehler: Kein Test-Code angegeben');
 }
 
+// Bestimme Basis-Verzeichnis (konsistent mit der Projektstruktur)
+$currentDir = dirname(__FILE__);
+$isInTeacherDir = (basename($currentDir) === 'teacher');
+$baseDir = $isInTeacherDir ? dirname($currentDir) : $currentDir;
+
 // Validiere Test
-$testFile = __DIR__ . '/tests/' . $testCode . '.xml';
+$testFile = $baseDir . '/tests/' . $testCode . '.xml';
+error_log("SEB Config: Suche Test-Datei: " . $testFile);
+
 if (!file_exists($testFile)) {
+    $availableTests = glob($baseDir . '/tests/*.xml');
+    error_log("SEB Config: Verfügbare Tests: " . print_r($availableTests, true));
+    
     http_response_code(404);
-    die('Fehler: Test nicht gefunden');
+    die('Fehler: Test "' . htmlspecialchars($testCode) . '" nicht gefunden. Gesuchte Datei: ' . $testFile);
 }
 
 // Lade Test-Titel aus XML

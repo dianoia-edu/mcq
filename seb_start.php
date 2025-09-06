@@ -18,20 +18,37 @@ if (empty($testCode)) {
     die('❌ Fehler: Kein Test-Code angegeben. URL: seb_start.php?code=ABC');
 }
 
+// Bestimme Basis-Verzeichnis (wie im teacher_dashboard.php)
+$currentDir = dirname(__FILE__);
+$isInTeacherDir = (basename($currentDir) === 'teacher');
+$baseDir = $isInTeacherDir ? dirname($currentDir) : $currentDir;
+
 // Validiere Test-Code (prüfe ob Test existiert)
-$testFile = __DIR__ . '/tests/' . $testCode . '.xml';
+$testFile = $baseDir . '/tests/' . $testCode . '.xml';
+error_log("SEB Start: Suche Test-Datei: " . $testFile);
+
 if (!file_exists($testFile)) {
-    die('❌ Fehler: Test "' . htmlspecialchars($testCode) . '" nicht gefunden.');
+    // Debug: Zeige verfügbare Tests
+    $availableTests = glob($baseDir . '/tests/*.xml');
+    error_log("SEB Start: Verfügbare Tests: " . print_r($availableTests, true));
+    
+    die('❌ Fehler: Test "' . htmlspecialchars($testCode) . '" nicht gefunden.<br>' .
+        'Gesuchte Datei: ' . htmlspecialchars($testFile) . '<br>' .
+        'Verfügbare Tests: ' . count($availableTests) . ' Tests im Verzeichnis');
 }
 
 // Debug-Logging
 error_log("SEB Start: Test-Code = $testCode, User-Agent = " . ($_SERVER['HTTP_USER_AGENT'] ?? 'unknown'));
 
-// Prüfe ob bereits SEB-Browser
+// Prüfe ob bereits SEB-Browser (erweiterte Erkennung)
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $isSEB = (strpos($userAgent, 'SEB') !== false || 
           strpos($userAgent, 'SafeExamBrowser') !== false ||
-          strpos($userAgent, 'SEB_iOS') !== false);
+          strpos($userAgent, 'SEB_iOS') !== false ||
+          strpos($userAgent, 'SEB/') !== false ||
+          strpos($userAgent, 'SEB ') !== false ||
+          isset($_GET['seb']) ||
+          isset($_POST['seb']));
 
 if ($isSEB) {
     // Bereits im SEB - direkt zur Namenseingabe weiterleiten
