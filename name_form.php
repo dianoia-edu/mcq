@@ -11,17 +11,39 @@ error_log("Name Form Debug - SEB: " . $seb);
 error_log("Name Form Debug - Session ID: " . session_id());
 error_log("Name Form Debug - Session Status: " . session_status());
 
-// Finde die Testdatei
-$baseCode = getBaseCode($code);
-$searchCode = $baseCode;
-$allFiles = glob("tests/*.xml");
-$testFiles = array_filter($allFiles, function($file) use ($searchCode) {
-    $filename = basename($file);
-    $fileCode = substr($filename, 0, 3);
-    return ($fileCode === $searchCode);
-});
+// Finde die Testdatei (konsistent mit SEB-Integration)
+// Erste Variante: Exakter Name
+$testFile = "tests/" . $code . ".xml";
 
-$testFile = !empty($testFiles) ? reset($testFiles) : null;
+// Zweite Variante: Mit Titel-Suffix (z.B. POT_die-potsdamer-konferenz...)
+if (!file_exists($testFile)) {
+    $testPattern = "tests/" . $code . "_*.xml";
+    $matchingFiles = glob($testPattern);
+    
+    if (!empty($matchingFiles)) {
+        $testFile = $matchingFiles[0]; // Nimm die erste gefundene Datei
+        error_log("Name Form: Test gefunden mit Pattern: " . $testFile);
+    } else {
+        $testFile = null;
+    }
+}
+
+// Fallback: Falls immer noch nichts gefunden, versuche alte Methode
+if (!$testFile || !file_exists($testFile)) {
+    $baseCode = getBaseCode($code);
+    $searchCode = $baseCode;
+    $allFiles = glob("tests/*.xml");
+    $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
+        $filename = basename($file);
+        $fileCode = substr($filename, 0, 3);
+        return ($fileCode === $searchCode);
+    });
+    
+    $testFile = !empty($testFiles) ? reset($testFiles) : null;
+    if ($testFile) {
+        error_log("Name Form: Test gefunden mit Fallback-Methode: " . $testFile);
+    }
+}
 $testTitle = "Test";
 
 // Lese den Testtitel aus der XML-Datei
@@ -168,27 +190,61 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    function startTest(isSEB) {
+        var name = document.getElementById('student_name').value.trim();
+        var code = document.getElementById('test_code').value;
+        
+        if (!name) {
+            alert('Bitte geben Sie Ihren Namen ein.');
+            return;
+        }
+        
+        // Session-Setup per AJAX vor Test-Start
+        fetch('setup_test_session.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'student_name=' + encodeURIComponent(name) + 
+                  '&test_code=' + encodeURIComponent(code) + 
+                  '&seb=' + (isSEB ? 'true' : 'false')
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (isSEB) {
+                    // SEB-Start mit seb:// URL
+                    var sebUrl = 'seb://start?url=' + encodeURIComponent(data.test_url);
+                    document.getElementById('sebUrlDebug').style.display = 'block';
+                    document.getElementById('sebUrlDebug').innerHTML = '<b>SEB-URL:</b><br>' + sebUrl + '<br><b>Direkt-URL:</b><br>' + data.test_url;
+                    window.location.href = sebUrl;
+                } else {
+                    // Browser-Test
+                    window.location.href = data.test_url;
+                }
+            } else {
+                alert('Fehler: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Fehler beim Session-Setup:', error);
+            // Fallback zur alten Methode
+            if (isSEB) {
+                var url = 'index.php?code=' + encodeURIComponent(code) + '&seb=true&student_name=' + encodeURIComponent(name);
+                var sebUrl = 'seb://start?url=' + encodeURIComponent(url);
+                window.location.href = sebUrl;
+            } else {
+                window.location.href = 'index.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
+            }
+        });
+    }
+    
     document.getElementById('browserBtn').onclick = function() {
-        var name = encodeURIComponent(document.getElementById('student_name').value);
-        var code = encodeURIComponent(document.getElementById('test_code').value);
-        if (!name) {
-            alert('Bitte geben Sie Ihren Namen ein.');
-            return;
-        }
-        window.location.href = 'index.php?code=' + code + '&student_name=' + name;
+        startTest(false);
     };
+    
     document.getElementById('sebBtn').onclick = function() {
-        var name = encodeURIComponent(document.getElementById('student_name').value);
-        var code = encodeURIComponent(document.getElementById('test_code').value);
-        if (!name) {
-            alert('Bitte geben Sie Ihren Namen ein.');
-            return;
-        }
-        var url = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>' + '/index.php?code=' + code + '&seb=true&student_name=' + name;
-        var sebUrl = 'seb://start?url=' + encodeURIComponent(url);
-        document.getElementById('sebUrlDebug').style.display = 'block';
-        document.getElementById('sebUrlDebug').innerHTML = '<b>SEB-URL zum Testen/Kopieren:</b><br>' + sebUrl;
-        window.location.href = sebUrl;
+        startTest(true);
     };
     </script>
 </body>
