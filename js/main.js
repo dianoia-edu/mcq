@@ -486,12 +486,29 @@ function isValidYoutubeUrl(url) {
 // AGGRESSIVE Anti-Werbung Funktion
 function removeAdsAggressively(iframe) {
     console.log('💥 AGGRESSIVE Werbung-Entfernung gestartet!');
+    console.log('🔍 iframe src:', iframe.src);
+    console.log('🔍 iframe sandbox:', iframe.sandbox);
     
-    // Methode 1: Direkte iframe-Manipulation (wenn möglich)
+    // DETAILLIERTER DEBUG
     try {
         var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        console.log('🔍 iframe.contentDocument:', !!iframe.contentDocument);
+        console.log('🔍 iframe.contentWindow:', !!iframe.contentWindow);
+        console.log('🔍 iframeDoc:', !!iframeDoc);
+        
         if (iframeDoc) {
             console.log('🎯 iframe-Dokument zugänglich - direkte Manipulation');
+            console.log('🔍 iframeDoc.URL:', iframeDoc.URL);
+            console.log('🔍 iframeDoc.domain:', iframeDoc.domain);
+            console.log('🔍 iframeDoc.body:', !!iframeDoc.body);
+            
+            if (iframeDoc.body) {
+                console.log('🔍 iframeDoc.body.innerHTML length:', iframeDoc.body.innerHTML.length);
+                // Zeige ersten Teil des HTML für Debug
+                var htmlPreview = iframeDoc.body.innerHTML.substring(0, 500);
+                console.log('🔍 iframeDoc body preview:', htmlPreview);
+            }
+            
             injectAggressiveAdBlock(iframeDoc);
         } else {
             console.log('🔒 iframe-Dokument blockiert - verwende CSS-Override');
@@ -499,6 +516,7 @@ function removeAdsAggressively(iframe) {
         }
     } catch (e) {
         console.log('🔒 CORS blockiert - verwende CSS-Override:', e.message);
+        console.log('🔍 Error details:', e);
         applyExternalAdBlock(iframe);
     }
     
@@ -726,15 +744,52 @@ function removeAdElementsAggressively(doc) {
 function applyExternalAdBlock(iframe) {
     console.log('🛡️ Externe CSS-Override für iframe...');
     
-    // CSS für das iframe-Element selbst
-    iframe.style.filter = 'contrast(1.1) brightness(1.1)';
+    // METHODE 1: CSS-Override auf Parent-Level
+    var parentContainer = iframe.parentElement;
+    if (parentContainer) {
+        // Injiziere CSS in das Parent-Document (unser MCQ-System)
+        var externalCSS = document.createElement('style');
+        externalCSS.innerHTML = `
+            /* IFRAME CONTENT OVERRIDE - Versuche durch iframe zu "durchdringen" */
+            iframe {
+                filter: contrast(1.2) brightness(1.1) !important;
+            }
+            
+            /* Verstecke bekannte Werbung-URLs über iframe src */
+            iframe[src*="taboola"],
+            iframe[src*="doubleclick"],
+            iframe[src*="googlesyndication"],
+            iframe[src*="amazon-adsystem"] {
+                display: none !important;
+                height: 0 !important;
+                width: 0 !important;
+            }
+        `;
+        document.head.appendChild(externalCSS);
+        console.log('✅ External CSS injiziert');
+    }
     
-    // Versuche iframe-URL zu modifizieren (Ad-Block Parameter)
+    // METHODE 2: iframe-URL Manipulation
     var originalSrc = iframe.src;
     if (originalSrc && !originalSrc.includes('adblock=1')) {
-        iframe.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'adblock=1&no_ads=1';
-        console.log('🔧 iframe-URL modifiziert für Ad-Blocking');
+        var newSrc = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 
+                     'adblock=1&no_ads=1&block_ads=true&ublock=1';
+        iframe.src = newSrc;
+        console.log('🔧 iframe-URL modifiziert:', newSrc);
     }
+    
+    // METHODE 3: iframe-Attribute Manipulation
+    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-downloads');
+    iframe.setAttribute('referrerpolicy', 'no-referrer');
+    console.log('🔧 iframe-Attribute für Ad-Blocking gesetzt');
+    
+    // METHODE 4: Periodische iframe-Neuladung mit Ad-Block URL
+    setTimeout(() => {
+        console.log('🔄 Versuche iframe-Reload mit erweiterten Ad-Block Parametern...');
+        if (iframe.src && !iframe.src.includes('disable_ads=1')) {
+            iframe.src = iframe.src + '&disable_ads=1&adblock_detected=false';
+        }
+    }, 3000);
 }
 
 function monitorAndRemoveAds(iframe) {
