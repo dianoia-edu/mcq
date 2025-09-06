@@ -277,12 +277,17 @@ class YouTubeNuclearOption:
     def method_perfect_browser_simulation(self, video_id, video_url):
         """Methode 2: Perfekte Browser-Simulation mit undetect-chrome"""
         try:
-            # Installiere undetected-chromedriver
-            undetected_chromedriver = install_and_import('undetected_chromedriver')
-            selenium = install_and_import('selenium')
-            from selenium.webdriver.common.by import By
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
+            # Prüfe ob Selenium verfügbar (optional dependency)
+            try:
+                undetected_chromedriver = install_and_import('undetected_chromedriver')
+                selenium = install_and_import('selenium')
+                from selenium.webdriver.common.by import By
+                from selenium.webdriver.support.ui import WebDriverWait
+                from selenium.webdriver.support import expected_conditions as EC
+            except Exception as e:
+                raise Exception(f"Selenium nicht verfügbar (OPTIONAL): {str(e)}")
+                
+            print(f"  🤖 Selenium verfügbar, starte Browser...", file=sys.stderr)
             
             print(f"  🤖 Undetected Chrome Browser gestartet", file=sys.stderr)
             
