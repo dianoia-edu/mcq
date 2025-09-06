@@ -143,6 +143,29 @@ if (isset($_POST['back_to_home'])) {
             background-color: #059669;
             border-color: #059669;
         }
+        
+        .btn-seb-exit {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-seb-exit:hover {
+            background: linear-gradient(45deg, #e55a2b, #e8821a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+            color: white;
+        }
+        
+        .btn-seb-exit i {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -168,9 +191,10 @@ if (isset($_POST['back_to_home'])) {
         <div class="action-buttons">
             <a href="result.php?download=xml" class="btn btn-success">XML-Ergebnis herunterladen</a>
             
-            <form method="post" action="">
-                <button type="submit" name="back_to_home" class="btn btn-primary">Zurück zur Startseite</button>
-                            </form>
+            <!-- SEB-Exit Button (nur im SEB) oder Back-Button (normaler Browser) -->
+            <div id="dynamicActionButton">
+                <!-- Wird von JavaScript gefüllt -->
+            </div>
         </div>
     </div>
     
@@ -303,23 +327,62 @@ if (isset($_POST['back_to_home'])) {
             modal.hide();
         }
         
-        // Starte Auto-Exit-Check nach Seiten-Load
+        // Initialisierung nach DOM-Load
         document.addEventListener('DOMContentLoaded', function() {
-            // Warte 3 Sekunden damit Benutzer Ergebnis sehen kann
-            setTimeout(() => {
-                // Prüfe ob SEB läuft
-                const userAgent = navigator.userAgent;
-                const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+            // Prüfe ob SEB läuft und zeige entsprechenden Button
+            const userAgent = navigator.userAgent;
+            const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+            const isIpad = userAgent.includes('iPad');
+            const testCode = '<?php echo $_SESSION['test_code'] ?? 'UNKNOWN'; ?>';
+            
+            const dynamicButtonContainer = document.getElementById('dynamicActionButton');
+            
+            if (isSEB) {
+                console.log('🔒 SEB erkannt - zeige orangen SEB-Exit Button');
                 
-                if (isSEB) {
-                    console.log('✅ SEB erkannt - leite zu Auto-Exit weiter');
-                    const testCode = '<?php echo $_SESSION['test_code'] ?? 'UNKNOWN'; ?>';
-                    window.location.href = 'seb_auto_exit_enhanced.php?code=' + encodeURIComponent(testCode);
-                } else {
-                    console.log('ℹ️ Nicht im SEB - kein Auto-Exit nötig');
-                }
-            }, 3000);
+                // Oranger SEB-Exit Button
+                dynamicButtonContainer.innerHTML = `
+                    <button onclick="exitSEBNow()" class="btn btn-seb-exit">
+                        <i class="bi bi-power"></i>SEB beenden
+                    </button>
+                `;
+                
+            } else {
+                console.log('🌐 Normaler Browser - zeige Zurück-Button');
+                
+                // Normaler Zurück-Button (wie vorher)
+                dynamicButtonContainer.innerHTML = `
+                    <form method="post" action="" style="margin: 0;">
+                        <button type="submit" name="back_to_home" class="btn btn-primary">
+                            <i class="bi bi-house"></i> Zurück zur Startseite
+                        </button>
+                    </form>
+                `;
+            }
         });
+        
+        // SEB-Exit Funktion
+        function exitSEBNow() {
+            console.log('🚪 Benutzer klickt orangen SEB-Exit Button');
+            
+            const testCode = '<?php echo $_SESSION['test_code'] ?? 'UNKNOWN'; ?>';
+            const userAgent = navigator.userAgent;
+            const isIpad = userAgent.includes('iPad');
+            
+            // Button-Feedback
+            const btn = document.querySelector('.btn-seb-exit');
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i>SEB wird beendet...';
+            btn.disabled = true;
+            
+            // Sofortige Weiterleitung
+            if (isIpad) {
+                console.log('📱 iPad - leite zu manuellem Exit weiter');
+                window.location.href = 'seb_manual_exit_ipad.php?code=' + encodeURIComponent(testCode);
+            } else {
+                console.log('💻 Desktop - versuche erweiterten Auto-Exit');
+                window.location.href = 'seb_auto_exit_enhanced.php?code=' + encodeURIComponent(testCode);
+            }
+        }
         
         console.log('🚪 SEB Auto-Exit System geladen');
     </script>

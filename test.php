@@ -16,13 +16,7 @@ if (!$isSEB) {
     </a></div>';
 }
 
-echo '<div style="background:yellow;color:black;padding:10px;z-index:9999;">test.php wurde geladen<br>';
-echo 'SEB erkannt: ' . ($isSEB ? 'JA ✅' : 'NEIN ❌') . '<br>';
-echo 'User-Agent: ' . htmlspecialchars(substr($userAgent, 0, 100)) . '<br>';
-echo 'Session: <pre>' . print_r($_SESSION, true) . '</pre>';
-echo 'GET: <pre>' . print_r($_GET, true) . '</pre>';
-echo 'POST: <pre>' . print_r($_POST, true) . '</pre>';
-echo '</div>';
+// Debug-Nachrichten entfernt für bessere UX
 
 ob_start();
 
@@ -144,6 +138,7 @@ $_SESSION["confirmationTime"] = time() + rand(30, 180);
 // Speichere Fragen in der Session
 $_SESSION["original_questions"] = $questions;
 $_SESSION["questions"] = $shuffledQuestions;
+$_SESSION["shuffled_questions"] = $shuffledQuestions; // Für process.php
 
 // Funktion für die Testmodus-Warnung
 function getTestModeWarning() {
@@ -446,13 +441,13 @@ function getTestModeWarning() {
                                 <div class="answer-option">
                                     <?php if ($question['correctAnswerCount'] === 1): ?>
                                         <input type="radio" 
-                                               name="answer_<?php echo $question['nr']; ?>" 
+                                               name="answer_<?php echo $qIndex; ?>" 
                                                value="<?php echo $answer['nr']; ?>" 
                                                id="q<?php echo $qIndex; ?>_a<?php echo $aIndex; ?>"
                                                class="question-input">
                                     <?php else: ?>
                                         <input type="checkbox" 
-                                               name="answer_<?php echo $question['nr']; ?>[]" 
+                                               name="answer_<?php echo $qIndex; ?>[]" 
                                                value="<?php echo $answer['nr']; ?>"
                                                id="q<?php echo $qIndex; ?>_a<?php echo $aIndex; ?>"
                                                class="question-input">

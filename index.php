@@ -247,7 +247,7 @@ if (isset($_GET['code'])) {
             
             // Zeige das Namenseingabeformular
             error_log('DEBUG: Namenseingabe-Formular wird angezeigt');
-            echo '<div style="background:yellow;color:black;padding:10px;z-index:9999;">Namenseingabe-Formular wird angezeigt</div>';
+            // Debug-Nachricht entfernt
             ?>
             <!DOCTYPE html>
             <html lang="de">

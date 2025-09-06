@@ -68,6 +68,7 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Namenseingabe - <?php echo htmlspecialchars($testTitle); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         .name-form-container {
             max-width: 600px;
@@ -153,13 +154,6 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
     </style>
 </head>
 <body class="bg-light">
-    <div style="background:yellow;color:black;padding:10px;z-index:9999;">
-        <b>DEBUG:</b> name_form.php geladen<br>
-        Code: <?php echo htmlspecialchars($code); ?><br>
-        SEB: <?php echo htmlspecialchars($seb); ?><br>
-        Session ID: <?php echo session_id(); ?><br>
-        Session Status: <?php echo session_status(); ?><br>
-    </div>
     <div class="name-form-container">
         <div class="test-code-info">
             <h2>Testcode: <span class="testcode-badge"><?php echo htmlspecialchars($code); ?></span></h2>
@@ -174,9 +168,10 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
                     <input type="text" class="name-input" id="student_name" name="student_name" placeholder="Bitte vollständigen Namen eingeben" required>
                 </div>
                 <input type="hidden" id="test_code" value="<?php echo htmlspecialchars($code); ?>">
-                <div class="d-grid gap-2">
-                    <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test im Browser starten</button>
-                    <button id="sebBtn" class="btn btn-success btn-lg">Test im Safe Exam Browser starten</button>
+                <div class="d-grid">
+                    <button id="startTestBtn" class="btn btn-primary btn-lg">
+                        <i class="bi bi-play-circle me-2"></i>Test starten
+                    </button>
                 </div>
                 <div id="sebUrlDebug" style="background:#e0ffe0;color:#222;padding:10px;margin-top:20px;word-break:break-all;display:none;"></div>
             </div>
@@ -190,7 +185,7 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    function startTest(isSEB) {
+    function startTest() {
         var name = document.getElementById('student_name').value.trim();
         var code = document.getElementById('test_code').value;
         
@@ -198,6 +193,17 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
             alert('Bitte geben Sie Ihren Namen ein.');
             return;
         }
+        
+        // Button-Feedback
+        const btn = document.getElementById('startTestBtn');
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Test wird gestartet...';
+        btn.disabled = true;
+        
+        // Erkenne automatisch ob SEB läuft
+        const userAgent = navigator.userAgent;
+        const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+        
+        console.log('🎯 Test-Start:', isSEB ? 'SEB erkannt' : 'Normaler Browser');
         
         // Session-Setup per AJAX vor Test-Start
         fetch('setup_test_session.php', {
@@ -212,40 +218,33 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                if (isSEB) {
-                    // SEB-Start mit seb:// URL
-                    var sebUrl = 'seb://start?url=' + encodeURIComponent(data.test_url);
-                    document.getElementById('sebUrlDebug').style.display = 'block';
-                    document.getElementById('sebUrlDebug').innerHTML = '<b>SEB-URL:</b><br>' + sebUrl + '<br><b>Direkt-URL:</b><br>' + data.test_url;
-                    window.location.href = sebUrl;
-                } else {
-                    // Browser-Test
-                    window.location.href = data.test_url;
-                }
+                console.log('✅ Session erfolgreich eingerichtet');
+                // Direkte Weiterleitung zum Test (Browser oder SEB)
+                window.location.href = data.test_url;
             } else {
                 alert('Fehler: ' + data.error);
+                // Button zurücksetzen
+                btn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Test starten';
+                btn.disabled = false;
             }
         })
         .catch(error => {
             console.error('Fehler beim Session-Setup:', error);
-            // Fallback zur alten Methode
-            if (isSEB) {
-                var url = 'index.php?code=' + encodeURIComponent(code) + '&seb=true&student_name=' + encodeURIComponent(name);
-                var sebUrl = 'seb://start?url=' + encodeURIComponent(url);
-                window.location.href = sebUrl;
-            } else {
-                window.location.href = 'index.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
-            }
+            // Fallback zur direkten Weiterleitung
+            var fallbackUrl = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
+            window.location.href = fallbackUrl;
         });
     }
     
-    document.getElementById('browserBtn').onclick = function() {
-        startTest(false);
-    };
+    // Event-Handler für den einzigen Start-Button
+    document.getElementById('startTestBtn').onclick = startTest;
     
-    document.getElementById('sebBtn').onclick = function() {
-        startTest(true);
-    };
+    // Enter-Taste im Namensfeld
+    document.getElementById('student_name').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            startTest();
+        }
+    });
     </script>
 </body>
 </html> 

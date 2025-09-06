@@ -112,14 +112,24 @@ error_log("Verarbeite Testabgabe von: " . $_SESSION['student_name']);
 // Verarbeite die Antworten
 foreach ($_POST as $key => $value) {
     if (strpos($key, 'answer_') === 0) {
-        // Extrahiere den Fragenindex
-        $questionIndex = substr($key, 7);
+        // Extrahiere den Fragenindex (jetzt qIndex basiert)
+        $qIndex = substr($key, 7);
         
-        // Validiere den Fragenindex
-        if (!is_numeric($questionIndex) || $questionIndex < 0) {
-            error_log("Ungültiger Fragenindex: " . $questionIndex);
+        // Validiere den qIndex
+        if (!is_numeric($qIndex) || $qIndex < 0) {
+            error_log("Ungültiger qIndex: " . $qIndex);
             continue;
         }
+        
+        // Finde die entsprechende originale Fragenummer
+        $shuffledQuestions = $_SESSION['shuffled_questions'] ?? null;
+        if (!$shuffledQuestions || !isset($shuffledQuestions[$qIndex])) {
+            error_log("Keine shuffled_questions in Session oder qIndex nicht gefunden: " . $qIndex);
+            continue;
+        }
+        
+        $originalQuestionNr = $shuffledQuestions[$qIndex]['nr'];
+        error_log("qIndex $qIndex entspricht originaler Frage Nr: $originalQuestionNr");
         
         // Wenn es sich um eine Checkbox-Antwort handelt (Array)
         if (is_array($value)) {
@@ -132,7 +142,7 @@ foreach ($_POST as $key => $value) {
                 
                 // Finde die ursprüngliche Antwort in der XML
                 foreach ($answerXml->questions->question as $question) {
-                    if ((string)$question['nr'] === $questionIndex) {
+                    if ((string)$question['nr'] === $originalQuestionNr) {
                         foreach ($question->answers->answer as $answer) {
                             if ((string)$answer['nr'] === $answerIndex) {
                                 $answer->addChild('schuelerantwort', '1');
@@ -149,7 +159,7 @@ foreach ($_POST as $key => $value) {
             }
             
             foreach ($answerXml->questions->question as $question) {
-                if ((string)$question['nr'] === $questionIndex) {
+                if ((string)$question['nr'] === $originalQuestionNr) {
                     foreach ($question->answers->answer as $answer) {
                         if ((string)$answer['nr'] === $value) {
                             $answer->addChild('schuelerantwort', '1');
