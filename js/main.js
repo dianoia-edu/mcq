@@ -416,9 +416,9 @@ function isValidUrl(url) {
     console.log('🔍 isValidUrl aufgerufen mit:', url);
     try {
         if (typeof URL !== 'undefined') {
-            new URL(url);
+        new URL(url);
             console.log('🔍 URL-Validierung mit URL() erfolgreich');
-            return true;
+        return true;
         } else {
             // Fallback für ältere Browser - einfache Regex-Prüfung
             const urlPattern = /^https?:\/\/.+/i;
@@ -454,9 +454,9 @@ function isValidYoutubeUrl(url) {
                 search: a.search
             };
         }
-        
-        // Erlaubte YouTube-Domains
-        const validDomains = ['youtube.com', 'youtu.be', 'www.youtube.com'];
+    
+    // Erlaubte YouTube-Domains
+    const validDomains = ['youtube.com', 'youtu.be', 'www.youtube.com'];
         
         // Prüfe Domain (Edge-kompatibel)
         let domainMatch = false;
@@ -467,13 +467,13 @@ function isValidYoutubeUrl(url) {
             }
         }
         if (!domainMatch) {
-            return false;
-        }
-        
-        // Prüfe auf Video-ID
-        if (urlObj.hostname === 'youtu.be') {
-            return urlObj.pathname.length > 1; // Mindestens ein Zeichen nach "/"
-        } else {
+        return false;
+    }
+    
+    // Prüfe auf Video-ID
+    if (urlObj.hostname === 'youtu.be') {
+        return urlObj.pathname.length > 1; // Mindestens ein Zeichen nach "/"
+    } else {
             // Einfache Regex-Prüfung für v-Parameter (Edge-kompatibel)
             return /[?&]v=([^&]+)/.test(urlObj.search || '');
         }
@@ -486,29 +486,12 @@ function isValidYoutubeUrl(url) {
 // AGGRESSIVE Anti-Werbung Funktion
 function removeAdsAggressively(iframe) {
     console.log('💥 AGGRESSIVE Werbung-Entfernung gestartet!');
-    console.log('🔍 iframe src:', iframe.src);
-    console.log('🔍 iframe sandbox:', iframe.sandbox);
     
-    // DETAILLIERTER DEBUG
+    // Methode 1: Direkte iframe-Manipulation (wenn möglich)
     try {
         var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        console.log('🔍 iframe.contentDocument:', !!iframe.contentDocument);
-        console.log('🔍 iframe.contentWindow:', !!iframe.contentWindow);
-        console.log('🔍 iframeDoc:', !!iframeDoc);
-        
         if (iframeDoc) {
             console.log('🎯 iframe-Dokument zugänglich - direkte Manipulation');
-            console.log('🔍 iframeDoc.URL:', iframeDoc.URL);
-            console.log('🔍 iframeDoc.domain:', iframeDoc.domain);
-            console.log('🔍 iframeDoc.body:', !!iframeDoc.body);
-            
-            if (iframeDoc.body) {
-                console.log('🔍 iframeDoc.body.innerHTML length:', iframeDoc.body.innerHTML.length);
-                // Zeige ersten Teil des HTML für Debug
-                var htmlPreview = iframeDoc.body.innerHTML.substring(0, 500);
-                console.log('🔍 iframeDoc body preview:', htmlPreview);
-            }
-            
             injectAggressiveAdBlock(iframeDoc);
         } else {
             console.log('🔒 iframe-Dokument blockiert - verwende CSS-Override');
@@ -516,7 +499,6 @@ function removeAdsAggressively(iframe) {
         }
     } catch (e) {
         console.log('🔒 CORS blockiert - verwende CSS-Override:', e.message);
-        console.log('🔍 Error details:', e);
         applyExternalAdBlock(iframe);
     }
     
@@ -533,44 +515,29 @@ function removeAdsAggressively(iframe) {
 function injectAggressiveAdBlock(doc) {
     console.log('💉 Injiziere AGGRESSIVE Anti-Werbung CSS...');
     
-    // LASER-PRÄZISE CSS für downsub.com basierend auf dem DOM
+    // HARDCORE CSS - entfernt fast alles außer Hauptinhalt
     var aggressiveCSS = 
-        '/* === DOWNSUB.COM SPEZIFISCHE WERBUNG-ENTFERNUNG === */' +
-        
-        '/* TABOOLA WERBUNG - KOMPLETT VERNICHTEN */ ' +
-        'link[href*="taboola"], ' +
-        'link[href*="popup.taboola.com"], ' +
-        'a[href*="taboola"], ' +
-        'a[href*="popup.taboola.com"], ' +
-        'a[href*="fragebogen.geers.de"], ' +
-        'a[href*="artikel.enpal.de"], ' +
-        'a[href*="fragebogen.gutes-hoeren.de"], ' +
-        '[href*="taboola"], ' +
-        '[href*="popup.taboola"], ' +
-        '[href*="Taboola"], ' +
-        
-        '/* WERBUNG LINKS */ ' +
-        'link[href*="ai-denoise-image"], ' +
-        'link[href*="Upscale Images"], ' +
-        'link[href*="videoproc.com"], ' +
-        'a[href*="ai-denoise-image"], ' +
-        'a[href*="Upscale Images"], ' +
-        'a[href*="videoproc.com"], ' +
-        'a[href*="aiarty.com"], ' +
-        
-        '/* SPONSORED CONTENT */ ' +
-        'a[href*="youtube.com"][href*="adblock"], ' +
-        'link[href*="youtube.com"][href*="adblock"], ' +
-        
-        '/* PREMIUM WERBUNG */ ' +
-        'button[contains(text(), "PREMIUM")], ' +
-        'button:contains("PREMIUM"), ' +
-        '[focusable]:contains("PREMIUM"), ' +
-        
-        '/* ALLE EXTERNEN LINKS AUßER WICHTIGE */ ' +
-        'a[href*="youtube.com"]:not([href*="youtu.be"]):not([href*="/watch"]), ' +
-        'link[href*="youtube.com"]:not([href*="youtu.be"]):not([href*="/watch"]) ' +
-        
+        '/* AGGRESSIVE AD BLOCKING - NUCLEAR OPTION */' +
+        '/* Taboola und verwandte */ ' +
+        'div[class*="taboola"], div[id*="taboola"], .taboola, [data-name*="taboola"], ' +
+        'div[class*="outbrain"], div[id*="outbrain"], .outbrain, ' +
+        '/* Google Ads */ ' +
+        '.adsbygoogle, div[id*="google_ads"], div[class*="google-ad"], ' +
+        'ins.adsbygoogle, .google-ads, .google-ad, ' +
+        '/* Generische Werbung */ ' +
+        '.advertisement, .ad, .ads, .ad-container, .ad-wrapper, .ad-banner, ' +
+        '.ad-space, .ad-unit, .ad-block, .ad-section, ' +
+        '/* Popups und Overlays */ ' +
+        '.popup, .popup-overlay, .overlay, .modal-backdrop, ' +
+        '.notification, .notification-bar, .notification-popup, ' +
+        '/* Cookie Banner */ ' +
+        '.cookie-banner, .cookie-notice, .cookie-consent, .gdpr-banner, ' +
+        '/* Störende Elemente */ ' +
+        'div[style*="position: fixed"][style*="z-index"], ' +
+        'div[style*="position: absolute"][style*="z-index"], ' +
+        '[data-testid*="ad"], [data-name*="ad"], [class*="sponsored"], ' +
+        'iframe[src*="doubleclick"], iframe[src*="googlesyndication"], ' +
+        'iframe[src*="googleadservices"], iframe[src*="amazon-adsystem"] ' +
         '{ ' +
             'display: none !important; ' +
             'visibility: hidden !important; ' +
@@ -583,60 +550,22 @@ function injectAggressiveAdBlock(doc) {
             'padding: 0 !important; ' +
             'overflow: hidden !important; ' +
             'position: absolute !important; ' +
-            'left: -10000px !important; ' +
-            'top: -10000px !important; ' +
-            'pointer-events: none !important; ' +
+            'left: -9999px !important; ' +
+            'top: -9999px !important; ' +
         '} ' +
-        
-        '/* === NUR WICHTIGE ELEMENTE SICHTBAR MACHEN === */ ' +
-        '/* Hauptnavigation */ ' +
-        'link[href*="downsub.com/history"], ' +
-        'link[href*="downsub.com/contact"], ' +
-        'link[href*="downsub.com/donate"], ' +
-        'a[href*="downsub.com/history"], ' +
-        'a[href*="downsub.com/contact"], ' +
-        'a[href*="downsub.com/donate"], ' +
-        
-        '/* Eingabefeld und wichtige Buttons */ ' +
-        'textbox, input[type="text"], input[type="url"], ' +
-        'button[focusable="true"]:contains("clear"), ' +
-        'button[focusable="true"]:contains("DOWNLOAD"), ' +
-        'button[focusable="true"]:contains("Settings"), ' +
-        'button[focusable="true"]:contains("SRT"), ' +
-        'button[focusable="true"]:contains("TXT"), ' +
-        'button[focusable="true"]:contains("RAW"), ' +
-        
-        '/* Status und wichtige Infos */ ' +
-        'StaticText, ' +
-        'text:contains("Duration"), ' +
-        'text:contains("German"), ' +
-        'separator ' +
-        
+        '/* Entferne störende Styles */ ' +
+        'body { ' +
+            'overflow: auto !important; ' +
+        '} ' +
+        '/* Stelle sicher dass wichtige Inhalte sichtbar sind */ ' +
+        '.main, .main-content, .content, .container, ' +
+        '.download, .download-section, .video-info, .subtitle-info, ' +
+        'form, .form, input, button, .btn, .download-btn ' +
         '{ ' +
             'display: block !important; ' +
             'visibility: visible !important; ' +
             'opacity: 1 !important; ' +
             'position: relative !important; ' +
-            'pointer-events: auto !important; ' +
-            'z-index: 999999 !important; ' +
-        '} ' +
-        
-        '/* === SPEZIELLE HERVORHEBUNG FÜR TXT BUTTON === */ ' +
-        'button[focusable="true"]:contains("TXT") { ' +
-            'background-color: #28a745 !important; ' +
-            'color: white !important; ' +
-            'border: 3px solid #20c997 !important; ' +
-            'font-weight: bold !important; ' +
-            'font-size: 16px !important; ' +
-            'padding: 10px 20px !important; ' +
-            'border-radius: 8px !important; ' +
-            'box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3) !important; ' +
-        '} ' +
-        
-        '/* === BODY BEREINIGUNG === */ ' +
-        'body { ' +
-            'overflow: auto !important; ' +
-            'background: white !important; ' +
         '}';
     
     // CSS injizieren
@@ -669,35 +598,21 @@ function removeAdElementsAggressively(doc) {
     
     var removedCount = 0;
     
-    // DOWNSUB.COM SPEZIFISCHE Selektoren basierend auf DOM-Analyse
+    // Aggressive Selektoren
     var aggressiveSelectors = [
-        // Taboola Links (die Hauptplage!)
-        'a[href*="taboola"]',
-        'a[href*="popup.taboola.com"]', 
-        'a[href*="fragebogen.geers.de"]',
-        'a[href*="artikel.enpal.de"]',
-        'a[href*="fragebogen.gutes-hoeren.de"]',
-        'link[href*="taboola"]',
-        'link[href*="popup.taboola.com"]',
-        
-        // Werbung für andere Tools
-        'a[href*="aiarty.com"]',
-        'a[href*="videoproc.com"]', 
-        'a[href*="ai-denoise-image"]',
-        'link[href*="ai-denoise-image"]',
-        
-        // Sponsored YouTube Content
-        'a[href*="youtube.com"][href*="adblock"]',
-        'a[href*="youtube.com"][href*="disable_ads"]',
-        'link[href*="youtube.com"][href*="adblock"]',
-        
-        // Generische Werbung-Container falls vorhanden
-        'div[class*="taboola"]', 
-        'div[id*="taboola"]',
-        '.advertisement', 
-        '.ad-container',
-        'iframe[src*="taboola"]',
-        'iframe[src*="doubleclick"]'
+        // Taboola
+        'div[class*="taboola"]', 'div[id*="taboola"]', '.taboola-wrapper',
+        // Outbrain  
+        'div[class*="outbrain"]', 'div[id*="outbrain"]',
+        // Google Ads
+        '.adsbygoogle', 'ins.adsbygoogle', 'div[id*="google_ads"]',
+        // Generische Werbung
+        '.advertisement', '.ad', '.ads', '.ad-container', '.ad-banner',
+        // Popups
+        '.popup', '.popup-overlay', '.modal-backdrop.show',
+        // Störende iframes
+        'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]',
+        'iframe[src*="amazon-adsystem"]', 'iframe[src*="googleadservices"]'
     ];
     
     aggressiveSelectors.forEach(function(selector) {
@@ -716,437 +631,20 @@ function removeAdElementsAggressively(doc) {
     });
     
     console.log('🔥 ' + removedCount + ' Werbung-Elemente VERNICHTET');
-    
-    // SPEZIELLE TXT-BUTTON HERVORHEBUNG
-    try {
-        var txtButtons = doc.querySelectorAll('button');
-        for (var i = 0; i < txtButtons.length; i++) {
-            var btn = txtButtons[i];
-            if (btn.textContent && btn.textContent.trim() === 'TXT') {
-                btn.style.backgroundColor = '#28a745';
-                btn.style.color = 'white';
-                btn.style.border = '3px solid #20c997';
-                btn.style.fontWeight = 'bold';
-                btn.style.fontSize = '18px';
-                btn.style.padding = '12px 24px';
-                btn.style.borderRadius = '8px';
-                btn.style.boxShadow = '0 4px 12px rgba(40, 167, 69, 0.5)';
-                btn.style.zIndex = '999999';
-                btn.style.position = 'relative';
-                console.log('✅ TXT-Button hervorgehoben!');
-            }
-        }
-    } catch (e) {
-        console.log('ℹ️ TXT-Button Hervorhebung fehlgeschlagen');
-    }
 }
 
 function applyExternalAdBlock(iframe) {
-    console.log('🛡️ CORS blockiert - verwende NUCLEAR REPLACEMENT STRATEGIE...');
+    console.log('🛡️ Externe CSS-Override für iframe...');
     
-    // NUCLEAR OPTION: Ersetze iframe durch bereinigten Inhalt
-    setTimeout(() => {
-        console.log('🚀 NUCLEAR OPTION: iframe-Replacement mit werbefreiem Inhalt');
-        replaceIframeWithCleanVersion(iframe);
-    }, 5000); // Warte 5 Sekunden bis Seite vollständig geladen
+    // CSS für das iframe-Element selbst
+    iframe.style.filter = 'contrast(1.1) brightness(1.1)';
     
-    // METHODE 1: CSS-Override auf Parent-Level für sofortigen Effekt
-    var parentContainer = iframe.parentElement;
-    if (parentContainer) {
-        var externalCSS = document.createElement('style');
-        externalCSS.innerHTML = `
-            /* AGGRESSIVE iframe-Override */
-            iframe {
-                filter: contrast(1.2) brightness(1.1) !important;
-                border: 3px solid #28a745 !important;
-            }
-            
-            /* Verstecke bekannte Werbung-URLs */
-            iframe[src*="taboola"],
-            iframe[src*="doubleclick"],
-            iframe[src*="googlesyndication"] {
-                display: none !important;
-            }
-        `;
-        document.head.appendChild(externalCSS);
-        console.log('✅ Aggressive CSS injiziert');
+    // Versuche iframe-URL zu modifizieren (Ad-Block Parameter)
+    var originalSrc = iframe.src;
+    if (originalSrc && !originalSrc.includes('adblock=1')) {
+        iframe.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'adblock=1&no_ads=1';
+        console.log('🔧 iframe-URL modifiziert für Ad-Blocking');
     }
-    
-    // METHODE 2: Kontinuierliche URL-Manipulation
-    var attempts = 0;
-    var urlManipulation = setInterval(() => {
-        attempts++;
-        if (attempts > 10) {
-            clearInterval(urlManipulation);
-            return;
-        }
-        
-        var currentSrc = iframe.src;
-        if (currentSrc && !currentSrc.includes('adblocknow=1')) {
-            iframe.src = currentSrc + '&adblocknow=1&ublock_origin=true&ghostery=true';
-            console.log('🔧 Attempt ' + attempts + ': URL modifiziert');
-        }
-    }, 2000);
-}
-
-function replaceIframeWithCleanVersion(iframe) {
-    console.log('💥 IFRAME REPLACEMENT GESTARTET...');
-    
-    var parentContainer = iframe.parentElement;
-    if (!parentContainer) {
-        console.log('❌ Parent-Container nicht gefunden');
-        return;
-    }
-    
-    // Erstelle werbefreien Ersatz-Inhalt
-    var cleanContent = document.createElement('div');
-    cleanContent.style.width = '100%';
-    cleanContent.style.height = '70vh';
-    cleanContent.style.border = '1px solid #ddd';
-    cleanContent.style.backgroundColor = '#f8f9fa';
-    cleanContent.style.padding = '20px';
-    cleanContent.style.overflow = 'auto';
-    
-    var youtubeUrl = iframe.src.replace('https://www.subtitle.to/', '').split('&')[0];
-    
-    cleanContent.innerHTML = `
-        <div style="text-align: center; margin-bottom: 20px;">
-            <h4 style="color: #28a745;">📥 Direkter Untertitel-Download</h4>
-            <p style="color: #666;">100% werbefrei für: <code>${youtubeUrl}</code></p>
-        </div>
-        
-        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <div id="downloadStatus" style="text-align: center; margin-bottom: 20px;">
-                <div style="background: #fff3cd; padding: 15px; border-radius: 6px; border-left: 4px solid #ffc107;">
-                    <strong>🔄 Lade verfügbare Untertitel...</strong>
-                    <div style="margin-top: 10px;">
-                        <div style="width: 100%; background: #e9ecef; border-radius: 10px; height: 8px;">
-                            <div id="progressBar" style="width: 0%; background: #28a745; height: 8px; border-radius: 10px; transition: width 0.3s;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="downloadButtons" style="display: none;">
-                <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-bottom: 20px;">
-                    <button id="downloadTxt" onclick="downloadSubtitleDirect('${youtubeUrl}', 'txt')" 
-                            style="background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
-                        📄 TXT Download
-                    </button>
-                    <button id="downloadSrt" onclick="downloadSubtitleDirect('${youtubeUrl}', 'srt')" 
-                            style="background: #17a2b8; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
-                        🎬 SRT Download
-                    </button>
-                    <button id="downloadVtt" onclick="downloadSubtitleDirect('${youtubeUrl}', 'vtt')" 
-                            style="background: #6f42c1; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
-                        🌐 VTT Download
-                    </button>
-                </div>
-                
-                <div style="background: #e9ecef; padding: 15px; border-radius: 6px;">
-                    <h6 style="margin-bottom: 10px; color: #495057;">📋 Verfügbare Formate:</h6>
-                    <div id="availableFormats" style="color: #6c757d; line-height: 1.6;">
-                        Wird geladen...
-                    </div>
-                </div>
-            </div>
-            
-            <div style="background: #d4edda; padding: 10px; border-radius: 6px; margin-top: 15px; border-left: 4px solid #28a745;">
-                <small style="color: #155724;">
-                    ✅ <strong>100% Werbefrei:</strong> Direkter Download ohne externe Seiten oder Pop-ups!
-                </small>
-            </div>
-        </div>
-    `;
-    
-    // Starte direkten Download-Check
-    setTimeout(() => {
-        checkAvailableSubtitles(youtubeUrl);
-    }, 1000);
-    
-    // Ersetze iframe durch bereinigten Inhalt
-    parentContainer.replaceChild(cleanContent, iframe);
-    console.log('✅ iframe erfolgreich durch werbefreien Inhalt ersetzt!');
-}
-
-// DIREKTE DOWNLOAD-FUNKTIONEN
-function checkAvailableSubtitles(youtubeUrl) {
-    console.log('🔍 Prüfe verfügbare Untertitel für:', youtubeUrl);
-    
-    var progressBar = document.getElementById('progressBar');
-    var downloadStatus = document.getElementById('downloadStatus');
-    var downloadButtons = document.getElementById('downloadButtons');
-    var availableFormats = document.getElementById('availableFormats');
-    
-    if (!progressBar) {
-        console.log('❌ Progress-Elemente nicht gefunden');
-        return;
-    }
-    
-    // Simuliere Progress
-    var progress = 0;
-    var progressInterval = setInterval(() => {
-        progress += 20;
-        progressBar.style.width = progress + '%';
-        
-        if (progress >= 100) {
-            clearInterval(progressInterval);
-            
-            // Zeige Download-Buttons
-            setTimeout(() => {
-                downloadStatus.style.display = 'none';
-                downloadButtons.style.display = 'block';
-                
-                // Zeige verfügbare Formate
-                availableFormats.innerHTML = `
-                    <div style="display: flex; gap: 20px; justify-content: space-around; text-align: center;">
-                        <div>
-                            <strong>📄 TXT</strong><br>
-                            <small>Reiner Text</small>
-                        </div>
-                        <div>
-                            <strong>🎬 SRT</strong><br>
-                            <small>Video-Untertitel</small>
-                        </div>
-                        <div>
-                            <strong>🌐 VTT</strong><br>
-                            <small>Web-Untertitel</small>
-                        </div>
-                    </div>
-                `;
-                
-                console.log('✅ Download-Interface bereit');
-            }, 500);
-        }
-    }, 300);
-}
-
-function downloadSubtitleDirect(youtubeUrl, format) {
-    console.log('🚀 Starte direkten Download:', youtubeUrl, format);
-    
-    var button = document.getElementById('download' + format.charAt(0).toUpperCase() + format.slice(1));
-    if (button) {
-        button.disabled = true;
-        button.innerHTML = '⏳ Wird heruntergeladen...';
-        button.style.opacity = '0.7';
-    }
-    
-    // Extrahiere YouTube Video ID
-    var videoId = extractYouTubeId(youtubeUrl);
-    if (!videoId) {
-        showDownloadError('❌ Ungültige YouTube-URL');
-        return;
-    }
-    
-    console.log('🎯 YouTube Video ID:', videoId);
-    
-    // Versuche verschiedene Download-Methoden
-    attemptDirectDownload(videoId, format, 1);
-}
-
-function extractYouTubeId(url) {
-    var regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-    var match = url.match(regex);
-    return match ? match[1] : null;
-}
-
-function attemptDirectDownload(videoId, format, attempt) {
-    console.log('🔄 Download-Versuch', attempt, 'für', videoId, format);
-    
-    if (attempt > 3) {
-        showDownloadError('❌ Download fehlgeschlagen nach 3 Versuchen');
-        return;
-    }
-    
-    // METHODE 1: YouTube Transcript API
-    if (attempt === 1) {
-        downloadViaTranscriptAPI(videoId, format, attempt);
-    }
-    // METHODE 2: Alternative API
-    else if (attempt === 2) {
-        downloadViaAlternativeAPI(videoId, format, attempt);
-    }
-    // METHODE 3: Fallback Service
-    else if (attempt === 3) {
-        downloadViaFallbackService(videoId, format, attempt);
-    }
-}
-
-function downloadViaTranscriptAPI(videoId, format, attempt) {
-    console.log('📡 Versuche YouTube Transcript API...');
-    
-    // Erstelle PHP-Proxy für YouTube Transcript
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'includes/teacher_dashboard/download_transcript.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    if (response.success && response.transcript) {
-                        console.log('✅ Transcript erfolgreich geladen!');
-                        processAndDownload(response.transcript, videoId, format);
-                    } else {
-                        console.log('❌ Transcript API Fehler:', response.error);
-                        attemptDirectDownload(videoId, format, attempt + 1);
-                    }
-                } catch (e) {
-                    console.log('❌ JSON Parse Fehler:', e);
-                    attemptDirectDownload(videoId, format, attempt + 1);
-                }
-            } else {
-                console.log('❌ HTTP Fehler:', xhr.status);
-                attemptDirectDownload(videoId, format, attempt + 1);
-            }
-        }
-    };
-    
-    xhr.send('video_id=' + encodeURIComponent(videoId) + '&format=' + encodeURIComponent(format));
-}
-
-function downloadViaAlternativeAPI(videoId, format, attempt) {
-    console.log('🔄 Versuche Alternative API...');
-    
-    // Fallback: Zeige Download-Anleitung
-    setTimeout(() => {
-        attemptDirectDownload(videoId, format, attempt + 1);
-    }, 2000);
-}
-
-function downloadViaFallbackService(videoId, format, attempt) {
-    console.log('⚠️ Alle automatischen Methoden fehlgeschlagen - zeige manuelle Lösung');
-    
-    var youtubeUrl = 'https://www.youtube.com/watch?v=' + videoId;
-    
-    showManualDownloadInstructions(youtubeUrl, format);
-}
-
-function processAndDownload(transcript, videoId, format) {
-    console.log('🔄 Verarbeite Transcript für Format:', format);
-    
-    var content = '';
-    var filename = 'youtube_' + videoId + '_transcript.' + format;
-    
-    if (format === 'txt') {
-        // Einfacher Text
-        content = transcript.map(item => item.text).join(' ');
-    } else if (format === 'srt') {
-        // SRT Format
-        content = transcript.map((item, index) => {
-            var startTime = formatTime(item.start);
-            var endTime = formatTime(item.start + item.duration);
-            return (index + 1) + '\\n' + startTime + ' --> ' + endTime + '\\n' + item.text + '\\n';
-        }).join('\\n');
-    } else if (format === 'vtt') {
-        // VTT Format
-        content = 'WEBVTT\\n\\n' + transcript.map((item, index) => {
-            var startTime = formatTimeVTT(item.start);
-            var endTime = formatTimeVTT(item.start + item.duration);
-            return startTime + ' --> ' + endTime + '\\n' + item.text + '\\n';
-        }).join('\\n');
-    }
-    
-    // Download starten
-    downloadFile(content, filename, format);
-}
-
-function formatTime(seconds) {
-    var date = new Date(seconds * 1000);
-    var hh = date.getUTCHours().toString().padStart(2, '0');
-    var mm = date.getUTCMinutes().toString().padStart(2, '0');
-    var ss = date.getUTCSeconds().toString().padStart(2, '0');
-    var ms = Math.floor(date.getUTCMilliseconds()).toString().padStart(3, '0');
-    return hh + ':' + mm + ':' + ss + ',' + ms;
-}
-
-function formatTimeVTT(seconds) {
-    var date = new Date(seconds * 1000);
-    var hh = date.getUTCHours().toString().padStart(2, '0');
-    var mm = date.getUTCMinutes().toString().padStart(2, '0');
-    var ss = date.getUTCSeconds().toString().padStart(2, '0');
-    var ms = Math.floor(date.getUTCMilliseconds()).toString().padStart(3, '0');
-    return hh + ':' + mm + ':' + ss + '.' + ms;
-}
-
-function downloadFile(content, filename, format) {
-    console.log('💾 Starte File-Download:', filename);
-    
-    var mimeType = format === 'txt' ? 'text/plain' : 
-                   format === 'srt' ? 'application/x-subrip' : 
-                   'text/vtt';
-    
-    var blob = new Blob([content], { type: mimeType });
-    var url = window.URL.createObjectURL(blob);
-    
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.style.display = 'none';
-    
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    window.URL.revokeObjectURL(url);
-    
-    console.log('✅ Download erfolgreich gestartet!');
-    showDownloadSuccess('✅ Download gestartet: ' + filename);
-}
-
-function showDownloadError(message) {
-    console.log('❌ Download Error:', message);
-    
-    var button = document.querySelector('button[disabled]');
-    if (button) {
-        button.disabled = false;
-        button.innerHTML = button.innerHTML.replace('⏳ Wird heruntergeladen...', button.id.replace('download', '') + ' Download');
-        button.style.opacity = '1';
-    }
-    
-    alert(message);
-}
-
-function showDownloadSuccess(message) {
-    console.log('✅ Download Success:', message);
-    
-    var button = document.querySelector('button[disabled]');
-    if (button) {
-        button.disabled = false;
-        button.innerHTML = '✅ Download abgeschlossen';
-        button.style.backgroundColor = '#28a745';
-        
-        setTimeout(() => {
-            button.innerHTML = button.id.replace('download', '') + ' Download';
-        }, 3000);
-    }
-}
-
-function showManualDownloadInstructions(youtubeUrl, format) {
-    console.log('📋 Zeige manuelle Download-Anleitung');
-    
-    var instructions = `
-        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-top: 20px;">
-            <h6 style="color: #856404; margin-bottom: 15px;">📋 Manuelle Download-Anleitung:</h6>
-            <ol style="color: #856404; line-height: 1.8;">
-                <li><strong>Kopieren Sie diese URL:</strong><br>
-                    <code style="background: white; padding: 5px; border-radius: 3px; word-break: break-all;">${youtubeUrl}</code>
-                    <button onclick="navigator.clipboard.writeText('${youtubeUrl}')" style="margin-left: 10px; background: #ffc107; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">📋 Kopieren</button>
-                </li>
-                <li><strong>Besuchen Sie:</strong> <a href="https://downsub.com" target="_blank" style="color: #856404;">downsub.com</a></li>
-                <li><strong>Fügen Sie die URL ein</strong> und wählen Sie <strong>${format.toUpperCase()}</strong> Format</li>
-                <li><strong>Laden Sie die Datei herunter</strong></li>
-            </ol>
-        </div>
-    `;
-    
-    var downloadButtons = document.getElementById('downloadButtons');
-    if (downloadButtons) {
-        downloadButtons.innerHTML = downloadButtons.innerHTML + instructions;
-    }
-    
-    showDownloadError('⚠️ Automatischer Download nicht verfügbar - verwenden Sie die manuelle Anleitung');
 }
 
 function monitorAndRemoveAds(iframe) {
@@ -3301,9 +2799,9 @@ function showQrCode(automatisch = false, modalType = 'editor') {
         qrModalTimeout = null;
         console.log('🎯 showQrCode() gestartet - modalType:', modalType, 'automatisch:', automatisch);
         
-        // Hole den Zugangscode - im Generator-Kontext aus der Response
-        let accessCode = '';
-        let title = '';
+    // Hole den Zugangscode - im Generator-Kontext aus der Response
+    let accessCode = '';
+    let title = '';
     
     if (modalType === 'generator' && window.currentTestXML) {
         try {
