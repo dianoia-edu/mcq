@@ -3108,8 +3108,9 @@ function showSEBQRCode(accessCode, title) {
                             '<p class="mb-0">Diese QR-Codes verwenden eine flexible SEB-Konfiguration die Konfigurationswechsel erlaubt.</p>' +
                         '</div>' +
                         '<div class="alert alert-warning alert-sm">' +
-                            '<strong><i class="bi bi-info-circle me-2"></i>Tipp:</strong> ' +
-                            'Falls "Laden neuer Einstellungen nicht erlaubt" erscheint, SEB komplett schließen und QR-Code erneut scannen.' +
+                            '<strong><i class="bi bi-exclamation-triangle me-2"></i>SEB startet mit alter Config?</strong><br>' +
+                            'Verwende die <a href="seb_reset_strategies.php?code=' + accessCode + '" target="_blank" class="alert-link">SEB-Reset Strategien</a> ' +
+                            'um SEB zu zwingen, eine neue Konfiguration zu laden.' +
                         '</div>' +
                         
                         '<div class="row">' +
@@ -3166,12 +3167,17 @@ function showSEBQRCode(accessCode, title) {
                         '</div>' +
                         '<hr>' +
                         '<div class="row">' +
-                            '<div class="col-6">' +
+                            '<div class="col-4">' +
                                 '<button type="button" class="btn btn-outline-info btn-sm w-100 preview-seb-btn">' +
                                     '<i class="bi bi-eye me-1"></i>Einschränkungen' +
                                 '</button>' +
                             '</div>' +
-                            '<div class="col-6">' +
+                            '<div class="col-4">' +
+                                '<a href="' + baseUrl + 'seb_reset_strategies.php?code=' + accessCode + '" target="_blank" class="btn btn-outline-danger btn-sm w-100">' +
+                                    '<i class="bi bi-arrow-clockwise me-1"></i>SEB-Reset' +
+                                '</a>' +
+                            '</div>' +
+                            '<div class="col-4">' +
                                 '<a href="' + baseUrl + 'seb_start.php?code=' + accessCode + '" target="_blank" class="btn btn-outline-secondary btn-sm w-100">' +
                                     '<i class="bi bi-box-arrow-up-right me-1"></i>Test-Seite' +
                                 '</a>' +
