@@ -242,6 +242,7 @@ $(document).ready(function() {
     }
 
     // Event-Handler für das Instanzen-Update (entfernt - verschoben zur Instanzverwaltung)
+    /*
     // $('#updateInstancesBtn').on('click', function() {
         const btn = $(this);
         const result = $('#updateResult');
@@ -405,7 +406,8 @@ $(document).ready(function() {
                 btn.prop('disabled', false).html('<i class="bi bi-cloud-download"></i> Alle Instanzen aktualisieren');
             }
         });
-    }); 
+    });
+    */
 
     // Event-Handler für die Datenbank-Synchronisation
     $('#syncDatabaseBtn').on('click', function() {
