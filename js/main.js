@@ -1668,6 +1668,11 @@ function initTestEditor() {
         markAsChanged();
     });
     
+    // Event-Handler für Titel- und Access-Code-Änderungen
+    $('#testTitle, #accessCode').on('input', function() {
+        markAsChanged();
+    });
+    
     // Event-Handler für Speichern-Button
     $('#saveTestBtn').on('click', function() {
         saveTest();
@@ -1687,6 +1692,16 @@ function initTestEditor() {
     $('#questionsContainer').on('click', '.remove-question', function() {
         $(this).closest('.question-card').remove();
         updateQuestionNumbers();
+        markAsChanged();
+    });
+    
+    // Event-Handler für Änderungen an Frage-Inhalten (delegiert)
+    $('#questionsContainer').on('input', 'input[type="text"], textarea', function() {
+        markAsChanged();
+    });
+    
+    // Event-Handler für Checkbox-Änderungen (delegiert)
+    $('#questionsContainer').on('change', 'input[type="checkbox"]', function() {
         markAsChanged();
     });
     
@@ -2067,6 +2082,9 @@ function saveTest(overwrite = false) {
                 // Zeige schöne Erfolgsmeldung statt Alert
                 showSuccessMessage('Test erfolgreich gespeichert!');
                 
+                // Setze Änderungsstatus zurück
+                testHasChanges = false;
+                
                 // Lade die Testliste neu
                 reloadTestList(function() {
                     // Setze den Editor zurück
@@ -2339,23 +2357,24 @@ function updateButtonVisibility() {
         questionsCount: $('#questionsContainer .question-card').length,
         hasAccessCode,
         accessCodeValue: $('#accessCode').val().trim(),
-        isCurrentTestFilename: !!currentTestFilename
+        isCurrentTestFilename: !!currentTestFilename,
+        testHasChanges: testHasChanges,
+        enableSaveButton: hasQuestions && testHasChanges,
+        enableQrButton: hasTest || currentTestFilename || (hasQuestions && hasAccessCode),
+        enableDeleteButton: hasTest || currentTestFilename || (hasQuestions && hasAccessCode)
     });
     
-    // Speichern-Button: Aktiviert, wenn Fragen vorhanden sind
-    $('#saveTestBtn').prop('disabled', !hasQuestions);
+    // Speichern-Button: Nur aktiv wenn Änderungen gemacht wurden UND Fragen vorhanden sind
+    const enableSaveButton = hasQuestions && testHasChanges;
+    $('.button-container #saveTestBtn').prop('disabled', !enableSaveButton);
     
-    // Wenn ein Test geladen ist (über das Dropdown oder beim Bearbeiten nach Generator), 
-    // sollen QR-Code und Löschen immer aktiv sein
-    if (hasTest || currentTestFilename) {
-        $('#deleteTestBtn').prop('disabled', false);
-        $('#showQrCodeBtn').prop('disabled', false);
-    } else {
-        // Sonst nur aktivieren, wenn neue Fragen und ein Zugangscode vorhanden sind
-        const showButtons = hasQuestions && hasAccessCode;
-        $('#deleteTestBtn').prop('disabled', !showButtons);
-        $('#showQrCodeBtn').prop('disabled', !showButtons);
-    }
+    // QR-Code Button: Immer aktiv wenn ein Test geladen ist (hasTest) ODER wenn neue Fragen mit Access-Code vorhanden sind
+    const enableQrButton = hasTest || currentTestFilename || (hasQuestions && hasAccessCode);
+    $('.button-container #showQrCodeBtn').prop('disabled', !enableQrButton);
+    
+    // Löschen-Button: Immer aktiv wenn ein Test geladen ist (wie QR-Code Button)
+    const enableDeleteButton = hasTest || currentTestFilename || (hasQuestions && hasAccessCode);
+    $('.button-container #deleteTestBtn').prop('disabled', !enableDeleteButton);
     
     // Vorschau-Button ist immer aktiv und grün
     $('#previewTestBtn').prop('disabled', false);
