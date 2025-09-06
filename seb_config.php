@@ -75,13 +75,13 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>startURL</key>
     <string>' . htmlspecialchars($testUrl) . '</string>
     
-    <!-- AUTO-EXIT KONFIGURATION (Platform-spezifisch) -->
+    <!-- OFFIZIELLE SEB iOS QUIT-KONFIGURATION -->
     <key>quitURL</key>
-    <string>' . htmlspecialchars($baseUrl) . 'seb_manual_exit_ipad.php?code=' . urlencode($testCode) . '</string>
-    <key>restartExamURL</key>
     <string>seb://quit</string>
     <key>quitURLConfirm</key>
     <false/>
+    <key>restartExamURL</key>
+    <string>seb://quit</string>
     
     <!-- URL-Filter (Whitelist) -->
     <key>URLFilterEnable</key>

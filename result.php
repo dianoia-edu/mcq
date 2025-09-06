@@ -340,12 +340,25 @@ if (isset($_POST['back_to_home'])) {
             if (isSEB) {
                 console.log('🔒 SEB erkannt - zeige orangen SEB-Exit Button');
                 
-                // Oranger SEB-Exit Button (garantierte Lösung)
-                dynamicButtonContainer.innerHTML = `
-                    <button onclick="exitSEBNow()" class="btn btn-seb-exit">
-                        <i class="bi bi-power"></i>SEB beenden
-                    </button>
-                `;
+                // Oranger SEB-Exit Button (direkter Link für iPad)
+                const testCode = '<?php echo $_SESSION['test_code'] ?? 'UNKNOWN'; ?>';
+                const isIpad = userAgent.includes('iPad');
+                
+                if (isIpad) {
+                    // iPad: Direkter seb://quit Link (offizielle Methode)
+                    dynamicButtonContainer.innerHTML = `
+                        <a href="seb://quit" class="btn btn-seb-exit">
+                            <i class="bi bi-power"></i>SEB beenden (Direkter Quit-Link)
+                        </a>
+                    `;
+                } else {
+                    // Desktop: JavaScript-Button
+                    dynamicButtonContainer.innerHTML = `
+                        <button onclick="exitSEBNow()" class="btn btn-seb-exit">
+                            <i class="bi bi-power"></i>SEB beenden
+                        </button>
+                    `;
+                }
                 
             } else {
                 console.log('🌐 Normaler Browser - zeige Zurück-Button');
@@ -369,17 +382,16 @@ if (isset($_POST['back_to_home'])) {
             const testCode = '<?php echo $_SESSION['test_code'] ?? 'UNKNOWN'; ?>';
             
             if (isIpad) {
-                console.log('📱 iPad erkannt - verwende offizielle Quit-Link-Methode');
+                console.log('📱 iPad erkannt - verwende direkten SEB-Quit');
                 
-                // OFFIZIELLE SEB iOS QUIT-METHODE
+                // DIREKTE SEB-QUIT-METHODE
                 // Laut SEB-Dokumentation: "Place a quit link on the feedback page"
-                // Diese Seite IST die Feedback-Seite, also navigiere direkt zur Quit-URL
+                // Diese Seite IST die Feedback-Seite, also navigiere direkt zu seb://quit
                 
-                const quitUrl = `seb_manual_exit_ipad.php?code=${encodeURIComponent(testCode)}`;
-                console.log(`🔗 Navigiere zur offiziellen Quit-Seite: ${quitUrl}`);
+                console.log('🔗 Direkter Redirect zu seb://quit');
                 
-                // Sofortige Navigation zur Quit-Seite
-                window.location.href = quitUrl;
+                // Sofortige Navigation zu seb://quit
+                window.location.href = 'seb_quit_direct.php';
                 
             } else {
                 console.log('💻 Desktop erkannt - verwende Desktop-Exit-Methoden');

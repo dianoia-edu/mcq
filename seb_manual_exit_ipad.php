@@ -203,20 +203,7 @@ error_log("SEB Manual Exit iPad: Test-Code=$testCode, SEB=" . ($isSEB ? 'ja' : '
             this.innerHTML = '<i class="bi bi-hourglass-split me-3"></i>SEB WIRD BEENDET...';
             this.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
             
-            // Zusätzlicher Fallback nach 2 Sekunden
-            setTimeout(() => {
-                if (window.location.href === window.location.href) {
-                    console.log('⚠️ seb://quit hat nicht funktioniert - zeige Anleitung');
-                    this.innerHTML = '<i class="bi bi-exclamation-triangle me-3"></i>MANUELL BEENDEN';
-                    this.style.background = 'linear-gradient(45deg, #ffc107, #fd7e14)';
-                    
-                    alert('SEB konnte nicht automatisch beendet werden.\n\n' +
-                          'Bitte verwenden Sie:\n' +
-                          '• 3-Finger-Triple-Tap → SEB-Menü\n' +
-                          '• Passwort: admin123\n' +
-                          '• "Beenden" wählen');
-                }
-            }, 2000);
+            // Kein automatisches Alert - SEB soll direkt beendet werden
         });
         
         // Für Desktop: Alternative Exit-Methoden
