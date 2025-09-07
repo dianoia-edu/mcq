@@ -439,8 +439,12 @@ if (isset($_GET['code'])) {
                 });
                 
                 function startTest() {
+                    alert('🔍 DEBUG: startTest() aufgerufen!');
+                    
                     var name = document.getElementById('student_name').value.trim();
                     var code = document.getElementById('test_code').value;
+                    
+                    alert('🔍 DEBUG: Name=' + name + ', Code=' + code);
                     
                     // Name-Validierung für ALLE (SEB und Browser)
                     if (!name) {
@@ -457,9 +461,18 @@ if (isset($_GET['code'])) {
                     const userAgent = navigator.userAgent;
                     const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
                     
-                    console.log('🎯 Test-Start:', isSEB ? 'SEB erkannt' : 'Normaler Browser');
+                    alert('🔍 DEBUG: SEB erkannt=' + isSEB + ', UserAgent=' + userAgent);
                     
-                    // Session-Setup per AJAX vor Test-Start (GENAU WIE name_form.php)
+                    // FALLBACK: Direkte Weiterleitung ohne AJAX für SEB
+                    if (isSEB) {
+                        alert('🔍 DEBUG: SEB-Fallback - Direkte Weiterleitung');
+                        var directUrl = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
+                        alert('🔍 DEBUG: Weiterleitung zu: ' + directUrl);
+                        window.location.href = directUrl;
+                        return;
+                    }
+                    
+                    // Normaler Browser: AJAX wie vorher
                     fetch('setup_test_session.php', {
                         method: 'POST',
                         headers: {
@@ -467,24 +480,20 @@ if (isset($_GET['code'])) {
                         },
                         body: 'student_name=' + encodeURIComponent(name) + 
                               '&test_code=' + encodeURIComponent(code) + 
-                              '&seb=' + (isSEB ? 'true' : 'false')
+                              '&seb=false'
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            console.log('✅ Session erfolgreich eingerichtet');
-                            // Direkte Weiterleitung zum Test (Browser oder SEB)
                             window.location.href = data.test_url;
                         } else {
                             alert('Fehler: ' + data.error);
-                            // Button zurücksetzen
                             btn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Test im Browser starten';
                             btn.disabled = false;
                         }
                     })
                     .catch(error => {
-                        console.error('Fehler beim Session-Setup:', error);
-                        // Fallback zur direkten Weiterleitung
+                        alert('AJAX-Fehler: ' + error);
                         var fallbackUrl = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
                         window.location.href = fallbackUrl;
                     });
