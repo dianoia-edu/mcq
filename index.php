@@ -406,7 +406,7 @@ if (isset($_GET['code'])) {
                             </div>
                             <input type="hidden" id="test_code" value="<?php echo htmlspecialchars($code); ?>">
                             <div class="d-grid gap-2">
-                                <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test im Browser starten</button>
+                                <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test test im Browser starten</button>
                                 <button id="sebBtn" class="btn btn-success btn-lg seb-mode">Test im Safe Exam Browser starten</button>
                             </div>
                         </div>
@@ -499,7 +499,18 @@ if (isset($_GET['code'])) {
                     });
                 }
                 
-                document.getElementById('browserBtn').onclick = startTest;
+                // ROBUSTE EVENT-HANDLER-BINDUNG
+                document.addEventListener('DOMContentLoaded', function() {
+                    const browserBtn = document.getElementById('browserBtn');
+                    if (browserBtn) {
+                        // Event-Handler-Test
+                        browserBtn.style.border = '3px solid red'; // VISUELLER TEST
+                        browserBtn.onclick = startTest;
+                        browserBtn.addEventListener('click', startTest); // BACKUP
+                    } else {
+                        alert('FEHLER: browserBtn nicht gefunden!');
+                    }
+                });
                 document.getElementById('sebBtn').onclick = function() {
                     var name = encodeURIComponent(document.getElementById('student_name').value);
                     var code = encodeURIComponent(document.getElementById('test_code').value);
