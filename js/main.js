@@ -3125,11 +3125,14 @@ function showSEBQRCode(accessCode, title) {
                             '</button>' +
                         '</div>' +
                         '<div class="d-grid gap-2">' +
-                            '<button type="button" class="btn btn-outline-primary seb-restrictions-btn">' +
-                                '<i class="bi bi-shield-lock me-2"></i>Einschränkungen' +
-                            '</button>' +
                             '<button type="button" class="btn btn-outline-success save-seb-qr-btn">' +
-                                '<i class="bi bi-download me-2"></i>QR-Code speichern' +
+                                '<i class="bi bi-image me-2"></i>QR-Code speichern' +
+                            '</button>' +
+                            '<button type="button" class="btn btn-outline-primary download-seb-btn">' +
+                                '<i class="bi bi-download me-2"></i>SEB herunterladen' +
+                            '</button>' +
+                            '<button type="button" class="btn btn-outline-info seb-restrictions-btn">' +
+                                '<i class="bi bi-shield-lock me-2"></i>Einschränkungen' +
                             '</button>' +
                         '</div>' +
                     '</div>' +
@@ -3240,6 +3243,13 @@ function setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebS
         });
     });
     
+    // SEB-Datei herunterladen
+    $('.download-seb-btn').off('click').on('click', function() {
+        console.log('💾 SEB-Datei herunterladen für:', accessCode);
+        const sebDownloadUrl = baseUrl + 'seb_config_flexible.php?code=' + accessCode;
+        window.open(sebDownloadUrl, '_blank');
+    });
+    
     // QR-Code speichern
     $('.save-seb-qr-btn').off('click').on('click', function() {
         // Versuche QR-Code aus dem Canvas zu holen (wenn QRCode.js verwendet wird)
@@ -3275,8 +3285,8 @@ function setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebS
         }
     });
     
-    // SEB-Einschränkungen anzeigen (neuer Button)
-    $('#sebQrCodeModal').off('click', '.seb-restrictions-btn').on('click', '.seb-restrictions-btn', function() {
+    // SEB-Einschränkungen anzeigen
+    $('.seb-restrictions-btn').off('click').on('click', function() {
         console.log('🔒 Zeige SEB-Einschränkungen für:', accessCode);
         const previewUrl = baseUrl + 'seb_config_preview.php?code=' + accessCode;
         window.open(previewUrl, '_blank');
