@@ -58,10 +58,10 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <!-- ===== OVERRIDE SERVER SETTINGS FROM CLIENT CONFIG ===== -->
     
     <key>sebServerConfiguration</key>
-    <string>-</string>
+    <string></string>
     
     <key>sebServerURL</key>
-    <string>-</string>
+    <string></string>
     
     <key>sebServerFallback</key>
     <false/>
@@ -73,7 +73,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <integer>0</integer>
     
     <key>sebServerFallbackPasswordHash</key>
-    <string>-</string>
+    <string></string>
     
     <key>sebServerFallbackTimeout</key>
     <integer>0</integer>
