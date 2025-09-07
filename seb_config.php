@@ -163,35 +163,43 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>forceAppFolderInstall</key>
     <true/>
     
-    <!-- WINDOWS SEB: TEMPORÄRE TEST-SESSION (KEIN ADMIN-PASSWORT) -->
+    <!-- WINDOWS SEB: EXAM MODE (KEIN ADMIN-PASSWORT) -->
+    <key>sebMode</key>
+    <integer>1</integer>
+    <key>sebConfigPurpose</key>
+    <integer>0</integer>
+    <key>configPurpose</key>
+    <integer>0</integer>
+    
+    <!-- EXAM MODE SETTINGS -->
+    <key>startExamMode</key>
+    <true/>
+    <key>examMode</key>
+    <true/>
+    <key>sebConfigurationIsExam</key>
+    <true/>
+    
+    <!-- KEINE ADMIN-RECHTE NÖTIG -->
     <key>allowPreferencesWindow</key>
     <false/>
-    <key>sebMode</key>
-    <integer>0</integer>
+    <key>sebRequiresAdminRights</key>
+    <false/>
+    <key>sebConfigurationMustBeUnlocked</key>
+    <false/>
+    <key>sebLocalSettingsEnabled</key>
+    <false/>
     <key>enableLogging</key>
     <false/>
     <key>logLevel</key>
     <integer>0</integer>
     
-    <!-- WINDOWS: SIGNALISIERE DASS ES SICH UM EINE TEMPORÄRE CLIENT-KONFIGURATION HANDELT -->
-    <key>configPurpose</key>
-    <integer>1</integer>
-    <key>sebConfigPurpose</key>
-    <integer>1</integer>
+    <!-- EXAM SESSION IDENTIFIER -->
     <key>examKeySalt</key>
-    <string>client-exam-session-' . date('YmdHis') . '</string>
+    <string>exam-session-' . date('YmdHis') . '</string>
+    <key>examKey</key>
+    <string>' . hash('sha256', 'exam-' . $testCode . '-' . date('YmdHis')) . '</string>
     
-    <!-- CLIENT-KONFIGURATION (KEINE ADMIN-INSTALLATION) -->
-    <key>sebClientConfiguration</key>
-    <true/>
-    <key>sebUserConfiguration</key>
-    <true/>
-    <key>sebSystemConfiguration</key>
-    <false/>
-    <key>sebGlobalConfiguration</key>
-    <false/>
-    
-    <!-- KEINE DAUERHAFTE SYSTEMÄNDERUNG -->
+    <!-- KEINE SYSTEMWEITEN ÄNDERUNGEN -->
     <key>allowDisplayMirroring</key>
     <false/>
     <key>allowWlan</key>
@@ -199,6 +207,8 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>allowWindowCapture</key>
     <false/>
     <key>allowScreenSharing</key>
+    <false/>
+    <key>allowVirtualMachine</key>
     <false/>
     
     <!-- KIOSK-MODUS ERZWINGEN -->
