@@ -164,20 +164,37 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
             transform: translateY(-2px);
         }
         
-        /* SEB-spezifische Button-Farbe - auch für Bootstrap-Klassen */
+        /* SEB-spezifische Button-Farbe - SUPER STRONG CSS */
         .submit-btn.seb-mode,
-        .btn.seb-mode {
+        .btn.seb-mode,
+        .btn-primary.seb-mode,
+        .btn-lg.seb-mode,
+        button.seb-mode {
+            background: #fd7e14 !important;
             background-color: #fd7e14 !important;
+            border: 2px solid #fd7e14 !important;
             border-color: #fd7e14 !important;
             color: white !important;
+            box-shadow: 0 4px 8px rgba(253, 126, 20, 0.3) !important;
         }
         
         .submit-btn.seb-mode:hover,
-        .btn.seb-mode:hover {
+        .btn.seb-mode:hover,
+        .btn-primary.seb-mode:hover,
+        .btn-lg.seb-mode:hover,
+        button.seb-mode:hover,
+        .submit-btn.seb-mode:focus,
+        .btn.seb-mode:focus,
+        .btn-primary.seb-mode:focus,
+        .btn-lg.seb-mode:focus,
+        button.seb-mode:focus {
+            background: #e8620c !important;
             background-color: #e8620c !important;
+            border: 2px solid #e8620c !important;
             border-color: #e8620c !important;
-            transform: translateY(-2px);
+            transform: translateY(-2px) !important;
             color: white !important;
+            box-shadow: 0 6px 12px rgba(232, 98, 12, 0.4) !important;
         }
     </style>
 </head>
@@ -220,11 +237,16 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
         const startBtn = document.getElementById('startTestBtn');
         
         if (isSEB) {
-            // Orange SEB-Button-Style mit !important CSS
+            // Orange SEB-Button-Style mit INLINE STYLES
             startBtn.classList.remove('btn-primary');
             startBtn.classList.add('seb-mode');
+            // FORCE ORANGE mit Inline-Styles
+            startBtn.style.backgroundColor = '#fd7e14';
+            startBtn.style.borderColor = '#fd7e14';
+            startBtn.style.color = 'white';
+            startBtn.style.boxShadow = '0 4px 8px rgba(253, 126, 20, 0.3)';
             startBtn.innerHTML = '<i class="bi bi-shield-lock me-2"></i>Sicherer SEB-Test starten';
-            console.log('🔒 SEB erkannt - Button auf Orange gesetzt');
+            console.log('🔒 SEB erkannt - Button auf Orange gesetzt mit Inline-Styles');
         } else {
             console.log('🌐 Normaler Browser - Standard Button-Farbe');
         }

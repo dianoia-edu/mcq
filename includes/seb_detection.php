@@ -83,7 +83,9 @@ function getSEBWarningBar($testCode = null) {
     $sebUrl = $baseUrl . $projectPath;
     
     if ($testCode) {
-        $sebUrl .= '/seb_start.php?code=' . urlencode($testCode);
+        // Direkter sebs:// Link wie auf name_form.php
+        $sebConfigUrl = $baseUrl . $projectPath . '/seb_config_override_server.php?code=' . urlencode($testCode);
+        $sebUrl = 'sebs://' . str_replace(['https://', 'http://'], '', $sebConfigUrl);
     }
     
     $html = '
@@ -103,8 +105,7 @@ function getSEBWarningBar($testCode = null) {
         border-bottom: 2px solid #b21e2d;
         font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, sans-serif;
     ">
-        <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 16px;"></i>
-        <strong>⚠️ SICHERHEITSWARNUNG:</strong> 
+        <strong><i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 16px;"></i>SICHERHEITSWARNUNG:</strong> 
         Dieser Test sollte im Safe Exam Browser ausgeführt werden!
         <a href="' . htmlspecialchars($sebUrl) . '" 
            style="color: #fff; text-decoration: underline; margin-left: 15px; font-weight: bold;"
