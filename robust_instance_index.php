@@ -1,57 +1,12 @@
 <?php
-// Robuste index.php für Instanzen mit allen wichtigen Features
+// Starte Output-Buffering
 ob_start();
+
+// Starte Session 
 session_start();
 
-// Sichere Einbindung der Funktionen mit Fallbacks
-function safeInclude($file, $required = false) {
-    if (file_exists($file)) {
-        return include_once $file;
-    } elseif ($required) {
-        die("Erforderliche Datei nicht gefunden: $file");
-    }
-    return false;
-}
-
-// Versuche wichtige Dateien einzubinden
-safeInclude('check_test_attempts.php');
-safeInclude('includes/seb_functions.php');
-
-// Fallback-Funktionen falls Dateien fehlen
-if (!function_exists('hasCompletedTestToday')) {
-    function hasCompletedTestToday($code, $studentName = null) {
-        // Einfache Cookie-basierte Prüfung als Fallback
-        $cookieName = 'test_completed_' . md5($code . date('Y-m-d'));
-        return isset($_COOKIE[$cookieName]);
-    }
-}
-
-if (!function_exists('isSEBBrowser')) {
-    function isSEBBrowser() {
-        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        return (strpos($userAgent, 'SEB') !== false);
-    }
-}
-
-if (!function_exists('getBaseCode')) {
-    function getBaseCode($code) {
-        // Extrahiere die ersten 3 Zeichen als Basis-Code
-        return strtoupper(substr(trim($code), 0, 3));
-    }
-}
-
-// Lade Instanz-spezifische Konfiguration
-function loadInstanceConfig() {
-    $configPath = __DIR__ . '/config/app_config.json';
-    if (file_exists($configPath)) {
-        $config = json_decode(file_get_contents($configPath), true);
-        return $config ?: [];
-    }
-    return [];
-}
-
-// Fehler-Variable
-$error = '';
+require_once 'check_test_attempts.php';
+require_once 'includes/seb_functions.php';
 
 // Lösche die Testergebnisse nach der ersten Anzeige
 if (isset($_SESSION['test_results']) && $_SERVER['REQUEST_METHOD'] === 'GET' && empty($_POST)) {
@@ -60,125 +15,139 @@ if (isset($_SESSION['test_results']) && $_SERVER['REQUEST_METHOD'] === 'GET' && 
     $_SESSION['show_results_once'] = $temp_results;
 }
 
-// POST-Verarbeitung für Zugangscode
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accessCode"])) {
-    session_destroy();
-    session_start();
-    
-    $accessCode = trim($_POST["accessCode"]);
-    
-    if (!empty($accessCode)) {
-        // Lade Instanz-Konfiguration
-        $config = loadInstanceConfig();
-        $adminCode = $config['admin_access_code'] ?? '';
+// Überprüfe POST-Anfrage
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST["accessCode"])) {
+        // Lösche die alte Session beim Start eines neuen Tests
+        session_destroy();
+        session_start();
         
-        // Prüfe auf Admin-Login
-        if (!empty($adminCode) && $accessCode === $adminCode) {
-            $_SESSION["teacher"] = true;
-            header("Location: teacher/teacher_dashboard.php");
-            exit();
-        }
+        $accessCode = trim($_POST["accessCode"]);
         
-        // Fallback auf Standard-Admin-Code
+        // Prüfe zuerst auf Lehrer-Login
         if ($accessCode === "admin123") {
             $_SESSION["teacher"] = true;
             header("Location: teacher/teacher_dashboard.php");
             exit();
         }
         
-        // Prüfe auf Test bereits heute absolviert
+        // Extrahiere den Basis-Code für die Dateisuche
+        $baseCode = getBaseCode($accessCode);
+        
+        // Prüfe, ob der Test bereits heute absolviert wurde
+        // Der Schülername ist an dieser Stelle noch nicht bekannt, daher nur Cookie-Prüfung
         if (hasCompletedTestToday($accessCode)) {
-            $error = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
-        } else {
-            // Test-Code prüfen
-            $baseCode = getBaseCode($accessCode);
-            $allFiles = glob("tests/*.xml");
-            $testFiles = array_filter($allFiles, function($file) use ($baseCode) {
-                $filename = basename($file);
-                $fileCode = substr($filename, 0, 3);
-                return (strtoupper($fileCode) === $baseCode);
-            });
-            
-            if (!empty($testFiles)) {
-                header("Location: index.php?code=" . urlencode($accessCode));
-                exit();
-            } else {
-                $error = "Der eingegebene Zugangscode ist ungültig. Bitte überprüfen Sie Ihre Eingabe.";
-            }
+            $errorMessage = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
+            $errorType = "warning";
         }
-    } else {
-        $error = "Bitte geben Sie einen Zugangscode ein.";
+        
+        // Test-Zugangscode prüfen
+        $searchCode = $baseCode;
+        // Finde die Testdatei anhand der ersten 3 Zeichen des Dateinamens
+        $allFiles = glob("tests/*.xml");
+        $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
+            $filename = basename($file);
+            $fileCode = substr($filename, 0, 3);
+            return ($fileCode === $searchCode);
+        });
+        
+        if (!empty($testFiles)) {
+            // Test existiert
+            header("Location: index.php?code=" . urlencode($accessCode));
+            exit();
+        } else {
+            $errorMessage = "Der eingegebene Zugangscode ist ungültig. Bitte überprüfen Sie Ihre Eingabe.";
+            $errorType = "danger";
+        }
     }
 }
 
-// Funktion zum Überprüfen, ob ein Testcode existiert
-function testExists($code) {
-    $baseCode = getBaseCode($code);
-    $allFiles = glob("tests/*.xml");
-    $matchingFiles = array_filter($allFiles, function($file) use ($baseCode) {
-        $filename = basename($file);
-        $fileCode = substr($filename, 0, 3);
-        return (strtoupper($fileCode) === $baseCode);
-    });
-    return !empty($matchingFiles);
-}
-
-// SEB-Parameter Verarbeitung
+// Überprüfe, ob SEB-Parameter vorhanden ist
 if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
+    // Wenn student_name fehlt, zurück zum Namenseingabe-Formular
     if (!isset($_GET['student_name'])) {
+        // Zeige das Namenseingabe-Formular
         include 'name_form.php';
         exit;
     }
     
     if (isSEBBrowser()) {
+        // SEB ist bereits aktiv, normaler Testablauf
         $code = $_GET['code'];
     } else {
+        // Prüfe, ob der Browser ein iOS-Gerät ist
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         if ((strpos($userAgent, 'iPhone') !== false || strpos($userAgent, 'iPad') !== false)) {
+            // Versuche, SEB zu starten (nur auf iOS sinnvoll)
             echo '<script>';
             echo 'setTimeout(function() {';
-            echo '  window.location = "seb://start?url=' . urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/lehrer_instanzen/' . basename(dirname(__FILE__)) . '/mcq-test-system/index.php?code=' . urlencode($_GET['code']) . '&seb=true') . '";';
+            echo '  window.location = "seb://start?url=' . urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/mcq-test-system/index.php?code=' . urlencode($_GET['code']) . '&seb=true') . '";';
             echo '}, 500);';
             echo '</script>';
+            // Zeige dem Nutzer einen Hinweis, falls SEB nicht installiert ist
             echo '<div class="alert alert-info mt-3">Wenn sich der Safe Exam Browser nicht öffnet, können Sie den Test auch im normalen Browser durchführen.</div>';
+            // Test läuft trotzdem weiter im Browser
         }
+        // Wenn kein iOS oder SEB nicht installiert: Test läuft einfach weiter im Browser
+        // Keine Weiterleitung, keine Blockade
         $code = $_GET['code'];
     }
 }
 
-// Session setzen bei GET mit student_name und code
+// Funktion zum Überprüfen, ob ein Testcode existiert
+function testExists($code) {
+    // Extrahiere den Basis-Code für die Dateisuche
+    $baseCode = getBaseCode($code); // Erst Basis-Code extrahieren
+    $searchCode = $baseCode; // Case-sensitive
+    
+    // Suche nach allen XML-Dateien im tests-Verzeichnis
+    $allFiles = glob("tests/*.xml");
+    
+    // Filtere nach dem Basis-Zugangscode (erste 3 Zeichen des Dateinamens)
+    $matchingFiles = array_filter($allFiles, function($file) use ($searchCode) {
+        $filename = basename($file);
+        // Extrahiere die ersten 3 Zeichen des Dateinamens
+        $fileCode = substr($filename, 0, 3);
+        
+        // Vergleiche die ersten 3 Zeichen mit dem Suchcode
+        $matches = ($fileCode === $searchCode);
+        
+        return $matches;
+    });
+    
+    return !empty($matchingFiles);
+}
+
+// Session setzen, wenn student_name und code per GET kommen (z.B. aus SEB)
 if (isset($_GET['student_name']) && isset($_GET['code'])) {
     $_SESSION['student_name'] = $_GET['student_name'];
     $_SESSION['test_code'] = $_GET['code'];
 }
 
-// Teststart bei GET mit code und student_name
+// Teststart auch bei GET mit code und student_name
 if (isset($_GET['code']) && isset($_GET['student_name'])) {
     $code = $_GET['code'];
     $studentName = $_GET['student_name'];
     $_SESSION['student_name'] = $studentName;
     $_SESSION['test_code'] = $code;
     $baseCode = getBaseCode($code);
+    $searchCode = $baseCode;
     $allFiles = glob("tests/*.xml");
-    $testFiles = array_filter($allFiles, function($file) use ($baseCode) {
+    $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
         $filename = basename($file);
         $fileCode = substr($filename, 0, 3);
-        return (strtoupper($fileCode) === $baseCode);
+        return ($fileCode === $searchCode);
     });
     $testFile = !empty($testFiles) ? reset($testFiles) : null;
     if ($testFile) {
         $_SESSION['test_file'] = $testFile;
-        if (file_exists('test.php')) {
-            ob_start();
-            include 'test.php';
-            $output = ob_get_clean();
-            if (empty(trim($output))) {
-                echo '<div class="container mt-5"><div class="alert alert-danger">Fehler beim Laden des Tests.</div></div>';
-            } else {
-                echo $output;
-            }
+        ob_start();
+        include 'test.php';
+        $output = ob_get_clean();
+        if (empty(trim($output))) {
+            echo '<div class="container mt-5"><div class="alert alert-danger">Fehler beim Laden des Tests.</div></div>';
         } else {
-            echo '<div class="container mt-5"><div class="alert alert-danger">Test-Engine nicht gefunden.</div></div>';
+            echo $output;
         }
         exit;
     } else {
@@ -187,29 +156,34 @@ if (isset($_GET['code']) && isset($_GET['student_name'])) {
     }
 }
 
-// Code-Verarbeitung bei GET
+// Wenn ein Code übergeben wurde
 if (isset($_GET['code'])) {
+    // Lösche die alte Session beim direkten Aufruf eines Tests
     if (!isset($_POST['student_name'])) {
         session_destroy();
         session_start();
     }
     
-    $code = $_GET['code'];
+    $code = $_GET['code']; // Nicht direkt in Großbuchstaben umwandeln
+    $baseCode = getBaseCode($code); // Erst Basis-Code extrahieren
+    $searchCode = $baseCode; // Nicht in Großbuchstaben umwandeln
     
+    // Wenn der Test existiert
     if (testExists($code)) {
+        // Wenn noch kein Name eingegeben wurde
         if (!isset($_SESSION['student_name'])) {
-            // Namenseingabe-Formular anzeigen
-            $baseCode = getBaseCode($code);
+            // Finde die Testdatei anhand der ersten 3 Zeichen des Dateinamens
             $allFiles = glob("tests/*.xml");
-            $testFiles = array_filter($allFiles, function($file) use ($baseCode) {
+            $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
                 $filename = basename($file);
                 $fileCode = substr($filename, 0, 3);
-                return (strtoupper($fileCode) === $baseCode);
+                return ($fileCode === $searchCode);
             });
             
             $testFile = !empty($testFiles) ? reset($testFiles) : null;
             $testTitle = "Test";
             
+            // Lese den Testtitel aus der XML-Datei
             if ($testFile) {
                 try {
                     $xml = simplexml_load_file($testFile);
@@ -217,11 +191,11 @@ if (isset($_GET['code'])) {
                         $testTitle = (string)$xml->title;
                     }
                 } catch (Exception $e) {
-                    // Fehler beim XML-Lesen ignorieren
+                    error_log("Fehler beim Lesen des Testtitels: " . $e->getMessage());
                 }
             }
             
-            // Namenseingabe-HTML (kompakte Version)
+            // Zeige das Namenseingabeformular
             ?>
             <!DOCTYPE html>
             <html lang="de">
@@ -230,110 +204,339 @@ if (isset($_GET['code'])) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Namenseingabe - <?php echo htmlspecialchars($testTitle); ?></title>
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+                <style>
+                    .name-form-container {
+                        max-width: 600px;
+                        margin: 2rem auto;
+                        padding: 2rem;
+                        background-color: #ffffff;
+                        border-radius: 12px;
+                        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+                        border-top: 5px solid #0d6efd; /* Blaue Akzentfarbe */
+                    }
+                    
+                    .test-code-info {
+                        background-color: #f0f7ff; /* Blassblau als Hintergrund */
+                        border-radius: 8px;
+                        padding: 1.5rem;
+                        margin-bottom: 2rem;
+                        text-align: center;
+                        /* Rahmen entfernt */
+                    }
+                    
+                    .testcode-badge {
+                        background-color: #0d6efd;
+                        color: white;
+                        font-size: 1.5rem;
+                        padding: 0.25rem 1rem;
+                        border-radius: 4px;
+                        font-weight: 600;
+                        display: inline-block;
+                        margin-left: 0.5rem;
+                    }
+                    
+                    .student-name-form {
+                        background-color: #ffffff;
+                        padding: 2rem;
+                        border-radius: 8px;
+                        border: 1px solid #e5e7eb;
+                    }
+                    
+                    .form-title {
+                        color: #0d6efd;
+                        text-align: center;
+                        margin-bottom: 1.5rem;
+                    }
+                    
+                    .name-input {
+                        border: 2px solid #d1d5db;
+                        border-radius: 8px;
+                        padding: 0.75rem;
+                        font-size: 1.1rem;
+                        width: 100%;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .name-input:focus {
+                        border-color: #0d6efd;
+                        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+                        outline: none;
+                    }
+                    
+                    .name-label {
+                        font-weight: 600;
+                        color: #374151;
+                        display: block;
+                        margin-bottom: 0.5rem;
+                    }
+                    
+                    .submit-btn {
+                        background-color: #0d6efd;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 0.75rem 1.5rem;
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        width: 100%;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .submit-btn:hover {
+                        background-color: #0b5ed7;
+                        transform: translateY(-2px);
+                    }
+                    
+                    /* SEB-spezifische Button-Farbe - SUPER STRONG CSS */
+                    .submit-btn.seb-mode,
+                    .btn.seb-mode,
+                    .btn-success.seb-mode,
+                    .btn-lg.seb-mode,
+                    button.seb-mode {
+                        background: #fd7e14 !important;
+                        background-color: #fd7e14 !important;
+                        border: 2px solid #fd7e14 !important;
+                        border-color: #fd7e14 !important;
+                        color: white !important;
+                        box-shadow: 0 4px 8px rgba(253, 126, 20, 0.3) !important;
+                    }
+                    
+                    .submit-btn.seb-mode:hover,
+                    .btn.seb-mode:hover,
+                    .btn-success.seb-mode:hover,
+                    .btn-lg.seb-mode:hover,
+                    button.seb-mode:hover,
+                    .submit-btn.seb-mode:focus,
+                    .btn.seb-mode:focus,
+                    .btn-success.seb-mode:focus,
+                    .btn-lg.seb-mode:focus,
+                    button.seb-mode:focus {
+                        background: #e8620c !important;
+                        background-color: #e8620c !important;
+                        border: 2px solid #e8620c !important;
+                        border-color: #e8620c !important;
+                        transform: translateY(-2px) !important;
+                        color: white !important;
+                        box-shadow: 0 6px 12px rgba(232, 98, 12, 0.4) !important;
+                    }
+                </style>
             </head>
             <body class="bg-light">
-                <div class="container mt-5">
-                    <div class="row justify-content-center">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-primary text-white">
-                                    <h3 class="mb-0">Test: <?php echo htmlspecialchars($testTitle); ?></h3>
-                                    <p class="mb-0">Code: <strong><?php echo htmlspecialchars($code); ?></strong></p>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="student_name" class="form-label">Vor- und Nachname:</label>
-                                        <input type="text" class="form-control" id="student_name" placeholder="Vollständigen Namen eingeben" required>
-                                    </div>
-                                    <input type="hidden" id="test_code" value="<?php echo htmlspecialchars($code); ?>">
-                                    <div class="d-grid gap-2">
-                                        <button id="browserBtn" class="btn btn-primary">Test im Browser starten</button>
-                                        <button id="sebBtn" class="btn btn-success">Test im Safe Exam Browser starten</button>
-                                    </div>
-                                </div>
+                <div class="name-form-container">
+                    <div class="test-code-info">
+                        <h2>Testcode: <span class="testcode-badge"><?php echo htmlspecialchars($code); ?></span></h2>
+                        <p class="mt-3 fw-bold"><?php echo htmlspecialchars($testTitle); ?></p>
+                    </div>
+                    
+                    <div class="student-name-form">
+                        <h3 class="form-title">Teilnehmerdaten eingeben</h3>
+                        <div id="nameForm">
+                            <div class="mb-4">
+                                <label for="student_name" class="name-label">Vor- und Nachname:</label>
+                                <input type="text" class="name-input" id="student_name" name="student_name" placeholder="Bitte vollständigen Namen eingeben" required>
+                            </div>
+                            <input type="hidden" id="test_code" value="<?php echo htmlspecialchars($code); ?>">
+                            <div class="d-grid gap-2">
+                                <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test hier im Browser starten</button>
+                                <button id="sebBtn" class="btn btn-success btn-lg seb-mode">Test im Safe Exam Browser starten</button>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Mit dem Absenden bestätigen Sie, dass Sie den Test selbständig bearbeiten werden.
+                        </p>
+                    </div>
                 </div>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
                 <script>
+                // SEB-Erkennung und Button-Styling
+                document.addEventListener('DOMContentLoaded', function() {
+                    const userAgent = navigator.userAgent;
+                    const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+                    const sebBtn = document.getElementById('sebBtn');
+                    
+                    if (isSEB) {
+                        // FORCE ORANGE mit Inline-Styles für SEB-Button
+                        sebBtn.classList.remove('btn-success');
+                        sebBtn.style.backgroundColor = '#fd7e14';
+                        sebBtn.style.borderColor = '#fd7e14';
+                        sebBtn.style.color = 'white';
+                        sebBtn.style.boxShadow = '0 4px 8px rgba(253, 126, 20, 0.3)';
+                        sebBtn.innerHTML = '<i class="bi bi-shield-lock me-2"></i>Test starten';
+                        console.log('🔒 SEB erkannt - Button auf Orange gesetzt');
+                    }
+                });
+                
                 document.getElementById('browserBtn').onclick = function() {
                     var name = encodeURIComponent(document.getElementById('student_name').value);
                     var code = encodeURIComponent(document.getElementById('test_code').value);
-                    if (!name) { alert('Bitte geben Sie Ihren Namen ein.'); return; }
+                    if (!name) {
+                        alert('Bitte geben Sie Ihren Namen ein.');
+                        return;
+                    }
                     window.location.href = 'index.php?code=' + code + '&student_name=' + name;
                 };
                 document.getElementById('sebBtn').onclick = function() {
                     var name = encodeURIComponent(document.getElementById('student_name').value);
                     var code = encodeURIComponent(document.getElementById('test_code').value);
-                    if (!name) { alert('Bitte geben Sie Ihren Namen ein.'); return; }
-                    var url = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>';
-                    url = url.split('?')[0] + '?code=' + code + '&seb=true&student_name=' + name;
-                    window.location.href = 'seb://start?url=' + encodeURIComponent(url);
+                    
+                    // SEB-Button braucht KEINEN Namen - automatischer Fallback
+                    if (!name) {
+                        name = 'SEB-Teilnehmer';
+                    }
+                    
+                    // Verwende SEB-URL Schema für automatischen Start (wie bei QR-Code)
+                    var baseUrl = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>';
+                    var configUrl = baseUrl + '/seb_config_override_server.php?code=' + code;
+                    // Automatischer SEB-Start über URL-Schema
+                    window.location.href = 'sebs://' + configUrl.replace('https://', '').replace('http://', '');
                 };
                 </script>
             </body>
             </html>
             <?php
         } else {
-            // Test anzeigen
+            // Wenn ein Name eingegeben wurde, zeige den Test
             $_SESSION['test_code'] = $code;
             $baseCode = getBaseCode($code);
+            $searchCode = $baseCode;
+            
+            // Finde die Testdatei anhand der ersten 3 Zeichen des Dateinamens
             $allFiles = glob("tests/*.xml");
-            $testFiles = array_filter($allFiles, function($file) use ($baseCode) {
+            $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
                 $filename = basename($file);
                 $fileCode = substr($filename, 0, 3);
-                return (strtoupper($fileCode) === $baseCode);
+                return ($fileCode === $searchCode);
             });
             
             $_SESSION['test_file'] = !empty($testFiles) ? reset($testFiles) : null;
             
-            if ($_SESSION['test_file'] && file_exists('test.php')) {
+            if ($_SESSION['test_file']) {
+                // Starte Output-Buffering für die Fehlersuche
                 ob_start();
                 include 'test.php';
                 $output = ob_get_clean();
                 
+                // Prüfe, ob die Ausgabe leer ist
                 if (empty(trim($output))) {
-                    echo '<div class="container mt-5"><div class="alert alert-danger">Fehler beim Laden des Tests.</div></div>';
+                    ?>
+                    <!DOCTYPE html>
+                    <html lang="de">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Fehler beim Laden des Tests</title>
+                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    </head>
+                    <body class="bg-light">
+                        <div class="container mt-5">
+                            <div class="alert alert-danger">
+                                <h4>Fehler beim Laden des Tests</h4>
+                                <p>Es ist ein Problem beim Laden des Tests aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie den Administrator.</p>
+                                <p>Test-Datei: <?php echo htmlspecialchars($_SESSION['test_file']); ?></p>
+                                <p>Zugangscode: <?php echo htmlspecialchars($code); ?></p>
+                                <a href="index.php" class="btn btn-primary">Zurück zur Startseite</a>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    <?php
                 } else {
                     echo $output;
                 }
             } else {
-                echo '<div class="container mt-5"><div class="alert alert-danger">Test nicht gefunden.</div></div>';
+                echo '<div class="container mt-5"><div class="alert alert-danger">Der angegebene Test konnte nicht gefunden werden. Bitte überprüfen Sie den Zugangscode.</div>';
+                echo '<a href="index.php" class="btn btn-primary">Zurück zur Startseite</a></div>';
             }
         }
     } else {
-        // Test existiert nicht - Startseite mit Fehler
-        $error = "Der eingegebene Zugangscode ist ungültig.";
+        // Wenn der Test nicht existiert, zeige die Startseite mit Fehlermeldung
+        ?>
+        <!DOCTYPE html>
+        <html lang="de">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>MCQ Test System</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body class="bg-light">
+            <div class="container mt-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <?php if (isset($errorMessage)): ?>
+                        <div class="alert alert-<?php echo isset($errorType) ? htmlspecialchars($errorType) : 'danger'; ?> alert-dismissible fade show" role="alert">
+                            <?php echo htmlspecialchars($errorMessage); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php endif; ?>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="text-center">MCQ Test System</h3>
+                            </div>
+                            <div class="card-body">
+                                <form action="index.php" method="POST">
+                                    <div class="mb-3">
+                                        <label for="accessCode" class="form-label">Bitte geben Sie Ihren Testcode ein:</label>
+                                        <input type="text" class="form-control" id="accessCode" name="accessCode" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Test starten</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        </body>
+        </html>
+        <?php
     }
-}
-// POST-Verarbeitung für Namenseingabe
+} 
+// Wenn ein Name über POST übermittelt wurde
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) && isset($_POST['code'])) {
-    $code = $_POST['code'];
-    $baseCode = getBaseCode($code);
+    $code = $_POST['code']; // Nicht umwandeln
+    $baseCode = getBaseCode($code); // Erst Basis-Code extrahieren
+    $searchCode = $baseCode; // Nicht in Großbuchstaben umwandeln
+    
+    // Wenn SEB-Parameter vorhanden ist, speichere ihn in der Session
+    if (isset($_POST['seb'])) {
+        $_SESSION['seb'] = $_POST['seb'];
+    }
+    
+    // Finde die Testdatei anhand der ersten 3 Zeichen des Dateinamens
     $allFiles = glob("tests/*.xml");
-    $testFiles = array_filter($allFiles, function($file) use ($baseCode) {
+    $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
         $filename = basename($file);
         $fileCode = substr($filename, 0, 3);
-        return (strtoupper($fileCode) === $baseCode);
+        return ($fileCode === $searchCode);
     });
     
     $testFile = !empty($testFiles) ? reset($testFiles) : null;
     
     if ($testFile) {
-        // Prüfe Test bereits heute absolviert (mit Schülername)
+        // Prüfe, ob der Test heute bereits absolviert wurde (mit dem Schülernamen)
         if (hasCompletedTestToday($code, $_POST['student_name'])) {
+            // Setze eine Fehlermeldung und leite zur Startseite weiter
             session_destroy();
             session_start();
             $_SESSION['error_message'] = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
+            $_SESSION['error_type'] = "danger"; // Rot für Fehler
             header("Location: index.php");
             exit();
         }
         
         $_SESSION['student_name'] = $_POST['student_name'];
-        $_SESSION['test_code'] = $code;
+        $_SESSION['test_code'] = $code; // Original-Code speichern
         $_SESSION['test_file'] = $testFile;
         
-        // Zwei-Button-Auswahl für Browser/SEB
+        // Zeige die zwei Buttons anstelle des direkten Test-Starts
         $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']);
         $sebUrl = 'seb://start?url=' . urlencode($baseUrl . '/index.php?code=' . urlencode($code) . '&seb=true&student_name=' . urlencode($_POST['student_name']));
         echo '<div class="container mt-5 text-center">';
@@ -344,23 +547,20 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) &
         echo '</div>';
         exit;
     } else {
-        $error = "Ungültiger Testcode";
+        $errorMessage = "Ungültiger Testcode";
     }
 }
-
-// Startseite anzeigen (wenn kein Code)
-if (!isset($_GET['code'])) {
-    $config = loadInstanceConfig();
-    $schoolName = $config['schoolName'] ?? 'Online-Test-System';
+// Wenn kein Code übergeben wurde
+else {
+    // Default-Inhalte für die Startseite anzeigen
     ?>
     <!DOCTYPE html>
     <html lang="de">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title><?php echo htmlspecialchars($schoolName); ?></title>
+        <title>Online-Test-System</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
         <style>
             .card {
                 border-radius: 15px;
@@ -403,24 +603,28 @@ if (!isset($_GET['code'])) {
         <div class="container mt-5">
             <div class="row justify-content-center">
                 <div class="col-md-8 text-center mb-4">
-                    <h1 class="display-4 fw-bold text-primary"><?php echo htmlspecialchars($schoolName); ?></h1>
+                    <h1 class="display-4 fw-bold text-primary">Online-Test-System</h1>
                     <p class="lead">Geben Sie den Zugangscode ein, um einen Test zu starten</p>
                 </div>
             </div>
 
             <div class="row justify-content-center">
                 <div class="col-md-6">
-                    <?php if (!empty($error)): ?>
-                        <div class="alert alert-danger mb-4">
-                            <?php echo htmlspecialchars($error); ?>
+                    <?php if (isset($errorMessage)): ?>
+                        <div class="alert alert-<?php echo $errorType; ?> mb-4">
+                            <?php echo $errorMessage; ?>
                         </div>
                     <?php endif; ?>
                     
                     <?php if (isset($_SESSION['error_message'])): ?>
-                        <div class="alert alert-danger mb-4">
-                            <?php echo htmlspecialchars($_SESSION['error_message']); ?>
+                        <div class="alert alert-<?php echo $_SESSION['error_type']; ?> mb-4">
+                            <?php echo $_SESSION['error_message']; ?>
                         </div>
-                        <?php unset($_SESSION['error_message']); ?>
+                        <?php 
+                        // Lösche die Fehlermeldung nach der Anzeige
+                        unset($_SESSION['error_message']);
+                        unset($_SESSION['error_type']);
+                        ?>
                     <?php endif; ?>
 
                     <div class="card card-access mb-4">
@@ -457,8 +661,7 @@ if (!isset($_GET['code'])) {
                                 // Aktuelle URL für den QR-Code ermitteln
                                 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
                                 $host = $_SERVER['HTTP_HOST'];
-                                $currentPath = $_SERVER['REQUEST_URI'];
-                                $baseUrl = $protocol . $host . dirname($currentPath);
+                                $baseUrl = $protocol . $host . dirname($_SERVER['PHP_SELF']);
                                 $qrCodeUrl = $baseUrl . "/index.php";
                                 
                                 // Temporäres Verzeichnis für QR-Code-Dateien erstellen, falls nicht vorhanden
@@ -477,8 +680,7 @@ if (!isset($_GET['code'])) {
                                 <img src="<?php echo $qrCodeWebPath; ?>" alt="QR-Code für Testzugang" class="img-fluid">
                                 <?php
                             } else {
-                                // Fallback wenn QR-Library nicht verfügbar
-                                echo '<div class="alert alert-info">QR-Code-Generator nicht verfügbar</div>';
+                                echo '<p class="text-muted">QR-Code-Generierung nicht verfügbar</p>';
                             }
                             ?>
                         </div>
@@ -493,7 +695,7 @@ if (!isset($_GET['code'])) {
     <?php
 }
 
-// Cache-Control Header
+// Setze Header für keine Caching
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
