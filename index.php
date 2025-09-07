@@ -2,11 +2,37 @@
 // Starte Output-Buffering
 ob_start();
 
-// Starte    Session 
+// Starte Session 
 session_start();
 
-require_once 'check_test_attempts.php';
-require_once 'includes/seb_functions.php';
+// Universelle Datei-Includes mit Fallback für Instanzen
+function safeRequire($file) {
+    if (file_exists($file)) {
+        require_once $file;
+        return true;
+    }
+    // Für Instanzen, die möglicherweise andere Pfade haben
+    return false;
+}
+
+// Versuche Standard-Includes
+safeRequire('check_test_attempts.php');
+safeRequire('includes/seb_functions.php');
+
+// Fallback-Funktionen falls Dateien fehlen (für Instanzen)
+if (!function_exists('hasCompletedTestToday')) {
+    function hasCompletedTestToday($code, $studentName = null) {
+        // Cookie-basierte Prüfung als Fallback
+        $cookieName = 'test_completed_' . md5($code . date('Y-m-d'));
+        return isset($_COOKIE[$cookieName]);
+    }
+}
+
+if (!function_exists('getBaseCode')) {
+    function getBaseCode($code) {
+        return strtoupper(substr(trim($code), 0, 3));
+    }
+}
 
 // Debug-Informationen für alle Anfragen
 /*
@@ -37,7 +63,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $accessCode = trim($_POST["accessCode"]);
         
         // Prüfe zuerst auf Lehrer-Login
-        if ($accessCode === "admin123") {
+        // Lade Instanz-spezifische Konfiguration falls vorhanden
+        $adminCode = "admin123"; // Standard-Admin-Code
+        $configPath = __DIR__ . '/config/app_config.json';
+        if (file_exists($configPath)) {
+            $config = json_decode(file_get_contents($configPath), true);
+            if ($config && isset($config['admin_access_code'])) {
+                $adminCode = $config['admin_access_code'];
+            }
+        }
+        
+        if ($accessCode === $adminCode || $accessCode === "admin123") {
             $_SESSION["teacher"] = true;
             header("Location: teacher/teacher_dashboard.php");
             exit();

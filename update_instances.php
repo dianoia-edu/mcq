@@ -58,7 +58,6 @@ function performAjaxUpdate() {
         'seb_config.php' => 'Standard SEB-Konfiguration',
         'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration',
         // WARNUNG: database_config.php NICHT updaten - jede Instanz hat instanz-spezifische DB-Daten!
-        'robust_instance_index.php' => 'Robuste Index-Datei mit Hauptsystem-Design + QR-Code',
         'config/clean_schema.sql' => 'Sauberes DB-Schema ohne Testergebnisse'
     ];
     
@@ -106,12 +105,7 @@ function performAjaxUpdate() {
         foreach ($filesToUpdate as $file => $description) {
             $sourceFile = $sourceBasePath . '/' . $file;
             
-            // Spezialbehandlung für robust_instance_index.php -> index.php
-            if ($file === 'robust_instance_index.php') {
-                $targetFile = $instanceBasePath . 'index.php';
-            } else {
-                $targetFile = $instanceBasePath . $file;
-            }
+            $targetFile = $instanceBasePath . $file;
             
             $targetDir = dirname($targetFile);
             
@@ -138,8 +132,7 @@ function performAjaxUpdate() {
             
             // Datei kopieren
             if (copy($sourceFile, $targetFile)) {
-                $actualFileName = ($file === 'robust_instance_index.php') ? 'index.php' : $file;
-                $instanceLog[] = ['file' => $actualFileName, 'status' => 'success', 'message' => 'Aktualisiert'];
+                $instanceLog[] = ['file' => $file, 'status' => 'success', 'message' => 'Aktualisiert'];
                 $instanceUpdated++;
             } else {
                 $instanceLog[] = ['file' => $file, 'status' => 'error', 'message' => 'Kopieren fehlgeschlagen'];

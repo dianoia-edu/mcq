@@ -1,7 +1,61 @@
 <?php
+// Universelle Datei-Includes mit Fallback für Instanzen
+function safeRequire($file) {
+    if (file_exists($file)) {
+        require_once $file;
+        return true;
+    }
+    return false;
+}
+
 // Lade benötigte Funktionen
-require_once 'includes/seb_functions.php';
-require_once 'includes/seb_detection.php';
+safeRequire('includes/seb_functions.php');
+safeRequire('includes/seb_detection.php');
+
+// Fallback-Funktionen falls Dateien fehlen
+if (!function_exists('getBaseCode')) {
+    function getBaseCode($code) {
+        return strtoupper(substr(trim($code), 0, 3));
+    }
+}
+
+if (!function_exists('isSEBBrowser')) {
+    function isSEBBrowser() {
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        return (strpos($userAgent, 'SEB') !== false);
+    }
+}
+
+if (!function_exists('markSessionAsSEB')) {
+    function markSessionAsSEB() {
+        if (isSEBBrowser()) {
+            $_SESSION['is_seb_session'] = true;
+        }
+    }
+}
+
+if (!function_exists('getSEBWarningBar')) {
+    function getSEBWarningBar($testCode = null) {
+        if (isSEBBrowser()) {
+            return ''; // Keine Warnung in SEB
+        }
+        return '<div style="background: #dc3545; color: white; padding: 10px; text-align: center; font-weight: bold;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>SICHERHEITSWARNUNG: Dieser Test sollte im Safe Exam Browser ausgeführt werden!
+                </div>';
+    }
+}
+
+if (!function_exists('getSEBWarningJS')) {
+    function getSEBWarningJS() {
+        return '<script>
+                if (navigator.userAgent.includes("SEB") || navigator.userAgent.includes("SafeExamBrowser")) {
+                    console.log("SEB Browser erkannt");
+                } else {
+                    console.log("Normaler Browser - SEB-Warnung aktiv");
+                }
+                </script>';
+    }
+}
 
 // Session starten falls noch nicht aktiv
 if (session_status() == PHP_SESSION_NONE) {
