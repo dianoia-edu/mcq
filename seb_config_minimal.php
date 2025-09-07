@@ -88,9 +88,31 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>sebLocalSettingsEnabled</key>
     <false/>
     
+    <!-- ========================================== -->
+    <!-- SERVER SETTINGS (DISABLE ALL)             -->
+    <!-- ========================================== -->
+    
+    <!-- NO SEB SERVER -->
+    <key>sebServerConfiguration</key>
+    <string></string>
+    <key>sebServerURL</key>
+    <string></string>
+    <key>sebServerFallback</key>
+    <false/>
+    <key>sebServerFallbackAttemptInterval</key>
+    <integer>0</integer>
+    <key>sebServerFallbackAttempts</key>
+    <integer>0</integer>
+    <key>sebServerFallbackPasswordHash</key>
+    <string></string>
+    <key>sebServerFallbackTimeout</key>
+    <integer>0</integer>
+    
     <!-- NO LOGGING -->
     <key>enableLogging</key>
     <false/>
+    <key>logLevel</key>
+    <integer>0</integer>
     
     <!-- NO WARNINGS -->
     <key>showReloadWarning</key>

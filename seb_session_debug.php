@@ -20,8 +20,10 @@
         $baseUrl = rtrim($baseUrl, '/');
         
         echo '<div class="alert alert-danger">';
-        echo '<h6><i class="bi bi-exclamation-triangle me-2"></i>SEB Fehler: "Konnte keine neue Sitzung starten"</h6>';
-        echo '<p><strong>Log-Datei:</strong> C:\Users\kaaag\AppData\Local\SafeExamBrowser\Logs\2025-09-07_10h22m04s_Runtime.log</p>';
+        echo '<h6><i class="bi bi-exclamation-triangle me-2"></i>SEB Fehler IDENTIFIZIERT: NullReferenceException in ServerOperation</h6>';
+        echo '<p><strong>Problem:</strong> SEB versucht einen Server zu initialisieren, aber Server-URL ist null/leer</p>';
+        echo '<p><strong>Log-Datei:</strong> C:\Users\kaaag\AppData\Local\SafeExamBrowser\Logs\2025-09-07_10h26m55s_Runtime.log</p>';
+        echo '<p><strong>Fehler-Zeile:</strong> SafeExamBrowser.Server.Sanitizer.Sanitize(String serverUrl) - Der Objektverweis wurde nicht auf eine Objektinstanz festgelegt</p>';
         echo '<p><strong>Test-Code:</strong> ' . htmlspecialchars($testCode) . '</p>';
         echo '</div>';
         ?>
@@ -72,14 +74,29 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6><i class="bi bi-star-fill me-2"></i>Ultra Minimal</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted"><strong>LÖSUNG für ServerOperation Fehler</strong></p>
+                                        <a href="seb_config_ultra_minimal.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-success w-100" target="_blank">
+                                            <i class="bi bi-download me-2"></i>Ultra Minimal testen
+                                        </a>
+                                        <small class="text-success mt-2 d-block">✅ Behebt NullReferenceException</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
                                 <div class="card">
                                     <div class="card-header bg-light">
                                         <h6><i class="bi bi-circle me-2"></i>Minimal Config</h6>
                                     </div>
                                     <div class="card-body">
-                                        <p class="text-muted">Absolut minimale Einstellungen</p>
-                                        <a href="seb_config_minimal.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-success w-100" target="_blank">
+                                        <p class="text-muted">Minimale Einstellungen mit Server-Disable</p>
+                                        <a href="seb_config_minimal.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-outline-success w-100" target="_blank">
                                             <i class="bi bi-download me-2"></i>Minimal testen
                                         </a>
                                     </div>
