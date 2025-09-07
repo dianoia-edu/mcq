@@ -23,29 +23,81 @@ require_once 'check_test_attempts.php';
 // Lade Konfiguration - Anpassung, da config.php nicht mehr existiert
 // $config = loadConfig();
 
+// DEBUG: Session-Variablen anzeigen
+echo '<div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; margin: 10px; border-radius: 5px;">';
+echo '<h4>🔍 DEBUG: Session-Variablen in test.php</h4>';
+echo '<pre>' . print_r($_SESSION, true) . '</pre>';
+echo '</div>';
+
 // Überprüfe alle erforderlichen Session-Variablen
 $requiredSessionVars = ["test_file", "test_code", "student_name"];
 foreach ($requiredSessionVars as $var) {
     if (!isset($_SESSION[$var])) {
+        echo '<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; margin: 10px; border-radius: 5px;">';
+        echo '<h4>❌ FEHLER: Fehlende Session-Variable</h4>';
+        echo '<p>Variable: <strong>' . htmlspecialchars($var) . '</strong></p>';
+        echo '<p>Alle Session-Variablen: <pre>' . print_r($_SESSION, true) . '</pre></p>';
+        echo '<p>Weiterleitung zur Startseite in 5 Sekunden...</p>';
+        echo '<script>setTimeout(function() { window.location.href = "index.php?code=' . urlencode($_SESSION['test_code'] ?? '') . '"; }, 5000);</script>';
+        echo '</div>';
+        
         error_log("Fehlende Session-Variable in test.php: " . $var);
         error_log("Session-Variablen: " . print_r($_SESSION, true));
         $_SESSION['error'] = "Bitte geben Sie zuerst Ihren Namen ein.";
-        header("Location: index.php?code=" . urlencode($_SESSION['test_code']));
         exit();
     }
 }
 
 // Überprüfe, ob die Testdatei existiert
+echo '<div style="background: #d1ecf1; border: 1px solid #bee5eb; padding: 10px; margin: 10px; border-radius: 5px;">';
+echo '<h4>🔍 DEBUG: Testdatei-Prüfung</h4>';
+echo '<p>Testdatei: <strong>' . htmlspecialchars($_SESSION["test_file"]) . '</strong></p>';
+echo '<p>Existiert: <strong>' . (file_exists($_SESSION["test_file"]) ? 'JA' : 'NEIN') . '</strong></p>';
+echo '</div>';
+
 if (!file_exists($_SESSION["test_file"])) {
+    echo '<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; margin: 10px; border-radius: 5px;">';
+    echo '<h4>❌ FEHLER: Testdatei nicht gefunden</h4>';
+    echo '<p>Datei: <strong>' . htmlspecialchars($_SESSION["test_file"]) . '</strong></p>';
+    echo '<p>Weiterleitung zur Startseite in 5 Sekunden...</p>';
+    echo '<script>setTimeout(function() { window.location.href = "index.php"; }, 5000);</script>';
+    echo '</div>';
+    
     $_SESSION["error"] = "Der ausgewählte Test ist nicht mehr verfügbar.";
-    header("Location: index.php");
     exit();
 }
 
 // Überprüfe, ob der Test bereits absolviert wurde
-if (hasCompletedTestToday($_SESSION["test_code"], $_SESSION["student_name"])) {
+echo '<div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; margin: 10px; border-radius: 5px;">';
+echo '<h4>🔍 DEBUG: Test-Wiederholungsprüfung</h4>';
+echo '<p>Test-Code: <strong>' . htmlspecialchars($_SESSION["test_code"]) . '</strong></p>';
+echo '<p>Student: <strong>' . htmlspecialchars($_SESSION["student_name"]) . '</strong></p>';
+
+$completedToday = hasCompletedTestToday($_SESSION["test_code"], $_SESSION["student_name"]);
+echo '<p>Bereits heute absolviert: <strong>' . ($completedToday ? 'JA' : 'NEIN') . '</strong></p>';
+
+// Zeige Konfiguration
+$configFile = __DIR__ . '/config/app_config.json';
+if (file_exists($configFile)) {
+    $config = json_decode(file_get_contents($configFile), true);
+    echo '<p>Konfiguration gefunden:</p>';
+    echo '<pre>' . print_r($config, true) . '</pre>';
+} else {
+    echo '<p>Keine Konfigurationsdatei gefunden (Standard: Test-Wiederholung erlaubt)</p>';
+}
+echo '</div>';
+
+if ($completedToday) {
+    echo '<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; margin: 10px; border-radius: 5px;">';
+    echo '<h4>⚠️ WARNUNG: Test bereits heute absolviert</h4>';
+    echo '<p>Dieser Test wurde heute bereits durchgeführt.</p>';
+    echo '<p>Test-Code: <strong>' . htmlspecialchars($_SESSION["test_code"]) . '</strong></p>';
+    echo '<p>Student: <strong>' . htmlspecialchars($_SESSION["student_name"]) . '</strong></p>';
+    echo '<p>Weiterleitung zur Startseite in 5 Sekunden...</p>';
+    echo '<script>setTimeout(function() { window.location.href = "index.php"; }, 5000);</script>';
+    echo '</div>';
+    
     $_SESSION["error"] = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
-    header("Location: index.php");
     exit();
 }
 
