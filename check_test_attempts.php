@@ -90,6 +90,16 @@ function getBaseCode($testCode) {
  * @return bool True wenn der Test heute bereits absolviert wurde, sonst False
  */
 function hasCompletedTestToday($testCode, $studentName = null) {
+    // DEBUG: Zeige was passiert
+    error_log("=== hasCompletedTestToday aufgerufen ===");
+    error_log("Test-Code: " . $testCode);
+    error_log("Student: " . ($studentName ?? 'null'));
+    
+    // KOMPLETT DEAKTIVIERT: Erlaube immer Testdurchführung
+    error_log("Test-Wiederholungsprüfung KOMPLETT DEAKTIVIERT - Erlaube IMMER Testdurchführung");
+    return false;
+    
+    /* ALTE LOGIK AUSKOMMENTIERT - NUR FÜR REFERENZ
     // Überprüfe, ob die tägliche Test-Begrenzung deaktiviert wurde
     $configFile = dirname(__FILE__) . '/config/app_config.json';
     $dailyLimitEnabled = false; // STANDARD: Limit deaktiviert
@@ -112,63 +122,7 @@ function hasCompletedTestToday($testCode, $studentName = null) {
         error_log("Tägliche Test-Begrenzung standardmäßig deaktiviert - Erlaube Testdurchführung");
         return false;
     }
-    
-    // Admin-Modus: Erlaube unbegrenzte Versuche
-    if (isAdminCode($testCode)) {
-        error_log("Admin-Modus erkannt für Code: $testCode - Erlaube Testdurchführung");
-        return false;
-    }
-
-    // 1. Überprüfe Cookie
-    $cookieName = getTestCookieName($testCode);
-    $today = date('Y-m-d');
-    
-    if (isset($_COOKIE[$cookieName])) {
-        $cookieData = json_decode($_COOKIE[$cookieName], true);
-        
-        // Überprüfe, ob das Cookie für heute gilt und die Daten stimmen
-        if (isset($cookieData['date']) && $cookieData['date'] === $today) {
-            error_log("Cookie gefunden für Test $testCode: Test wurde heute bereits absolviert");
-            return true;
-        }
-    }
-    
-    // 2. Überprüfe JSON-Datei als Backup
-    $attemptsFile = 'test_attempts.json';
-    
-    // Wenn die Datei nicht existiert, wurde der Test noch nicht absolviert
-    if (!file_exists($attemptsFile)) {
-        return false;
-    }
-    
-    // Lade die Versuche
-    $attempts = json_decode(file_get_contents($attemptsFile), true);
-    if (!$attempts || !isset($attempts[$testCode])) {
-        return false;
-    }
-    
-    // Erstelle Identifikatoren für die Überprüfung
-    $clientId = getClientIdentifier();
-    $studentId = $studentName ? getStudentIdentifier($studentName) : null;
-    
-    // Prüfe, ob der Test heute bereits absolviert wurde
-    foreach ($attempts[$testCode] as $attempt) {
-        if ($attempt['date'] === $today) {
-            // Überprüfe anhand des Client-Identifikators
-            if (isset($attempt['client_id']) && $attempt['client_id'] === $clientId) {
-                error_log("Client-ID Match gefunden für Test $testCode: Test wurde heute bereits absolviert");
-                return true;
-            }
-            
-            // Wenn ein Schülername angegeben wurde, überprüfe auch diesen
-            if ($studentId && isset($attempt['student_id']) && $attempt['student_id'] === $studentId) {
-                error_log("Student-ID Match gefunden für Test $testCode: Test wurde heute bereits absolviert");
-                return true;
-            }
-        }
-    }
-    
-    return false;
+    */
 }
 
 /**
