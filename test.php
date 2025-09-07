@@ -37,8 +37,8 @@ foreach ($requiredSessionVars as $var) {
         echo '<h4>❌ FEHLER: Fehlende Session-Variable</h4>';
         echo '<p>Variable: <strong>' . htmlspecialchars($var) . '</strong></p>';
         echo '<p>Alle Session-Variablen: <pre>' . print_r($_SESSION, true) . '</pre></p>';
-        echo '<p>Weiterleitung zur Startseite in 5 Sekunden...</p>';
-        echo '<script>setTimeout(function() { window.location.href = "index.php?code=' . urlencode($_SESSION['test_code'] ?? '') . '"; }, 5000);</script>';
+        echo '<p>Weiterleitung zur Startseite in 15 Sekunden...</p>';
+        echo '<script>setTimeout(function() { window.location.href = "index.php?code=' . urlencode($_SESSION['test_code'] ?? '') . '"; }, 15000);</script>';
         echo '</div>';
         
         error_log("Fehlende Session-Variable in test.php: " . $var);
@@ -59,8 +59,8 @@ if (!file_exists($_SESSION["test_file"])) {
     echo '<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; margin: 10px; border-radius: 5px;">';
     echo '<h4>❌ FEHLER: Testdatei nicht gefunden</h4>';
     echo '<p>Datei: <strong>' . htmlspecialchars($_SESSION["test_file"]) . '</strong></p>';
-    echo '<p>Weiterleitung zur Startseite in 5 Sekunden...</p>';
-    echo '<script>setTimeout(function() { window.location.href = "index.php"; }, 5000);</script>';
+    echo '<p>Weiterleitung zur Startseite in 15 Sekunden...</p>';
+    echo '<script>setTimeout(function() { window.location.href = "index.php"; }, 15000);</script>';
     echo '</div>';
     
     $_SESSION["error"] = "Der ausgewählte Test ist nicht mehr verfügbar.";
@@ -93,13 +93,36 @@ if ($completedToday) {
     echo '<p>Dieser Test wurde heute bereits durchgeführt.</p>';
     echo '<p>Test-Code: <strong>' . htmlspecialchars($_SESSION["test_code"]) . '</strong></p>';
     echo '<p>Student: <strong>' . htmlspecialchars($_SESSION["student_name"]) . '</strong></p>';
-    echo '<p>Weiterleitung zur Startseite in 5 Sekunden...</p>';
-    echo '<script>setTimeout(function() { window.location.href = "index.php"; }, 5000);</script>';
+    echo '<p>Weiterleitung zur Startseite in 15 Sekunden...</p>';
+    echo '<script>setTimeout(function() { window.location.href = "index.php"; }, 15000);</script>';
     echo '</div>';
     
     $_SESSION["error"] = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
     exit();
 }
+
+// DEBUG: SUCCESS - Alle Prüfungen bestanden
+echo '<div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; margin: 10px; border-radius: 5px;">';
+echo '<h4>✅ ERFOLG: Alle Prüfungen bestanden</h4>';
+echo '<p>Der Test kann nun gestartet werden!</p>';
+echo '<p>Test-Code: <strong>' . htmlspecialchars($_SESSION["test_code"]) . '</strong></p>';
+echo '<p>Student: <strong>' . htmlspecialchars($_SESSION["student_name"]) . '</strong></p>';
+echo '<p>Testdatei: <strong>' . htmlspecialchars($_SESSION["test_file"]) . '</strong></p>';
+echo '<p>Session-ID: <strong>' . session_id() . '</strong></p>';
+echo '<p><button onclick="window.debugStopped=true; alert(\'Debug gestoppt! Schauen Sie sich die Ausgaben in Ruhe an.\');" style="background: #ffc107; border: none; padding: 10px 20px; border-radius: 5px;">🛑 DEBUG STOPPEN</button></p>';
+echo '<p><em>Wenn der Test nicht lädt, gibt es einen anderen Fehler weiter unten...</em></p>';
+echo '</div>';
+
+// DEBUG: Stopp-Mechanismus hinzufügen
+echo '<script>
+var debugStopped = false;
+setInterval(function() {
+    if (debugStopped) {
+        console.log("Debug gestoppt - keine automatischen Weiterleitungen");
+        return;
+    }
+}, 1000);
+</script>';
 
 // Lade die Konfiguration
 $config = [];
