@@ -459,7 +459,7 @@ if (!isset($_GET['code'])) {
                                 $host = $_SERVER['HTTP_HOST'];
                                 $currentPath = $_SERVER['REQUEST_URI'];
                                 $baseUrl = $protocol . $host . dirname($currentPath);
-                                $qrCodeUrl = $baseUrl . "/index.php?seb=true";
+                                $qrCodeUrl = $baseUrl . "/index.php";
                                 
                                 // Temporäres Verzeichnis für QR-Code-Dateien erstellen, falls nicht vorhanden
                                 $qrCodeDir = __DIR__ . '/temp_qrcodes';

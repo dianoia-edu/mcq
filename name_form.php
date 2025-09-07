@@ -163,6 +163,18 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
             background-color: #0b5ed7;
             transform: translateY(-2px);
         }
+        
+        /* SEB-spezifische Button-Farbe */
+        .submit-btn.seb-mode {
+            background-color: #fd7e14;
+            border-color: #fd7e14;
+        }
+        
+        .submit-btn.seb-mode:hover {
+            background-color: #e8620c;
+            border-color: #e8620c;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -197,6 +209,22 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    // SEB-Erkennung für Button-Styling
+    document.addEventListener('DOMContentLoaded', function() {
+        const userAgent = navigator.userAgent;
+        const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+        const startBtn = document.getElementById('startTestBtn');
+        
+        if (isSEB) {
+            // Orange SEB-Button-Style
+            startBtn.classList.add('seb-mode');
+            startBtn.innerHTML = '<i class="bi bi-shield-lock me-2"></i>Sicherer SEB-Test starten';
+            console.log('🔒 SEB erkannt - Button auf Orange gesetzt');
+        } else {
+            console.log('🌐 Normaler Browser - Standard Button-Farbe');
+        }
+    });
+    
     function startTest() {
         var name = document.getElementById('student_name').value.trim();
         var code = document.getElementById('test_code').value;
@@ -216,6 +244,11 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
         const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
         
         console.log('🎯 Test-Start:', isSEB ? 'SEB erkannt' : 'Normaler Browser');
+        
+        // Button-Farbe für SEB-Modus anpassen
+        if (isSEB) {
+            btn.innerHTML = '<i class="bi bi-shield-check me-2"></i>SEB-Test wird gestartet...';
+        }
         
         // Session-Setup per AJAX vor Test-Start
         fetch('setup_test_session.php', {

@@ -18,7 +18,7 @@ $baseUrl = rtrim($baseUrl, '/');
 
 // Verschiedene SEB-URL-Schemas
 $sebConfigUrl = $baseUrl . '/seb_config.php?code=' . urlencode($testCode);
-$nameFormUrl = $baseUrl . '/name_form.php?code=' . urlencode($testCode) . '&seb=true';
+$nameFormUrl = $baseUrl . '/name_form.php?code=' . urlencode($testCode);
 
 // SEB-URL-Schemas (verschiedene Varianten)
 $sebSchemas = [

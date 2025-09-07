@@ -3078,7 +3078,7 @@ function showSEBQRCode(accessCode, title) {
     
     // EMBEDDED SEB-KONFIGURATION - EIN QR-CODE FÜR ALLES
     const sebConfigFlexibleUrl = baseUrl + 'seb_config_override_server.php?code=' + accessCode;
-    const nameFormUrl = baseUrl + 'name_form.php?code=' + accessCode + '&seb=true';
+    const nameFormUrl = baseUrl + 'name_form.php?code=' + accessCode;
     
     // KORREKTE EMBEDDED CONFIG URLs (sebs:// Schema für HTTPS) - SERVER OVERRIDE CONFIG
     const host = window.location.host;

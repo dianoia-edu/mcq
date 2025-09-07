@@ -402,11 +402,11 @@ if (isset($_GET['code'])) {
                         alert('Bitte geben Sie Ihren Namen ein.');
                         return;
                     }
-                    // Verwende die reparierte SEB-Konfiguration
+                    // Verwende SEB-URL Schema für automatischen Start (wie bei QR-Code)
                     var baseUrl = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>';
                     var configUrl = baseUrl + '/seb_config_override_server.php?code=' + code;
-                    // Lade SEB-Config direkt (Standalone-Modus)
-                    window.location.href = configUrl;
+                    // Automatischer SEB-Start über URL-Schema
+                    window.location.href = 'sebs://' + configUrl.replace('https://', '').replace('http://', '');
                 };
                 </script>
             </body>
@@ -718,7 +718,7 @@ else {
                             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
                             $host = $_SERVER['HTTP_HOST'];
                             $baseUrl = $protocol . $host . dirname($_SERVER['PHP_SELF']);
-                            $qrCodeUrl = $baseUrl . "/index.php?seb=true";
+                            $qrCodeUrl = $baseUrl . "/index.php";
                             
                             // Temporäres Verzeichnis für QR-Code-Dateien erstellen, falls nicht vorhanden
                             $qrCodeDir = __DIR__ . '/temp_qrcodes';
