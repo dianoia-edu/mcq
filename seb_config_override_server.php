@@ -55,24 +55,13 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>configPurpose</key>
     <integer>0</integer>
     
-    <!-- ===== GÜLTIGE SERVER-URL (TEST-PFAD) ===== -->
-    
-    <key>sebServerURL</key>
-    <string>' . htmlspecialchars($baseUrl . dirname($_SERVER['PHP_SELF']) . '/seb_server_api.php') . '</string>
-    
-    <key>sebServerFallback</key>
-    <false/>
-    
-    <key>sebServiceIgnore</key>
-    <true/>
-    
-    <key>sebServicePolicy</key>
-    <integer>0</integer>
-    
-    <!-- ===== SERVER-VERBINDUNG KOMPLETT DEAKTIVIEREN ===== -->
+    <!-- ===== SERVER KOMPLETT DEAKTIVIERT ===== -->
     
     <key>sebServerEnabled</key>
     <false/>
+    
+    <key>sebServicePolicy</key>
+    <integer>0</integer>
     
     <key>allowReconfiguration</key>
     <true/>
@@ -127,14 +116,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <!-- ===== METADATA ===== -->
     
     <key>originatorName</key>
-    <string>MCQ Test - Valid Server URL</string>
+    <string>MCQ Test - Server Disabled</string>
     
 </dict>
 </plist>';
 
 // Content-Type für .seb Datei setzen
 header('Content-Type: application/seb');
-header('Content-Disposition: attachment; filename="' . $testCode . '_dummy_api.seb"');
+header('Content-Disposition: attachment; filename="' . $testCode . '_server_disabled.seb"');
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: 0');
 
