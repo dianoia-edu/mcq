@@ -3243,57 +3243,77 @@ function setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebS
         });
     });
     
-    // SEB-Datei herunterladen (mit Event-Delegation)
-    $('#sebQrCodeModal').off('click', '.download-seb-btn').on('click', '.download-seb-btn', function() {
-        console.log('💾 SEB-Datei herunterladen für:', accessCode);
-        const sebDownloadUrl = baseUrl + 'seb_config_flexible.php?code=' + accessCode;
-        console.log('🔗 SEB-Download-URL:', sebDownloadUrl);
-        window.open(sebDownloadUrl, '_blank');
-    });
-    
-    // QR-Code speichern (mit Event-Delegation)
-    $('#sebQrCodeModal').off('click', '.save-seb-qr-btn').on('click', '.save-seb-qr-btn', function() {
-        // Versuche QR-Code aus dem Canvas zu holen (wenn QRCode.js verwendet wird)
-        const qrCanvas = $('#sebQrcodeMain canvas').get(0);
-        if (qrCanvas) {
-            // Canvas zu Blob konvertieren und downloaden
-            qrCanvas.toBlob(function(blob) {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'seb_qrcode_' + accessCode + '.png';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showSuccessMessage('SEB-QR-Code wurde als Bild gespeichert!');
-            });
-        } else {
-            // Fallback: Wenn Bild-Element vorhanden ist
-            const qrImg = $('#sebQrcodeMain img').attr('src');
-            if (qrImg) {
-                const a = document.createElement('a');
-                a.href = qrImg;
-                a.download = 'seb_qrcode_' + accessCode + '.png';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                showSuccessMessage('SEB-QR-Code wurde als Bild gespeichert!');
-            } else {
-                console.error('❌ Kein QR-Code zum Speichern gefunden');
-                alert('Fehler: QR-Code konnte nicht gefunden werden.');
-            }
-        }
-    });
-    
-    // SEB-Einschränkungen anzeigen (mit Event-Delegation)
-    $('#sebQrCodeModal').off('click', '.seb-restrictions-btn').on('click', '.seb-restrictions-btn', function() {
-        console.log('🔒 Zeige SEB-Einschränkungen für:', accessCode);
-        const previewUrl = baseUrl + 'seb_config_preview.php?code=' + accessCode;
-        console.log('🔗 SEB-Preview-URL:', previewUrl);
-        window.open(previewUrl, '_blank');
-    });
 }
+
+// GLOBALE SEB-MODAL EVENT-HANDLER (Event-Delegation)
+// SEB-Datei herunterladen
+$(document).on('click', '.download-seb-btn', function() {
+    // AccessCode aus dem Modal extrahieren
+    const modalAccessCode = $('#sebTestUrlInput').val().match(/code=([^&]+)/);
+    const extractedCode = modalAccessCode ? modalAccessCode[1] : 'TEST';
+    
+    console.log('💾 SEB-Datei herunterladen für:', extractedCode);
+    // BaseUrl dynamisch ermitteln
+    const currentBaseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
+    const sebDownloadUrl = currentBaseUrl + 'seb_config_flexible.php?code=' + extractedCode;
+    console.log('🔗 SEB-Download-URL:', sebDownloadUrl);
+    window.open(sebDownloadUrl, '_blank');
+});
+
+// SEB-Einschränkungen anzeigen
+$(document).on('click', '.seb-restrictions-btn', function() {
+    // AccessCode aus dem Modal extrahieren
+    const modalAccessCode = $('#sebTestUrlInput').val().match(/code=([^&]+)/);
+    const extractedCode = modalAccessCode ? modalAccessCode[1] : 'TEST';
+    
+    console.log('🔒 Zeige SEB-Einschränkungen für:', extractedCode);
+    // BaseUrl dynamisch ermitteln
+    const currentBaseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
+    const previewUrl = currentBaseUrl + 'seb_config_preview.php?code=' + extractedCode;
+    console.log('🔗 SEB-Preview-URL:', previewUrl);
+    window.open(previewUrl, '_blank');
+});
+
+// QR-Code speichern
+$(document).on('click', '.save-seb-qr-btn', function() {
+    // AccessCode aus dem Modal extrahieren
+    const modalAccessCode = $('#sebTestUrlInput').val().match(/code=([^&]+)/);
+    const extractedCode = modalAccessCode ? modalAccessCode[1] : 'TEST';
+    
+    console.log('💾 QR-Code speichern für:', extractedCode);
+    
+    // Versuche QR-Code aus dem Canvas zu holen (wenn QRCode.js verwendet wird)
+    const qrCanvas = $('#sebQrcodeMain canvas').get(0);
+    if (qrCanvas) {
+        // Canvas zu Blob konvertieren und downloaden
+        qrCanvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'seb_qrcode_' + extractedCode + '.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showSuccessMessage('SEB-QR-Code wurde als Bild gespeichert!');
+        });
+    } else {
+        // Fallback: Wenn Bild-Element vorhanden ist
+        const qrImg = $('#sebQrcodeMain img').attr('src');
+        if (qrImg) {
+            const a = document.createElement('a');
+            a.href = qrImg;
+            a.download = 'seb_qrcode_' + extractedCode + '.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showSuccessMessage('SEB-QR-Code wurde als Bild gespeichert!');
+        } else {
+            console.error('❌ Kein QR-Code zum Speichern gefunden');
+            alert('Fehler: QR-Code konnte nicht gefunden werden.');
+        }
+    }
+});
 
 // Event-Handler für "Test bearbeiten" Button (Test-Vorschau Modal)
 $(document).on('click', '#editGeneratedTest', function() {
