@@ -1,7 +1,7 @@
 <?php
 /**
- * ULTRA-MINIMALE SEB-Konfiguration
- * Löst NullReferenceException in ServerOperation
+ * SEB-Konfiguration OHNE SERVER-KOMPONENTEN
+ * Verhindert alle Server-bezogenen Operationen
  */
 
 require_once __DIR__ . '/includes/seb_functions.php';
@@ -38,52 +38,67 @@ if (!$testFile || !file_exists($testFile)) {
 $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
 $testUrl = $baseUrl . dirname($_SERVER['PHP_SELF']) . '/name_form.php?code=' . urlencode($testCode) . '&seb=true';
 
-// ULTRA-MINIMAL SEB-Konfiguration (nur absolut notwendige Settings)
+// SEB-Konfiguration OHNE jegliche Server-Komponenten
 $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     
-    <!-- START URL (PFLICHT) -->
+    <!-- ===== BASIC EXAM SETTINGS ONLY ===== -->
+    
     <key>startURL</key>
     <string>' . htmlspecialchars($testUrl) . '</string>
     
-    <!-- EXAM MODE (PFLICHT) -->
     <key>sebMode</key>
     <integer>1</integer>
+    
     <key>configPurpose</key>
     <integer>0</integer>
     
-    <!-- QUIT SETTINGS (PFLICHT) -->
+    <!-- ===== QUIT SETTINGS ===== -->
+    
     <key>allowQuit</key>
     <true/>
+    
     <key>hashedQuitPassword</key>
     <string>' . hash('sha256', 'admin123') . '</string>
     
-    <!-- DISABLE ALL OPTIONAL FEATURES -->
+    <!-- ===== MINIMAL BROWSER RESTRICTIONS ===== -->
+    
     <key>URLFilterEnable</key>
     <false/>
+    
+    <key>browserWindowAllowReload</key>
+    <false/>
+    
+    <key>browserWindowShowURL</key>
+    <false/>
+    
+    <!-- ===== DISABLE ALL OPTIONAL FEATURES ===== -->
+    
     <key>enableLogging</key>
     <false/>
+    
     <key>showReloadWarning</key>
     <false/>
+    
     <key>showQuitWarning</key>
     <false/>
+    
     <key>sebRequiresAdminRights</key>
     <false/>
     
-    <!-- COMPLETE SERVER DISABLE (NO SERVER SETTINGS AT ALL) -->
+    <!-- ===== BASIC METADATA ===== -->
     
-    <!-- BASIC INFO -->
     <key>originatorName</key>
-    <string>MCQ Test - Ultra Minimal</string>
+    <string>MCQ Test - No Server</string>
     
 </dict>
 </plist>';
 
 // Content-Type für .seb Datei setzen
 header('Content-Type: application/seb');
-header('Content-Disposition: attachment; filename="' . $testCode . '_ultra_minimal.seb"');
+header('Content-Disposition: attachment; filename="' . $testCode . '_no_server.seb"');
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: 0');
 

@@ -3077,13 +3077,13 @@ function showSEBQRCode(accessCode, title) {
     const sebConfigUrl = baseUrl + 'seb_config.php?code=' + accessCode;
     
     // EMBEDDED SEB-KONFIGURATION - EIN QR-CODE FÜR ALLES
-    const sebConfigFlexibleUrl = baseUrl + 'seb_config_ultra_minimal.php?code=' + accessCode;
+    const sebConfigFlexibleUrl = baseUrl + 'seb_config_override_server.php?code=' + accessCode;
     const nameFormUrl = baseUrl + 'name_form.php?code=' + accessCode + '&seb=true';
     
-    // KORREKTE EMBEDDED CONFIG URLs (sebs:// Schema für HTTPS) - ULTRA MINIMAL CONFIG
+    // KORREKTE EMBEDDED CONFIG URLs (sebs:// Schema für HTTPS) - SERVER OVERRIDE CONFIG
     const host = window.location.host;
     const path = window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
-    const sebsEmbeddedUrl = 'sebs://' + host + path + 'seb_config_ultra_minimal.php?code=' + accessCode;
+    const sebsEmbeddedUrl = 'sebs://' + host + path + 'seb_config_override_server.php?code=' + accessCode;
     
     // ALTERNATIVE URLS
     const sebDirectUrl = 'seb://' + encodeURIComponent(sebConfigFlexibleUrl);     // Fallback HTTP
@@ -3255,7 +3255,7 @@ $(document).on('click', '.download-seb-btn', function() {
     console.log('💾 SEB-Datei herunterladen für:', extractedCode);
     // BaseUrl dynamisch ermitteln
     const currentBaseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
-        const sebDownloadUrl = currentBaseUrl + 'seb_config_ultra_minimal.php?code=' + extractedCode;
+        const sebDownloadUrl = currentBaseUrl + 'seb_config_override_server.php?code=' + extractedCode;
     console.log('🔗 SEB-Download-URL:', sebDownloadUrl);
     window.open(sebDownloadUrl, '_blank');
 });

@@ -1,7 +1,7 @@
 <?php
 /**
- * ULTRA-MINIMALE SEB-Konfiguration
- * Löst NullReferenceException in ServerOperation
+ * SEB-Konfiguration MIT EXPLIZITER SERVER-ÜBERSCHREIBUNG
+ * Überschreibt alle Server-Einstellungen aus SebClientSettings.seb
  */
 
 require_once __DIR__ . '/includes/seb_functions.php';
@@ -38,52 +38,104 @@ if (!$testFile || !file_exists($testFile)) {
 $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
 $testUrl = $baseUrl . dirname($_SERVER['PHP_SELF']) . '/name_form.php?code=' . urlencode($testCode) . '&seb=true';
 
-// ULTRA-MINIMAL SEB-Konfiguration (nur absolut notwendige Settings)
+// SEB-Konfiguration MIT EXPLIZITER SERVER-ÜBERSCHREIBUNG
 $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     
-    <!-- START URL (PFLICHT) -->
+    <!-- ===== BASIC EXAM SETTINGS ===== -->
+    
     <key>startURL</key>
     <string>' . htmlspecialchars($testUrl) . '</string>
     
-    <!-- EXAM MODE (PFLICHT) -->
     <key>sebMode</key>
     <integer>1</integer>
+    
     <key>configPurpose</key>
     <integer>0</integer>
     
-    <!-- QUIT SETTINGS (PFLICHT) -->
+    <!-- ===== OVERRIDE SERVER SETTINGS FROM CLIENT CONFIG ===== -->
+    
+    <key>sebServerConfiguration</key>
+    <string>-</string>
+    
+    <key>sebServerURL</key>
+    <string>-</string>
+    
+    <key>sebServerFallback</key>
+    <false/>
+    
+    <key>sebServerFallbackAttemptInterval</key>
+    <integer>0</integer>
+    
+    <key>sebServerFallbackAttempts</key>
+    <integer>0</integer>
+    
+    <key>sebServerFallbackPasswordHash</key>
+    <string>-</string>
+    
+    <key>sebServerFallbackTimeout</key>
+    <integer>0</integer>
+    
+    <!-- ===== DISABLE SERVER OPERATIONS ===== -->
+    
+    <key>sebServiceIgnore</key>
+    <true/>
+    
+    <key>sebServicePolicy</key>
+    <integer>0</integer>
+    
+    <!-- ===== QUIT SETTINGS ===== -->
+    
     <key>allowQuit</key>
     <true/>
+    
     <key>hashedQuitPassword</key>
     <string>' . hash('sha256', 'admin123') . '</string>
     
-    <!-- DISABLE ALL OPTIONAL FEATURES -->
+    <!-- ===== MINIMAL BROWSER RESTRICTIONS ===== -->
+    
     <key>URLFilterEnable</key>
     <false/>
+    
+    <key>browserWindowAllowReload</key>
+    <false/>
+    
+    <key>browserWindowShowURL</key>
+    <false/>
+    
+    <!-- ===== DISABLE ALL OPTIONAL FEATURES ===== -->
+    
     <key>enableLogging</key>
     <false/>
+    
     <key>showReloadWarning</key>
     <false/>
+    
     <key>showQuitWarning</key>
     <false/>
+    
     <key>sebRequiresAdminRights</key>
     <false/>
     
-    <!-- COMPLETE SERVER DISABLE (NO SERVER SETTINGS AT ALL) -->
+    <key>allowReconfiguration</key>
+    <true/>
     
-    <!-- BASIC INFO -->
+    <key>forceReconfiguration</key>
+    <false/>
+    
+    <!-- ===== METADATA ===== -->
+    
     <key>originatorName</key>
-    <string>MCQ Test - Ultra Minimal</string>
+    <string>MCQ Test - Server Override</string>
     
 </dict>
 </plist>';
 
 // Content-Type für .seb Datei setzen
 header('Content-Type: application/seb');
-header('Content-Disposition: attachment; filename="' . $testCode . '_ultra_minimal.seb"');
+header('Content-Disposition: attachment; filename="' . $testCode . '_server_override.seb"');
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: 0');
 

@@ -20,10 +20,11 @@
         $baseUrl = rtrim($baseUrl, '/');
         
         echo '<div class="alert alert-danger">';
-        echo '<h6><i class="bi bi-exclamation-triangle me-2"></i>SEB Fehler IDENTIFIZIERT: NullReferenceException in ServerOperation</h6>';
-        echo '<p><strong>Problem:</strong> SEB versucht einen Server zu initialisieren, aber Server-URL ist null/leer</p>';
-        echo '<p><strong>Log-Datei:</strong> C:\Users\kaaag\AppData\Local\SafeExamBrowser\Logs\2025-09-07_10h26m55s_Runtime.log</p>';
-        echo '<p><strong>Fehler-Zeile:</strong> SafeExamBrowser.Server.Sanitizer.Sanitize(String serverUrl) - Der Objektverweis wurde nicht auf eine Objektinstanz festgelegt</p>';
+        echo '<h6><i class="bi bi-exclamation-triangle me-2"></i>SEB Fehler UPDATE: UriFormatException in ServerOperation</h6>';
+        echo '<p><strong>FORTSCHRITT:</strong> NullReference → UriFormat Fehler (SEB versucht Server-URL zu parsen)</p>';
+        echo '<p><strong>Problem:</strong> SEB liest Server-Einstellungen aus SebClientSettings.seb und versucht ungültige URL zu verwenden</p>';
+        echo '<p><strong>Log-Datei:</strong> C:\Users\kaaag\AppData\Local\SafeExamBrowser\Logs\2025-09-07_10h30m03s_Runtime.log</p>';
+        echo '<p><strong>Fehler-Zeile:</strong> System.UriFormatException: Das URI-Format konnte nicht bestimmt werden</p>';
         echo '<p><strong>Test-Code:</strong> ' . htmlspecialchars($testCode) . '</p>';
         echo '</div>';
         ?>
@@ -75,16 +76,31 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="card border-success">
-                                    <div class="card-header bg-success text-white">
-                                        <h6><i class="bi bi-star-fill me-2"></i>Ultra Minimal</h6>
+                                <div class="card border-warning">
+                                    <div class="card-header bg-warning text-white">
+                                        <h6><i class="bi bi-star-fill me-2"></i>Server Override</h6>
                                     </div>
                                     <div class="card-body">
-                                        <p class="text-muted"><strong>LÖSUNG für ServerOperation Fehler</strong></p>
-                                        <a href="seb_config_ultra_minimal.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-success w-100" target="_blank">
-                                            <i class="bi bi-download me-2"></i>Ultra Minimal testen
+                                        <p class="text-muted"><strong>NEUE LÖSUNG für UriFormatException</strong></p>
+                                        <a href="seb_config_override_server.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-warning w-100" target="_blank">
+                                            <i class="bi bi-download me-2"></i>Server Override testen
                                         </a>
-                                        <small class="text-success mt-2 d-block">✅ Behebt NullReferenceException</small>
+                                        <small class="text-warning mt-2 d-block">🔧 Überschreibt Client-Einstellungen</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <h6><i class="bi bi-shield me-2"></i>No Server</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted">Komplett ohne Server-Einstellungen</p>
+                                        <a href="seb_config_no_server.php?code=<?php echo urlencode($testCode); ?>" class="btn btn-info w-100" target="_blank">
+                                            <i class="bi bi-download me-2"></i>No Server testen
+                                        </a>
+                                        <small class="text-info mt-2 d-block">🚫 Keine Server-Komponenten</small>
                                     </div>
                                 </div>
                             </div>
