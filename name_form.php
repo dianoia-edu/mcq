@@ -268,8 +268,8 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
         
         // DIREKTE WEITERLEITUNG OHNE AJAX (für SEB-Kompatibilität)
         if (isSEB) {
-            // SEB: Direkte Weiterleitung zu test.php
-            window.location.href = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name) + '&seb=true';
+            // SEB: Session-Setup über einfachen GET-Request, dann test.php
+            window.location.href = 'setup_test_session.php?student_name=' + encodeURIComponent(name) + '&test_code=' + encodeURIComponent(code) + '&seb=true&redirect=test';
         } else {
             // Browser: AJAX wie bisher
             const btn = document.getElementById('startTestBtn');

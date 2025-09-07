@@ -7,18 +7,34 @@
 // Session starten
 session_start();
 
-// JSON-Header setzen
-header('Content-Type: application/json');
+// Erkennung ob GET oder POST Request
+$isGET = $_SERVER['REQUEST_METHOD'] === 'GET';
+
+// Header für GET (Redirect) oder POST (JSON)
+if ($isGET) {
+    // GET: Normale HTML-Antwort mit Redirect
+} else {
+    // POST: JSON-Header setzen
+    header('Content-Type: application/json');
+}
 
 // Fehlerberichterstattung
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 try {
-    // Parameter aus POST holen
-    $studentName = $_POST['student_name'] ?? '';
-    $testCode = $_POST['test_code'] ?? '';
-    $isSEB = ($_POST['seb'] ?? 'false') === 'true';
+    // Parameter aus POST oder GET holen
+    if ($isGET) {
+        $studentName = $_GET['student_name'] ?? '';
+        $testCode = $_GET['test_code'] ?? '';
+        $isSEB = ($_GET['seb'] ?? 'false') === 'true';
+        $redirect = $_GET['redirect'] ?? 'json';
+    } else {
+        $studentName = $_POST['student_name'] ?? '';
+        $testCode = $_POST['test_code'] ?? '';
+        $isSEB = ($_POST['seb'] ?? 'false') === 'true';
+        $redirect = 'json';
+    }
     
     // Validierung
     if (empty($studentName)) {
@@ -101,22 +117,37 @@ try {
     error_log("- SEB: " . ($isSEB ? 'ja' : 'nein'));
     error_log("- Test-URL: " . $testUrl);
     
-    // Erfolgreiche Antwort
-    echo json_encode([
-        'success' => true,
-        'test_url' => $testUrl,
-        'test_title' => $testTitle,
-        'test_code' => $testCode,
-        'student_name' => $studentName,
-        'seb' => $isSEB
-    ]);
+    // Antwort je nach Request-Type
+    if ($isGET && $redirect === 'test') {
+        // GET mit redirect=test: Direkte Weiterleitung zu test.php
+        header("Location: " . $testUrl);
+        exit();
+    } else {
+        // POST oder GET ohne redirect: JSON-Antwort
+        echo json_encode([
+            'success' => true,
+            'test_url' => $testUrl,
+            'test_title' => $testTitle,
+            'test_code' => $testCode,
+            'student_name' => $studentName,
+            'seb' => $isSEB
+        ]);
+    }
     
 } catch (Exception $e) {
     error_log("Setup Session Fehler: " . $e->getMessage());
     
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+    if ($isGET && $redirect === 'test') {
+        // GET-Fehler: Zurück zu name_form.php mit Fehler
+        $errorMsg = urlencode("Fehler: " . $e->getMessage());
+        header("Location: name_form.php?code=" . urlencode($testCode ?? '') . "&error=" . $errorMsg);
+        exit();
+    } else {
+        // POST-Fehler: JSON-Antwort
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+    }
 }
 ?>
