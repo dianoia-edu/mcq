@@ -23,6 +23,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 try {
+    // Debug-Logging
+    error_log("=== SETUP SESSION START ===");
+    error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
+    error_log("GET: " . print_r($_GET, true));
+    error_log("POST: " . print_r($_POST, true));
+    
     // Parameter aus POST oder GET holen
     if ($isGET) {
         $studentName = $_GET['student_name'] ?? '';
@@ -36,6 +42,12 @@ try {
         $redirect = 'json';
     }
     
+    error_log("Extracted Parameters:");
+    error_log("- studentName: " . $studentName);
+    error_log("- testCode: " . $testCode);
+    error_log("- isSEB: " . ($isSEB ? 'true' : 'false'));
+    error_log("- redirect: " . $redirect);
+    
     // Validierung
     if (empty($studentName)) {
         throw new Exception('Schülername ist erforderlich');
@@ -45,21 +57,55 @@ try {
         throw new Exception('Test-Code ist erforderlich');
     }
     
-    // Finde Test-Datei (konsistent mit name_form.php)
-    $testFile = "tests/" . $testCode . ".xml";
+    // Universelle Test-Suche (konsistent mit index.php)
+    // Fallback-Funktion falls nicht definiert
+    if (!function_exists('getBaseCode')) {
+        function getBaseCode($code) {
+            return strtoupper(substr(trim($code), 0, 3));
+        }
+    }
     
-    // Mit Titel-Suffix suchen falls nicht gefunden
-    if (!file_exists($testFile)) {
+    // Finde Test-Datei - MEHRSTUFIGE SUCHE
+    $testFile = null;
+    
+    // 1. Versuch: Exakter Name
+    $exactFile = "tests/" . $testCode . ".xml";
+    if (file_exists($exactFile)) {
+        $testFile = $exactFile;
+        error_log("Setup Session: Test gefunden (exakt): " . $testFile);
+    }
+    
+    // 2. Versuch: Mit Titel-Suffix (z.B. POT_die-potsdamer-konferenz...)
+    if (!$testFile) {
         $testPattern = "tests/" . $testCode . "_*.xml";
         $matchingFiles = glob($testPattern);
         
         if (!empty($matchingFiles)) {
             $testFile = $matchingFiles[0];
-            error_log("Setup Session: Test gefunden mit Pattern: " . $testFile);
+            error_log("Setup Session: Test gefunden (Pattern): " . $testFile);
         }
     }
     
-    if (!file_exists($testFile)) {
+    // 3. Versuch: Basis-Code-Suche (erste 3 Zeichen)
+    if (!$testFile) {
+        $baseCode = getBaseCode($testCode);
+        $searchCode = $baseCode;
+        $allFiles = glob("tests/*.xml");
+        $testFiles = array_filter($allFiles, function($file) use ($searchCode) {
+            $filename = basename($file);
+            $fileCode = substr($filename, 0, 3);
+            return ($fileCode === $searchCode);
+        });
+        
+        if (!empty($testFiles)) {
+            $testFile = reset($testFiles);
+            error_log("Setup Session: Test gefunden (Basis-Code): " . $testFile);
+        }
+    }
+    
+    if (!$testFile || !file_exists($testFile)) {
+        error_log("Setup Session: Test NICHT gefunden für Code: " . $testCode);
+        error_log("Setup Session: Vorhandene Tests: " . print_r(glob("tests/*.xml"), true));
         throw new Exception('Test "' . $testCode . '" nicht gefunden');
     }
     
