@@ -3243,15 +3243,16 @@ function setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebS
         });
     });
     
-    // SEB-Datei herunterladen
-    $('.download-seb-btn').off('click').on('click', function() {
+    // SEB-Datei herunterladen (mit Event-Delegation)
+    $('#sebQrCodeModal').off('click', '.download-seb-btn').on('click', '.download-seb-btn', function() {
         console.log('💾 SEB-Datei herunterladen für:', accessCode);
         const sebDownloadUrl = baseUrl + 'seb_config_flexible.php?code=' + accessCode;
+        console.log('🔗 SEB-Download-URL:', sebDownloadUrl);
         window.open(sebDownloadUrl, '_blank');
     });
     
-    // QR-Code speichern
-    $('.save-seb-qr-btn').off('click').on('click', function() {
+    // QR-Code speichern (mit Event-Delegation)
+    $('#sebQrCodeModal').off('click', '.save-seb-qr-btn').on('click', '.save-seb-qr-btn', function() {
         // Versuche QR-Code aus dem Canvas zu holen (wenn QRCode.js verwendet wird)
         const qrCanvas = $('#sebQrcodeMain canvas').get(0);
         if (qrCanvas) {
@@ -3285,10 +3286,11 @@ function setupSEBModalEventHandlers(accessCode, sebConfigUrl, sebDirectUrl, sebS
         }
     });
     
-    // SEB-Einschränkungen anzeigen
-    $('.seb-restrictions-btn').off('click').on('click', function() {
+    // SEB-Einschränkungen anzeigen (mit Event-Delegation)
+    $('#sebQrCodeModal').off('click', '.seb-restrictions-btn').on('click', '.seb-restrictions-btn', function() {
         console.log('🔒 Zeige SEB-Einschränkungen für:', accessCode);
         const previewUrl = baseUrl + 'seb_config_preview.php?code=' + accessCode;
+        console.log('🔗 SEB-Preview-URL:', previewUrl);
         window.open(previewUrl, '_blank');
     });
 }
