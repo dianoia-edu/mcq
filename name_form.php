@@ -1,6 +1,15 @@
 <?php
 // Lade benötigte Funktionen
 require_once 'includes/seb_functions.php';
+require_once 'includes/seb_detection.php';
+
+// Session starten falls noch nicht aktiv
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// SEB-Erkennung und Session-Markierung
+markSessionAsSEB();
 
 // Extrahiere den Code aus GET oder POST
 $code = $_GET['code'] ?? $_POST['code'] ?? '';
@@ -69,6 +78,9 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
     <title>Namenseingabe - <?php echo htmlspecialchars($testTitle); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <?php echo getSEBWarningBar($code); ?>
+    <?php echo getSEBWarningJS(); ?>
     <style>
         .name-form-container {
             max-width: 600px;

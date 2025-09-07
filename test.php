@@ -2,19 +2,17 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-// SEB-Sicherheitscheck
-$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$isSEB = (strpos($userAgent, 'SEB') !== false || 
-          strpos($userAgent, 'SafeExamBrowser') !== false ||
-          isset($_SESSION['seb_browser']));
 
-if (!$isSEB) {
-    echo '<div style="background:red;color:white;padding:20px;text-align:center;font-size:18px;">
-    ⚠️ SICHERHEITSWARNUNG: Dieser Test muss im Safe Exam Browser geöffnet werden!<br>
-    <a href="seb_start.php?code=' . urlencode($_SESSION['test_code'] ?? '') . '" style="color:yellow;">
-    Hier klicken um den Test im SEB zu öffnen
-    </a></div>';
+// Session starten
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
 }
+
+// Lade SEB-Detection
+require_once 'includes/seb_detection.php';
+
+// SEB-Erkennung und Session-Markierung
+markSessionAsSEB();
 
 // Debug-Nachrichten entfernt für bessere UX
 
@@ -161,6 +159,10 @@ function getTestModeWarning() {
     <meta http-equiv="Expires" content="0">
     <title><?php echo $testName; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <?php echo getSEBWarningBar($_SESSION['test_code'] ?? null); ?>
+    <?php echo getSEBWarningJS(); ?>
     <style>
         :root {
             --primary-color: #2563eb;

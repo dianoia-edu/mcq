@@ -11,6 +11,10 @@ session_start();
 require_once 'check_test_attempts.php';
 require_once 'auswertung.php';
 require_once 'includes/TestDatabase.php';
+require_once 'includes/seb_detection.php';
+
+// SEB-Erkennung und Session-Markierung
+markSessionAsSEB();
 
 // Zusätzliche Fehlerprotokollierung für problematische Fälle
 error_log("=== Start der Testverarbeitung ===");
@@ -415,7 +419,9 @@ try {
         'points_maximum' => $results['max'],
         'percentage' => $results['percentage'],
         'grade' => $grade,
-        'started_at' => $_SESSION['test_start_time'] ?? date('Y-m-d H:i:s')
+        'started_at' => $_SESSION['test_start_time'] ?? date('Y-m-d H:i:s'),
+        'session_type' => $_SESSION['session_type'] ?? 'Browser',
+        'is_seb_session' => $_SESSION['is_seb_session'] ?? false
     ];
     
     $testDb->saveTestAttempt($testData);
