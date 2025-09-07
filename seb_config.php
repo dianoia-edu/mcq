@@ -199,9 +199,9 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>examKey</key>
     <string>' . hash('sha256', 'exam-' . $testCode . '-' . date('YmdHis')) . '</string>
     
-    <!-- KEINE SYSTEMWEITEN ÄNDERUNGEN -->
+    <!-- BILDSCHIRM-FUNKTIONEN ERLAUBT (MULTI-MONITOR) -->
     <key>allowDisplayMirroring</key>
-    <false/>
+    <true/>
     <key>allowWlan</key>
     <false/>
     <key>allowWindowCapture</key>
@@ -256,11 +256,11 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
         </dict>
     </array>
     
-    <!-- IPAD/IOS-SPEZIFISCHE SICHERHEITSEINSTELLUNGEN -->
+    <!-- BILDSCHIRM-EINSTELLUNGEN (MULTI-MONITOR ERLAUBT) -->
     <key>allowedDisplaysMaxNumber</key>
-    <integer>1</integer>
+    <integer>10</integer>
     <key>allowDisplayMirroring</key>
-    <false/>
+    <true/>
     <key>allowScreenSharing</key>
     <false/>
     <key>allowVideoCapture</key>

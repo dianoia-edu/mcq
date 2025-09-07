@@ -125,6 +125,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>forceReconfiguration</key>
     <false/>
     
+    <!-- ===== BILDSCHIRM-EINSTELLUNGEN (MULTI-MONITOR) ===== -->
+    
+    <key>allowedDisplaysMaxNumber</key>
+    <integer>10</integer>
+    
+    <key>allowDisplayMirroring</key>
+    <true/>
+    
     <!-- ===== METADATA ===== -->
     
     <key>originatorName</key>

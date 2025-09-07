@@ -75,6 +75,12 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <!-- COMPLETE SERVER DISABLE (NO SERVER SETTINGS AT ALL) -->
     
     <!-- BASIC INFO -->
+    <!-- BILDSCHIRM-EINSTELLUNGEN (MULTI-MONITOR) -->
+    <key>allowedDisplaysMaxNumber</key>
+    <integer>10</integer>
+    <key>allowDisplayMirroring</key>
+    <true/>
+    
     <key>originatorName</key>
     <string>MCQ Test - Ultra Minimal</string>
     
