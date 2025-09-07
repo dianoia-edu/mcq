@@ -92,12 +92,25 @@ function getBaseCode($testCode) {
 function hasCompletedTestToday($testCode, $studentName = null) {
     // Überprüfe, ob die tägliche Test-Begrenzung deaktiviert wurde
     $configFile = dirname(__FILE__) . '/config/app_config.json';
+    $dailyLimitEnabled = false; // STANDARD: Limit deaktiviert
+    
     if (file_exists($configFile)) {
         $config = json_decode(file_get_contents($configFile), true);
         if (isset($config['disableDailyTestLimit']) && $config['disableDailyTestLimit'] === true) {
-            error_log("Tägliche Test-Begrenzung deaktiviert - Erlaube Testdurchführung");
+            error_log("Tägliche Test-Begrenzung deaktiviert (Konfiguration) - Erlaube Testdurchführung");
             return false;
         }
+        // Wenn enableDailyTestLimit explizit auf true gesetzt ist, aktiviere das Limit
+        if (isset($config['enableDailyTestLimit']) && $config['enableDailyTestLimit'] === true) {
+            $dailyLimitEnabled = true;
+            error_log("Tägliche Test-Begrenzung aktiviert (Konfiguration)");
+        }
+    }
+    
+    // STANDARD: Tägliche Test-Begrenzung ist deaktiviert
+    if (!$dailyLimitEnabled) {
+        error_log("Tägliche Test-Begrenzung standardmäßig deaktiviert - Erlaube Testdurchführung");
+        return false;
     }
     
     // Admin-Modus: Erlaube unbegrenzte Versuche
