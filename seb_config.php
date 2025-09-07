@@ -193,6 +193,10 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>logLevel</key>
     <integer>0</integer>
     
+    <!-- STANDALONE MODUS (KEIN SERVER) -->
+    <key>sebMode</key>
+    <integer>0</integer>
+    
     <!-- EXAM SESSION IDENTIFIER -->
     <key>examKeySalt</key>
     <string>exam-session-' . date('YmdHis') . '</string>

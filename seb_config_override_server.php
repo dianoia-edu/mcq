@@ -50,7 +50,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <string>' . htmlspecialchars($testUrl) . '</string>
     
     <key>sebMode</key>
-    <integer>1</integer>
+    <integer>0</integer>
     
     <key>configPurpose</key>
     <integer>0</integer>
@@ -116,14 +116,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <!-- ===== METADATA ===== -->
     
     <key>originatorName</key>
-    <string>MCQ Test - Server Disabled</string>
+    <string>MCQ Test - Standalone Mode</string>
     
 </dict>
 </plist>';
 
 // Content-Type für .seb Datei setzen
 header('Content-Type: application/seb');
-header('Content-Disposition: attachment; filename="' . $testCode . '_server_disabled.seb"');
+header('Content-Disposition: attachment; filename="' . $testCode . '_standalone.seb"');
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: 0');
 
