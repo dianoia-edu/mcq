@@ -55,36 +55,8 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>configPurpose</key>
     <integer>0</integer>
     
-    <!-- ===== OVERRIDE SERVER SETTINGS FROM CLIENT CONFIG ===== -->
-    
-    <key>sebServerConfiguration</key>
-    <string></string>
-    
-    <key>sebServerURL</key>
-    <string></string>
-    
-    <key>sebServerFallback</key>
-    <false/>
-    
-    <key>sebServerFallbackAttemptInterval</key>
-    <integer>0</integer>
-    
-    <key>sebServerFallbackAttempts</key>
-    <integer>0</integer>
-    
-    <key>sebServerFallbackPasswordHash</key>
-    <string></string>
-    
-    <key>sebServerFallbackTimeout</key>
-    <integer>0</integer>
-    
-    <!-- ===== DISABLE SERVER OPERATIONS ===== -->
-    
-    <key>sebServiceIgnore</key>
-    <true/>
-    
-    <key>sebServicePolicy</key>
-    <integer>0</integer>
+    <!-- ===== SERVER-KEYS KOMPLETT ENTFERNT (KEINE LEEREN STRINGS!) ===== -->
+    <!-- Alle sebServer* Keys weggelassen - SEB überspringt Server-Operation -->
     
     <!-- ===== QUIT SETTINGS ===== -->
     
@@ -136,14 +108,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <!-- ===== METADATA ===== -->
     
     <key>originatorName</key>
-    <string>MCQ Test - Server Override</string>
+    <string>MCQ Test - No Server Keys</string>
     
 </dict>
 </plist>';
 
 // Content-Type für .seb Datei setzen
 header('Content-Type: application/seb');
-header('Content-Disposition: attachment; filename="' . $testCode . '_server_override.seb"');
+header('Content-Disposition: attachment; filename="' . $testCode . '_no_server.seb"');
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: 0');
 
