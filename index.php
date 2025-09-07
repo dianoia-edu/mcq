@@ -406,7 +406,7 @@ if (isset($_GET['code'])) {
                             </div>
                             <input type="hidden" id="test_code" value="<?php echo htmlspecialchars($code); ?>">
                             <div class="d-grid gap-2">
-                                <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test test im Browser starten</button>
+                                <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test hier im Browser starten</button>
                                 <button id="sebBtn" class="btn btn-success btn-lg seb-mode">Test im Safe Exam Browser starten</button>
                             </div>
                         </div>
@@ -438,79 +438,15 @@ if (isset($_GET['code'])) {
                     }
                 });
                 
-                function startTest() {
-                    alert('🔍 DEBUG: startTest() aufgerufen!');
-                    
-                    var name = document.getElementById('student_name').value.trim();
-                    var code = document.getElementById('test_code').value;
-                    
-                    alert('🔍 DEBUG: Name=' + name + ', Code=' + code);
-                    
-                    // Name-Validierung für ALLE (SEB und Browser)
+                document.getElementById('browserBtn').onclick = function() {
+                    var name = encodeURIComponent(document.getElementById('student_name').value);
+                    var code = encodeURIComponent(document.getElementById('test_code').value);
                     if (!name) {
                         alert('Bitte geben Sie Ihren Namen ein.');
                         return;
                     }
-                    
-                    // Button-Feedback
-                    const btn = document.getElementById('browserBtn');
-                    btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Test wird gestartet...';
-                    btn.disabled = true;
-                    
-                    // Erkenne automatisch ob SEB läuft
-                    const userAgent = navigator.userAgent;
-                    const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
-                    
-                    alert('🔍 DEBUG: SEB erkannt=' + isSEB + ', UserAgent=' + userAgent);
-                    
-                    // FALLBACK: Direkte Weiterleitung ohne AJAX für SEB
-                    if (isSEB) {
-                        alert('🔍 DEBUG: SEB-Fallback - Direkte Weiterleitung');
-                        var directUrl = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
-                        alert('🔍 DEBUG: Weiterleitung zu: ' + directUrl);
-                        window.location.href = directUrl;
-                        return;
-                    }
-                    
-                    // Normaler Browser: AJAX wie vorher
-                    fetch('setup_test_session.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: 'student_name=' + encodeURIComponent(name) + 
-                              '&test_code=' + encodeURIComponent(code) + 
-                              '&seb=false'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = data.test_url;
-                        } else {
-                            alert('Fehler: ' + data.error);
-                            btn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Test im Browser starten';
-                            btn.disabled = false;
-                        }
-                    })
-                    .catch(error => {
-                        alert('AJAX-Fehler: ' + error);
-                        var fallbackUrl = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
-                        window.location.href = fallbackUrl;
-                    });
-                }
-                
-                // ROBUSTE EVENT-HANDLER-BINDUNG
-                document.addEventListener('DOMContentLoaded', function() {
-                    const browserBtn = document.getElementById('browserBtn');
-                    if (browserBtn) {
-                        // Event-Handler-Test
-                        browserBtn.style.border = '3px solid red'; // VISUELLER TEST
-                        browserBtn.onclick = startTest;
-                        browserBtn.addEventListener('click', startTest); // BACKUP
-                    } else {
-                        alert('FEHLER: browserBtn nicht gefunden!');
-                    }
-                });
+                    window.location.href = 'index.php?code=' + code + '&student_name=' + name;
+                };
                 document.getElementById('sebBtn').onclick = function() {
                     var name = encodeURIComponent(document.getElementById('student_name').value);
                     var code = encodeURIComponent(document.getElementById('test_code').value);

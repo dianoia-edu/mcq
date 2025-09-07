@@ -1605,25 +1605,34 @@ function sortGroups(field, direction) {
             const headerA = a.querySelector('.card-header h5').textContent;
             const headerB = b.querySelector('.card-header h5').textContent;
             
-            // Suche nach "Letzter Test: 01.02.23 12:34" im Format
-            const dateMatchA = headerA.match(/Letzter Test: (\d{2}\.\d{2}\.\d{2} \d{2}:\d{2})/);
-            const dateMatchB = headerB.match(/Letzter Test: (\d{2}\.\d{2}\.\d{2} \d{2}:\d{2})/);
+            // Suche nach "Letzter Test: 9.7.2025, 15:59:00" im Format
+            const dateMatchA = headerA.match(/Letzter Test: (\d{1,2}\.\d{1,2}\.\d{4}, \d{2}:\d{2}:\d{2})/);
+            const dateMatchB = headerB.match(/Letzter Test: (\d{1,2}\.\d{1,2}\.\d{4}, \d{2}:\d{2}:\d{2})/);
             
             if (dateMatchA && dateMatchB) {
                 try {
-                    // Wenn beide Daten gefunden wurden, konvertiere sie für den Vergleich
-                    const [dayA, monthA, yearA] = dateMatchA[1].substring(0, 8).split('.');
-                    const [hoursA, minutesA] = dateMatchA[1].substring(9).split(':');
+                    // Format: "9.7.2025, 15:59:00"
+                    const dateStringA = dateMatchA[1];
+                    const dateStringB = dateMatchB[1];
                     
-                    const [dayB, monthB, yearB] = dateMatchB[1].substring(0, 8).split('.');
-                    const [hoursB, minutesB] = dateMatchB[1].substring(9).split(':');
+                    // Split auf Komma: ["9.7.2025", " 15:59:00"]
+                    const [datePartA, timePartA] = dateStringA.split(', ');
+                    const [datePartB, timePartB] = dateStringB.split(', ');
                     
-                    // Prüfe, ob alle Datumskomponenten gültige Zahlen sind
+                    // Split Datum: ["9", "7", "2025"]
+                    const [dayA, monthA, yearA] = datePartA.split('.');
+                    const [dayB, monthB, yearB] = datePartB.split('.');
+                    
+                    // Split Zeit: ["15", "59", "00"]
+                    const [hoursA, minutesA, secondsA] = timePartA.split(':');
+                    const [hoursB, minutesB, secondsB] = timePartB.split(':');
+                    
+                    // Prüfe, ob alle Komponenten vorhanden sind
                     if (dayA && monthA && yearA && hoursA && minutesA && 
                         dayB && monthB && yearB && hoursB && minutesB) {
                         
-                        const dateA = new Date(`20${yearA}`, parseInt(monthA) - 1, parseInt(dayA), parseInt(hoursA), parseInt(minutesA));
-                        const dateB = new Date(`20${yearB}`, parseInt(monthB) - 1, parseInt(dayB), parseInt(hoursB), parseInt(minutesB));
+                        const dateA = new Date(parseInt(yearA), parseInt(monthA) - 1, parseInt(dayA), parseInt(hoursA), parseInt(minutesA), parseInt(secondsA || 0));
+                        const dateB = new Date(parseInt(yearB), parseInt(monthB) - 1, parseInt(dayB), parseInt(hoursB), parseInt(minutesB), parseInt(secondsB || 0));
                         
                         // Zusätzliche Prüfung, ob die Datumskonvertierung gültige Objekte erzeugt hat
                         if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
