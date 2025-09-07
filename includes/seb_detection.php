@@ -5,17 +5,18 @@
  */
 
 /**
- * Erkennt ob die aktuelle Session in SEB läuft
+ * Erweiterte SEB-Erkennung (nutzt bestehende isSEBBrowser aus seb_functions.php)
  * @return bool True wenn SEB erkannt wird
  */
-function isSEBBrowser() {
-    // Methode 1: User Agent prüfen
-    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    if (stripos($userAgent, 'SEB') !== false || stripos($userAgent, 'SafeExamBrowser') !== false) {
+function isSEBBrowserExtended() {
+    // Nutze die bereits vorhandene Basic-Funktion
+    if (function_exists('isSEBBrowser') && isSEBBrowser()) {
         return true;
     }
     
-    // Methode 2: SEB-spezifische Header prüfen
+    // Erweiterte Erkennungsmethoden:
+    
+    // Methode 1: SEB-spezifische Header prüfen
     $sebHeaders = [
         'HTTP_X_SAFEEXAMBROWSER_REQUESTHASH',
         'HTTP_X_SAFEEXAMBROWSER_CONFIGKEYHASH',
@@ -30,12 +31,12 @@ function isSEBBrowser() {
         }
     }
     
-    // Methode 3: URL-Parameter seb=true prüfen (für Tests)
+    // Methode 2: URL-Parameter seb=true prüfen (für Tests)
     if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
         return true;
     }
     
-    // Methode 4: Session-Variable prüfen (wenn bereits gesetzt)
+    // Methode 3: Session-Variable prüfen (wenn bereits gesetzt)
     if (isset($_SESSION['is_seb_session']) && $_SESSION['is_seb_session'] === true) {
         return true;
     }
@@ -53,7 +54,7 @@ function markSessionAsSEB($isSEB = null) {
     }
     
     if ($isSEB === null) {
-        $isSEB = isSEBBrowser();
+        $isSEB = isSEBBrowserExtended();
     }
     
     $_SESSION['is_seb_session'] = $isSEB;
@@ -70,7 +71,7 @@ function markSessionAsSEB($isSEB = null) {
  * @return string HTML für Warnbalken
  */
 function getSEBWarningBar($testCode = null) {
-    if (isSEBBrowser()) {
+    if (isSEBBrowserExtended()) {
         return ''; // Keine Warnung in SEB
     }
     
@@ -137,7 +138,7 @@ function getSEBWarningBar($testCode = null) {
  * @return string JavaScript Code
  */
 function getSEBWarningJS() {
-    if (isSEBBrowser()) {
+    if (isSEBBrowserExtended()) {
         return ''; // Kein JS in SEB nötig
     }
     
