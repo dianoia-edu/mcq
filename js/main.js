@@ -2827,7 +2827,7 @@ function showQrCode(automatisch = false, modalType = 'editor') {
     
     // Erstelle die URL für den QR-Code
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
-    const testUrl = baseUrl + 'index.php?code=' + accessCode + '&seb=true';
+    const testUrl = baseUrl + 'index.php?code=' + accessCode;
     
     // Erstelle das Modal für den QR-Code
     const modalContent = `

@@ -164,16 +164,20 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
             transform: translateY(-2px);
         }
         
-        /* SEB-spezifische Button-Farbe */
-        .submit-btn.seb-mode {
-            background-color: #fd7e14;
-            border-color: #fd7e14;
+        /* SEB-spezifische Button-Farbe - auch für Bootstrap-Klassen */
+        .submit-btn.seb-mode,
+        .btn.seb-mode {
+            background-color: #fd7e14 !important;
+            border-color: #fd7e14 !important;
+            color: white !important;
         }
         
-        .submit-btn.seb-mode:hover {
-            background-color: #e8620c;
-            border-color: #e8620c;
+        .submit-btn.seb-mode:hover,
+        .btn.seb-mode:hover {
+            background-color: #e8620c !important;
+            border-color: #e8620c !important;
             transform: translateY(-2px);
+            color: white !important;
         }
     </style>
 </head>
@@ -216,7 +220,8 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
         const startBtn = document.getElementById('startTestBtn');
         
         if (isSEB) {
-            // Orange SEB-Button-Style
+            // Orange SEB-Button-Style mit !important CSS
+            startBtn.classList.remove('btn-primary');
             startBtn.classList.add('seb-mode');
             startBtn.innerHTML = '<i class="bi bi-shield-lock me-2"></i>Sicherer SEB-Test starten';
             console.log('🔒 SEB erkannt - Button auf Orange gesetzt');
@@ -229,9 +234,18 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
         var name = document.getElementById('student_name').value.trim();
         var code = document.getElementById('test_code').value;
         
-        if (!name) {
+        // Name-Validierung nur für normale Browser, nicht für SEB
+        const userAgent = navigator.userAgent;
+        const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+        
+        if (!isSEB && !name) {
             alert('Bitte geben Sie Ihren Namen ein.');
             return;
+        }
+        
+        // Fallback-Name für SEB wenn leer
+        if (isSEB && !name) {
+            name = 'SEB-Teilnehmer';
         }
         
         // Button-Feedback
@@ -281,7 +295,7 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
         });
     }
     
-    // Event-Handler für den einzigen Start-Button
+    // Event-Handler für den Start-Button
     document.getElementById('startTestBtn').onclick = startTest;
     
     // Enter-Taste im Namensfeld
