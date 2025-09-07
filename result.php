@@ -391,8 +391,8 @@ if (isset($_POST['back_to_home'])) {
                 
                 console.log('🔗 Direkter Redirect zu seb://quit');
                 
-                // Sofortige Navigation zu seb://quit
-                window.location.href = 'seb_quit_direct.php';
+                // Direkte Navigation zu seb://quit (wie in SEB-Config definiert)
+                window.location.href = 'seb://quit';
                 
             } else {
                 console.log('💻 Desktop erkannt - verwende Desktop-Exit-Methoden');

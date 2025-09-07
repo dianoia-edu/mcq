@@ -75,7 +75,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>startURL</key>
     <string>' . htmlspecialchars($testUrl) . '</string>
     
-    <!-- OFFIZIELLE SEB iOS QUIT-KONFIGURATION -->
+    <!-- OFFIZIELLE SEB QUIT-KONFIGURATION -->
     <key>quitURL</key>
     <string>seb://quit</string>
     <key>quitURLConfirm</key>
