@@ -58,7 +58,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <!-- ===== GÜLTIGE SERVER-URL (TEST-PFAD) ===== -->
     
     <key>sebServerURL</key>
-    <string>' . htmlspecialchars($testUrl) . '</string>
+    <string>' . htmlspecialchars($baseUrl . dirname($_SERVER['PHP_SELF']) . '/seb_server_api.php') . '</string>
     
     <key>sebServerFallback</key>
     <false/>
@@ -68,6 +68,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     
     <key>sebServicePolicy</key>
     <integer>0</integer>
+    
+    <!-- ===== SERVER-VERBINDUNG KOMPLETT DEAKTIVIEREN ===== -->
+    
+    <key>sebServerEnabled</key>
+    <false/>
+    
+    <key>allowReconfiguration</key>
+    <true/>
     
     <!-- ===== QUIT SETTINGS ===== -->
     
@@ -126,7 +134,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
 
 // Content-Type für .seb Datei setzen
 header('Content-Type: application/seb');
-header('Content-Disposition: attachment; filename="' . $testCode . '_valid_server.seb"');
+header('Content-Disposition: attachment; filename="' . $testCode . '_dummy_api.seb"');
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: 0');
 
