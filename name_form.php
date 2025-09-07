@@ -215,7 +215,7 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
                 <input type="hidden" id="test_code" value="<?php echo htmlspecialchars($code); ?>">
                 <div class="d-grid">
                     <button id="startTestBtn" class="btn btn-primary btn-lg">
-                        <i class="bi bi-play-circle me-2"></i>Test starten
+                        <i class="bi bi-play-circle me-2"></i>Test test starten
                     </button>
                 </div>
                 <div id="sebUrlDebug" style="background:#e0ffe0;color:#222;padding:10px;margin-top:20px;word-break:break-all;display:none;"></div>
