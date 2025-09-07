@@ -55,8 +55,19 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>configPurpose</key>
     <integer>0</integer>
     
-    <!-- ===== SERVER-KEYS KOMPLETT ENTFERNT (KEINE LEEREN STRINGS!) ===== -->
-    <!-- Alle sebServer* Keys weggelassen - SEB überspringt Server-Operation -->
+    <!-- ===== GÜLTIGE SERVER-URL (TEST-PFAD) ===== -->
+    
+    <key>sebServerURL</key>
+    <string>' . htmlspecialchars($testUrl) . '</string>
+    
+    <key>sebServerFallback</key>
+    <false/>
+    
+    <key>sebServiceIgnore</key>
+    <true/>
+    
+    <key>sebServicePolicy</key>
+    <integer>0</integer>
     
     <!-- ===== QUIT SETTINGS ===== -->
     
@@ -108,14 +119,14 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <!-- ===== METADATA ===== -->
     
     <key>originatorName</key>
-    <string>MCQ Test - No Server Keys</string>
+    <string>MCQ Test - Valid Server URL</string>
     
 </dict>
 </plist>';
 
 // Content-Type für .seb Datei setzen
 header('Content-Type: application/seb');
-header('Content-Disposition: attachment; filename="' . $testCode . '_no_server.seb"');
+header('Content-Disposition: attachment; filename="' . $testCode . '_valid_server.seb"');
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: 0');
 
