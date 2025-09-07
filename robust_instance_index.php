@@ -66,8 +66,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 if (isset($_GET['seb']) && $_GET['seb'] === 'true') {
     // Wenn student_name fehlt, zurück zum Namenseingabe-Formular
     if (!isset($_GET['student_name'])) {
-        // Zeige das Namenseingabe-Formular
-        include 'name_form.php';
+        // Weiterleitung zur Namenseingabe ohne SEB-Parameter
+        header("Location: index.php?code=" . urlencode($_GET['code']));
         exit;
     }
     
@@ -371,22 +371,67 @@ if (isset($_GET['code'])) {
                     }
                 });
                 
-                document.getElementById('browserBtn').onclick = function() {
-                    var name = encodeURIComponent(document.getElementById('student_name').value);
-                    var code = encodeURIComponent(document.getElementById('test_code').value);
+                // SEB-Erkennung und Button-Anpassung
+                function startTest() {
+                    var name = document.getElementById('student_name').value.trim();
+                    var code = document.getElementById('test_code').value;
+                    
+                    // Name-Validierung
                     if (!name) {
                         alert('Bitte geben Sie Ihren Namen ein.');
                         return;
                     }
-                    window.location.href = 'index.php?code=' + code + '&student_name=' + name;
-                };
-                document.getElementById('sebBtn').onclick = function() {
-                    var name = encodeURIComponent(document.getElementById('student_name').value);
-                    var code = encodeURIComponent(document.getElementById('test_code').value);
                     
-                    // SEB-Button braucht KEINEN Namen - automatischer Fallback
+                    // Erkenne SEB
+                    const userAgent = navigator.userAgent;
+                    const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+                    
+                    // EINHEITLICHER WORKFLOW: Immer zu setup_test_session.php
+                    if (isSEB) {
+                        // SEB: GET-Request mit redirect=test Parameter
+                        window.location.href = 'setup_test_session.php?student_name=' + encodeURIComponent(name) + '&test_code=' + encodeURIComponent(code) + '&seb=true&redirect=test';
+                    } else {
+                        // Browser: POST-Request via AJAX
+                        const btn = document.getElementById('browserBtn');
+                        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Test wird gestartet...';
+                        btn.disabled = true;
+                        
+                        fetch('setup_test_session.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: 'student_name=' + encodeURIComponent(name) + 
+                                  '&test_code=' + encodeURIComponent(code) + 
+                                  '&seb=false'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.href = data.test_url;
+                            } else {
+                                alert('Fehler: ' + data.error);
+                                btn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Test hier im Browser starten';
+                                btn.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Fehler beim Session-Setup:', error);
+                            // Fallback: Direkte Weiterleitung
+                            window.location.href = 'setup_test_session.php?student_name=' + encodeURIComponent(name) + '&test_code=' + encodeURIComponent(code) + '&seb=false&redirect=test';
+                        });
+                    }
+                }
+                
+                document.getElementById('browserBtn').onclick = startTest;
+                document.getElementById('sebBtn').onclick = function() {
+                    var name = document.getElementById('student_name').value.trim();
+                    var code = document.getElementById('test_code').value;
+                    
+                    // SEB-Button: Name-Validierung für Konsistenz
                     if (!name) {
-                        name = 'SEB-Teilnehmer';
+                        alert('Bitte geben Sie Ihren Namen ein.');
+                        return;
                     }
                     
                     // Verwende SEB-URL Schema für automatischen Start (wie bei QR-Code)
