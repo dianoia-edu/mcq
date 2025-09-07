@@ -58,11 +58,11 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>startURL</key>
     <string>' . htmlspecialchars($testUrl) . '</string>
     
-    <!-- FLEXIBLES SEB-KONFIGURATIONSMANAGEMENT -->
+    <!-- WINDOWS: FLEXIBLES SEB-KONFIGURATIONSMANAGEMENT OHNE ADMIN-PROMPT -->
     <key>allowReconfiguration</key>
     <true/>
     <key>forceReconfiguration</key>
-    <true/>
+    <false/>
     <key>downloadAndOpenSebConfig</key>
     <true/>
     <key>configFileCreateDefault</key>
@@ -71,6 +71,36 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <true/>
     <key>restartExamUseStartURL</key>
     <true/>
+    
+    <!-- KEINE ADMINISTRATOR-RECHTE ERFORDERLICH -->
+    <key>sebRequiresAdminRights</key>
+    <false/>
+    <key>sebConfigurationMustBeUnlocked</key>
+    <false/>
+    <key>sebLocalSettingsEnabled</key>
+    <false/>
+    <key>sebWindowsServicePolicy</key>
+    <integer>0</integer>
+    <key>sebWindowsServiceIgnore</key>
+    <true/>
+    <key>sebWindowsServiceEnable</key>
+    <false/>
+    
+    <!-- CLIENT-KONFIGURATION (KEINE ADMIN-INSTALLATION) -->
+    <key>sebClientConfiguration</key>
+    <true/>
+    <key>sebUserConfiguration</key>
+    <true/>
+    <key>sebSystemConfiguration</key>
+    <false/>
+    <key>sebGlobalConfiguration</key>
+    <false/>
+    <key>configPurpose</key>
+    <integer>1</integer>
+    <key>sebConfigPurpose</key>
+    <integer>1</integer>
+    <key>examKeySalt</key>
+    <string>client-exam-session-' . date('YmdHis') . '</string>
     
     <!-- KEIN PASSWORT-SCHUTZ FÜR KONFIGURATIONSWECHSEL -->
     <key>hashedAdminPassword</key>

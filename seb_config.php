@@ -133,17 +133,29 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>hashedQuitPassword</key>
     <string>' . hash('sha256', 'admin123') . '</string>
     
-    <!-- ERLAUBE NEUES LADEN VON SEB-KONFIGURATIONEN -->
+    <!-- WINDOWS: AUTOMATISCHE KONFIGURATION OHNE ADMIN-PROMPT -->
     <key>allowReconfiguration</key>
     <true/>
     <key>forceReconfiguration</key>
-    <true/>
+    <false/>
     <key>showReloadWarning</key>
     <false/>
     <key>showQuitWarning</key>
     <false/>
-    <key>restartExamPasswordHash</key>
-    <string>' . hash('sha256', 'admin123') . '</string>
+    <key>sebWindowsServicePolicy</key>
+    <integer>0</integer>
+    <key>sebWindowsServiceIgnore</key>
+    <true/>
+    <key>sebWindowsServiceEnable</key>
+    <false/>
+    
+    <!-- KEINE ADMINISTRATOR-RECHTE ERFORDERLICH -->
+    <key>sebRequiresAdminRights</key>
+    <false/>
+    <key>sebConfigurationMustBeUnlocked</key>
+    <false/>
+    <key>sebLocalSettingsEnabled</key>
+    <false/>
     <key>allowSwitchToApplications</key>
     <false/>
     <key>enableAppSwitcherCheck</key>
@@ -151,11 +163,43 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>forceAppFolderInstall</key>
     <true/>
     
-    <!-- ADMIN-PASSWORT FÜR EINSTELLUNGEN -->
+    <!-- WINDOWS SEB: TEMPORÄRE TEST-SESSION (KEIN ADMIN-PASSWORT) -->
     <key>allowPreferencesWindow</key>
+    <false/>
+    <key>sebMode</key>
+    <integer>0</integer>
+    <key>enableLogging</key>
+    <false/>
+    <key>logLevel</key>
+    <integer>0</integer>
+    
+    <!-- WINDOWS: SIGNALISIERE DASS ES SICH UM EINE TEMPORÄRE CLIENT-KONFIGURATION HANDELT -->
+    <key>configPurpose</key>
+    <integer>1</integer>
+    <key>sebConfigPurpose</key>
+    <integer>1</integer>
+    <key>examKeySalt</key>
+    <string>client-exam-session-' . date('YmdHis') . '</string>
+    
+    <!-- CLIENT-KONFIGURATION (KEINE ADMIN-INSTALLATION) -->
+    <key>sebClientConfiguration</key>
     <true/>
-    <key>hashedAdminPassword</key>
-    <string>' . hash('sha256', 'admin123') . '</string>
+    <key>sebUserConfiguration</key>
+    <true/>
+    <key>sebSystemConfiguration</key>
+    <false/>
+    <key>sebGlobalConfiguration</key>
+    <false/>
+    
+    <!-- KEINE DAUERHAFTE SYSTEMÄNDERUNG -->
+    <key>allowDisplayMirroring</key>
+    <false/>
+    <key>allowWlan</key>
+    <false/>
+    <key>allowWindowCapture</key>
+    <false/>
+    <key>allowScreenSharing</key>
+    <false/>
     
     <!-- KIOSK-MODUS ERZWINGEN -->
     <key>touchOptimized</key>
