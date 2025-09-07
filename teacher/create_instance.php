@@ -121,11 +121,20 @@ function performInstanceUpdate($instanceName, $instancesBasePath, $sourceBasePat
         'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (korrigiert)',
         'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View (korrigiert)',
         'includes/teacher_dashboard/configuration_view.php' => 'Configuration View (korrigiert)',
-        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View (korrigiert)',
+        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View (korrigiert + Sortierung)',
         'includes/teacher_dashboard/config_view.php' => 'Config View',
         'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
         'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API',
-        'includes/openai_models.php' => 'OpenAI Models Management'
+        'includes/openai_models.php' => 'OpenAI Models Management',
+        'name_form.php' => 'Namenseingabe-Seite (SEB-Integration)',
+        'test.php' => 'Test-Durchführungsseite (SEB-Integration)',
+        'result.php' => 'Testergebnis-Seite (SEB-Beenden-Button)',
+        'index.php' => 'Startseite (SEB-Integration)',
+        'setup_test_session.php' => 'Test-Session-Setup (SEB-Support)',
+        'process.php' => 'Test-Verarbeitung (SEB-Session-Tracking)',
+        'includes/seb_detection.php' => 'SEB-Erkennungslogik',
+        'seb_config.php' => 'Standard SEB-Konfiguration',
+        'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration'
         // HINWEIS: database_config.php wird NICHT aktualisiert - jede Instanz hat ihre eigene!
     ];
     

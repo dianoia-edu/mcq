@@ -42,11 +42,21 @@ function performAjaxUpdate() {
         'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (Modell-Auswahl + getTeacherUrl)',
         'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View (usort-Fix)',
         'includes/teacher_dashboard/configuration_view.php' => 'Configuration View (getTeacherUrl + Update-Button entfernt)',
-        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View (DatabaseConfig-Fix)',
+        'includes/teacher_dashboard/test_results_view.php' => 'Test Results View (DatabaseConfig-Fix + Sortierung)',
         'includes/teacher_dashboard/config_view.php' => 'Config View',
         'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
         'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API (korrigierte Pfade + Admin-Codes)',
         'includes/openai_models.php' => 'OpenAI Models Management',
+        'name_form.php' => 'Namenseingabe-Seite (SEB-Integration mit orangem Button)',
+        'test.php' => 'Test-Durchführungsseite (SEB-Integration)',
+        'result.php' => 'Testergebnis-Seite (SEB-Beenden-Button)',
+        'index.php' => 'Startseite (SEB-Integration + Button-Fixes)',
+        'setup_test_session.php' => 'Test-Session-Setup (SEB-Redirect-Support)',
+        'process.php' => 'Test-Verarbeitung (SEB-Session-Tracking)',
+        'includes/seb_detection.php' => 'SEB-Erkennungslogik (Warnung + Session-Management)',
+        // SEB-Konfigurationsdateien
+        'seb_config.php' => 'Standard SEB-Konfiguration',
+        'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration',
         // WARNUNG: database_config.php NICHT updaten - jede Instanz hat instanz-spezifische DB-Daten!
         'robust_instance_index.php' => 'Robuste Index-Datei mit Hauptsystem-Design + QR-Code',
         'config/clean_schema.sql' => 'Sauberes DB-Schema ohne Testergebnisse'
