@@ -256,6 +256,7 @@ if (isset($_GET['code'])) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Namenseingabe - <?php echo htmlspecialchars($testTitle); ?></title>
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
                 <style>
                     .name-form-container {
                         max-width: 600px;
@@ -339,6 +340,39 @@ if (isset($_GET['code'])) {
                         background-color: #0b5ed7;
                         transform: translateY(-2px);
                     }
+                    
+                    /* SEB-spezifische Button-Farbe - SUPER STRONG CSS */
+                    .submit-btn.seb-mode,
+                    .btn.seb-mode,
+                    .btn-success.seb-mode,
+                    .btn-lg.seb-mode,
+                    button.seb-mode {
+                        background: #fd7e14 !important;
+                        background-color: #fd7e14 !important;
+                        border: 2px solid #fd7e14 !important;
+                        border-color: #fd7e14 !important;
+                        color: white !important;
+                        box-shadow: 0 4px 8px rgba(253, 126, 20, 0.3) !important;
+                    }
+                    
+                    .submit-btn.seb-mode:hover,
+                    .btn.seb-mode:hover,
+                    .btn-success.seb-mode:hover,
+                    .btn-lg.seb-mode:hover,
+                    button.seb-mode:hover,
+                    .submit-btn.seb-mode:focus,
+                    .btn.seb-mode:focus,
+                    .btn-success.seb-mode:focus,
+                    .btn-lg.seb-mode:focus,
+                    button.seb-mode:focus {
+                        background: #e8620c !important;
+                        background-color: #e8620c !important;
+                        border: 2px solid #e8620c !important;
+                        border-color: #e8620c !important;
+                        transform: translateY(-2px) !important;
+                        color: white !important;
+                        box-shadow: 0 6px 12px rgba(232, 98, 12, 0.4) !important;
+                    }
                 </style>
             </head>
             <body class="bg-light">
@@ -373,7 +407,7 @@ if (isset($_GET['code'])) {
                             <input type="hidden" id="test_code" value="<?php echo htmlspecialchars($code); ?>">
                             <div class="d-grid gap-2">
                                 <button id="browserBtn" class="btn btn-primary btn-lg mb-2">Test im Browser starten</button>
-                                <button id="sebBtn" class="btn btn-success btn-lg">Test im Safe Exam Browser starten</button>
+                                <button id="sebBtn" class="btn btn-success btn-lg seb-mode">Test im Safe Exam Browser starten</button>
                             </div>
                         </div>
                     </div>
@@ -386,9 +420,28 @@ if (isset($_GET['code'])) {
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
                 <script>
+                // SEB-Erkennung und Button-Styling
+                document.addEventListener('DOMContentLoaded', function() {
+                    const userAgent = navigator.userAgent;
+                    const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
+                    const sebBtn = document.getElementById('sebBtn');
+                    
+                    if (isSEB) {
+                        // FORCE ORANGE mit Inline-Styles für SEB-Button
+                        sebBtn.classList.remove('btn-success');
+                        sebBtn.style.backgroundColor = '#fd7e14';
+                        sebBtn.style.borderColor = '#fd7e14';
+                        sebBtn.style.color = 'white';
+                        sebBtn.style.boxShadow = '0 4px 8px rgba(253, 126, 20, 0.3)';
+                        sebBtn.innerHTML = '<i class="bi bi-shield-lock me-2"></i>Sicherer SEB-Test starten';
+                        console.log('🔒 SEB erkannt - Button auf Orange gesetzt');
+                    }
+                });
+                
                 document.getElementById('browserBtn').onclick = function() {
                     var name = encodeURIComponent(document.getElementById('student_name').value);
                     var code = encodeURIComponent(document.getElementById('test_code').value);
+                    // Browser-Button BRAUCHT Namen
                     if (!name) {
                         alert('Bitte geben Sie Ihren Namen ein.');
                         return;
@@ -398,10 +451,12 @@ if (isset($_GET['code'])) {
                 document.getElementById('sebBtn').onclick = function() {
                     var name = encodeURIComponent(document.getElementById('student_name').value);
                     var code = encodeURIComponent(document.getElementById('test_code').value);
+                    
+                    // SEB-Button braucht KEINEN Namen - automatischer Fallback
                     if (!name) {
-                        alert('Bitte geben Sie Ihren Namen ein.');
-                        return;
+                        name = 'SEB-Teilnehmer';
                     }
+                    
                     // Verwende SEB-URL Schema für automatischen Start (wie bei QR-Code)
                     var baseUrl = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>';
                     var configUrl = baseUrl + '/seb_config_override_server.php?code=' + code;
