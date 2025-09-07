@@ -240,7 +240,8 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             // Zähle richtig/falsch gewählte Antworten
             foreach ($question->answers->answer as $answer) {
                 $isCorrect = (int)$answer->correct === 1;
-                $wasChosen = (int)$answer->schuelerantwort === 1;
+                // Prüfe sowohl 'schuelerantwort' als auch 'selected' Attribute
+                $wasChosen = ((int)$answer->schuelerantwort === 1) || ((int)$answer->selected === 1);
                 
                 writeLog("  Antwort: correct=" . ($isCorrect ? "1" : "0") . ", schuelerantwort=" . ($wasChosen ? "1" : "0"));
                 
@@ -323,7 +324,24 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
     
     // Fragen und Antworten anzeigen
     if (isset($xml->questions->question)) {
+        // Konvertiere SimpleXML zu Array für Sortierung
+        $questionsArray = [];
         foreach ($xml->questions->question as $qIndex => $question) {
+            $questionsArray[] = [
+                'element' => $question,
+                'index' => $qIndex,
+                'nr' => isset($question['nr']) ? (int)$question['nr'] : ($qIndex + 1)
+            ];
+        }
+        
+        // Sortiere nach Fragennummer (ursprüngliche Testreihenfolge)
+        usort($questionsArray, function($a, $b) {
+            return $a['nr'] - $b['nr'];
+        });
+        
+        foreach ($questionsArray as $questionData) {
+            $question = $questionData['element'];
+            $qIndex = $questionData['index'];
             $questionNumber = isset($question['nr']) ? (string)$question['nr'] : ((int)$qIndex + 1);
             $questionText = isset($question->text) ? (string)$question->text : 'Keine Fragentext';
             
@@ -364,7 +382,8 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             // Berechne die Punkte erneut, genau wie in auswertung.php
             foreach ($question->answers->answer as $answer) {
                 $isCorrect = (int)$answer->correct === 1;
-                $wasChosen = (int)$answer->schuelerantwort === 1;
+                // Prüfe sowohl 'schuelerantwort' als auch 'selected' Attribute
+                $wasChosen = ((int)$answer->schuelerantwort === 1) || ((int)$answer->selected === 1);
                 
                 if ($isCorrect) {
                     $correctTotal++;
@@ -452,7 +471,8 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                 foreach ($question->answers->answer as $answer) {
                     $answerText = isset($answer->text) ? (string)$answer->text : 'Keine Antworttext';
                     $isCorrect = (string)$answer->correct === '1';
-                    $isSelected = (string)$answer->schuelerantwort === '1';
+                    // Prüfe sowohl 'schuelerantwort' als auch 'selected' Attribute
+                    $isSelected = ((string)$answer->schuelerantwort === '1') || ((string)$answer->selected === '1');
                     
                     // Bestimme CSS-Klasse und Stil für die Antwort - dezentere Farben
                     $bgStyle = '';

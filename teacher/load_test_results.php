@@ -138,12 +138,25 @@ foreach ($allResults as $result) {
         $groupedResults[$key] = [
             'testTitle' => $result['testTitle'],
             'accessCode' => $result['access_code'],
-            'testDate' => $result['testDate'],
+            'testDate' => !empty($result['testDate']) ? $result['testDate'] : (!empty($result['created_at']) ? $result['created_at'] : ''),
+            'lastTestDate' => $result['date'], // Letztes Testdatum für Sortierung
             'results' => []
         ];
+    } else {
+        // Aktualisiere das Datum des letzten Tests, wenn das aktuelle Ergebnis neuer ist
+        $currentDate = strtotime($result['date']);
+        $lastDate = strtotime($groupedResults[$key]['lastTestDate']);
+        if ($currentDate > $lastDate) {
+            $groupedResults[$key]['lastTestDate'] = $result['date'];
+        }
     }
     $groupedResults[$key]['results'][] = $result;
 }
+
+// Sortiere Gruppen nach letztem Testdatum (neueste zuerst)
+uasort($groupedResults, function($a, $b) {
+    return strtotime($b['lastTestDate']) - strtotime($a['lastTestDate']);
+});
 
 // Sammle alle einzigartigen Namen und Daten
 $uniqueStudents = [];
