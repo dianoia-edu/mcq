@@ -684,30 +684,8 @@ function getTestModeWarning() {
                 isiPad: isiPad
             });
             
-            if (!isSEB && !window.sebWarningShown) {
-                window.sebWarningShown = true;
-                
-                document.body.style.filter = 'blur(10px)';
-                document.body.style.pointerEvents = 'none';
-                
-                const warning = document.createElement('div');
-                warning.innerHTML = isiPad ? 
-                    '🍎 IPAD-WARNUNG: Kehren Sie zur SEB-App zurück!' : 
-                    '🔒 SICHERHEITSWARNUNG: Kehren Sie zum Safe Exam Browser zurück!';
-                warning.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,0,0,0.95);color:white;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:999999;text-align:center;padding:20px;';
-                document.body.appendChild(warning);
-                
-                if (isiPad) {
-                    // iPad-spezifische Weiterleitung
-                    setTimeout(() => {
-                        window.location.href = 'seb://start?url=' + encodeURIComponent(window.location.href);
-                    }, 2000);
-                } else {
-                    setTimeout(() => {
-                        window.location.href = 'seb_start.php?code=<?php echo urlencode($_SESSION['test_code'] ?? ''); ?>';
-                    }, 3000);
-                }
-            }
+            // Alte SEB-Warnung entfernt - wird jetzt durch includes/seb_detection.php gehandhabt
+            // Roter Warnbalken am oberen Bildrand statt Vollbild-Sperre
             
             // Tastenkombination-Blocker
             document.addEventListener('keydown', function(e) {

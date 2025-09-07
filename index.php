@@ -402,8 +402,11 @@ if (isset($_GET['code'])) {
                         alert('Bitte geben Sie Ihren Namen ein.');
                         return;
                     }
-                    var url = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>' + '/index.php?code=' + code + '&seb=true&student_name=' + name;
-                    window.location.href = 'seb://start?url=' + encodeURIComponent(url);
+                    // Verwende die reparierte SEB-Konfiguration
+                    var baseUrl = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>';
+                    var configUrl = baseUrl + '/seb_config_override_server.php?code=' + code;
+                    // Lade SEB-Config direkt (Standalone-Modus)
+                    window.location.href = configUrl;
                 };
                 </script>
             </body>

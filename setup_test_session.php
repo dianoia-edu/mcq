@@ -89,6 +89,7 @@ try {
     $dir = dirname($_SERVER['PHP_SELF']);
     $baseUrl = $protocol . $host . $dir;
     
+    // Test-URL ohne SEB-Parameter (für normale Browser)
     $testUrl = $baseUrl . '/test.php';
     
     // Debug-Logging
