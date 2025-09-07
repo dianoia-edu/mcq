@@ -653,7 +653,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_name']) &
         $sebUrl = 'seb://start?url=' . urlencode($baseUrl . '/index.php?code=' . urlencode($code) . '&seb=true&student_name=' . urlencode($_POST['student_name']));
         echo '<div class="container mt-5 text-center">';
         echo '<h2>Test starten</h2>';
-        echo '<a href="index.php?code=' . urlencode($code) . '" class="btn btn-primary btn-lg me-2">Test im Browser starten</a>';
+        echo '<a href="index.php?code=' . urlencode($code) . '&student_name=' . urlencode($_POST['student_name']) . '" class="btn btn-primary btn-lg me-2">Test im Browser starten</a>';
         echo '<a href="' . htmlspecialchars($sebUrl) . '" class="btn btn-success btn-lg">Test im Safe Exam Browser starten</a>';
         echo '<div class="mt-4 text-muted">Sollte sich der Safe Exam Browser nicht öffnen, können Sie den Test auch im Browser durchführen.</div>';
         echo '</div>';

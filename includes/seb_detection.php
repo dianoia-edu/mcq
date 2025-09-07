@@ -107,12 +107,6 @@ function getSEBWarningBar($testCode = null) {
     ">
         <strong><i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 16px;"></i>SICHERHEITSWARNUNG:</strong> 
         Dieser Test sollte im Safe Exam Browser ausgeführt werden!
-        <a href="' . htmlspecialchars($sebUrl) . '" 
-           style="color: #fff; text-decoration: underline; margin-left: 15px; font-weight: bold;"
-           onmouseover="this.style.color=\'#ffeb3b\'" 
-           onmouseout="this.style.color=\'#fff\'">
-            <i class="bi bi-shield-lock me-1"></i>Zum sicheren SEB-Modus wechseln →
-        </a>
     </div>
     <style>
         body { margin-top: 60px !important; }
