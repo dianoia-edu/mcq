@@ -256,65 +256,51 @@ error_log("Name Form Debug - Test Title: " . $testTitle);
         var name = document.getElementById('student_name').value.trim();
         var code = document.getElementById('test_code').value;
         
-        // Name-Validierung nur für normale Browser, nicht für SEB
-        const userAgent = navigator.userAgent;
-        const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
-        
-        if (!isSEB && !name) {
+        // Name-Validierung
+        if (!name) {
             alert('Bitte geben Sie Ihren Namen ein.');
             return;
         }
         
-        // Fallback-Name für SEB wenn leer
-        if (isSEB && !name) {
-            name = 'SEB-Teilnehmer';
-        }
-        
-        // Button-Feedback
-        const btn = document.getElementById('startTestBtn');
-        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Test wird gestartet...';
-        btn.disabled = true;
-        
-        // Erkenne automatisch ob SEB läuft
+        // Erkenne SEB
         const userAgent = navigator.userAgent;
         const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
         
-        console.log('🎯 Test-Start:', isSEB ? 'SEB erkannt' : 'Normaler Browser');
-        
-        // Button-Farbe für SEB-Modus anpassen
+        // DIREKTE WEITERLEITUNG OHNE AJAX (für SEB-Kompatibilität)
         if (isSEB) {
-            btn.innerHTML = '<i class="bi bi-shield-check me-2"></i>SEB-Test wird gestartet...';
+            // SEB: Direkte Weiterleitung zu test.php
+            window.location.href = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name) + '&seb=true';
+        } else {
+            // Browser: AJAX wie bisher
+            const btn = document.getElementById('startTestBtn');
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Test wird gestartet...';
+            btn.disabled = true;
+            
+            fetch('setup_test_session.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'student_name=' + encodeURIComponent(name) + 
+                      '&test_code=' + encodeURIComponent(code) + 
+                      '&seb=false'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.test_url;
+                } else {
+                    alert('Fehler: ' + data.error);
+                    btn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Test test starten';
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Session-Setup:', error);
+                var fallbackUrl = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
+                window.location.href = fallbackUrl;
+            });
         }
-        
-        // Session-Setup per AJAX vor Test-Start
-        fetch('setup_test_session.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'student_name=' + encodeURIComponent(name) + 
-                  '&test_code=' + encodeURIComponent(code) + 
-                  '&seb=' + (isSEB ? 'true' : 'false')
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('✅ Session erfolgreich eingerichtet');
-                // Direkte Weiterleitung zum Test (Browser oder SEB)
-                window.location.href = data.test_url;
-            } else {
-                alert('Fehler: ' + data.error);
-                // Button zurücksetzen
-                btn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Test starten';
-                btn.disabled = false;
-            }
-        })
-        .catch(error => {
-            console.error('Fehler beim Session-Setup:', error);
-            // Fallback zur direkten Weiterleitung
-            var fallbackUrl = 'test.php?code=' + encodeURIComponent(code) + '&student_name=' + encodeURIComponent(name);
-            window.location.href = fallbackUrl;
-        });
     }
     
     // Event-Handler für den Start-Button
