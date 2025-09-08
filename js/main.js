@@ -100,6 +100,20 @@ $(document).ready(function() {
             
             // Löse ein Event aus, um andere Komponenten zu informieren
             $(document).trigger('tabChanged', [target]);
+            
+            // Automatisches Reload der Testergebnisse bei Tab-Wechsel
+            if (target === '#testResults') {
+                console.log('🔄 Testergebnisse-Tab aktiviert - lade automatisch neu...');
+                // Warte kurz, bis der Tab vollständig geladen ist
+                setTimeout(function() {
+                    if (typeof updateResults === 'function') {
+                        updateResults();
+                        console.log('✅ Testergebnisse automatisch neu geladen');
+                    } else {
+                        console.warn('⚠️ updateResults Funktion nicht verfügbar');
+                    }
+                }, 100);
+            }
         });
         
         // Debug: Liste alle Tab-Elemente auf
