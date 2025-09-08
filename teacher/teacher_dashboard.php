@@ -185,40 +185,32 @@ if (!empty($tests)) {
         
         // Automatisches Reload der Testergebnisse bei Tab-Wechsel
         if (tabId === 'testResults') {
-            console.log('🔄 Testergebnisse-Tab aktiviert - führe Seiten-Reload durch...');
-            
-            // Simuliere einen Reload-Button-Klick für garantierte Aktualität
-            setTimeout(function() {
-                // Versuche zuerst den Reload-Button zu finden und zu klicken
-                const reloadBtn = document.querySelector('button[onclick*="updateResults"], button[onclick*="reload"], .btn[onclick*="update"]');
-                if (reloadBtn) {
-                    console.log('🔄 Klicke Reload-Button...');
-                    reloadBtn.click();
-                } else {
-                    // Fallback: Simuliere F5-Taste für Seiten-Reload
-                    console.log('🔄 Simuliere F5-Reload...');
-                    // Erstelle ein KeyboardEvent für F5
-                    const event = new KeyboardEvent('keydown', {
-                        key: 'F5',
-                        code: 'F5',
-                        keyCode: 116,
-                        which: 116,
-                        ctrlKey: false,
-                        shiftKey: false,
-                        altKey: false,
-                        metaKey: false
-                    });
-                    
-                    // Dispatch das Event
-                    document.dispatchEvent(event);
-                    
-                    // Als letzter Fallback: location.reload()
-                    setTimeout(function() {
-                        console.log('🔄 Führe location.reload() aus...');
-                        location.reload();
-                    }, 100);
-                }
-            }, 200);
+            // Verhindere Endlosschleife - nur einmal pro Session
+            if (!window.testResultsReloaded) {
+                window.testResultsReloaded = true;
+                console.log('🔄 Testergebnisse-Tab aktiviert - lade automatisch neu...');
+                
+                // Warte kurz, bis der Tab vollständig geladen ist
+                setTimeout(function() {
+                    if (typeof updateResults === 'function') {
+                        console.log('📊 Verwende updateResults() Funktion...');
+                        updateResults();
+                    } else {
+                        console.warn('⚠️ updateResults Funktion nicht verfügbar');
+                        // Versuche nochmal nach längerem Timeout
+                        setTimeout(function() {
+                            if (typeof updateResults === 'function') {
+                                updateResults();
+                                console.log('✅ Testergebnisse automatisch neu geladen (verzögert)');
+                            } else {
+                                console.error('❌ updateResults Funktion auch nach Verzögerung nicht verfügbar');
+                            }
+                        }, 500);
+                    }
+                }, 300);
+            } else {
+                console.log('🔄 Testergebnisse-Tab bereits automatisch geladen - überspringe');
+            }
         }
     }
     </script>
