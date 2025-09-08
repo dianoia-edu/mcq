@@ -182,6 +182,29 @@ if (!empty($tests)) {
         } catch (e) {
             console.warn('Konnte URL nicht aktualisieren:', e);
         }
+        
+        // Automatisches Reload der Testergebnisse bei Tab-Wechsel
+        if (tabId === 'testResults') {
+            console.log('🔄 Testergebnisse-Tab aktiviert - lade automatisch neu...');
+            // Warte kurz, bis der Tab vollständig geladen ist
+            setTimeout(function() {
+                if (typeof updateResults === 'function') {
+                    updateResults();
+                    console.log('✅ Testergebnisse automatisch neu geladen');
+                } else {
+                    console.warn('⚠️ updateResults Funktion nicht verfügbar');
+                    // Versuche nochmal nach längerem Timeout
+                    setTimeout(function() {
+                        if (typeof updateResults === 'function') {
+                            updateResults();
+                            console.log('✅ Testergebnisse automatisch neu geladen (verzögert)');
+                        } else {
+                            console.error('❌ updateResults Funktion auch nach Verzögerung nicht verfügbar');
+                        }
+                    }, 500);
+                }
+            }, 200);
+        }
     }
     </script>
     
