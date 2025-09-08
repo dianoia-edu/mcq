@@ -133,6 +133,9 @@ function performInstanceUpdate($instanceName, $instancesBasePath, $sourceBasePat
         'setup_test_session.php' => 'Test-Session-Setup (SEB-Support)',
         'process.php' => 'Test-Verarbeitung (SEB-Session-Tracking)',
         'includes/seb_detection.php' => 'SEB-Erkennungslogik',
+        'auswertung.php' => 'Test-Auswertungs-Engine',
+        'includes/TestDatabase.php' => 'Datenbank-Klasse für Testergebnisse',
+        'check_test_attempts.php' => 'Test-Wiederholungsprüfung (deaktiviert)',
         'seb_config.php' => 'Standard SEB-Konfiguration',
         'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration'
         // HINWEIS: database_config.php wird NICHT aktualisiert - jede Instanz hat ihre eigene!

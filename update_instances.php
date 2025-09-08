@@ -54,6 +54,9 @@ function performAjaxUpdate() {
         'setup_test_session.php' => 'Test-Session-Setup (SEB-Redirect-Support)',
         'process.php' => 'Test-Verarbeitung (SEB-Session-Tracking)',
         'includes/seb_detection.php' => 'SEB-Erkennungslogik (Warnung + Session-Management)',
+        'auswertung.php' => 'Test-Auswertungs-Engine',
+        'includes/TestDatabase.php' => 'Datenbank-Klasse für Testergebnisse',
+        'check_test_attempts.php' => 'Test-Wiederholungsprüfung (deaktiviert)',
         // SEB-Konfigurationsdateien
         'seb_config.php' => 'Standard SEB-Konfiguration',
         'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration',
