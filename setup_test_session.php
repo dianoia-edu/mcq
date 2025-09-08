@@ -23,12 +23,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 try {
-    // Debug-Logging
-    error_log("=== SETUP SESSION START ===");
-    error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-    error_log("GET: " . print_r($_GET, true));
-    error_log("POST: " . print_r($_POST, true));
-    
     // Parameter aus POST oder GET holen
     if ($isGET) {
         $studentName = $_GET['student_name'] ?? '';
@@ -41,12 +35,6 @@ try {
         $isSEB = ($_POST['seb'] ?? 'false') === 'true';
         $redirect = 'json';
     }
-    
-    error_log("Extracted Parameters:");
-    error_log("- studentName: " . $studentName);
-    error_log("- testCode: " . $testCode);
-    error_log("- isSEB: " . ($isSEB ? 'true' : 'false'));
-    error_log("- redirect: " . $redirect);
     
     // Validierung
     if (empty($studentName)) {
@@ -163,21 +151,13 @@ try {
     error_log("- SEB: " . ($isSEB ? 'ja' : 'nein'));
     error_log("- Test-URL: " . $testUrl);
     
-    // DEBUG: Session nach dem Setzen anzeigen
-    error_log("=== SETUP SESSION ERFOLGREICH ===");
-    error_log("Session nach Setup: " . print_r($_SESSION, true));
-    error_log("Test-URL: " . $testUrl);
-    error_log("Redirect-Parameter: " . $redirect);
-    
     // Antwort je nach Request-Type
     if ($isGET && $redirect === 'test') {
         // GET mit redirect=test: Direkte Weiterleitung zu test.php
-        error_log("GET-Redirect zu: " . $testUrl);
         header("Location: " . $testUrl);
         exit();
     } else {
         // POST oder GET ohne redirect: JSON-Antwort
-        error_log("JSON-Antwort wird gesendet");
         echo json_encode([
             'success' => true,
             'test_url' => $testUrl,
@@ -189,39 +169,18 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("=== SETUP SESSION FEHLER ===");
-    error_log("Fehler: " . $e->getMessage());
-    error_log("Stack Trace: " . $e->getTraceAsString());
-    error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-    error_log("Redirect Parameter: " . ($redirect ?? 'nicht gesetzt'));
+    error_log("Setup Session Fehler: " . $e->getMessage());
     
     if ($isGET && $redirect === 'test') {
-        // GET-Fehler: Debug-Seite statt direkter Weiterleitung
-        echo '<!DOCTYPE html><html><head><title>Setup Session Fehler</title></head><body>';
-        echo '<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 20px; margin: 20px; border-radius: 5px;">';
-        echo '<h2>❌ SETUP SESSION FEHLER</h2>';
-        echo '<p><strong>Fehler:</strong> ' . htmlspecialchars($e->getMessage()) . '</p>';
-        echo '<p><strong>Test-Code:</strong> ' . htmlspecialchars($testCode ?? 'nicht gesetzt') . '</p>';
-        echo '<p><strong>Student-Name:</strong> ' . htmlspecialchars($studentName ?? 'nicht gesetzt') . '</p>';
-        echo '<p><strong>Request Method:</strong> ' . htmlspecialchars($_SERVER['REQUEST_METHOD']) . '</p>';
-        echo '<p><strong>GET Parameter:</strong></p><pre>' . print_r($_GET, true) . '</pre>';
-        echo '<p><strong>POST Parameter:</strong></p><pre>' . print_r($_POST, true) . '</pre>';
-        echo '<p>Weiterleitung zu name_form.php in 10 Sekunden...</p>';
-        echo '<script>setTimeout(function() { window.location.href = "name_form.php?code=' . urlencode($testCode ?? '') . '&error=' . urlencode("Fehler: " . $e->getMessage()) . '"; }, 10000);</script>';
-        echo '</div>';
-        echo '</body></html>';
+        // GET-Fehler: Zurück zu name_form.php mit Fehler
+        $errorMsg = urlencode("Fehler: " . $e->getMessage());
+        header("Location: name_form.php?code=" . urlencode($testCode ?? '') . "&error=" . $errorMsg);
         exit();
     } else {
         // POST-Fehler: JSON-Antwort
         echo json_encode([
             'success' => false,
-            'error' => $e->getMessage(),
-            'debug' => [
-                'request_method' => $_SERVER['REQUEST_METHOD'],
-                'get' => $_GET,
-                'post' => $_POST,
-                'trace' => $e->getTraceAsString()
-            ]
+            'error' => $e->getMessage()
         ]);
     }
 }
