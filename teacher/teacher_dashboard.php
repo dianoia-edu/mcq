@@ -185,25 +185,67 @@ if (!empty($tests)) {
         
         // Automatisches Reload der Testergebnisse bei Tab-Wechsel
         if (tabId === 'testResults') {
-            console.log('🔄 Testergebnisse-Tab aktiviert - lade automatisch neu...');
-            // Warte kurz, bis der Tab vollständig geladen ist
-            setTimeout(function() {
-                if (typeof updateResults === 'function') {
-                    updateResults();
-                    console.log('✅ Testergebnisse automatisch neu geladen');
-                } else {
-                    console.warn('⚠️ updateResults Funktion nicht verfügbar');
-                    // Versuche nochmal nach längerem Timeout
+            console.log('🔄 Testergebnisse-Tab aktiviert - lade Inhalt komplett neu...');
+            
+            // Vollständiger Tab-Inhalt-Reload für garantierte Aktualität
+            const tabContent = document.getElementById('testResults');
+            if (tabContent) {
+                // Zeige Loading-Indikator
+                tabContent.innerHTML = `
+                    <div class="alert alert-info text-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <strong>Lade aktuelle Testergebnisse...</strong>
+                    </div>
+                `;
+                
+                // Cache-Buster für garantierte Aktualität
+                const cacheBuster = new Date().getTime();
+                const reloadUrl = window.location.href.split('?')[0] + '?tab=testResults&_=' + cacheBuster;
+                
+                // Lade den Tab-Inhalt über AJAX neu
+                fetch('includes/teacher_dashboard/test_results_view.php?_=' + cacheBuster, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                })
+                .then(response => {
+                    console.log('📊 Antwort erhalten, Status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    console.log('✅ Neuer Tab-Inhalt erhalten, Länge:', html.length);
+                    tabContent.innerHTML = html;
+                    
+                    // Warte kurz und versuche dann updateResults
                     setTimeout(function() {
                         if (typeof updateResults === 'function') {
+                            console.log('📊 Führe updateResults nach Tab-Reload aus...');
                             updateResults();
-                            console.log('✅ Testergebnisse automatisch neu geladen (verzögert)');
                         } else {
-                            console.error('❌ updateResults Funktion auch nach Verzögerung nicht verfügbar');
+                            console.log('⚠️ updateResults nicht verfügbar nach Tab-Reload');
                         }
                     }, 500);
-                }
-            }, 200);
+                })
+                .catch(error => {
+                    console.error('❌ Fehler beim Tab-Reload:', error);
+                    tabContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Fehler beim Laden der Testergebnisse:</strong> ${error.message}
+                            <br><button class="btn btn-sm btn-outline-danger mt-2" onclick="location.reload()">
+                                <i class="bi bi-arrow-clockwise"></i> Seite neu laden
+                            </button>
+                        </div>
+                    `;
+                });
+            }
         }
     }
     </script>
