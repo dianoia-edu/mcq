@@ -52,16 +52,15 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
 require_once __DIR__ . '/../../includes/database_config.php';
 
 // Synchronisiere zuerst die Datenbank, bevor Ergebnisse geladen werden
-if (!$isAjax) {
-    writeLog("Automatische Synchronisation der Datenbank wird durchgeführt");
-    try {
-        require_once __DIR__ . '/sync_database_helper.php';
-        syncDatabase();
-        writeLog("Automatische Synchronisation erfolgreich abgeschlossen");
-    } catch (Exception $e) {
-        writeLog("Fehler bei der automatischen Synchronisation: " . $e->getMessage());
-        // Fahre trotz Fehler fort
-    }
+// WICHTIG: Auch bei AJAX-Anfragen synchronisieren, damit neue Ergebnisse sofort sichtbar sind
+writeLog("Automatische Synchronisation der Datenbank wird durchgeführt (AJAX: " . ($isAjax ? "Ja" : "Nein") . ")");
+try {
+    require_once __DIR__ . '/sync_database_helper.php';
+    syncDatabase();
+    writeLog("Automatische Synchronisation erfolgreich abgeschlossen");
+} catch (Exception $e) {
+    writeLog("Fehler bei der automatischen Synchronisation: " . $e->getMessage());
+    // Fahre trotz Fehler fort
 }
 
 // Funktion zum Schreiben von Debug-Logs
