@@ -568,6 +568,12 @@ if (!$isAjax):
                     <h3 class="card-title">Testauswertung</h3>
         </div>
             <div class="card-body">
+                <!-- Dezenter Hinweis für aktuelle Ergebnisse -->
+                <div class="alert alert-info alert-dismissible fade show mb-3" role="alert" style="font-size: 0.9rem; padding: 0.75rem 1rem;">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Hinweis:</strong> Für die aktuellsten Testergebnisse bitte die Seite neu laden (F5 oder Reload-Button).
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
+                </div>
                     <!-- Filter-Bereich -->
                     <div class="filter-section mb-4">
                 <div class="row g-3">
