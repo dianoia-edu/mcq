@@ -67,14 +67,21 @@ if (!file_exists($_SESSION["test_file"])) {
     exit();
 }
 
-// Überprüfe, ob der Test bereits absolviert wurde
+// ÜBERSPRINGEN: Test-Wiederholungsprüfung komplett deaktiviert
 echo '<div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; margin: 10px; border-radius: 5px;">';
-echo '<h4>🔍 DEBUG: Test-Wiederholungsprüfung</h4>';
+echo '<h4>🔍 DEBUG: Test-Wiederholungsprüfung (DEAKTIVIERT)</h4>';
 echo '<p>Test-Code: <strong>' . htmlspecialchars($_SESSION["test_code"]) . '</strong></p>';
 echo '<p>Student: <strong>' . htmlspecialchars($_SESSION["student_name"]) . '</strong></p>';
+echo '<p>Test-Wiederholungsprüfung: <strong>KOMPLETT ÜBERSPRUNGEN</strong></p>';
+echo '<p>Status: <strong>IMMER ERLAUBT</strong> ✅</p>';
 
-$completedToday = hasCompletedTestToday($_SESSION["test_code"], $_SESSION["student_name"]);
-echo '<p>Bereits heute absolviert: <strong>' . ($completedToday ? 'JA' : 'NEIN') . '</strong></p>';
+// Zeige was hasCompletedTestToday eigentlich zurückgibt
+if (function_exists('hasCompletedTestToday')) {
+    $completedToday = hasCompletedTestToday($_SESSION["test_code"], $_SESSION["student_name"]);
+    echo '<p>hasCompletedTestToday() Rückgabe: <strong>' . ($completedToday ? 'TRUE (blockiert)' : 'FALSE (erlaubt)') . '</strong></p>';
+} else {
+    echo '<p>hasCompletedTestToday() Funktion: <strong>NICHT GEFUNDEN</strong></p>';
+}
 
 // Zeige Konfiguration
 $configFile = __DIR__ . '/config/app_config.json';
@@ -87,17 +94,15 @@ if (file_exists($configFile)) {
 }
 echo '</div>';
 
+// ERZWINGE: Test wird IMMER erlaubt, egal was hasCompletedTestToday sagt
+$completedToday = false; // ERZWUNGEN: Überschreibe jegliches Ergebnis
+
 if ($completedToday) {
+    // Dieser Block sollte NIE ausgeführt werden
     echo '<div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; margin: 10px; border-radius: 5px;">';
-    echo '<h4>⚠️ WARNUNG: Test bereits heute absolviert</h4>';
-    echo '<p>Dieser Test wurde heute bereits durchgeführt.</p>';
-    echo '<p>Test-Code: <strong>' . htmlspecialchars($_SESSION["test_code"]) . '</strong></p>';
-    echo '<p>Student: <strong>' . htmlspecialchars($_SESSION["student_name"]) . '</strong></p>';
-    echo '<p>Weiterleitung zur Startseite in 15 Sekunden...</p>';
-    echo '<script>setTimeout(function() { window.location.href = "index.php"; }, 15000);</script>';
+    echo '<h4>❌ FEHLER: Dieser Code sollte niemals erreicht werden!</h4>';
+    echo '<p>$completedToday wurde auf false gesetzt, aber ist trotzdem true!</p>';
     echo '</div>';
-    
-    $_SESSION["error"] = "Sie haben diesen Test heute bereits absolviert. Bitte versuchen Sie es morgen wieder.";
     exit();
 }
 
