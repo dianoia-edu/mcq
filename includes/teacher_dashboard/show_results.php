@@ -409,7 +409,12 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                 // Prüfe sowohl 'schuelerantwort' als auch 'selected' Attribute
                 $schuelerantwort = (int)$answer->schuelerantwort;
                 $selected = (int)$answer->selected;
+                
+                // KORRIGIERTE LOGIK: Nur wenn mindestens einer der Werte 1 ist, ist die Antwort gewählt
                 $wasChosen = ($schuelerantwort === 1) || ($selected === 1);
+                
+                // ZUSÄTZLICHE DEBUG-AUSGABE für jede Antwort
+                writeLog("    Antwort: schuelerantwort='$schuelerantwort', selected='$selected', wasChosen=" . ($wasChosen ? 'true' : 'false') . ", correct=" . ($isCorrect ? 'true' : 'false'));
                 
                 // ZUSÄTZLICHE VALIDIERUNG: Prüfe, ob die Werte sinnvoll sind
                 if ($schuelerantwort > 1 || $selected > 1) {
@@ -467,7 +472,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             
             // DEBUG-AUSGABE für jede Frage
             echo "<div style='font-size: 0.8em; color: #666; margin-bottom: 10px; padding: 5px; background: #e9ecef; border: 1px solid #ced4da;'>";
-            echo "<strong>DEBUG FRAGE $questionNumber:</strong><br>";
+            echo "<strong>DEBUG:</strong><br>";
             echo "Richtig gewählt: $correctChosen | Falsch gewählt: $wrongChosen | Single Choice: " . ($isSingleChoice ? 'Ja' : 'Nein');
             echo "</div>";
             
@@ -491,24 +496,24 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                     $answerText = isset($answer->text) ? (string)$answer->text : 'Keine Antworttext';
                     $isCorrect = (string)$answer->correct === '1';
                     // Prüfe sowohl 'schuelerantwort' als auch 'selected' Attribute - mit Debug
-                    $schuelerantwort = (string)$answer->schuelerantwort;
-                    $selected = (string)$answer->selected;
-                    $isSelected = ($schuelerantwort === '1') || ($selected === '1');
+                    $schuelerantwort = (int)$answer->schuelerantwort;
+                    $selected = (int)$answer->selected;
+                    $isSelected = ($schuelerantwort === 1) || ($selected === 1);
                     
                     // Debug-Ausgabe für Browser-Konsole (nur bei Bedarf)
                     if (isset($_GET['debug']) && $_GET['debug'] === '1') {
                         echo "<script>console.log('Antwort-Debug:', {
                             'Text': '" . addslashes($answerText) . "',
                             'Correct': " . ($isCorrect ? 'true' : 'false') . ",
-                            'Schuelerantwort': '" . $schuelerantwort . "',
-                            'Selected': '" . $selected . "',
+                            'Schuelerantwort': $schuelerantwort,
+                            'Selected': $selected,
                             'IsSelected': " . ($isSelected ? 'true' : 'false') . "
                         });</script>";
                     }
                     
                     // ZUSÄTZLICHE DEBUG-AUSGABE: Zeige in der Anzeige, welche Antworten als gewählt erkannt werden
                     echo "<div style='font-size: 0.7em; color: #666; margin-top: 3px; padding: 2px; background: #f8f9fa; border: 1px solid #dee2e6;'>";
-                    echo "DEBUG: schuelerantwort='$schuelerantwort', selected='$selected', wasChosen=" . ($isSelected ? 'true' : 'false') . ", correct=" . ($isCorrect ? 'true' : 'false');
+                    echo "DEBUG: schuelerantwort=$schuelerantwort, selected=$selected, wasChosen=" . ($isSelected ? 'true' : 'false') . ", correct=" . ($isCorrect ? 'true' : 'false');
                     echo "</div>";
                     
                     // Bestimme CSS-Klasse und Stil für die Antwort - dezentere Farben
