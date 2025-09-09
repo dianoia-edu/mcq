@@ -260,6 +260,18 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                 }
             }
             
+            // ZUSÄTZLICHE DEBUG-AUSGABE: Zeige alle Antworten einer Frage
+            writeLog("  === FRAGE $questionNumber DEBUG ===");
+            foreach ($question->answers->answer as $answer) {
+                $answerText = (string)$answer->text;
+                $isCorrect = (int)$answer->correct === 1;
+                $schuelerantwort = (int)$answer->schuelerantwort;
+                $selected = (int)$answer->selected;
+                $wasChosen = ($schuelerantwort === 1) || ($selected === 1);
+                
+                writeLog("    Antwort: '$answerText' | correct=$isCorrect | schuelerantwort=$schuelerantwort | selected=$selected | wasChosen=" . ($wasChosen ? "1" : "0"));
+            }
+            
             writeLog("  Gewählte richtige Antworten: $correctChosen");
             writeLog("  Gewählte falsche Antworten: $wrongChosen");
             
@@ -469,6 +481,13 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                             'Selected': '" . $selected . "',
                             'IsSelected': " . ($isSelected ? 'true' : 'false') . "
                         });</script>";
+                    }
+                    
+                    // ZUSÄTZLICHE DEBUG-AUSGABE: Zeige in der Anzeige, welche Antworten als gewählt erkannt werden
+                    if (isset($_GET['debug']) && $_GET['debug'] === '1') {
+                        echo "<div style='font-size: 0.8em; color: #666; margin-top: 5px;'>";
+                        echo "DEBUG: schuelerantwort='$schuelerantwort', selected='$selected', wasChosen=" . ($isSelected ? 'true' : 'false');
+                        echo "</div>";
                     }
                     
                     // Bestimme CSS-Klasse und Stil für die Antwort - dezentere Farben
