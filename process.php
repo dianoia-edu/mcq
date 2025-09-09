@@ -118,9 +118,7 @@ error_log("=== VERARBEITUNG DER ANTWORTEN ===");
 error_log("POST-Daten: " . print_r($_POST, true));
 error_log("shuffled_questions: " . print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true));
 
-// DEBUG-AUSGABEN FÜR BROWSER
-echo "<!-- DEBUG: POST-Daten: " . htmlspecialchars(print_r($_POST, true)) . " -->";
-echo "<!-- DEBUG: shuffled_questions: " . htmlspecialchars(print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true)) . " -->";
+// DEBUG-AUSGABEN FÜR BROWSER entfernt - werden jetzt in Log-Datei geschrieben
 
 foreach ($_POST as $key => $value) {
     if (strpos($key, 'answer_') === 0) {
@@ -156,15 +154,12 @@ foreach ($_POST as $key => $value) {
                 
                 // Finde die ursprüngliche Antwort in der XML
                 error_log("Suche nach Frage Nr: $originalQuestionNr, Antwort Nr: $answerIndex");
-                echo "<!-- DEBUG: Suche nach Frage Nr: $originalQuestionNr, Antwort Nr: $answerIndex -->";
                 foreach ($answerXml->questions->question as $question) {
                     if ((string)$question['nr'] === $originalQuestionNr) {
                         error_log("Frage gefunden: " . (string)$question['nr']);
-                        echo "<!-- DEBUG: Frage gefunden: " . (string)$question['nr'] . " -->";
                         foreach ($question->answers->answer as $answer) {
                             if ((string)$answer['nr'] === $answerIndex) {
                                 error_log("Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr']);
-                                echo "<!-- DEBUG: Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr'] . " -->";
                                 $answer->addChild('schuelerantwort', '1');
                             }
                         }
@@ -179,15 +174,12 @@ foreach ($_POST as $key => $value) {
             }
             
             error_log("Suche nach Frage Nr: $originalQuestionNr, Radio-Antwort: $value");
-            echo "<!-- DEBUG: Suche nach Frage Nr: $originalQuestionNr, Radio-Antwort: $value -->";
             foreach ($answerXml->questions->question as $question) {
                 if ((string)$question['nr'] === $originalQuestionNr) {
                     error_log("Frage gefunden: " . (string)$question['nr']);
-                    echo "<!-- DEBUG: Frage gefunden: " . (string)$question['nr'] . " -->";
                     foreach ($question->answers->answer as $answer) {
                         if ((string)$answer['nr'] === $value) {
                             error_log("Radio-Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr']);
-                            echo "<!-- DEBUG: Radio-Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr'] . " -->";
                             $answer->addChild('schuelerantwort', '1');
                         }
                     }
@@ -199,20 +191,16 @@ foreach ($_POST as $key => $value) {
 
 // Setze alle nicht beantworteten Antworten auf 0
 error_log("=== SETZE NICHT BEANTWORTETE ANTWORTEN AUF 0 ===");
-echo "<!-- DEBUG: === SETZE NICHT BEANTWORTETE ANTWORTEN AUF 0 === -->";
 foreach ($answerXml->questions->question as $question) {
     $questionNr = (string)$question['nr'];
     error_log("Prüfe Frage Nr: $questionNr");
-    echo "<!-- DEBUG: Prüfe Frage Nr: $questionNr -->";
     foreach ($question->answers->answer as $answer) {
         $answerNr = (string)$answer['nr'];
         if (!isset($answer->schuelerantwort)) {
             error_log("  Antwort $answerNr hat keine schuelerantwort - setze auf 0");
-            echo "<!-- DEBUG: Antwort $answerNr hat keine schuelerantwort - setze auf 0 -->";
             $answer->addChild('schuelerantwort', '0');
         } else {
             error_log("  Antwort $answerNr hat schuelerantwort: " . (string)$answer->schuelerantwort);
-            echo "<!-- DEBUG: Antwort $answerNr hat schuelerantwort: " . (string)$answer->schuelerantwort . " -->";
         }
     }
 }
@@ -306,9 +294,7 @@ $dom->preserveWhiteSpace = false;
 $dom->formatOutput = true;
 $dom->loadXML($answerXml->asXML());
 
-// DEBUG: Zeige finale XML-Datei
-echo "<!-- DEBUG: === FINALE XML-DATEI === -->";
-echo "<!-- DEBUG: " . htmlspecialchars($dom->saveXML()) . " -->";
+// DEBUG: Finale XML-Datei wird in Log-Datei geschrieben
 
 // Überprüfe, ob die Datei geschrieben werden kann
 error_log("Versuche XML-Datei zu speichern: " . $filepath);
@@ -489,33 +475,15 @@ $_SESSION['download_xml_filename'] = $filename;
 
 // Weiterleitung zur Ergebnisseite
 error_log("Weiterleitung zur Ergebnisseite");
-// DEBUG: Zeige Debug-Seite vor Weiterleitung
-if (isset($_GET['debug']) && $_GET['debug'] === '1') {
-    echo "<!DOCTYPE html><html><head><title>DEBUG - Testverarbeitung</title></head><body>";
-    echo "<h1>DEBUG - Testverarbeitung</h1>";
-    echo "<h2>POST-Daten:</h2>";
-    echo "<pre>" . htmlspecialchars(print_r($_POST, true)) . "</pre>";
-    echo "<h2>Session shuffled_questions:</h2>";
-    echo "<pre>" . htmlspecialchars(print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true)) . "</pre>";
-    echo "<h2>Finale XML-Datei:</h2>";
-    echo "<pre>" . htmlspecialchars($dom->saveXML()) . "</pre>";
-    echo "<p><a href='result.php'>Weiter zum Ergebnis</a></p>";
-    echo "</body></html>";
-    exit();
-}
+// DEBUG: Schreibe Debug-Informationen in Log-Datei
+$debugLogFile = __DIR__ . '/debug_test_processing.log';
+$debugContent = "\n=== TESTVERARBEITUNG DEBUG - " . date('Y-m-d H:i:s') . " ===\n";
+$debugContent .= "POST-Daten:\n" . print_r($_POST, true) . "\n";
+$debugContent .= "Session shuffled_questions:\n" . print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true) . "\n";
+$debugContent .= "Finale XML-Datei:\n" . $dom->saveXML() . "\n";
+$debugContent .= "=== ENDE DEBUG ===\n\n";
 
-// DEBUG: Zeige Debug-Ausgaben auch ohne ?debug=1 Parameter
-echo "<!DOCTYPE html><html><head><title>DEBUG - Testverarbeitung</title></head><body>";
-echo "<h1>DEBUG - Testverarbeitung</h1>";
-echo "<h2>POST-Daten:</h2>";
-echo "<pre>" . htmlspecialchars(print_r($_POST, true)) . "</pre>";
-echo "<h2>Session shuffled_questions:</h2>";
-echo "<pre>" . htmlspecialchars(print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true)) . "</pre>";
-echo "<h2>Finale XML-Datei:</h2>";
-echo "<pre>" . htmlspecialchars($dom->saveXML()) . "</pre>";
-echo "<p><a href='result.php'>Weiter zum Ergebnis</a></p>";
-echo "</body></html>";
-exit();
+file_put_contents($debugLogFile, $debugContent, FILE_APPEND | LOCK_EX);
 
 header("Location: result.php");
 exit();
