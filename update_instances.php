@@ -60,6 +60,7 @@ function performAjaxUpdate() {
         // SEB-Konfigurationsdateien
         'seb_config.php' => 'Standard SEB-Konfiguration',
         'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration',
+        'seb_config_preview.php' => 'SEB-Einschränkungen-Vorschau',
         // WARNUNG: database_config.php NICHT updaten - jede Instanz hat instanz-spezifische DB-Daten!
         'config/clean_schema.sql' => 'Sauberes DB-Schema ohne Testergebnisse'
     ];

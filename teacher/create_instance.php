@@ -137,7 +137,8 @@ function performInstanceUpdate($instanceName, $instancesBasePath, $sourceBasePat
         'includes/TestDatabase.php' => 'Datenbank-Klasse für Testergebnisse',
         'check_test_attempts.php' => 'Test-Wiederholungsprüfung (deaktiviert)',
         'seb_config.php' => 'Standard SEB-Konfiguration',
-        'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration'
+        'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration',
+        'seb_config_preview.php' => 'SEB-Einschränkungen-Vorschau'
         // HINWEIS: database_config.php wird NICHT aktualisiert - jede Instanz hat ihre eigene!
     ];
     
