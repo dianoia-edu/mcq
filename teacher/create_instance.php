@@ -138,7 +138,8 @@ function performInstanceUpdate($instanceName, $instancesBasePath, $sourceBasePat
         'check_test_attempts.php' => 'Test-Wiederholungsprüfung (deaktiviert)',
         'seb_config.php' => 'Standard SEB-Konfiguration',
         'seb_config_override_server.php' => 'SEB-Standalone-Konfiguration',
-        'seb_config_preview.php' => 'SEB-Einschränkungen-Vorschau'
+        'seb_config_preview.php' => 'SEB-Einschränkungen-Vorschau',
+        'includes/teacher_dashboard/show_results.php' => 'Test Results Detail View (Antwort-Markierung-Fix)'
         // HINWEIS: database_config.php wird NICHT aktualisiert - jede Instanz hat ihre eigene!
     ];
     

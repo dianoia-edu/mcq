@@ -43,6 +43,7 @@ function performAjaxUpdate() {
         'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View (usort-Fix)',
         'includes/teacher_dashboard/configuration_view.php' => 'Configuration View (getTeacherUrl + Update-Button entfernt)',
         'includes/teacher_dashboard/test_results_view.php' => 'Test Results View (DatabaseConfig-Fix + Sortierung)',
+        'includes/teacher_dashboard/show_results.php' => 'Test Results Detail View (Antwort-Markierung-Fix)',
         'includes/teacher_dashboard/config_view.php' => 'Config View',
         'includes/teacher_dashboard/get_openai_models.php' => 'OpenAI Models API',
         'includes/teacher_dashboard/get_instances.php' => 'Instanzen-Übersicht API (korrigierte Pfade + Admin-Codes)',
