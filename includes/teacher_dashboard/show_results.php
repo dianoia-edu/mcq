@@ -394,8 +394,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             $correctTotal = isset($questionPoints[$pointsIndex]['correctTotal']) ? $questionPoints[$pointsIndex]['correctTotal'] : 0;
             $wrongChosen = isset($questionPoints[$pointsIndex]['wrongChosen']) ? $questionPoints[$pointsIndex]['wrongChosen'] : 0;
             
-            // Debug-Ausgabe der Fragenindizes und -nummern
-            writeLog("  Fragendaten: XML-Nummer=$questionNumber, ArrayIndex=$pointsIndex, ErreichtePunkte=$achievedQPoints/$maxQPoints");
+            // Debug-Ausgaben entfernt
             
             // Neuberechnung der Punkte im Anzeigemodus, um Konsistenz mit auswertung.php zu gewährleisten
             // Diese Zeilen sicherstellen, dass die Anzeige mit der Auswertung übereinstimmt
@@ -412,8 +411,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                 $schuelerantwort = (int)$rawSchuelerantwort;
                 $selected = (int)$rawSelected;
                 
-                // ZUSÄTZLICHE DEBUG-AUSGABE für jede Antwort
-                writeLog("    Antwort: RAW schuelerantwort='$rawSchuelerantwort', RAW selected='$rawSelected' | CONVERTED schuelerantwort=$schuelerantwort, selected=$selected");
+                // Debug-Ausgaben entfernt
                 
                 // KORRIGIERTE LOGIK: Nur wenn mindestens einer der Werte 1 ist, ist die Antwort gewählt
                 // ABER: Prüfe zuerst, ob die XML-Datei überhaupt gültige Daten enthält
@@ -438,10 +436,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                     $wasChosen = false;
                 }
                 
-                // ZUSÄTZLICHE VALIDIERUNG: Prüfe, ob die XML-Datei überhaupt Schülerantworten enthält
-                if ($rawSchuelerantwort === '' && $rawSelected === '') {
-                    writeLog("  WARNUNG: Beide Attribute sind leer - möglicherweise keine Schülerantworten in der XML-Datei");
-                }
+                // Debug-Ausgaben entfernt
                 
                 if ($isCorrect) {
                     $correctTotal++;
@@ -457,16 +452,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             $maxQPoints = $correctTotal;
             $achievedQPoints = max(0, $correctChosen - $wrongChosen);
             
-            // ZUSÄTZLICHE VALIDIERUNG: Prüfe, ob überhaupt eine Antwort gewählt wurde
-            if ($correctChosen === 0 && $wrongChosen === 0) {
-                writeLog("  WARNUNG: Keine Antworten gewählt - möglicherweise fehlerhafte XML-Datei");
-                // Setze Punkte auf 0, wenn keine Antwort gewählt wurde
-                $achievedQPoints = 0;
-            } else {
-                writeLog("  VALIDIERUNG: Antworten gewählt - correctChosen=$correctChosen, wrongChosen=$wrongChosen");
-            }
-            
-            writeLog("  NEUBERECHNUNG: XML-Nummer=$questionNumber, ErreichtePunkte=$achievedQPoints/$maxQPoints");
+            // Debug-Ausgaben entfernt
             
             // Bestimme die Farbcodierung basierend auf dem Ergebnis
             if ($achievedQPoints == $maxQPoints && $maxQPoints > 0) {
@@ -491,17 +477,13 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             echo "<div class='card mb-3 $borderClass' style='$cardStyle'>";
             echo "<div class='card-header' style='$headerStyle'>";
             
-            // Debug-Ausgaben entfernt, da sie die HTML-Struktur stören
+            // Debug-Ausgaben entfernt
             
             echo "<h5 class='mb-0'>Frage $questionNumber: $achievedQPoints/$maxQPoints Punkte</h5>";
             echo "</div>";
             echo "<div class='card-body'>";
             
-            // DEBUG-AUSGABE für jede Frage
-            echo "<div style='font-size: 0.8em; color: #666; margin-bottom: 10px; padding: 5px; background: #e9ecef; border: 1px solid #ced4da;'>";
-            echo "<strong>DEBUG FRAGE $questionNumber:</strong><br>";
-            echo "Richtig gewählt: $correctChosen | Falsch gewählt: $wrongChosen | Single Choice: " . ($isSingleChoice ? 'Ja' : 'Nein');
-            echo "</div>";
+            // Debug-Ausgaben entfernt
             
             // Fragentext
             echo "<p class='card-text'>" . nl2br(htmlspecialchars($questionText)) . "</p>";
@@ -545,11 +527,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                         });</script>";
                     }
                     
-                    // ZUSÄTZLICHE DEBUG-AUSGABE: Zeige in der Anzeige, welche Antworten als gewählt erkannt werden
-                    echo "<div style='font-size: 0.7em; color: #666; margin-top: 3px; padding: 2px; background: #f8f9fa; border: 1px solid #dee2e6;'>";
-                    echo "DEBUG: RAW schuelerantwort='" . (string)$answer->schuelerantwort . "', RAW selected='" . (string)$answer->selected . "' | ";
-                    echo "CONVERTED schuelerantwort=$schuelerantwort, selected=$selected, wasChosen=" . ($isSelected ? 'true' : 'false') . ", correct=" . ($isCorrect ? 'true' : 'false');
-                    echo "</div>";
+                    // Debug-Ausgaben entfernt
                     
                     // Bestimme CSS-Klasse und Stil für die Antwort - dezentere Farben
                     $bgStyle = '';
