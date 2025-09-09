@@ -416,7 +416,18 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                 writeLog("    Antwort: RAW schuelerantwort='$rawSchuelerantwort', RAW selected='$rawSelected' | CONVERTED schuelerantwort=$schuelerantwort, selected=$selected");
                 
                 // KORRIGIERTE LOGIK: Nur wenn mindestens einer der Werte 1 ist, ist die Antwort gewählt
-                $wasChosen = ($schuelerantwort === 1) || ($selected === 1);
+                // ABER: Prüfe zuerst, ob die XML-Datei überhaupt gültige Daten enthält
+                $wasChosen = false;
+                
+                // Prüfe, ob die XML-Datei gültige Schülerantworten enthält
+                if ($rawSchuelerantwort !== '' || $rawSelected !== '') {
+                    // Nur wenn mindestens einer der Werte 1 ist, ist die Antwort gewählt
+                    $wasChosen = ($schuelerantwort === 1) || ($selected === 1);
+                } else {
+                    // Wenn beide Attribute leer sind, wurde keine Antwort gewählt
+                    $wasChosen = false;
+                    writeLog("  INFO: Beide Attribute sind leer - keine Antwort gewählt");
+                }
                 
                 // ZUSÄTZLICHE VALIDIERUNG: Prüfe, ob die Werte sinnvoll sind
                 if ($schuelerantwort > 1 || $selected > 1) {
@@ -451,6 +462,8 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                 writeLog("  WARNUNG: Keine Antworten gewählt - möglicherweise fehlerhafte XML-Datei");
                 // Setze Punkte auf 0, wenn keine Antwort gewählt wurde
                 $achievedQPoints = 0;
+            } else {
+                writeLog("  VALIDIERUNG: Antworten gewählt - correctChosen=$correctChosen, wrongChosen=$wrongChosen");
             }
             
             writeLog("  NEUBERECHNUNG: XML-Nummer=$questionNumber, ErreichtePunkte=$achievedQPoints/$maxQPoints");
@@ -486,7 +499,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             
             // DEBUG-AUSGABE für jede Frage
             echo "<div style='font-size: 0.8em; color: #666; margin-bottom: 10px; padding: 5px; background: #e9ecef; border: 1px solid #ced4da;'>";
-            echo "<strong>DEBUG:</strong><br>";
+            echo "<strong>DEBUG FRAGE $questionNumber:</strong><br>";
             echo "Richtig gewählt: $correctChosen | Falsch gewählt: $wrongChosen | Single Choice: " . ($isSingleChoice ? 'Ja' : 'Nein');
             echo "</div>";
             
@@ -510,9 +523,16 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                     $answerText = isset($answer->text) ? (string)$answer->text : 'Keine Antworttext';
                     $isCorrect = (string)$answer->correct === '1';
                     // Prüfe sowohl 'schuelerantwort' als auch 'selected' Attribute - mit Debug
-                    $schuelerantwort = (int)$answer->schuelerantwort;
-                    $selected = (int)$answer->selected;
-                    $isSelected = ($schuelerantwort === 1) || ($selected === 1);
+                    $rawSchuelerantwort = (string)$answer->schuelerantwort;
+                    $rawSelected = (string)$answer->selected;
+                    $schuelerantwort = (int)$rawSchuelerantwort;
+                    $selected = (int)$rawSelected;
+                    
+                    // Gleiche Logik wie in der Berechnung
+                    $isSelected = false;
+                    if ($rawSchuelerantwort !== '' || $rawSelected !== '') {
+                        $isSelected = ($schuelerantwort === 1) || ($selected === 1);
+                    }
                     
                     // Debug-Ausgabe für Browser-Konsole (nur bei Bedarf)
                     if (isset($_GET['debug']) && $_GET['debug'] === '1') {

@@ -114,10 +114,16 @@ $answerXml->addChild('abgabezeit', date('Y-m-d H:i:s'));
 error_log("Verarbeite Testabgabe von: " . $_SESSION['student_name']);
 
 // Verarbeite die Antworten
+error_log("=== VERARBEITUNG DER ANTWORTEN ===");
+error_log("POST-Daten: " . print_r($_POST, true));
+error_log("shuffled_questions: " . print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true));
+
 foreach ($_POST as $key => $value) {
     if (strpos($key, 'answer_') === 0) {
         // Extrahiere den Fragenindex (jetzt qIndex basiert)
         $qIndex = substr($key, 7);
+        
+        error_log("Verarbeite Antwort: key=$key, qIndex=$qIndex, value=" . print_r($value, true));
         
         // Validiere den qIndex
         if (!is_numeric($qIndex) || $qIndex < 0) {
@@ -145,10 +151,13 @@ foreach ($_POST as $key => $value) {
                 }
                 
                 // Finde die ursprüngliche Antwort in der XML
+                error_log("Suche nach Frage Nr: $originalQuestionNr, Antwort Nr: $answerIndex");
                 foreach ($answerXml->questions->question as $question) {
                     if ((string)$question['nr'] === $originalQuestionNr) {
+                        error_log("Frage gefunden: " . (string)$question['nr']);
                         foreach ($question->answers->answer as $answer) {
                             if ((string)$answer['nr'] === $answerIndex) {
+                                error_log("Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr']);
                                 $answer->addChild('schuelerantwort', '1');
                             }
                         }
@@ -162,10 +171,13 @@ foreach ($_POST as $key => $value) {
                 continue;
             }
             
+            error_log("Suche nach Frage Nr: $originalQuestionNr, Radio-Antwort: $value");
             foreach ($answerXml->questions->question as $question) {
                 if ((string)$question['nr'] === $originalQuestionNr) {
+                    error_log("Frage gefunden: " . (string)$question['nr']);
                     foreach ($question->answers->answer as $answer) {
                         if ((string)$answer['nr'] === $value) {
+                            error_log("Radio-Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr']);
                             $answer->addChild('schuelerantwort', '1');
                         }
                     }
@@ -176,10 +188,17 @@ foreach ($_POST as $key => $value) {
 }
 
 // Setze alle nicht beantworteten Antworten auf 0
+error_log("=== SETZE NICHT BEANTWORTETE ANTWORTEN AUF 0 ===");
 foreach ($answerXml->questions->question as $question) {
+    $questionNr = (string)$question['nr'];
+    error_log("Prüfe Frage Nr: $questionNr");
     foreach ($question->answers->answer as $answer) {
+        $answerNr = (string)$answer['nr'];
         if (!isset($answer->schuelerantwort)) {
+            error_log("  Antwort $answerNr hat keine schuelerantwort - setze auf 0");
             $answer->addChild('schuelerantwort', '0');
+        } else {
+            error_log("  Antwort $answerNr hat schuelerantwort: " . (string)$answer->schuelerantwort);
         }
     }
 }
