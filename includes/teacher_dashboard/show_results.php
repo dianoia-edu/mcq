@@ -490,11 +490,14 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                         $badgeClass = 'bg-danger';
                         $badgeText = 'Falsch';
                     } else if (!$isSelected && $isCorrect) {
-                        // Nicht gewählte richtige Antwort - Gelb
-                        $bgStyle = 'background-color: rgba(255, 193, 7, 0.2);';
-                        $badgeClass = 'bg-warning text-dark';
-                        $badgeText = 'Korrekt';
+                        // Nicht gewählte richtige Antwort - Gelb (nur bei Multiple Choice)
+                        if (!$isSingleChoice) {
+                            $bgStyle = 'background-color: rgba(255, 193, 7, 0.2);';
+                            $badgeClass = 'bg-warning text-dark';
+                            $badgeText = 'Korrekt';
+                        }
                     }
+                    // Bei nicht gewählten falschen Antworten wird nichts markiert (normal)
                     
                     // Ermittle den Antwortbuchstaben
                     $answerLetter = isset($answer['nr']) ? (string)$answer['nr'] : '';
