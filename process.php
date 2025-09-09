@@ -106,6 +106,20 @@ if ($originalXml === false) {
 // Erstelle eine Kopie des XML für die Antworten
 $answerXml = clone $originalXml;
 
+// DEBUG: Zeige ursprüngliche XML-Struktur
+error_log("=== URSPRÜNGLICHE XML-STRUKTUR ===");
+foreach ($answerXml->questions->question as $question) {
+    error_log("Frage Nr: " . (string)$question['nr'] . " - " . (string)$question->text);
+}
+
+// KORREKTUR: Setze die Fragennummern in der XML-Datei auf die korrekte Reihenfolge
+$questionIndex = 1;
+foreach ($answerXml->questions->question as $question) {
+    $question['nr'] = $questionIndex;
+    error_log("Korrigierte Frage Nr: " . $questionIndex . " - " . (string)$question->text);
+    $questionIndex++;
+}
+
 // Füge den Schülernamen und Zeitstempel hinzu
 $answerXml->addChild('schuelername', htmlspecialchars($_SESSION['student_name']));
 $answerXml->addChild('abgabezeit', date('Y-m-d H:i:s'));
