@@ -175,15 +175,21 @@ header("Pragma: no-cache");
     function enterFullscreen() {
         const element = document.documentElement;
         
-        // iOS Safari spezifische Implementierung
-        if (element.webkitEnterFullscreen) {
-            element.webkitEnterFullscreen();
-        } else if (element.requestFullscreen) {
-            element.requestFullscreen();
-        } else if (element.webkitRequestFullscreen) { // Desktop Safari
-            element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) { // IE11
-            element.msRequestFullscreen();
+        try {
+            // iOS Safari spezifische Implementierung
+            if (element.webkitEnterFullscreen) {
+                element.webkitEnterFullscreen();
+            } else if (element.requestFullscreen) {
+                element.requestFullscreen().catch(err => {
+                    console.warn('Vollbildmodus konnte nicht aktiviert werden:', err);
+                });
+            } else if (element.webkitRequestFullscreen) { // Desktop Safari
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { // IE11
+                element.msRequestFullscreen();
+            }
+        } catch (error) {
+            console.warn('Vollbildmodus-Fehler:', error);
         }
     }
 

@@ -118,6 +118,10 @@ error_log("=== VERARBEITUNG DER ANTWORTEN ===");
 error_log("POST-Daten: " . print_r($_POST, true));
 error_log("shuffled_questions: " . print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true));
 
+// DEBUG-AUSGABEN FÜR BROWSER
+echo "<!-- DEBUG: POST-Daten: " . htmlspecialchars(print_r($_POST, true)) . " -->";
+echo "<!-- DEBUG: shuffled_questions: " . htmlspecialchars(print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true)) . " -->";
+
 foreach ($_POST as $key => $value) {
     if (strpos($key, 'answer_') === 0) {
         // Extrahiere den Fragenindex (jetzt qIndex basiert)
@@ -152,12 +156,15 @@ foreach ($_POST as $key => $value) {
                 
                 // Finde die ursprüngliche Antwort in der XML
                 error_log("Suche nach Frage Nr: $originalQuestionNr, Antwort Nr: $answerIndex");
+                echo "<!-- DEBUG: Suche nach Frage Nr: $originalQuestionNr, Antwort Nr: $answerIndex -->";
                 foreach ($answerXml->questions->question as $question) {
                     if ((string)$question['nr'] === $originalQuestionNr) {
                         error_log("Frage gefunden: " . (string)$question['nr']);
+                        echo "<!-- DEBUG: Frage gefunden: " . (string)$question['nr'] . " -->";
                         foreach ($question->answers->answer as $answer) {
                             if ((string)$answer['nr'] === $answerIndex) {
                                 error_log("Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr']);
+                                echo "<!-- DEBUG: Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr'] . " -->";
                                 $answer->addChild('schuelerantwort', '1');
                             }
                         }
@@ -172,12 +179,15 @@ foreach ($_POST as $key => $value) {
             }
             
             error_log("Suche nach Frage Nr: $originalQuestionNr, Radio-Antwort: $value");
+            echo "<!-- DEBUG: Suche nach Frage Nr: $originalQuestionNr, Radio-Antwort: $value -->";
             foreach ($answerXml->questions->question as $question) {
                 if ((string)$question['nr'] === $originalQuestionNr) {
                     error_log("Frage gefunden: " . (string)$question['nr']);
+                    echo "<!-- DEBUG: Frage gefunden: " . (string)$question['nr'] . " -->";
                     foreach ($question->answers->answer as $answer) {
                         if ((string)$answer['nr'] === $value) {
                             error_log("Radio-Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr']);
+                            echo "<!-- DEBUG: Radio-Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr'] . " -->";
                             $answer->addChild('schuelerantwort', '1');
                         }
                     }
@@ -189,16 +199,20 @@ foreach ($_POST as $key => $value) {
 
 // Setze alle nicht beantworteten Antworten auf 0
 error_log("=== SETZE NICHT BEANTWORTETE ANTWORTEN AUF 0 ===");
+echo "<!-- DEBUG: === SETZE NICHT BEANTWORTETE ANTWORTEN AUF 0 === -->";
 foreach ($answerXml->questions->question as $question) {
     $questionNr = (string)$question['nr'];
     error_log("Prüfe Frage Nr: $questionNr");
+    echo "<!-- DEBUG: Prüfe Frage Nr: $questionNr -->";
     foreach ($question->answers->answer as $answer) {
         $answerNr = (string)$answer['nr'];
         if (!isset($answer->schuelerantwort)) {
             error_log("  Antwort $answerNr hat keine schuelerantwort - setze auf 0");
+            echo "<!-- DEBUG: Antwort $answerNr hat keine schuelerantwort - setze auf 0 -->";
             $answer->addChild('schuelerantwort', '0');
         } else {
             error_log("  Antwort $answerNr hat schuelerantwort: " . (string)$answer->schuelerantwort);
+            echo "<!-- DEBUG: Antwort $answerNr hat schuelerantwort: " . (string)$answer->schuelerantwort . " -->";
         }
     }
 }
@@ -291,6 +305,10 @@ $dom = new DOMDocument('1.0');
 $dom->preserveWhiteSpace = false;
 $dom->formatOutput = true;
 $dom->loadXML($answerXml->asXML());
+
+// DEBUG: Zeige finale XML-Datei
+echo "<!-- DEBUG: === FINALE XML-DATEI === -->";
+echo "<!-- DEBUG: " . htmlspecialchars($dom->saveXML()) . " -->";
 
 // Überprüfe, ob die Datei geschrieben werden kann
 error_log("Versuche XML-Datei zu speichern: " . $filepath);

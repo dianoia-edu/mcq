@@ -30,6 +30,12 @@ function createAttentionButton() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Attention.js geladen - Initialisiere Aufmerksamkeitsbutton...');
     
+    // Prüfe, ob body-Element existiert
+    if (!document.body) {
+        console.error('Body-Element nicht gefunden!');
+        return;
+    }
+    
     // Lese zuerst das data-Attribut vom body-Element
     const dataDisabled = document.body.getAttribute('data-disable-attention-button');
     console.log('data-disable-attention-button Attribut:', dataDisabled);

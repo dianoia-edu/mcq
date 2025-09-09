@@ -462,7 +462,7 @@ if (isset($_GET['code'])) {
                     const isSEB = userAgent.includes('SEB') || userAgent.includes('SafeExamBrowser');
                     const sebBtn = document.getElementById('sebBtn');
                     
-                    if (isSEB) {
+                    if (sebBtn && isSEB) {
                         // FORCE ORANGE mit Inline-Styles für SEB-Button
                         sebBtn.classList.remove('btn-success');
                         sebBtn.style.backgroundColor = '#fd7e14';
@@ -471,33 +471,48 @@ if (isset($_GET['code'])) {
                         sebBtn.style.boxShadow = '0 4px 8px rgba(253, 126, 20, 0.3)';
                         sebBtn.innerHTML = '<i class="bi bi-shield-lock me-2"></i>Sicherer SEB-Test starten';
                         console.log('🔒 SEB erkannt - Button auf Orange gesetzt');
+                    } else if (!sebBtn) {
+                        console.error('SEB-Button nicht gefunden!');
                     }
                 });
                 
-                document.getElementById('browserBtn').onclick = function() {
-                    var name = encodeURIComponent(document.getElementById('student_name').value);
-                    var code = encodeURIComponent(document.getElementById('test_code').value);
-                    if (!name) {
-                        alert('Bitte geben Sie Ihren Namen ein.');
-                        return;
-                    }
-                    window.location.href = 'index.php?code=' + code + '&student_name=' + name;
-                };
-                document.getElementById('sebBtn').onclick = function() {
-                    var name = encodeURIComponent(document.getElementById('student_name').value);
-                    var code = encodeURIComponent(document.getElementById('test_code').value);
-                    
-                    // SEB-Button braucht KEINEN Namen - automatischer Fallback
-                    if (!name) {
-                        name = 'SEB-Teilnehmer';
-                    }
-                    
-                    // Verwende SEB-URL Schema für automatischen Start (wie bei QR-Code)
-                    var baseUrl = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>';
-                    var configUrl = baseUrl + '/seb_config_override_server.php?code=' + code;
-                    // Automatischer SEB-Start über URL-Schema
-                    window.location.href = 'sebs://' + configUrl.replace('https://', '').replace('http://', '');
-                };
+                // Browser-Button Event-Handler mit Fehlerbehandlung
+                const browserBtn = document.getElementById('browserBtn');
+                if (browserBtn) {
+                    browserBtn.onclick = function() {
+                        var name = encodeURIComponent(document.getElementById('student_name').value);
+                        var code = encodeURIComponent(document.getElementById('test_code').value);
+                        if (!name) {
+                            alert('Bitte geben Sie Ihren Namen ein.');
+                            return;
+                        }
+                        window.location.href = 'index.php?code=' + code + '&student_name=' + name;
+                    };
+                } else {
+                    console.error('Browser-Button nicht gefunden!');
+                }
+                
+                // SEB-Button Event-Handler mit Fehlerbehandlung
+                const sebBtn = document.getElementById('sebBtn');
+                if (sebBtn) {
+                    sebBtn.onclick = function() {
+                        var name = encodeURIComponent(document.getElementById('student_name').value);
+                        var code = encodeURIComponent(document.getElementById('test_code').value);
+                        
+                        // SEB-Button braucht KEINEN Namen - automatischer Fallback
+                        if (!name) {
+                            name = 'SEB-Teilnehmer';
+                        }
+                        
+                        // Verwende SEB-URL Schema für automatischen Start (wie bei QR-Code)
+                        var baseUrl = '<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']); ?>';
+                        var configUrl = baseUrl + '/seb_config_override_server.php?code=' + code;
+                        // Automatischer SEB-Start über URL-Schema
+                        window.location.href = 'sebs://' + configUrl.replace('https://', '').replace('http://', '');
+                    };
+                } else {
+                    console.error('SEB-Button nicht gefunden!');
+                }
                 </script>
             </body>
             </html>
