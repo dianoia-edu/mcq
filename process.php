@@ -504,6 +504,19 @@ if (isset($_GET['debug']) && $_GET['debug'] === '1') {
     exit();
 }
 
+// DEBUG: Zeige Debug-Ausgaben auch ohne ?debug=1 Parameter
+echo "<!DOCTYPE html><html><head><title>DEBUG - Testverarbeitung</title></head><body>";
+echo "<h1>DEBUG - Testverarbeitung</h1>";
+echo "<h2>POST-Daten:</h2>";
+echo "<pre>" . htmlspecialchars(print_r($_POST, true)) . "</pre>";
+echo "<h2>Session shuffled_questions:</h2>";
+echo "<pre>" . htmlspecialchars(print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true)) . "</pre>";
+echo "<h2>Finale XML-Datei:</h2>";
+echo "<pre>" . htmlspecialchars($dom->saveXML()) . "</pre>";
+echo "<p><a href='result.php'>Weiter zum Ergebnis</a></p>";
+echo "</body></html>";
+exit();
+
 header("Location: result.php");
 exit();
 
