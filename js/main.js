@@ -3253,9 +3253,26 @@ $(document).on('click', '.download-seb-btn', function() {
     const extractedCode = modalAccessCode ? modalAccessCode[1] : 'TEST';
     
     console.log('💾 SEB-Datei herunterladen für:', extractedCode);
-    // BaseUrl dynamisch ermitteln
-    const currentBaseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
-        const sebDownloadUrl = currentBaseUrl + 'seb_config_override_server.php?code=' + extractedCode;
+    
+    // BaseUrl dynamisch ermitteln - korrigiert für Instanzen
+    let currentBaseUrl;
+    const currentPath = window.location.pathname;
+    
+    if (currentPath.includes('/lehrer_instanzen/')) {
+        // Wir sind in einer Instanz - extrahiere den Instanz-Pfad
+        const instanceMatch = currentPath.match(/\/lehrer_instanzen\/([^\/]+)\/mcq-test-system/);
+        if (instanceMatch) {
+            currentBaseUrl = window.location.origin + '/lehrer_instanzen/' + instanceMatch[1] + '/mcq-test-system/';
+        } else {
+            // Fallback für Instanzen
+            currentBaseUrl = window.location.origin + currentPath.replace(/\/teacher\/.*$/, '/');
+        }
+    } else {
+        // Wir sind im Hauptsystem
+        currentBaseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
+    }
+    
+    const sebDownloadUrl = currentBaseUrl + 'seb_config_override_server.php?code=' + extractedCode;
     console.log('🔗 SEB-Download-URL:', sebDownloadUrl);
     window.open(sebDownloadUrl, '_blank');
 });
@@ -3267,8 +3284,25 @@ $(document).on('click', '.seb-restrictions-btn', function() {
     const extractedCode = modalAccessCode ? modalAccessCode[1] : 'TEST';
     
     console.log('🔒 Zeige SEB-Einschränkungen für:', extractedCode);
-    // BaseUrl dynamisch ermitteln
-    const currentBaseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
+    
+    // BaseUrl dynamisch ermitteln - korrigiert für Instanzen
+    let currentBaseUrl;
+    const currentPath = window.location.pathname;
+    
+    if (currentPath.includes('/lehrer_instanzen/')) {
+        // Wir sind in einer Instanz - extrahiere den Instanz-Pfad
+        const instanceMatch = currentPath.match(/\/lehrer_instanzen\/([^\/]+)\/mcq-test-system/);
+        if (instanceMatch) {
+            currentBaseUrl = window.location.origin + '/lehrer_instanzen/' + instanceMatch[1] + '/mcq-test-system/';
+        } else {
+            // Fallback für Instanzen
+            currentBaseUrl = window.location.origin + currentPath.replace(/\/teacher\/.*$/, '/');
+        }
+    } else {
+        // Wir sind im Hauptsystem
+        currentBaseUrl = window.location.origin + window.location.pathname.replace(/\/teacher\/.*$|\/[^\/]*$/, '/');
+    }
+    
     const previewUrl = currentBaseUrl + 'seb_config_preview.php?code=' + extractedCode;
     console.log('🔗 SEB-Preview-URL:', previewUrl);
     window.open(previewUrl, '_blank');
