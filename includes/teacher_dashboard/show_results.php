@@ -274,6 +274,11 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             
             writeLog("  Gewählte richtige Antworten: $correctChosen");
             writeLog("  Gewählte falsche Antworten: $wrongChosen");
+            writeLog("  === ZUSAMMENFASSUNG FRAGE $questionNumber ===");
+            writeLog("  - Erreichte Punkte: $questionAchievedPoints/$questionMaxPoints");
+            writeLog("  - Richtig gewählt: $correctChosen");
+            writeLog("  - Falsch gewählt: $wrongChosen");
+            writeLog("  - Single Choice: " . ($isSingleChoice ? 'Ja' : 'Nein'));
             
             // Maximale Punkte für diese Frage ist die Anzahl der richtigen Antworten
             $questionMaxPoints = $correctAnswersTotal;
@@ -365,19 +370,20 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             
             writeLog("Frage in Anzeige-Schleife: XML-Nummer $questionNumber, Schleifenindex $qIndex");
             
-            // Jetzt suchen wir nach der passenden Fragennummer im questionPoints-Array
-            $pointsIndex = $qIndex; // Standardwert ist der Schleifenindex
-            
-            // Überprüfe, ob die Nummern nicht übereinstimmen
-            if (isset($questionPoints[$qIndex]['xmlNr']) && $questionPoints[$qIndex]['xmlNr'] != $questionNumber) {
-                // Suche die richtige Frage im Array
-                foreach ($questionPoints as $idx => $points) {
-                    if (isset($points['xmlNr']) && $points['xmlNr'] == $questionNumber) {
-                        $pointsIndex = $idx;
-                        writeLog("  Korrigiere Index für Frage $questionNumber von $qIndex zu $pointsIndex");
-                        break;
-                    }
+            // Suche die richtige Frage im questionPoints-Array basierend auf der XML-Nummer
+            $pointsIndex = null;
+            foreach ($questionPoints as $idx => $points) {
+                if (isset($points['xmlNr']) && $points['xmlNr'] == $questionNumber) {
+                    $pointsIndex = $idx;
+                    writeLog("  Gefunden: Frage $questionNumber hat Index $pointsIndex im questionPoints-Array");
+                    break;
                 }
+            }
+            
+            // Fallback: Wenn nicht gefunden, verwende den ursprünglichen Index
+            if ($pointsIndex === null) {
+                $pointsIndex = $qIndex;
+                writeLog("  Fallback: Verwende ursprünglichen Index $qIndex für Frage $questionNumber");
             }
             
             // Direkt auf die Werte aus dem ursprünglichen Array zugreifen, aber mit dem korrekten Index
@@ -506,12 +512,10 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                         $badgeClass = 'bg-danger';
                         $badgeText = 'Falsch';
                     } else if (!$isSelected && $isCorrect) {
-                        // Nicht gewählte richtige Antwort - Gelb (nur bei Multiple Choice)
-                        if (!$isSingleChoice) {
-                            $bgStyle = 'background-color: rgba(255, 193, 7, 0.2);';
-                            $badgeClass = 'bg-warning text-dark';
-                            $badgeText = 'Korrekt';
-                        }
+                        // Nicht gewählte richtige Antwort - Gelb (bei allen Fragen, nicht nur Multiple Choice)
+                        $bgStyle = 'background-color: rgba(255, 193, 7, 0.2);';
+                        $badgeClass = 'bg-warning text-dark';
+                        $badgeText = 'Korrekt';
                     }
                     // Bei nicht gewählten falschen Antworten wird nichts markiert (normal)
                     
