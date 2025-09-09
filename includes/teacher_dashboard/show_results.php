@@ -430,29 +430,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             echo "<div class='card mb-3 $borderClass' style='$cardStyle'>";
             echo "<div class='card-header' style='$headerStyle'>";
             
-            // Debug-Ausgabe für Browser-Konsole
-            echo "<script>
-                console.log('===== FRAGE " . $questionNumber . " DETAILS =====');
-                console.log('XML-Daten:', {
-                    'QuestionNumber': '" . $questionNumber . "',
-                    'QuestionText': '" . addslashes($questionText) . "'
-                });
-                console.log('Berechnete Punkte:', {
-                    'Erreichte Punkte': " . json_encode($achievedQPoints) . ",
-                    'Maximale Punkte': " . json_encode($maxQPoints) . ",
-                    'Korrekte Antworten gesamt': " . json_encode($correctTotal) . ",
-                    'Richtig gewählte Antworten': " . json_encode($correctChosen) . ",
-                    'Falsch gewählte Antworten': " . json_encode($wrongChosen) . ",
-                    'Single-Choice': " . json_encode($isSingleChoice ? 'Ja' : 'Nein') . "
-                });
-                console.log('Anzeige-Stil:', {
-                    'Farbe': '" . ($achievedQPoints == $maxQPoints && $maxQPoints > 0 ? 'Grün (volle Punktzahl)' : 
-                        ($achievedQPoints == 0 ? 'Rot (keine Punkte)' : 'Orange (teilweise Punkte)')) . "',
-                    'Header-Stil': '" . addslashes($headerStyle) . "',
-                    'Border-Klasse': '" . $borderClass . "'
-                });
-                console.log('HTML-Überschrift: \"Frage " . $questionNumber . ": " . $achievedQPoints . "/" . $maxQPoints . " Punkte\"');
-            </script>";
+            // Debug-Ausgaben entfernt, da sie die HTML-Struktur stören
             
             echo "<h5 class='mb-0'>Frage $questionNumber: $achievedQPoints/$maxQPoints Punkte</h5>";
             echo "</div>";
@@ -482,14 +460,16 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                     $selected = (string)$answer->selected;
                     $isSelected = ($schuelerantwort === '1') || ($selected === '1');
                     
-                    // Debug-Ausgabe für Browser-Konsole
-                    echo "<script>console.log('Antwort-Debug:', {
-                        'Text': '" . addslashes($answerText) . "',
-                        'Correct': " . ($isCorrect ? 'true' : 'false') . ",
-                        'Schuelerantwort': '" . $schuelerantwort . "',
-                        'Selected': '" . $selected . "',
-                        'IsSelected': " . ($isSelected ? 'true' : 'false') . "
-                    });</script>";
+                    // Debug-Ausgabe für Browser-Konsole (nur bei Bedarf)
+                    if (isset($_GET['debug']) && $_GET['debug'] === '1') {
+                        echo "<script>console.log('Antwort-Debug:', {
+                            'Text': '" . addslashes($answerText) . "',
+                            'Correct': " . ($isCorrect ? 'true' : 'false') . ",
+                            'Schuelerantwort': '" . $schuelerantwort . "',
+                            'Selected': '" . $selected . "',
+                            'IsSelected': " . ($isSelected ? 'true' : 'false') . "
+                        });</script>";
+                    }
                     
                     // Bestimme CSS-Klasse und Stil für die Antwort - dezentere Farben
                     $bgStyle = '';

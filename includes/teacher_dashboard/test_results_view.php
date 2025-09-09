@@ -1319,68 +1319,7 @@ function showResults(filename) {
             .then(html => {
                 document.getElementById('resultDetailContent').innerHTML = html;
                 
-                // Nach dem Laden der Inhalte die Punkte und Header analysieren
-                setTimeout(() => {
-                    const questionCards = document.querySelectorAll('#resultDetailContent .card');
-                    console.log('Gefundene Fragen-Karten:', questionCards.length);
-                    
-                    questionCards.forEach((card, index) => {
-                        // Finde den Header und die Punkte-Anzeige
-                        const header = card.querySelector('.card-header');
-                        const pointsDisplay = card.querySelector('.card-header h5');
-                        
-                        if (!header || !pointsDisplay) {
-                            console.log(`Frage ${index+1}: Header oder Punktanzeige nicht gefunden`);
-                            return;
-                        }
-                        
-                        // Extrahiere den Text aus der Überschrift
-                        const headerText = pointsDisplay.textContent;
-                        
-                        // Extrahiere die Fragennummer und Punkte
-                        const questionMatch = headerText.match(/Frage (\d+):/);
-                        const pointsMatch = headerText.match(/(\d+)\/(\d+)/);
-                        
-                        let questionNumber = index + 1;
-                        let achievedPoints = 0;
-                        let maxPoints = 0;
-                        
-                        if (questionMatch && questionMatch.length >= 2) {
-                            questionNumber = parseInt(questionMatch[1], 10);
-                        }
-                        
-                        if (pointsMatch && pointsMatch.length >= 3) {
-                            achievedPoints = parseInt(pointsMatch[1], 10);
-                            maxPoints = parseInt(pointsMatch[2], 10);
-                        }
-                        
-                        // Extrahiere den Stil
-                        const headerStyle = header.getAttribute('style') || '';
-                        const borderStyle = card.getAttribute('style') || '';
-                        
-                        // Bestimme die Farbe basierend auf dem Stil
-                        let color = 'unbekannt';
-                        if (headerStyle.includes('#28a745')) {
-                            color = 'grün (alle Punkte)';
-                        } else if (headerStyle.includes('#dc3545')) {
-                            color = 'rot (keine Punkte)';
-                        } else if (headerStyle.includes('#fd7e14')) {
-                            color = 'orange (teilweise Punkte)';
-                        }
-                        
-                        // Gib detaillierte Informationen aus
-                        console.log(`Frage ${index+1}:`, {
-                            'Text': headerText,
-                            'Extrahierte Fragennummer': questionNumber,
-                            'Position in DOM': index+1,
-                            'Erreichte Punkte': achievedPoints,
-                            'Maximale Punkte': maxPoints,
-                            'Farbe': color,
-                            'Header-Stil': headerStyle,
-                            'Border-Stil': borderStyle
-                        });
-                    });
-                }, 100);
+                // Debug-Ausgaben entfernt, da sie die HTML-Struktur stören
             })
             .catch(error => {
                 console.error('Fehler beim Laden der Details:', error);
