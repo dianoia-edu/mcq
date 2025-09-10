@@ -211,6 +211,11 @@ $(document).ready(function() {
     loadAvailableModels();
     updateSourceNumbers();
     updateAddButtons();
+    
+    // Initialisiere Submit-Button-Status
+    if (typeof window.updateSubmitButtonStatus === 'function') {
+        window.updateSubmitButtonStatus();
+    }
 });
 
 // Helper-Funktion: Erstelle Pfad für includes-Dateien
@@ -482,6 +487,11 @@ function addSource(type) {
     container.insertAdjacentHTML('beforeend', html);
     updateSourceNumbers();
     updateAddButtons();
+    
+    // Aktualisiere Submit-Button-Status nach dem Hinzufügen
+    if (typeof window.updateSubmitButtonStatus === 'function') {
+        window.updateSubmitButtonStatus();
+    }
 }
 
 function removeSource(button) {
@@ -489,6 +499,11 @@ function removeSource(button) {
     sourceItem.remove();
     updateSourceNumbers();
     updateAddButtons();
+    
+    // Aktualisiere Submit-Button-Status nach dem Entfernen
+    if (typeof window.updateSubmitButtonStatus === 'function') {
+        window.updateSubmitButtonStatus();
+    }
 }
 
 function updateSourceNumbers() {
@@ -535,6 +550,11 @@ function updateAddButtons() {
             deleteBtn.style.display = 'none';
         }
     });
+    
+    // Aktualisiere Submit-Button-Status
+    if (typeof window.updateSubmitButtonStatus === 'function') {
+        window.updateSubmitButtonStatus();
+    }
 }
 </script>
 

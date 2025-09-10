@@ -119,8 +119,13 @@ $(document).ready(function() {
     // Tabs initialisieren
     initializeTabs();
     
+    // Initialisiere Submit-Button-Status
+    window.updateSubmitButtonStatus();
+    
     // Event-Handler für die Eingabefelder (Event Delegation für dynamische Elemente)
-    $(document).on('input change', '#uploadForm input[type="file"], #uploadForm input[name="webpage_urls[]"], #uploadForm input[name="youtube_url"]', function() {
+    $(document).on('input change', '#uploadForm input[name="source_files[]"], #uploadForm input[name="webpage_urls[]"], #uploadForm input[name="youtube_url"]', function() {
+        console.log('Input changed:', this.name, this.type);
+        
         // Aktiviere den Submit-Button, wenn mindestens ein Feld ausgefüllt ist
         // Prüfe alle Quellen
         let hasFile = false;
@@ -141,8 +146,44 @@ $(document).ready(function() {
         
         const hasYoutube = $('input[name="youtube_url"]').val().trim() !== '';
         
-        $('#uploadForm button[type="submit"]').prop('disabled', !hasFile && !hasUrl && !hasYoutube);
+        console.log('Sources check:', {hasFile, hasUrl, hasYoutube});
+        
+        const shouldEnable = hasFile || hasUrl || hasYoutube;
+        $('#uploadForm button[type="submit"]').prop('disabled', !shouldEnable);
+        
+        console.log('Submit button disabled:', !shouldEnable);
     });
+    
+    // Globale Funktion zum Aktualisieren des Submit-Button-Status
+    window.updateSubmitButtonStatus = function() {
+        console.log('Updating submit button status...');
+        
+        // Prüfe alle Quellen
+        let hasFile = false;
+        $('input[name="source_files[]"]').each(function() {
+            if (this.files && this.files.length > 0) {
+                hasFile = true;
+                return false; // break
+            }
+        });
+        
+        let hasUrl = false;
+        $('input[name="webpage_urls[]"]').each(function() {
+            if ($(this).val().trim() !== '') {
+                hasUrl = true;
+                return false; // break
+            }
+        });
+        
+        const hasYoutube = $('input[name="youtube_url"]').val().trim() !== '';
+        
+        console.log('Initial sources check:', {hasFile, hasUrl, hasYoutube});
+        
+        const shouldEnable = hasFile || hasUrl || hasYoutube;
+        $('#uploadForm button[type="submit"]').prop('disabled', !shouldEnable);
+        
+        console.log('Initial submit button disabled:', !shouldEnable);
+    };
     
     // Automatische URL-Validierung während der Eingabe
     $(document).on('input', 'input[name="webpage_urls[]"]', function() {
