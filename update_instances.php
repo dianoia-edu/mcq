@@ -31,6 +31,12 @@ function performAjaxUpdate() {
     $instancesBasePath = dirname(__DIR__) . '/lehrer_instanzen/';
     $sourceBasePath = __DIR__;
     
+    // Lade Update-Einstellungen aus localStorage (über POST-Daten)
+    $updateSettings = [];
+    if (isset($_POST['update_settings'])) {
+        $updateSettings = json_decode($_POST['update_settings'], true) ?: [];
+    }
+    
     // Dateien die aktualisiert werden sollen
     $filesToUpdate = [
         'teacher/teacher_dashboard.php' => 'Teacher Dashboard (Instanzverwaltung mit Update/Delete-All + Tab ausgeblendet in Instanzen)',
@@ -99,9 +105,22 @@ function performAjaxUpdate() {
     // Update durchführen
     $totalUpdated = 0;
     $totalErrors = 0;
+    $totalSkipped = 0;
     $updateLog = [];
     
     foreach ($instances as $instance) {
+        // Prüfe, ob diese Instanz für Updates aktiviert ist
+        if (isset($updateSettings[$instance]) && $updateSettings[$instance] === false) {
+            $updateLog[] = [
+                'instance' => $instance,
+                'status' => 'skipped',
+                'message' => 'Update übersprungen (deaktiviert)',
+                'files' => []
+            ];
+            $totalSkipped++;
+            continue;
+        }
+        
         $instanceBasePath = $instancesBasePath . $instance . '/mcq-test-system/';
         $instanceErrors = 0;
         $instanceUpdated = 0;
@@ -161,9 +180,10 @@ function performAjaxUpdate() {
     echo json_encode([
         'success' => $totalErrors === 0,
         'statistics' => [
-            'instances_processed' => count($instances),
+            'instances_processed' => count($instances) - $totalSkipped,
             'files_updated' => $totalUpdated,
-            'errors' => $totalErrors
+            'errors' => $totalErrors,
+            'skipped' => $totalSkipped
         ],
         'instances' => array_column($updateLog, 'instance'),
         'detailed_log' => $updateLog,

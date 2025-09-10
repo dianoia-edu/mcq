@@ -437,6 +437,9 @@ if (!empty($tests)) {
         function displayInstanceList(instances, container) {
             console.log('displayInstanceList() aufgerufen mit', instances.length, 'Instanzen');
             
+            // Lade gespeicherte Update-Einstellungen
+            const updateSettings = JSON.parse(localStorage.getItem('instanceUpdateSettings') || '{}');
+            
             if (instances.length === 0) {
                 container.html(`
                     <div class="alert alert-info">
@@ -508,6 +511,17 @@ if (!empty($tests)) {
                                     <div class="col">
                                         <small class="text-muted">Ergebnisse</small><br>
                                         <strong>${instance.result_count}</strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="updateToggle_${instance.name}" 
+                                               ${updateSettings[instance.name] !== false ? 'checked' : ''} 
+                                               onchange="toggleInstanceUpdate('${instance.name}', this.checked)">
+                                        <label class="form-check-label" for="updateToggle_${instance.name}">
+                                            <small class="text-muted">Bei Updates einbeziehen</small>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -582,6 +596,69 @@ if (!empty($tests)) {
                     element.style.backgroundColor = originalBg;
                 }, 500);
             }
+        }
+        
+        function toggleInstanceUpdate(instanceName, enabled) {
+            console.log('Toggle Update für Instanz:', instanceName, 'Enabled:', enabled);
+            
+            // Speichere den Status in localStorage
+            const updateSettings = JSON.parse(localStorage.getItem('instanceUpdateSettings') || '{}');
+            updateSettings[instanceName] = enabled;
+            localStorage.setItem('instanceUpdateSettings', JSON.stringify(updateSettings));
+            
+            // Visuelles Feedback
+            const toggle = document.getElementById(`updateToggle_${instanceName}`);
+            if (toggle) {
+                toggle.disabled = true;
+                setTimeout(() => {
+                    toggle.disabled = false;
+                }, 500);
+            }
+            
+            // Zeige Status-Nachricht
+            const statusMessage = enabled ? 
+                `<i class="bi bi-check-circle text-success me-1"></i>Instanz "${instanceName}" wird bei Updates einbezogen` :
+                `<i class="bi bi-pause-circle text-warning me-1"></i>Instanz "${instanceName}" wird bei Updates übersprungen`;
+            
+            // Kurze Toast-Nachricht
+            showToast(statusMessage, enabled ? 'success' : 'warning');
+        }
+        
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            const toastId = 'toast_' + Date.now();
+            
+            const toastHtml = `
+                <div class="toast" id="${toastId}" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 3000
+            });
+            
+            toast.show();
+            
+            // Entferne Toast nach dem Ausblenden
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+        
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+            return container;
         }
         
         function showInstanceDetails(instanceName) {
@@ -875,20 +952,34 @@ if (!empty($tests)) {
             
             button.prop('disabled', true).html('<i class="bi bi-arrow-clockwise spinner-border spinner-border-sm me-2"></i>Aktualisiere...');
             
+            // Lade Update-Einstellungen aus localStorage
+            const updateSettings = JSON.parse(localStorage.getItem('instanceUpdateSettings') || '{}');
+            
             $.ajax({
                 url: (<?php echo $isInTeacherDir ? "'../update_instances.php'" : "'update_instances.php'"; ?>) + '?admin_key=update_instances_2024&ajax=true',
-                method: 'GET',
+                method: 'POST',
+                data: {
+                    update_settings: JSON.stringify(updateSettings)
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        showModal('Update erfolgreich', 
-                            '<div class="alert alert-success">' +
+                        let message = '<div class="alert alert-success">' +
                             '<h5>✅ Instanzen wurden aktualisiert!</h5>' +
                             '<p><strong>Instanzen verarbeitet:</strong> ' + response.statistics.instances_processed + '</p>' +
-                            '<p><strong>Dateien aktualisiert:</strong> ' + response.statistics.files_updated + '</p>' +
-                            (response.statistics.errors > 0 ? '<p class="text-warning"><strong>Fehler:</strong> ' + response.statistics.errors + '</p>' : '') +
-                            '</div>'
-                        );
+                            '<p><strong>Dateien aktualisiert:</strong> ' + response.statistics.files_updated + '</p>';
+                        
+                        if (response.statistics.skipped > 0) {
+                            message += '<p class="text-info"><strong>Übersprungen:</strong> ' + response.statistics.skipped + ' Instanzen (deaktiviert)</p>';
+                        }
+                        
+                        if (response.statistics.errors > 0) {
+                            message += '<p class="text-warning"><strong>Fehler:</strong> ' + response.statistics.errors + '</p>';
+                        }
+                        
+                        message += '</div>';
+                        
+                        showModal('Update erfolgreich', message);
                     } else {
                         showModal('Update-Fehler', '<div class="alert alert-danger">Fehler: ' + (response.error || 'Unbekannter Fehler') + '</div>');
                     }
