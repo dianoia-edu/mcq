@@ -1169,12 +1169,13 @@ $('#uploadForm').on('submit', function(e) {
     
     let hasUrl = false;
     urlInputs.each(function() {
-        if ($(this).val().trim() !== '') {
+        const value = $(this).val();
+        if (value && value.trim() !== '') {
             hasUrl = true;
         }
     });
     
-    const hasYoutube = youtubeInput.length > 0 && youtubeInput.val().trim() !== '';
+    const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
     
     // Sammle Validierungsfehler
     const errors = [];
@@ -1186,8 +1187,8 @@ $('#uploadForm').on('submit', function(e) {
     // Validiere Webseiten-URLs
     if (hasUrl) {
         urlInputs.each(function() {
-            const url = $(this).val().trim();
-            if (url !== '' && !isValidUrl(url)) {
+            const url = $(this).val();
+            if (url && url.trim() !== '' && !isValidUrl(url.trim())) {
                 errors.push('Eine der eingegebenen Webseiten-URLs ist ungültig: ' + url);
             }
         });
@@ -1195,8 +1196,8 @@ $('#uploadForm').on('submit', function(e) {
     
     // Validiere YouTube-URL
     if (hasYoutube) {
-        const youtubeUrl = youtubeInput.val().trim();
-        if (!isValidYoutubeUrl(youtubeUrl)) {
+        const youtubeUrl = youtubeInput.val();
+        if (youtubeUrl && !isValidYoutubeUrl(youtubeUrl.trim())) {
             errors.push('Die eingegebene YouTube-URL ist ungültig. Bitte geben Sie einen gültigen YouTube-Video-Link ein.');
         }
     }
