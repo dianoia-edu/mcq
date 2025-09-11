@@ -182,14 +182,13 @@ $(document).ready(function() {
         console.log('🔍 jQuery verfügbar:', typeof $ !== 'undefined');
         console.log('🔍 Bootstrap verfügbar:', typeof bootstrap !== 'undefined');
         
-        var youtubeUrl = $('#youtube_url').val().trim();
-        console.log('YouTube-URL:', youtubeUrl);
-        
+        var youtubeUrl = $('#youtube_url').val();
         if (!youtubeUrl) {
             alert('Bitte geben Sie zuerst eine YouTube-URL ein.');
-            $('#youtube_url').focus();
             return;
         }
+        youtubeUrl = youtubeUrl.trim();
+        console.log('YouTube-URL:', youtubeUrl);
         
         console.log('🔍 Prüfe YouTube-URL...');
         var isValid = isValidYoutubeUrl(youtubeUrl);
