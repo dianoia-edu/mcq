@@ -55,13 +55,13 @@
                         </button>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-outline-success btn-sm" id="add-file-btn" 
-                            title="Weitere Datei hinzufügen">
-                        <i class="bi bi-plus-circle me-1"></i>Datei hinzufügen
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-text mb-0">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX (max. 5 Dateien)</div>
+                    <button type="button" class="btn btn-success btn-sm rounded-circle p-2" id="add-file-btn" 
+                            title="Weitere Datei hinzufügen" style="width: 32px; height: 32px;">
+                        <i class="bi bi-plus text-white"></i>
                     </button>
                 </div>
-                <div class="form-text">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX (max. 5 Dateien)</div>
             </div>
         </div>
 
@@ -79,13 +79,13 @@
                         </button>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-outline-success btn-sm" id="add-webpage-btn" 
-                            title="Weitere Webseite hinzufügen">
-                        <i class="bi bi-plus-circle me-1"></i>Webseite hinzufügen
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-text mb-0">Geben Sie URLs von Webseiten ein, deren Inhalt für die Testgenerierung verwendet werden soll (max. 5 URLs)</div>
+                    <button type="button" class="btn btn-success btn-sm rounded-circle p-2" id="add-webpage-btn" 
+                            title="Weitere Webseite hinzufügen" style="width: 32px; height: 32px;">
+                        <i class="bi bi-plus text-white"></i>
                     </button>
                 </div>
-                <div class="form-text">Geben Sie URLs von Webseiten ein, deren Inhalt für die Testgenerierung verwendet werden soll (max. 5 URLs)</div>
             </div>
         </div>
 
@@ -429,11 +429,11 @@ function updateSourceCount() {
     
     // Visuelles Feedback
     if (sourceCount >= maxSources) {
-        $('#add-file-btn').addClass('disabled').html('<i class="bi bi-plus-circle me-1"></i>Max. erreicht');
-        $('#add-webpage-btn').addClass('disabled').html('<i class="bi bi-plus-circle me-1"></i>Max. erreicht');
+        $('#add-file-btn').addClass('disabled').html('<i class="bi bi-x text-white"></i>');
+        $('#add-webpage-btn').addClass('disabled').html('<i class="bi bi-x text-white"></i>');
     } else {
-        $('#add-file-btn').removeClass('disabled').html('<i class="bi bi-plus-circle me-1"></i>Datei hinzufügen');
-        $('#add-webpage-btn').removeClass('disabled').html('<i class="bi bi-plus-circle me-1"></i>Webseite hinzufügen');
+        $('#add-file-btn').removeClass('disabled').html('<i class="bi bi-plus text-white"></i>');
+        $('#add-webpage-btn').removeClass('disabled').html('<i class="bi bi-plus text-white"></i>');
     }
 }
 
@@ -488,7 +488,23 @@ $(document).on('click', '.remove-source-btn', function() {
 // Initialisiere beim Laden
 $(document).ready(function() {
     updateSourceCount();
-});
+    });
+    
+    // CSS für YouTube-Titel-Anzeige
+    const style = document.createElement('style');
+    style.textContent = `
+        .youtube-title-loaded {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724 !important;
+        }
+        .youtube-title-loaded:focus {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 
 <!-- Test Preview Modal -->

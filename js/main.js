@@ -119,6 +119,54 @@ $(document).ready(function() {
     // Tabs initialisieren
     initializeTabs();
     
+    // YouTube Video-Titel laden
+    function loadYouTubeVideoTitle(url, inputElement) {
+        // Extrahiere Video-ID aus der URL
+        const videoId = extractYouTubeVideoId(url);
+        if (!videoId) return;
+        
+        // Zeige Loading-Indikator
+        const originalValue = inputElement.val();
+        inputElement.val('Lade Video-Titel...');
+        inputElement.prop('readonly', true);
+        
+        // Verwende YouTube oEmbed API
+        $.ajax({
+            url: 'https://www.youtube.com/oembed',
+            method: 'GET',
+            data: {
+                url: url,
+                format: 'json'
+            },
+            success: function(data) {
+                if (data && data.title) {
+                    // Speichere Original-URL als data-Attribut
+                    inputElement.data('original-url', originalValue);
+                    inputElement.val(data.title);
+                    inputElement.addClass('youtube-title-loaded');
+                    
+                    // Füge Tooltip hinzu
+                    inputElement.attr('title', 'Video-Titel: ' + data.title + '\nOriginal-URL: ' + originalValue);
+                } else {
+                    inputElement.val(originalValue);
+                }
+            },
+            error: function() {
+                inputElement.val(originalValue);
+            },
+            complete: function() {
+                inputElement.prop('readonly', false);
+            }
+        });
+    }
+    
+    // YouTube Video-ID extrahieren
+    function extractYouTubeVideoId(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+    
     // Event-Handler für die Eingabefelder
     $(document).on('input change', '#uploadForm input[name="source_file[]"], #uploadForm input[name="webpage_url[]"], #uploadForm input[name="youtube_url"]', function() {
         // Aktiviere den Submit-Button, wenn mindestens ein Feld ausgefüllt ist
@@ -173,6 +221,11 @@ $(document).ready(function() {
         } else {
             $(this).removeClass('is-invalid');
             subtitleBtn.prop('disabled', !trimmedUrl);
+            
+            // Versuche Video-Titel zu laden, wenn URL gültig ist
+            if (trimmedUrl) {
+                loadYouTubeVideoTitle(trimmedUrl, $(this));
+            }
         }
     });
     
@@ -188,6 +241,8 @@ $(document).ready(function() {
             alert('Bitte geben Sie zuerst eine YouTube-URL ein.');
             return;
         }
+        // Verwende Original-URL falls Video-Titel geladen wurde
+        youtubeUrl = $('#youtube_url').data('original-url') || youtubeUrl;
         youtubeUrl = youtubeUrl.trim();
         console.log('YouTube-URL:', youtubeUrl);
         
@@ -1214,7 +1269,9 @@ $('#uploadForm').on('submit', function(e) {
     // Validiere YouTube-URL
     if (hasYoutube) {
         const youtubeUrl = youtubeInput.val();
-        if (youtubeUrl && !isValidYoutubeUrl(youtubeUrl.trim())) {
+        // Verwende Original-URL falls Video-Titel geladen wurde
+        const actualUrl = youtubeInput.data('original-url') || youtubeUrl;
+        if (actualUrl && !isValidYoutubeUrl(actualUrl.trim())) {
             errors.push('Die eingegebene YouTube-URL ist ungültig. Bitte geben Sie einen gültigen YouTube-Video-Link ein.');
         }
     }
@@ -1234,6 +1291,12 @@ $('#uploadForm').on('submit', function(e) {
     
     const formData = new FormData(this);
     formData.append('debug', '1');
+    
+    // Verwende Original-URL für YouTube falls Video-Titel geladen wurde
+    const youtubeInput = $('#youtube_url');
+    if (youtubeInput.data('original-url')) {
+        formData.set('youtube_url', youtubeInput.data('original-url'));
+    }
     
     // Debug: Log FormData
     /*
