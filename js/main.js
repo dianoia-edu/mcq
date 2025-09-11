@@ -293,6 +293,7 @@ $(document).ready(function() {
         console.log('Test Generator Modal initialized successfully');
     } else {
         console.error('Test Generator Modal element not found in DOM');
+        console.log('Available modals:', document.querySelectorAll('.modal'));
     }
 
     // Prüfe URL-Parameter
@@ -1276,11 +1277,10 @@ $('#uploadForm').on('submit', function(e) {
     formData.append('debug', '1');
     
     // Debug: Log FormData
-    /*
+    console.log('FormData contents:');
     for (let pair of formData.entries()) {
         console.log(pair[0] + ': ' + pair[1]);
     }
-    */
     
     // Progress-Bar und Status-Text initialisieren
     $('.progress').show();
@@ -1349,7 +1349,9 @@ $('#uploadForm').on('submit', function(e) {
         processData: false,
         contentType: false,
         success: function(response) {
-            console.log('Response:', response);
+            console.log('AJAX Response:', response);
+            console.log('Response success:', response.success);
+            console.log('Response preview_data:', response.preview_data);
             
             // Stoppe den Fortschrittsbalken-Timer
             if (window.currentProgressInterval) {
@@ -1410,7 +1412,10 @@ $('#uploadForm').on('submit', function(e) {
                         console.log('✅ currentGeneratedTest gespeichert:', window.currentGeneratedTest);
                         
                         // Zeige Vorschau direkt an
+                        console.log('Zeige Vorschau an mit XML-Content:', response.preview_data.xml_content.substring(0, 200) + '...');
                         showXMLPreview(response.preview_data.xml_content, 'generator');
+                    } else {
+                        console.log('❌ Keine preview_data oder xml_content in der Antwort');
                     }
                 }, 1000);
             } else {
@@ -1542,6 +1547,7 @@ function showDebugInfo(debugInfo) {
 
 // Funktion zum Anzeigen der XML-Vorschau
 function showXMLPreview(xmlContent, modalType = 'generator') {
+    console.log('showXMLPreview aufgerufen - modalType:', modalType, 'xmlContent length:', xmlContent.length);
     try {
         // Versuche, das XML zu parsen
         const parser = new DOMParser();
@@ -1727,6 +1733,7 @@ function showXMLPreview(xmlContent, modalType = 'generator') {
         }
         
         // Zeige das entsprechende Modal an
+        console.log('Modal anzeigen - modalType:', modalType, 'testGeneratorPreviewModal:', testGeneratorPreviewModal);
         if (modalType === 'generator' && testGeneratorPreviewModal) {
             // Entferne den Speichern-Button aus der Vorschau im Generator-Modus
             $('.modal-footer #saveTest').remove();
@@ -1757,11 +1764,16 @@ function showXMLPreview(xmlContent, modalType = 'generator') {
                 console.error('❌ Kein Access-Code für editGeneratedTest verfügbar!');
             }
             
+            console.log('Zeige testGeneratorPreviewModal an...');
             testGeneratorPreviewModal.show();
         } else if (modalType === 'editor' && testEditorPreviewModal) {
             testEditorPreviewModal.show();
         } else {
             console.error(`Modal vom Typ '${modalType}' nicht gefunden!`);
+            console.log('Verfügbare Modals:', {
+                testGeneratorPreviewModal: testGeneratorPreviewModal,
+                testEditorPreviewModal: testEditorPreviewModal
+            });
         }
     } catch (e) {
         console.error("Error displaying XML preview:", e);
