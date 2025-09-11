@@ -138,7 +138,8 @@ $(document).ready(function() {
         });
         
         const youtubeInput = $('input[name="youtube_url"]');
-        const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
+        const youtubeValue = youtubeInput.val();
+        const hasYoutube = youtubeInput.length > 0 && youtubeValue && youtubeValue.trim() !== '';
         
         $('#uploadForm button[type="submit"]').prop('disabled', !hasFile && !hasUrl && !hasYoutube);
     });
@@ -1190,7 +1191,8 @@ $('#uploadForm').on('submit', function(e) {
         }
     });
     
-    const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
+    const youtubeValue = youtubeInput.val();
+    const hasYoutube = youtubeInput.length > 0 && youtubeValue && youtubeValue.trim() !== '';
     
     // Sammle Validierungsfehler
     const errors = [];
