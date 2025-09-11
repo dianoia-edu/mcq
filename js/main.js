@@ -119,77 +119,19 @@ $(document).ready(function() {
     // Tabs initialisieren
     initializeTabs();
     
-    // Initialisiere Submit-Button-Status
-    window.updateSubmitButtonStatus();
-    
-    // Event-Handler für die Eingabefelder (Event Delegation für dynamische Elemente)
-    $(document).on('input change', '#uploadForm input[name="source_files[]"], #uploadForm input[name="webpage_urls[]"], #uploadForm input[name="youtube_url"]', function() {
-        console.log('Input changed:', this.name, this.type);
-        
+    // Event-Handler für die Eingabefelder
+    $('#uploadForm input[type="file"], #uploadForm input[name="webpage_url"], #uploadForm input[name="youtube_url"]').on('input change', function() {
         // Aktiviere den Submit-Button, wenn mindestens ein Feld ausgefüllt ist
-        // Prüfe alle Quellen
-        let hasFile = false;
-        $('input[name="source_files[]"]').each(function() {
-            if (this.files && this.files.length > 0) {
-                hasFile = true;
-                return false; // break
-            }
-        });
+        const hasFile = $('input[type="file"]')[0]?.files?.length > 0;
+        const hasUrl = $('input[name="webpage_url"]').val().trim() !== '';
+        const hasYoutube = $('input[name="youtube_url"]').val().trim() !== '';
         
-        let hasUrl = false;
-        $('input[name="webpage_urls[]"]').each(function() {
-            if ($(this).val() && $(this).val().trim() !== '') {
-                hasUrl = true;
-                return false; // break
-            }
-        });
-        
-        const youtubeInput = $('input[name="youtube_url"]');
-        const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
-        
-        console.log('Sources check:', {hasFile, hasUrl, hasYoutube});
-        
-        const shouldEnable = hasFile || hasUrl || hasYoutube;
-        $('#uploadForm button[type="submit"]').prop('disabled', !shouldEnable);
-        
-        console.log('Submit button disabled:', !shouldEnable);
+        $('#uploadForm button[type="submit"]').prop('disabled', !hasFile && !hasUrl && !hasYoutube);
     });
     
-    // Globale Funktion zum Aktualisieren des Submit-Button-Status
-    window.updateSubmitButtonStatus = function() {
-        console.log('Updating submit button status...');
-        
-        // Prüfe alle Quellen
-        let hasFile = false;
-        $('input[name="source_files[]"]').each(function() {
-            if (this.files && this.files.length > 0) {
-                hasFile = true;
-                return false; // break
-            }
-        });
-        
-        let hasUrl = false;
-        $('input[name="webpage_urls[]"]').each(function() {
-            if ($(this).val() && $(this).val().trim() !== '') {
-                hasUrl = true;
-                return false; // break
-            }
-        });
-        
-        const youtubeInput = $('input[name="youtube_url"]');
-        const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
-        
-        console.log('Initial sources check:', {hasFile, hasUrl, hasYoutube});
-        
-        const shouldEnable = hasFile || hasUrl || hasYoutube;
-        $('#uploadForm button[type="submit"]').prop('disabled', !shouldEnable);
-        
-        console.log('Initial submit button disabled:', !shouldEnable);
-    };
-    
     // Automatische URL-Validierung während der Eingabe
-    $(document).on('input', 'input[name="webpage_urls[]"]', function() {
-        const url = $(this).val() ? $(this).val().trim() : '';
+    $('input[name="webpage_url"]').on('input', function() {
+        const url = $(this).val().trim();
         if (url && !isValidUrl(url)) {
             $(this).addClass('is-invalid');
             if (!$(this).next('.invalid-feedback').length) {
@@ -202,7 +144,7 @@ $(document).ready(function() {
     
     // Automatische YouTube-URL-Validierung während der Eingabe (Event Delegation)
     $(document).on('input', 'input[name="youtube_url"]', function() {
-        const url = $(this).val() ? $(this).val().trim() : '';
+        const url = $(this).val().trim();
         const subtitleBtn = $('#subtitleToBtn');
         
         if (url && !isValidYoutubeUrl(url)) {
@@ -279,14 +221,7 @@ $(document).ready(function() {
         }, 2000); // 2 Sekunden warten
     });
     
-    // Modals initialisieren - warte bis DOM vollständig geladen ist
-    setTimeout(() => {
-        initializeModals();
-    }, 100);
-}
-
-// Funktion zur Modal-Initialisierung
-function initializeModals() {
+    // Modals initialisieren
     const editorModalElement = document.getElementById('testEditorPreviewModal');
     const generatorModalElement = document.getElementById('testGeneratorPreviewModal');
     
@@ -302,18 +237,6 @@ function initializeModals() {
         console.log('Test Generator Modal initialized successfully');
     } else {
         console.error('Test Generator Modal element not found in DOM');
-        console.log('Available modals:', document.querySelectorAll('.modal'));
-        
-        // Versuche es später nochmal zu initialisieren
-        setTimeout(() => {
-            const retryElement = document.getElementById('testGeneratorPreviewModal');
-            if (retryElement) {
-                testGeneratorPreviewModal = new bootstrap.Modal(retryElement);
-                console.log('Test Generator Modal initialized on retry');
-            } else {
-                console.error('Test Generator Modal still not found after retry');
-            }
-        }, 1000);
     }
 
     // Prüfe URL-Parameter
@@ -1224,60 +1147,41 @@ function showSubtitleUploadReminder() {
     console.log('✅ Upload-Hinweis angezeigt');
 }
 
-// Form Submit Handler (mit Event-Delegation)
-$(document).on('submit', '#uploadForm', function(e) {
-    console.log('🚀 Form Submit Handler aufgerufen!');
+// Form Submit Handler
+$('#uploadForm').on('submit', function(e) {
     e.preventDefault();
-    console.log('Form submitted - preventDefault ausgeführt');
+    // console.log('Form submitted');
     
     // Verstecke vorherige Fehlermeldungen
     $('#generationResult').empty();
     
     // Prüfe, ob mindestens eine Quelle angegeben wurde
-    const fileInputs = $(this).find('input[name="source_files[]"]');
-    const urlInputs = $(this).find('input[name="webpage_urls[]"]');
+    const fileInput = $(this).find('input[type="file"]');
+    const urlInput = $(this).find('input[name="webpage_url"]');
     const youtubeInput = $(this).find('input[name="youtube_url"]');
     
-    // Prüfe Datei-Uploads
-    let hasFile = false;
-    fileInputs.each(function() {
-        if (this.files && this.files.length > 0) {
-            hasFile = true;
-            return false; // break
-        }
-    });
-    
-    // Prüfe Webseiten-URLs
-    let hasUrl = false;
-    urlInputs.each(function() {
-        if ($(this).val() && $(this).val().trim() !== '') {
-            hasUrl = true;
-            return false; // break
-        }
-    });
-    
-    const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
+    const hasFile = fileInput.length > 0 && fileInput[0].files && fileInput[0].files.length > 0;
+    const hasUrl = urlInput.val().trim() !== '';
+    const hasYoutube = youtubeInput.val().trim() !== '';
     
     // Sammle Validierungsfehler
     const errors = [];
-    
-    console.log('Validierung - hasFile:', hasFile, 'hasUrl:', hasUrl, 'hasYoutube:', hasYoutube);
     
     if (!hasFile && !hasUrl && !hasYoutube) {
         errors.push('Bitte geben Sie mindestens eine der folgenden Quellen an: Datei, Webseiten-URL oder YouTube-Link.');
     }
     
-    // Validiere Webseiten-URLs
-    urlInputs.each(function() {
-        const url = $(this).val() ? $(this).val().trim() : '';
-        if (url !== '' && !isValidUrl(url)) {
-            errors.push('Eine der eingegebenen Webseiten-URLs ist ungültig: ' + url);
+    // Validiere Webseiten-URL
+    if (hasUrl) {
+        const url = urlInput.val().trim();
+        if (!isValidUrl(url)) {
+            errors.push('Die eingegebene Webseiten-URL ist ungültig.');
         }
-    });
+    }
     
     // Validiere YouTube-URL
     if (hasYoutube) {
-        const youtubeUrl = youtubeInput.val() ? youtubeInput.val().trim() : '';
+        const youtubeUrl = youtubeInput.val().trim();
         if (!isValidYoutubeUrl(youtubeUrl)) {
             errors.push('Die eingegebene YouTube-URL ist ungültig. Bitte geben Sie einen gültigen YouTube-Video-Link ein.');
         }
@@ -1300,10 +1204,11 @@ $(document).on('submit', '#uploadForm', function(e) {
     formData.append('debug', '1');
     
     // Debug: Log FormData
-    console.log('FormData contents:');
+    /*
     for (let pair of formData.entries()) {
         console.log(pair[0] + ': ' + pair[1]);
     }
+    */
     
     // Progress-Bar und Status-Text initialisieren
     $('.progress').show();
@@ -1365,7 +1270,6 @@ $(document).on('submit', '#uploadForm', function(e) {
     // Speichere das Interval global, um es später stoppen zu können
     window.currentProgressInterval = progressInterval;
     
-    console.log('🚀 Starte AJAX-Anfrage...');
     $.ajax({
         url: getTeacherUrl('generate_test.php'),
         method: 'POST',
@@ -1373,9 +1277,7 @@ $(document).on('submit', '#uploadForm', function(e) {
         processData: false,
         contentType: false,
         success: function(response) {
-            console.log('AJAX Response:', response);
-            console.log('Response success:', response.success);
-            console.log('Response preview_data:', response.preview_data);
+            console.log('Response:', response);
             
             // Stoppe den Fortschrittsbalken-Timer
             if (window.currentProgressInterval) {
@@ -1436,10 +1338,7 @@ $(document).on('submit', '#uploadForm', function(e) {
                         console.log('✅ currentGeneratedTest gespeichert:', window.currentGeneratedTest);
                         
                         // Zeige Vorschau direkt an
-                        console.log('Zeige Vorschau an mit XML-Content:', response.preview_data.xml_content.substring(0, 200) + '...');
                         showXMLPreview(response.preview_data.xml_content, 'generator');
-                    } else {
-                        console.log('❌ Keine preview_data oder xml_content in der Antwort');
                     }
                 }, 1000);
             } else {
@@ -1466,10 +1365,8 @@ $(document).on('submit', '#uploadForm', function(e) {
         },
         error: function(xhr, status, error) {
             $('.progress').hide();
-            console.error('❌ Ajax error:', error);
-            console.error('Status:', status);
+            console.error('Ajax error:', error);
             console.error('Response:', xhr.responseText);
-            console.error('XHR:', xhr);
             
             let errorMessage = 'Fehler beim Generieren des Tests';
             try {
@@ -1571,54 +1468,8 @@ function showDebugInfo(debugInfo) {
     });
 }
 
-// Funktion zum dynamischen Erstellen des Generator-Modals
-function createGeneratorModal() {
-    // Prüfe, ob das Modal bereits existiert
-    if (document.getElementById('testGeneratorPreviewModal')) {
-        console.log('Generator-Modal existiert bereits');
-        return;
-    }
-    
-    // Erstelle das Modal-HTML
-    const modalHTML = `
-        <div class="modal fade" id="testGeneratorPreviewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalTitle">
-            <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title" id="previewModalTitle">Test Vorschau</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                    </div>
-                    <div class="modal-body p-0">
-                        <div class="test-content"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                        <button type="button" class="btn btn-success" id="saveTest">Test speichern</button>
-                        <button type="button" class="btn btn-primary" id="editGeneratedTest" data-access-code="">
-                            <i class="bi bi-pencil-square me-2"></i>Test bearbeiten
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Füge das Modal zum DOM hinzu
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    // Initialisiere das Modal
-    const modalElement = document.getElementById('testGeneratorPreviewModal');
-    if (modalElement) {
-        testGeneratorPreviewModal = new bootstrap.Modal(modalElement);
-        console.log('Generator-Modal dynamisch erstellt und initialisiert');
-    } else {
-        console.error('Fehler beim Erstellen des Generator-Modals');
-    }
-}
-
 // Funktion zum Anzeigen der XML-Vorschau
 function showXMLPreview(xmlContent, modalType = 'generator') {
-    console.log('showXMLPreview aufgerufen - modalType:', modalType, 'xmlContent length:', xmlContent.length);
     try {
         // Versuche, das XML zu parsen
         const parser = new DOMParser();
@@ -1804,7 +1655,6 @@ function showXMLPreview(xmlContent, modalType = 'generator') {
         }
         
         // Zeige das entsprechende Modal an
-        console.log('Modal anzeigen - modalType:', modalType, 'testGeneratorPreviewModal:', testGeneratorPreviewModal);
         if (modalType === 'generator' && testGeneratorPreviewModal) {
             // Entferne den Speichern-Button aus der Vorschau im Generator-Modus
             $('.modal-footer #saveTest').remove();
@@ -1835,25 +1685,11 @@ function showXMLPreview(xmlContent, modalType = 'generator') {
                 console.error('❌ Kein Access-Code für editGeneratedTest verfügbar!');
             }
             
-            console.log('Zeige testGeneratorPreviewModal an...');
             testGeneratorPreviewModal.show();
         } else if (modalType === 'editor' && testEditorPreviewModal) {
             testEditorPreviewModal.show();
         } else {
             console.error(`Modal vom Typ '${modalType}' nicht gefunden!`);
-            console.log('Verfügbare Modals:', {
-                testGeneratorPreviewModal: testGeneratorPreviewModal,
-                testEditorPreviewModal: testEditorPreviewModal
-            });
-            
-            // Fallback: Erstelle Modal dynamisch
-            if (modalType === 'generator') {
-                console.log('Erstelle Generator-Modal dynamisch...');
-                createGeneratorModal();
-                if (testGeneratorPreviewModal) {
-                    testGeneratorPreviewModal.show();
-                }
-            }
         }
     } catch (e) {
         console.error("Error displaying XML preview:", e);

@@ -41,62 +41,24 @@
             </div>
         </div>
 
-        <!-- Quellen-Bereich -->
+        <!-- Datei-Upload -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <h5>Quellen (max. 5)</h5>
-                <div id="sources-container">
-                    <!-- Erste Quelle -->
-                    <div class="source-item mb-3" data-source-type="file">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span class="fw-bold">Quelle 1 - Datei-Upload</span>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSource(this)" style="display: none;">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <input type="file" class="form-control" name="source_files[]" 
-                                       accept=".pdf,.jpg,.jpeg,.png,.bmp,.txt,.doc,.docx">
-                                <div class="form-text">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="source-item mb-3" data-source-type="webpage">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span class="fw-bold">Quelle 2 - Webseite</span>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSource(this)" style="display: none;">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <input type="url" class="form-control" name="webpage_urls[]" 
-                                       placeholder="https://www.beispiel.de">
-                                <div class="form-text">Geben Sie die URL einer Webseite ein</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Hinzufügen-Buttons -->
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <button type="button" class="btn btn-outline-success" onclick="addSource('file')" id="addFileBtn">
-                            <i class="bi bi-plus-circle me-1"></i>Datei hinzufügen
-                        </button>
-                    </div>
-                    <div class="col-md-6">
-                        <button type="button" class="btn btn-outline-success" onclick="addSource('webpage')" id="addWebpageBtn">
-                            <i class="bi bi-plus-circle me-1"></i>Webseite hinzufügen
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="form-text mt-2">
-                    <small class="text-muted">Sie können bis zu 5 Quellen hinzufügen (Dateien und Webseiten zusammen)</small>
-                </div>
+                <label for="source_file" class="form-label">Datei auswählen:</label>
+                <input type="file" class="form-control" name="source_file" id="source_file" 
+                       accept=".pdf,.jpg,.jpeg,.png,.bmp,.txt,.doc,.docx">
+                <div class="form-text">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX</div>
+            </div>
+        </div>
+
+        <!-- Webseiten-URL -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="webpage_url" class="form-label">Webseiten-URL:</label>
+                <input type="url" class="form-control" name="webpage_url" id="webpage_url" 
+                       placeholder="https://www.beispiel.de">
+                <div class="invalid-feedback" id="webpage_url_error"></div>
+                <div class="form-text">Geben Sie die URL einer Webseite ein, deren Inhalt für die Testgenerierung verwendet werden soll.</div>
             </div>
         </div>
 
@@ -199,9 +161,6 @@ window.mcqPaths = {
 
 console.log('MCQ Paths configured:', window.mcqPaths);
 
-// Quellen-Verwaltung
-let sourceCounter = 2; // Startet bei 2, da wir bereits 2 Quellen haben
-
 // Modell-Verwaltung
 let availableModels = [];
 let currentBestModel = null;
@@ -209,13 +168,6 @@ let currentBestModel = null;
 // Lade verfügbare Modelle beim Seitenaufruf
 $(document).ready(function() {
     loadAvailableModels();
-    updateSourceNumbers();
-    updateAddButtons();
-    
-    // Initialisiere Submit-Button-Status
-    if (typeof window.updateSubmitButtonStatus === 'function') {
-        window.updateSubmitButtonStatus();
-    }
 });
 
 // Helper-Funktion: Erstelle Pfad für includes-Dateien
@@ -430,131 +382,6 @@ function testSelectedModel() {
             showModelStatus('Fehler beim Testen des Modells', 'danger');
         }
     });
-}
-
-// Quellen-Verwaltung
-function addSource(type) {
-    const container = document.getElementById('sources-container');
-    const currentSources = container.querySelectorAll('.source-item');
-    
-    if (currentSources.length >= 5) {
-        alert('Sie können maximal 5 Quellen hinzufügen.');
-        return;
-    }
-    
-    sourceCounter++;
-    const sourceNumber = currentSources.length + 1;
-    
-    let html = '';
-    if (type === 'file') {
-        html = `
-            <div class="source-item mb-3" data-source-type="file">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span class="fw-bold">Quelle ${sourceNumber} - Datei-Upload</span>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSource(this)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <input type="file" class="form-control" name="source_files[]" 
-                               accept=".pdf,.jpg,.jpeg,.png,.bmp,.txt,.doc,.docx">
-                        <div class="form-text">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX</div>
-                    </div>
-                </div>
-            </div>
-        `;
-    } else if (type === 'webpage') {
-        html = `
-            <div class="source-item mb-3" data-source-type="webpage">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span class="fw-bold">Quelle ${sourceNumber} - Webseite</span>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSource(this)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <input type="url" class="form-control" name="webpage_urls[]" 
-                               placeholder="https://www.beispiel.de">
-                        <div class="form-text">Geben Sie die URL einer Webseite ein</div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    container.insertAdjacentHTML('beforeend', html);
-    updateSourceNumbers();
-    updateAddButtons();
-    
-    // Aktualisiere Submit-Button-Status nach dem Hinzufügen
-    if (typeof window.updateSubmitButtonStatus === 'function') {
-        window.updateSubmitButtonStatus();
-    }
-}
-
-function removeSource(button) {
-    const sourceItem = button.closest('.source-item');
-    sourceItem.remove();
-    updateSourceNumbers();
-    updateAddButtons();
-    
-    // Aktualisiere Submit-Button-Status nach dem Entfernen
-    if (typeof window.updateSubmitButtonStatus === 'function') {
-        window.updateSubmitButtonStatus();
-    }
-}
-
-function updateSourceNumbers() {
-    const container = document.getElementById('sources-container');
-    const sourceItems = container.querySelectorAll('.source-item');
-    
-    sourceItems.forEach((item, index) => {
-        const header = item.querySelector('.card-header span');
-        const sourceType = item.getAttribute('data-source-type');
-        const sourceNumber = index + 1;
-        
-        if (sourceType === 'file') {
-            header.textContent = `Quelle ${sourceNumber} - Datei-Upload`;
-        } else if (sourceType === 'webpage') {
-            header.textContent = `Quelle ${sourceNumber} - Webseite`;
-        }
-    });
-}
-
-function updateAddButtons() {
-    const container = document.getElementById('sources-container');
-    const currentSources = container.querySelectorAll('.source-item');
-    const addFileBtn = document.getElementById('addFileBtn');
-    const addWebpageBtn = document.getElementById('addWebpageBtn');
-    
-    if (currentSources.length >= 5) {
-        addFileBtn.disabled = true;
-        addWebpageBtn.disabled = true;
-        addFileBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i>Max. 5 Quellen erreicht';
-        addWebpageBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i>Max. 5 Quellen erreicht';
-    } else {
-        addFileBtn.disabled = false;
-        addWebpageBtn.disabled = false;
-        addFileBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i>Datei hinzufügen';
-        addWebpageBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i>Webseite hinzufügen';
-    }
-    
-    // Zeige/verstecke Lösch-Buttons
-    currentSources.forEach((item, index) => {
-        const deleteBtn = item.querySelector('.btn-outline-danger');
-        if (currentSources.length > 1) {
-            deleteBtn.style.display = 'block';
-        } else {
-            deleteBtn.style.display = 'none';
-        }
-    });
-    
-    // Aktualisiere Submit-Button-Status
-    if (typeof window.updateSubmitButtonStatus === 'function') {
-        window.updateSubmitButtonStatus();
-    }
 }
 </script>
 
