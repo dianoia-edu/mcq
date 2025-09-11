@@ -44,7 +44,13 @@
         <!-- Datei-Upload -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <label class="form-label">Dateien auswählen:</label>
+                <label class="form-label">
+                    Datei-Upload
+                    <i class="bi bi-info-circle text-muted ms-1" 
+                       data-bs-toggle="tooltip" 
+                       data-bs-placement="top" 
+                       title="Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX (max. 5 Dateien)"></i>
+                </label>
                 <div id="file-upload-container">
                     <div class="file-upload-item mb-2 d-flex align-items-center">
                         <input type="file" class="form-control me-2" name="source_file[]" 
@@ -55,8 +61,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="form-text mb-0">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX (max. 5 Dateien)</div>
+                <div class="d-flex justify-content-end align-items-center">
                     <button type="button" class="btn btn-success btn-sm rounded-circle p-0" id="add-file-btn" 
                             title="Weitere Datei hinzufügen" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -70,7 +75,13 @@
         <!-- Webseiten-URL -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <label class="form-label">Webseiten-URLs:</label>
+                <label class="form-label">
+                    Webseiten
+                    <i class="bi bi-info-circle text-muted ms-1" 
+                       data-bs-toggle="tooltip" 
+                       data-bs-placement="top" 
+                       title="Geben Sie URLs von Webseiten ein, deren Inhalt für die Testgenerierung verwendet werden soll (max. 5 URLs)"></i>
+                </label>
                 <div id="webpage-url-container">
                     <div class="webpage-url-item mb-2 d-flex align-items-center">
                         <input type="url" class="form-control me-2" name="webpage_url[]" 
@@ -81,8 +92,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="form-text mb-0">Geben Sie URLs von Webseiten ein, deren Inhalt für die Testgenerierung verwendet werden soll (max. 5 URLs)</div>
+                <div class="d-flex justify-content-end align-items-center">
                     <button type="button" class="btn btn-success btn-sm rounded-circle p-0" id="add-webpage-btn" 
                             title="Weitere Webseite hinzufügen" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -96,7 +106,13 @@
         <!-- YouTube-Link -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <label for="youtube_url" class="form-label">YouTube-Video-URL:</label>
+                <label for="youtube_url" class="form-label">
+                    YouTube
+                    <i class="bi bi-info-circle text-muted ms-1" 
+                       data-bs-toggle="tooltip" 
+                       data-bs-placement="top" 
+                       title="Geben Sie die URL eines YouTube-Videos ein. Mit 'Untertitel laden' öffnen Sie subtitle.to zum direkten Download."></i>
+                </label>
                 <div class="input-group">
                     <input type="url" class="form-control" name="youtube_url" id="youtube_url" 
                            placeholder="https://www.youtube.com/watch?v=...">
@@ -106,9 +122,6 @@
                     </button>
                 </div>
                 <div class="invalid-feedback" id="youtube_url_error"></div>
-                <div class="form-text">
-                    Geben Sie die URL eines YouTube-Videos ein. Mit "Untertitel laden" öffnen Sie subtitle.to zum direkten Download.
-                </div>
             </div>
         </div>
 
@@ -534,4 +547,15 @@ $(document).ready(function() {
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<script>
+// Tooltips initialisieren
+document.addEventListener('DOMContentLoaded', function() {
+    // Bootstrap Tooltips aktivieren
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script> 
