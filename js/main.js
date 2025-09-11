@@ -119,6 +119,29 @@ $(document).ready(function() {
     // Tabs initialisieren
     initializeTabs();
     
+    // Initialisiere YouTube-Button-Status beim Laden
+    $(document).ready(function() {
+        const youtubeInput = $('#youtube_url');
+        const subtitleBtn = $('#subtitleToBtn');
+        
+        if (youtubeInput.length && subtitleBtn.length) {
+            const url = youtubeInput.val();
+            if (url && url.trim() !== '') {
+                const trimmedUrl = url.trim();
+                if (isValidYoutubeUrl(trimmedUrl)) {
+                    subtitleBtn.prop('disabled', false);
+                    console.log('🔍 Button beim Laden aktiviert für URL:', trimmedUrl);
+                } else {
+                    subtitleBtn.prop('disabled', true);
+                    console.log('🔍 Button beim Laden deaktiviert für ungültige URL:', trimmedUrl);
+                }
+            } else {
+                subtitleBtn.prop('disabled', true);
+                console.log('🔍 Button beim Laden deaktiviert - kein URL');
+            }
+        }
+    });
+    
     // YouTube Video-Titel laden
     function loadYouTubeVideoTitle(url, inputElement) {
         // Extrahiere Video-ID aus der URL
@@ -242,6 +265,7 @@ $(document).ready(function() {
         } else {
             $(this).removeClass('is-invalid');
             subtitleBtn.prop('disabled', false);
+            console.log('🔍 Button aktiviert für URL:', trimmedUrl);
             
             // Versuche Video-Titel zu laden, wenn URL gültig ist
             loadYouTubeVideoTitle(trimmedUrl, $(this));
@@ -251,9 +275,11 @@ $(document).ready(function() {
     // Subtitle.to Button Handler (Event Delegation für dynamische Inhalte)
     $(document).on('click', '#subtitleToBtn', function() {
         console.log('📥 Subtitle.to Button geklickt!');
+        console.log('🔍 Button disabled:', $(this).prop('disabled'));
         
         var youtubeInput = $('#youtube_url');
         var youtubeUrl = youtubeInput.val();
+        console.log('🔍 YouTube URL im Feld:', youtubeUrl);
         
         if (!youtubeUrl) {
             alert('Bitte geben Sie zuerst eine YouTube-URL ein.');
