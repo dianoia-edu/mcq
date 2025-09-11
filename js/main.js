@@ -130,10 +130,11 @@ $(document).ready(function() {
         inputElement.val('Lade Video-Titel...');
         inputElement.prop('readonly', true);
         
-        // Verwende YouTube oEmbed API
+        // Verwende YouTube oEmbed API mit JSONP für CORS-Umgehung
         $.ajax({
             url: 'https://www.youtube.com/oembed',
             method: 'GET',
+            dataType: 'jsonp',
             data: {
                 url: url,
                 format: 'json'
@@ -148,11 +149,19 @@ $(document).ready(function() {
                     // Füge Tooltip hinzu
                     inputElement.attr('title', 'Video-Titel: ' + data.title + '\nOriginal-URL: ' + originalValue);
                 } else {
-                    inputElement.val(originalValue);
+                    // Fallback: Zeige Video-ID
+                    inputElement.data('original-url', originalValue);
+                    inputElement.val('YouTube Video: ' + videoId);
+                    inputElement.addClass('youtube-title-loaded');
+                    inputElement.attr('title', 'Video-ID: ' + videoId + '\nOriginal-URL: ' + originalValue);
                 }
             },
             error: function() {
-                inputElement.val(originalValue);
+                // Fallback: Zeige Video-ID
+                inputElement.data('original-url', originalValue);
+                inputElement.val('YouTube Video: ' + videoId);
+                inputElement.addClass('youtube-title-loaded');
+                inputElement.attr('title', 'Video-ID: ' + videoId + '\nOriginal-URL: ' + originalValue);
             },
             complete: function() {
                 inputElement.prop('readonly', false);

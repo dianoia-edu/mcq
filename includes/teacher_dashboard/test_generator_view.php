@@ -57,9 +57,11 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="form-text mb-0">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX (max. 5 Dateien)</div>
-                    <button type="button" class="btn btn-success btn-sm rounded-circle p-2" id="add-file-btn" 
-                            title="Weitere Datei hinzufügen" style="width: 32px; height: 32px;">
-                        <i class="bi bi-plus text-white"></i>
+                    <button type="button" class="btn btn-success btn-sm rounded-circle p-0" id="add-file-btn" 
+                            title="Weitere Datei hinzufügen" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -81,9 +83,11 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="form-text mb-0">Geben Sie URLs von Webseiten ein, deren Inhalt für die Testgenerierung verwendet werden soll (max. 5 URLs)</div>
-                    <button type="button" class="btn btn-success btn-sm rounded-circle p-2" id="add-webpage-btn" 
-                            title="Weitere Webseite hinzufügen" style="width: 32px; height: 32px;">
-                        <i class="bi bi-plus text-white"></i>
+                    <button type="button" class="btn btn-success btn-sm rounded-circle p-0" id="add-webpage-btn" 
+                            title="Weitere Webseite hinzufügen" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -428,12 +432,15 @@ function updateSourceCount() {
     $('#add-webpage-btn').prop('disabled', !canAddMore);
     
     // Visuelles Feedback
+    const plusIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const xIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    
     if (sourceCount >= maxSources) {
-        $('#add-file-btn').addClass('disabled').html('<i class="bi bi-x text-white"></i>');
-        $('#add-webpage-btn').addClass('disabled').html('<i class="bi bi-x text-white"></i>');
+        $('#add-file-btn').addClass('disabled').html(xIcon);
+        $('#add-webpage-btn').addClass('disabled').html(xIcon);
     } else {
-        $('#add-file-btn').removeClass('disabled').html('<i class="bi bi-plus text-white"></i>');
-        $('#add-webpage-btn').removeClass('disabled').html('<i class="bi bi-plus text-white"></i>');
+        $('#add-file-btn').removeClass('disabled').html(plusIcon);
+        $('#add-webpage-btn').removeClass('disabled').html(plusIcon);
     }
 }
 
