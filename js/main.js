@@ -1224,10 +1224,11 @@ function showSubtitleUploadReminder() {
     console.log('✅ Upload-Hinweis angezeigt');
 }
 
-// Form Submit Handler
-$('#uploadForm').on('submit', function(e) {
+// Form Submit Handler (mit Event-Delegation)
+$(document).on('submit', '#uploadForm', function(e) {
+    console.log('🚀 Form Submit Handler aufgerufen!');
     e.preventDefault();
-    // console.log('Form submitted');
+    console.log('Form submitted - preventDefault ausgeführt');
     
     // Verstecke vorherige Fehlermeldungen
     $('#generationResult').empty();
@@ -1259,6 +1260,8 @@ $('#uploadForm').on('submit', function(e) {
     
     // Sammle Validierungsfehler
     const errors = [];
+    
+    console.log('Validierung - hasFile:', hasFile, 'hasUrl:', hasUrl, 'hasYoutube:', hasYoutube);
     
     if (!hasFile && !hasUrl && !hasYoutube) {
         errors.push('Bitte geben Sie mindestens eine der folgenden Quellen an: Datei, Webseiten-URL oder YouTube-Link.');
@@ -1362,6 +1365,7 @@ $('#uploadForm').on('submit', function(e) {
     // Speichere das Interval global, um es später stoppen zu können
     window.currentProgressInterval = progressInterval;
     
+    console.log('🚀 Starte AJAX-Anfrage...');
     $.ajax({
         url: getTeacherUrl('generate_test.php'),
         method: 'POST',
@@ -1462,8 +1466,10 @@ $('#uploadForm').on('submit', function(e) {
         },
         error: function(xhr, status, error) {
             $('.progress').hide();
-            console.error('Ajax error:', error);
+            console.error('❌ Ajax error:', error);
+            console.error('Status:', status);
             console.error('Response:', xhr.responseText);
+            console.error('XHR:', xhr);
             
             let errorMessage = 'Fehler beim Generieren des Tests';
             try {
