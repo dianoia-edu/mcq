@@ -360,16 +360,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
     echo "</div>";
     echo "</div>";
     
-    // JavaScript für Debug-Toggle
-    echo "<script>";
-    echo "function toggleDebug() {";
-    echo "  const isChecked = document.getElementById('debugToggle').checked;";
-    echo "  const debugElements = document.querySelectorAll('.debug-info');";
-    echo "  debugElements.forEach(element => {";
-    echo "    element.style.display = isChecked ? 'block' : 'none';";
-    echo "  });";
-    echo "}";
-    echo "</script>";
+    // JavaScript für Debug-Toggle ist jetzt global in teacher_dashboard.php definiert
     
     // Fragen und Antworten anzeigen
     if (isset($xml->questions->question)) {

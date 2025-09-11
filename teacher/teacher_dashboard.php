@@ -1080,6 +1080,15 @@ if (!empty($tests)) {
                 $(this).remove();
             });
         }
+        
+        // Debug-Toggle-Funktion für Detailauswertungen
+        function toggleDebug() {
+            const isChecked = document.getElementById('debugToggle').checked;
+            const debugElements = document.querySelectorAll('.debug-info');
+            debugElements.forEach(element => {
+                element.style.display = isChecked ? 'block' : 'none';
+            });
+        }
     </script>
 </body>
 </html>
