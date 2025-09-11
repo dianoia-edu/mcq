@@ -151,6 +151,12 @@ foreach ($_POST as $key => $value) {
         if ($shuffledQuestions && isset($shuffledQuestions[$qIndex])) {
             $originalQuestionNr = $shuffledQuestions[$qIndex]['originalQuestionNr'] ?? $shuffledQuestions[$qIndex]['nr'];
             echo "POST: $key = " . print_r($value, true) . " → Frage Nr: $originalQuestionNr<br>";
+            
+            // DEBUG: Zeige alle Antworten dieser Frage
+            echo "&nbsp;&nbsp;&nbsp;&nbsp;Alle Antworten dieser Frage:<br>";
+            foreach ($shuffledQuestions[$qIndex]['answers'] as $answer) {
+                echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Anzeige-Nr: " . $answer['nr'] . " → Original-Nr: " . $answer['originalAnswerNr'] . " | Text: " . substr($answer['text'], 0, 50) . "...<br>";
+            }
         } else {
             echo "POST: $key = " . print_r($value, true) . " → FEHLER: Keine Zuordnung gefunden!<br>";
         }
@@ -223,6 +229,7 @@ foreach ($_POST as $key => $value) {
                                 } else {
                                     $answer->addChild('schuelerantwort', '1');
                                 }
+                                break; // WICHTIG: Nur diese eine Antwort setzen!
                             }
                         }
                     }
@@ -248,6 +255,7 @@ foreach ($_POST as $key => $value) {
                             } else {
                                 $answer->addChild('schuelerantwort', '1');
                             }
+                            break; // WICHTIG: Nur diese eine Antwort setzen!
                         }
                     }
                 }
