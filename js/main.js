@@ -279,7 +279,14 @@ $(document).ready(function() {
         }, 2000); // 2 Sekunden warten
     });
     
-    // Modals initialisieren
+    // Modals initialisieren - warte bis DOM vollständig geladen ist
+    setTimeout(() => {
+        initializeModals();
+    }, 100);
+}
+
+// Funktion zur Modal-Initialisierung
+function initializeModals() {
     const editorModalElement = document.getElementById('testEditorPreviewModal');
     const generatorModalElement = document.getElementById('testGeneratorPreviewModal');
     
@@ -296,6 +303,17 @@ $(document).ready(function() {
     } else {
         console.error('Test Generator Modal element not found in DOM');
         console.log('Available modals:', document.querySelectorAll('.modal'));
+        
+        // Versuche es später nochmal zu initialisieren
+        setTimeout(() => {
+            const retryElement = document.getElementById('testGeneratorPreviewModal');
+            if (retryElement) {
+                testGeneratorPreviewModal = new bootstrap.Modal(retryElement);
+                console.log('Test Generator Modal initialized on retry');
+            } else {
+                console.error('Test Generator Modal still not found after retry');
+            }
+        }, 1000);
     }
 
     // Prüfe URL-Parameter
@@ -1547,6 +1565,51 @@ function showDebugInfo(debugInfo) {
     });
 }
 
+// Funktion zum dynamischen Erstellen des Generator-Modals
+function createGeneratorModal() {
+    // Prüfe, ob das Modal bereits existiert
+    if (document.getElementById('testGeneratorPreviewModal')) {
+        console.log('Generator-Modal existiert bereits');
+        return;
+    }
+    
+    // Erstelle das Modal-HTML
+    const modalHTML = `
+        <div class="modal fade" id="testGeneratorPreviewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalTitle">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="previewModalTitle">Test Vorschau</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="test-content"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                        <button type="button" class="btn btn-success" id="saveTest">Test speichern</button>
+                        <button type="button" class="btn btn-primary" id="editGeneratedTest" data-access-code="">
+                            <i class="bi bi-pencil-square me-2"></i>Test bearbeiten
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Füge das Modal zum DOM hinzu
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Initialisiere das Modal
+    const modalElement = document.getElementById('testGeneratorPreviewModal');
+    if (modalElement) {
+        testGeneratorPreviewModal = new bootstrap.Modal(modalElement);
+        console.log('Generator-Modal dynamisch erstellt und initialisiert');
+    } else {
+        console.error('Fehler beim Erstellen des Generator-Modals');
+    }
+}
+
 // Funktion zum Anzeigen der XML-Vorschau
 function showXMLPreview(xmlContent, modalType = 'generator') {
     console.log('showXMLPreview aufgerufen - modalType:', modalType, 'xmlContent length:', xmlContent.length);
@@ -1776,6 +1839,15 @@ function showXMLPreview(xmlContent, modalType = 'generator') {
                 testGeneratorPreviewModal: testGeneratorPreviewModal,
                 testEditorPreviewModal: testEditorPreviewModal
             });
+            
+            // Fallback: Erstelle Modal dynamisch
+            if (modalType === 'generator') {
+                console.log('Erstelle Generator-Modal dynamisch...');
+                createGeneratorModal();
+                if (testGeneratorPreviewModal) {
+                    testGeneratorPreviewModal.show();
+                }
+            }
         }
     } catch (e) {
         console.error("Error displaying XML preview:", e);
