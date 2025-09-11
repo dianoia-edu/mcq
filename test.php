@@ -119,10 +119,15 @@ unset($question);
 $shuffledQuestions = $questions;
 shuffle($shuffledQuestions);
 
-foreach ($shuffledQuestions as &$question) {
+// WICHTIG: Nach dem Shuffling die Array-Indizes als qIndex verwenden
+foreach ($shuffledQuestions as $qIndex => &$question) {
     $shuffledAnswers = $question['answers'];
     shuffle($shuffledAnswers);
     $question['answers'] = $shuffledAnswers;
+    
+    // Speichere die ursprüngliche Fragenummer für process.php
+    $question['originalQuestionNr'] = $question['nr'];
+    $question['qIndex'] = $qIndex; // Array-Index als qIndex
 }
 unset($question);
 

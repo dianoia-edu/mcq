@@ -132,7 +132,16 @@ error_log("=== VERARBEITUNG DER ANTWORTEN ===");
 error_log("POST-Daten: " . print_r($_POST, true));
 error_log("shuffled_questions: " . print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true));
 
-// DEBUG-AUSGABEN FÜR BROWSER entfernt - werden jetzt in Log-Datei geschrieben
+// DEBUG-AUSGABEN FÜR BROWSER - temporär wieder aktiviert für Fehleranalyse
+echo "<div style='background: #f0f0f0; padding: 20px; margin: 20px; border: 2px solid #333; font-family: monospace;'>";
+echo "<h3>🔍 DEBUG: Testverarbeitung</h3>";
+echo "<p><strong>POST-Daten:</strong></p>";
+echo "<pre>" . print_r($_POST, true) . "</pre>";
+echo "<p><strong>Session shuffled_questions:</strong></p>";
+echo "<pre>" . print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true) . "</pre>";
+echo "<p><strong>Session test_file:</strong> " . ($_SESSION['test_file'] ?? 'NICHT GESETZT') . "</p>";
+echo "<p><strong>Session student_name:</strong> " . ($_SESSION['student_name'] ?? 'NICHT GESETZT') . "</p>";
+echo "</div>";
 
 foreach ($_POST as $key => $value) {
     if (strpos($key, 'answer_') === 0) {
@@ -154,7 +163,8 @@ foreach ($_POST as $key => $value) {
             continue;
         }
         
-        $originalQuestionNr = $shuffledQuestions[$qIndex]['nr'];
+        // Verwende die ursprüngliche Fragenummer aus der Session
+        $originalQuestionNr = $shuffledQuestions[$qIndex]['originalQuestionNr'] ?? $shuffledQuestions[$qIndex]['nr'];
         error_log("qIndex $qIndex entspricht originaler Frage Nr: $originalQuestionNr");
         
         // Wenn es sich um eine Checkbox-Antwort handelt (Array)
@@ -309,6 +319,17 @@ $dom->formatOutput = true;
 $dom->loadXML($answerXml->asXML());
 
 // DEBUG: Finale XML-Datei wird in Log-Datei geschrieben
+error_log("=== FINALE XML-DATEI ===");
+error_log($dom->saveXML());
+error_log("=== ENDE XML-DATEI ===");
+
+// DEBUG: Zeige finale XML im Browser
+echo "<div style='background: #fff; padding: 20px; margin: 20px; border: 2px solid #333; font-family: monospace;'>";
+echo "<h3>🔍 DEBUG: Finale XML-Datei</h3>";
+echo "<pre style='background: #f9f9f9; padding: 10px; border: 1px solid #ccc; max-height: 400px; overflow-y: auto;'>";
+echo htmlspecialchars($dom->saveXML());
+echo "</pre>";
+echo "</div>";
 
 // Überprüfe, ob die Datei geschrieben werden kann
 error_log("Versuche XML-Datei zu speichern: " . $filepath);
