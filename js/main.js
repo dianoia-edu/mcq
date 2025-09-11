@@ -281,6 +281,7 @@ $(document).ready(function() {
     
     // Debug: Prüfe ob Bootstrap verfügbar ist
     $(document).ready(function() {
+        console.log('🚀 main.js wird geladen...');
         console.log('🔍 Bootstrap Modal verfügbar:', typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined');
         console.log('🔍 jQuery verfügbar:', typeof $ !== 'undefined');
         
@@ -1201,7 +1202,7 @@ $('#uploadForm').on('submit', function(e) {
     // Prüfe, ob mindestens eine Quelle angegeben wurde
     const fileInputs = $(this).find('input[name="source_file[]"]');
     const urlInputs = $(this).find('input[name="webpage_url[]"]');
-    const youtubeInput = $(this).find('input[name="youtube_url"]');
+    const youtubeInputField = $(this).find('input[name="youtube_url"]');
     
     let hasFile = false;
     fileInputs.each(function() {
@@ -1218,8 +1219,8 @@ $('#uploadForm').on('submit', function(e) {
         }
     });
     
-    const youtubeValue = youtubeInput.val();
-    const hasYoutube = youtubeInput.length > 0 && youtubeValue && youtubeValue.trim() !== '';
+    const youtubeValue = youtubeInputField.val();
+    const hasYoutube = youtubeInputField.length > 0 && youtubeValue && youtubeValue.trim() !== '';
     
     // Sammle Validierungsfehler
     const errors = [];
@@ -1265,9 +1266,9 @@ $('#uploadForm').on('submit', function(e) {
     formData.append('debug', '1');
     
     // Verwende Original-URL für YouTube falls Video-Titel geladen wurde
-    const youtubeInput = $('#youtube_url');
-    if (youtubeInput.data('original-url')) {
-        formData.set('youtube_url', youtubeInput.data('original-url'));
+    const youtubeInputForSubmit = $('#youtube_url');
+    if (youtubeInputForSubmit.data('original-url')) {
+        formData.set('youtube_url', youtubeInputForSubmit.data('original-url'));
     }
     
     // Debug: Log FormData
