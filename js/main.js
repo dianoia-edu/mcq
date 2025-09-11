@@ -162,8 +162,21 @@ $(document).ready(function() {
     // Methode 2: YouTube Data API v3 (Server-seitig)
     function tryMethod2(inputElement, videoId, originalValue) {
         // Bestimme die korrekte URL basierend auf dem aktuellen Pfad
-        const isInTeacherDir = window.location.pathname.includes('/teacher/');
-        const apiUrl = isInTeacherDir ? '../get_youtube_title.php' : 'get_youtube_title.php';
+        const currentPath = window.location.pathname;
+        let apiUrl;
+        
+        if (currentPath.includes('/teacher/')) {
+            // Wir sind im teacher-Verzeichnis
+            apiUrl = '../get_youtube_title.php';
+        } else if (currentPath.includes('/lehrer_instanzen/')) {
+            // Wir sind in einer Instanz
+            apiUrl = 'get_youtube_title.php';
+        } else {
+            // Standard-Fall
+            apiUrl = 'get_youtube_title.php';
+        }
+        
+        console.log('YouTube API URL:', apiUrl, 'für Pfad:', currentPath);
         
         $.ajax({
             url: apiUrl,
