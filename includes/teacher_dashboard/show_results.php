@@ -13,6 +13,7 @@ writeLog("=== Start show_results.php ===");
 $file = isset($_GET['file']) ? $_GET['file'] : '';
 $format = isset($_GET['format']) ? $_GET['format'] : '';
 $isAjax = ($format === 'ajax');
+$showDebug = isset($_GET['debug']) && $_GET['debug'] === '1';
 
 writeLog("Angefragter Dateiname: " . $file . ", Format: " . $format);
 
@@ -345,6 +346,31 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
     echo "</div>";
     echo "</div>";
     
+    // Debug-Schalter hinzufügen
+    echo "<div class='card mb-3'>";
+    echo "<div class='card-body'>";
+    echo "<div class='d-flex justify-content-between align-items-center'>";
+    echo "<h5 class='mb-0'>Debug-Ausgaben</h5>";
+    echo "<div class='form-check form-switch'>";
+    $debugUrl = $showDebug ? str_replace('&debug=1', '', $_SERVER['REQUEST_URI']) : $_SERVER['REQUEST_URI'] . '&debug=1';
+    echo "<input class='form-check-input' type='checkbox' id='debugToggle' " . ($showDebug ? 'checked' : '') . " onchange='toggleDebug()'>";
+    echo "<label class='form-check-label' for='debugToggle'>Debug-Ausgaben anzeigen</label>";
+    echo "</div>";
+    echo "</div>";
+    echo "</div>";
+    echo "</div>";
+    
+    // JavaScript für Debug-Toggle
+    echo "<script>";
+    echo "function toggleDebug() {";
+    echo "  const isChecked = document.getElementById('debugToggle').checked;";
+    echo "  const debugElements = document.querySelectorAll('.debug-info');";
+    echo "  debugElements.forEach(element => {";
+    echo "    element.style.display = isChecked ? 'block' : 'none';";
+    echo "  });";
+    echo "}";
+    echo "</script>";
+    
     // Fragen und Antworten anzeigen
     if (isset($xml->questions->question)) {
         // Konvertiere SimpleXML zu Array für Sortierung
@@ -403,7 +429,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             $correctTotal = 0;
             
             // DEBUG: Zeige Punkteberechnung für diese Frage
-            echo "<div style='background: #fff3cd; padding: 10px; margin: 10px 0; border: 1px solid #ffc107; font-family: monospace; font-size: 12px;'>";
+            echo "<div class='debug-info' style='background: #fff3cd; padding: 10px; margin: 10px 0; border: 1px solid #ffc107; font-family: monospace; font-size: 12px; display: " . ($showDebug ? 'block' : 'none') . ";'>";
             echo "<strong>📊 PUNKTEBERECHNUNG für Frage " . $questionNr . ":</strong><br>";
             
             // Berechne die Punkte erneut, genau wie in auswertung.php
@@ -517,7 +543,7 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                 }
                 
                 // DEBUG: Zeige alle Antworten der Frage mit Details
-                echo "<div style='background: #f0f8ff; padding: 10px; margin: 10px 0; border: 1px solid #007bff; font-family: monospace; font-size: 12px;'>";
+                echo "<div class='debug-info' style='background: #f0f8ff; padding: 10px; margin: 10px 0; border: 1px solid #007bff; font-family: monospace; font-size: 12px; display: " . ($showDebug ? 'block' : 'none') . ";'>";
                 echo "<strong>🔍 DEBUG für Frage " . $questionNr . ":</strong><br>";
                 
                 foreach ($question->answers->answer as $answer) {

@@ -133,7 +133,7 @@ error_log("POST-Daten: " . print_r($_POST, true));
 error_log("shuffled_questions: " . print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true));
 
 // DEBUG-AUSGABEN FÜR BROWSER - temporär wieder aktiviert für Fehleranalyse
-echo "<div style='background: #f0f0f0; padding: 20px; margin: 20px; border: 2px solid #333; font-family: monospace;'>";
+echo "<div class='debug-info' style='background: #f0f0f0; padding: 20px; margin: 20px; border: 2px solid #333; font-family: monospace; display: none;'>";
 echo "<h3>🔍 DEBUG: Testverarbeitung</h3>";
 echo "<p><strong>POST-Daten:</strong></p>";
 echo "<pre>" . print_r($_POST, true) . "</pre>";
@@ -163,6 +163,16 @@ foreach ($_POST as $key => $value) {
     }
 }
 echo "</div>";
+
+// JavaScript für Debug-Toggle in process.php
+echo "<script>";
+echo "document.addEventListener('DOMContentLoaded', function() {";
+echo "  const debugElements = document.querySelectorAll('.debug-info');";
+echo "  debugElements.forEach(element => {";
+echo "    element.style.display = 'none';";
+echo "  });";
+echo "});";
+echo "</script>";
 
 foreach ($_POST as $key => $value) {
     if (strpos($key, 'answer_') === 0) {
@@ -377,7 +387,7 @@ error_log($dom->saveXML());
 error_log("=== ENDE XML-DATEI ===");
 
 // DEBUG: Zeige finale XML im Browser
-echo "<div style='background: #fff; padding: 20px; margin: 20px; border: 2px solid #333; font-family: monospace;'>";
+echo "<div class='debug-info' style='background: #fff; padding: 20px; margin: 20px; border: 2px solid #333; font-family: monospace; display: none;'>";
 echo "<h3>🔍 DEBUG: Finale XML-Datei</h3>";
 echo "<pre style='background: #f9f9f9; padding: 10px; border: 1px solid #ccc; max-height: 400px; overflow-y: auto;'>";
 echo htmlspecialchars($dom->saveXML());
