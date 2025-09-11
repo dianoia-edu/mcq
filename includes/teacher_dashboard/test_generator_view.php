@@ -44,21 +44,48 @@
         <!-- Datei-Upload -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <label for="source_file" class="form-label">Datei auswählen:</label>
-                <input type="file" class="form-control" name="source_file" id="source_file" 
-                       accept=".pdf,.jpg,.jpeg,.png,.bmp,.txt,.doc,.docx">
-                <div class="form-text">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX</div>
+                <label class="form-label">Dateien auswählen:</label>
+                <div id="file-upload-container">
+                    <div class="file-upload-item mb-2 d-flex align-items-center">
+                        <input type="file" class="form-control me-2" name="source_file[]" 
+                               accept=".pdf,.jpg,.jpeg,.png,.bmp,.txt,.doc,.docx">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-source-btn" 
+                                title="Datei entfernen">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-success btn-sm" id="add-file-btn" 
+                            title="Weitere Datei hinzufügen">
+                        <i class="bi bi-plus-circle me-1"></i>Datei hinzufügen
+                    </button>
+                </div>
+                <div class="form-text">Erlaubte Dateitypen: PDF, JPG, PNG, BMP, TXT, DOC, DOCX (max. 5 Dateien)</div>
             </div>
         </div>
 
         <!-- Webseiten-URL -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <label for="webpage_url" class="form-label">Webseiten-URL:</label>
-                <input type="url" class="form-control" name="webpage_url" id="webpage_url" 
-                       placeholder="https://www.beispiel.de">
-                <div class="invalid-feedback" id="webpage_url_error"></div>
-                <div class="form-text">Geben Sie die URL einer Webseite ein, deren Inhalt für die Testgenerierung verwendet werden soll.</div>
+                <label class="form-label">Webseiten-URLs:</label>
+                <div id="webpage-url-container">
+                    <div class="webpage-url-item mb-2 d-flex align-items-center">
+                        <input type="url" class="form-control me-2" name="webpage_url[]" 
+                               placeholder="https://www.beispiel.de">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-source-btn" 
+                                title="Webseite entfernen">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-success btn-sm" id="add-webpage-btn" 
+                            title="Weitere Webseite hinzufügen">
+                        <i class="bi bi-plus-circle me-1"></i>Webseite hinzufügen
+                    </button>
+                </div>
+                <div class="form-text">Geben Sie URLs von Webseiten ein, deren Inhalt für die Testgenerierung verwendet werden soll (max. 5 URLs)</div>
             </div>
         </div>
 
@@ -83,7 +110,7 @@
 
         <!-- Hinweis für Quellen -->
         <div class="alert alert-info mb-3">
-            <small>Bitte stellen Sie mindestens eine Quelle bereit (Datei, Webseite oder YouTube-Video). Sie können auch mehrere Quellen gleichzeitig verwenden.</small>
+            <small>Bitte stellen Sie mindestens eine Quelle bereit (Datei, Webseite oder YouTube-Video). Sie können bis zu 5 zusätzliche Quellen hinzufügen (Dateien und Webseiten). YouTube-Videos werden nicht mitgezählt.</small>
         </div>
 
         <!-- Progress Bar -->
@@ -383,6 +410,117 @@ function testSelectedModel() {
         }
     });
 }
+
+// Dynamische Quellen-Verwaltung
+let sourceCount = 0; // Zähler für zusätzliche Quellen (ohne YouTube)
+
+// Initialisiere Quellen-Zähler
+function updateSourceCount() {
+    const fileInputs = $('input[name="source_file[]"]').length;
+    const webpageInputs = $('input[name="webpage_url[]"]').length;
+    sourceCount = fileInputs + webpageInputs;
+    
+    // Deaktiviere Buttons wenn 5 Quellen erreicht
+    const maxSources = 5;
+    const canAddMore = sourceCount < maxSources;
+    
+    $('#add-file-btn').prop('disabled', !canAddMore);
+    $('#add-webpage-btn').prop('disabled', !canAddMore);
+    
+    // Visuelles Feedback
+    if (sourceCount >= maxSources) {
+        $('#add-file-btn').addClass('disabled').html('<i class="bi bi-plus-circle me-1"></i>Max. erreicht');
+        $('#add-webpage-btn').addClass('disabled').html('<i class="bi bi-plus-circle me-1"></i>Max. erreicht');
+    } else {
+        $('#add-file-btn').removeClass('disabled').html('<i class="bi bi-plus-circle me-1"></i>Datei hinzufügen');
+        $('#add-webpage-btn').removeClass('disabled').html('<i class="bi bi-plus-circle me-1"></i>Webseite hinzufügen');
+    }
+}
+
+// Datei-Upload hinzufügen
+$('#add-file-btn').on('click', function() {
+    if (sourceCount >= 5) return;
+    
+    const container = $('#file-upload-container');
+    const newItem = $(`
+        <div class="file-upload-item mb-2 d-flex align-items-center">
+            <input type="file" class="form-control me-2" name="source_file[]" 
+                   accept=".pdf,.jpg,.jpeg,.png,.bmp,.txt,.doc,.docx">
+            <button type="button" class="btn btn-outline-danger btn-sm remove-source-btn" 
+                    title="Datei entfernen">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `);
+    
+    container.append(newItem);
+    updateSourceCount();
+});
+
+// Webseiten-URL hinzufügen
+$('#add-webpage-btn').on('click', function() {
+    if (sourceCount >= 5) return;
+    
+    const container = $('#webpage-url-container');
+    const newItem = $(`
+        <div class="webpage-url-item mb-2 d-flex align-items-center">
+            <input type="url" class="form-control me-2" name="webpage_url[]" 
+                   placeholder="https://www.beispiel.de">
+            <button type="button" class="btn btn-outline-danger btn-sm remove-source-btn" 
+                    title="Webseite entfernen">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `);
+    
+    container.append(newItem);
+    updateSourceCount();
+});
+
+// Quellen entfernen
+$(document).on('click', '.remove-source-btn', function() {
+    $(this).closest('.file-upload-item, .webpage-url-item').remove();
+    updateSourceCount();
+});
+
+// Formular-Validierung vor dem Absenden
+$('#uploadForm').on('submit', function(e) {
+    const fileInputs = $('input[name="source_file[]"]');
+    const webpageInputs = $('input[name="webpage_url[]"]');
+    const youtubeInput = $('#youtube_url');
+    
+    let hasValidSource = false;
+    
+    // Prüfe Datei-Uploads
+    fileInputs.each(function() {
+        if (this.files && this.files.length > 0) {
+            hasValidSource = true;
+        }
+    });
+    
+    // Prüfe Webseiten-URLs
+    webpageInputs.each(function() {
+        if ($(this).val().trim() !== '') {
+            hasValidSource = true;
+        }
+    });
+    
+    // Prüfe YouTube-URL
+    if (youtubeInput.val().trim() !== '') {
+        hasValidSource = true;
+    }
+    
+    if (!hasValidSource) {
+        e.preventDefault();
+        alert('Bitte geben Sie mindestens eine Quelle an (Datei, Webseite oder YouTube-Video).');
+        return false;
+    }
+});
+
+// Initialisiere beim Laden
+$(document).ready(function() {
+    updateSourceCount();
+});
 </script>
 
 <!-- Test Preview Modal -->

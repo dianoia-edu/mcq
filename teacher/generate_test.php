@@ -16,6 +16,45 @@ ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
 
 /**
+ * Verarbeite eine hochgeladene Datei und extrahiere den Inhalt
+ */
+function processUploadedFile($tmpName, $fileName, $fileSize) {
+    // Überprüfe Dateigröße
+    if ($fileSize === 0) {
+        throw new Exception('Leere Datei hochgeladen: ' . $fileName);
+    }
+
+    // Überprüfe den Dateityp
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime_type = finfo_file($finfo, $tmpName);
+    finfo_close($finfo);
+
+    error_log("Processing file: $fileName, MIME type: $mime_type");
+
+    // Extrahiere Text aus der Datei
+    if ($mime_type === 'application/pdf' || in_array($mime_type, ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp'])) {
+        $ocrResult = performOCR($tmpName, $mime_type);
+        
+        // Prüfe, ob OCR-Ergebnis eine Fehlermeldung enthält
+        if (strpos($ocrResult, "OCR nicht verfügbar") === 0) {
+            error_log("OCR nicht verfügbar: " . $ocrResult);
+            throw new Exception('Tesseract OCR ist nicht verfügbar. Bitte installieren Sie Tesseract OCR oder verwenden Sie eine Textdatei/URL.');
+        }
+        
+        return $ocrResult . "\n\n";
+    } 
+    else if ($mime_type === 'text/plain') {
+        return file_get_contents($tmpName) . "\n\n";
+    }
+    else if (in_array($mime_type, ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])) {
+        // DOCX/DOC Verarbeitung (vereinfacht für jetzt)
+        return "[DOCX/DOC Datei: $fileName - Text-Extraktion nicht implementiert]\n\n";
+    }
+    
+    return "[Unbekannter Dateityp: $fileName]\n\n";
+}
+
+/**
  * Bestimme das zu verwendende OpenAI-Modell
  */
 function determineModel($selectedModel, $config) {
@@ -516,50 +555,47 @@ try {
     $apiKey = $config['api_key'];
     $combinedContent = '';
 
-    // Verarbeite Datei-Upload, falls vorhanden
-    if (isset($_FILES['source_file']) && $_FILES['source_file']['error'] === UPLOAD_ERR_OK) {
-        // Überprüfe Dateigröße
-        if ($_FILES['source_file']['size'] === 0) {
-            throw new Exception('Leere Datei hochgeladen');
-        }
-
-        // Überprüfe den Dateityp
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime_type = finfo_file($finfo, $_FILES['source_file']['tmp_name']);
-        finfo_close($finfo);
-
-        error_log("Detected MIME type: " . $mime_type);
-
-        // Extrahiere Text aus der Datei
-        if ($mime_type === 'application/pdf' || in_array($mime_type, ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp'])) {
-            $ocrResult = performOCR($_FILES['source_file']['tmp_name'], $mime_type);
-            
-            // Prüfe, ob OCR-Ergebnis eine Fehlermeldung enthält
-            if (strpos($ocrResult, "OCR nicht verfügbar") === 0) {
-                error_log("OCR nicht verfügbar: " . $ocrResult);
-                throw new Exception('Tesseract OCR ist nicht verfügbar. Bitte installieren Sie Tesseract OCR oder verwenden Sie eine Textdatei/URL.');
+    // Verarbeite Datei-Uploads, falls vorhanden
+    if (isset($_FILES['source_file']) && is_array($_FILES['source_file']['name'])) {
+        // Mehrere Dateien
+        $fileCount = count($_FILES['source_file']['name']);
+        for ($i = 0; $i < $fileCount; $i++) {
+            if ($_FILES['source_file']['error'][$i] === UPLOAD_ERR_OK) {
+                $combinedContent .= processUploadedFile(
+                    $_FILES['source_file']['tmp_name'][$i],
+                    $_FILES['source_file']['name'][$i],
+                    $_FILES['source_file']['size'][$i]
+                );
             }
-            
-            $combinedContent .= $ocrResult . "\n\n";
-        } 
-        else if ($mime_type === 'text/plain') {
-            $combinedContent .= file_get_contents($_FILES['source_file']['tmp_name']) . "\n\n";
         }
-        else if (in_array($mime_type, ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])) {
-            // Bestehende DOCX/DOC Verarbeitung
-            // ... (vorhandener Code bleibt unverändert)
-        }
+    } elseif (isset($_FILES['source_file']) && $_FILES['source_file']['error'] === UPLOAD_ERR_OK) {
+        // Einzelne Datei (Fallback für alte Formulare)
+        $combinedContent .= processUploadedFile(
+            $_FILES['source_file']['tmp_name'],
+            $_FILES['source_file']['name'],
+            $_FILES['source_file']['size']
+        );
     }
 
-    // Verarbeite Webseiten-URL, falls vorhanden
-    if (!empty($_POST['webpage_url'])) {
-        $url = filter_var($_POST['webpage_url'], FILTER_SANITIZE_URL);
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new Exception('Ungültige Webseiten-URL');
+    // Verarbeite Webseiten-URLs, falls vorhanden
+    if (isset($_POST['webpage_url']) && is_array($_POST['webpage_url'])) {
+        // Mehrere URLs
+        foreach ($_POST['webpage_url'] as $url) {
+            if (!empty($url)) {
+                $url = filter_var($url, FILTER_SANITIZE_URL);
+                if (filter_var($url, FILTER_VALIDATE_URL)) {
+                    error_log("Processing webpage URL: " . $url);
+                    $combinedContent .= extractWebpageContent($url) . "\n\n";
+                }
+            }
         }
-        
-        error_log("Processing webpage URL: " . $url);
-        $combinedContent .= extractWebpageContent($url) . "\n\n";
+    } elseif (!empty($_POST['webpage_url'])) {
+        // Einzelne URL (Fallback für alte Formulare)
+        $url = filter_var($_POST['webpage_url'], FILTER_SANITIZE_URL);
+        if (filter_var($url, FILTER_VALIDATE_URL)) {
+            error_log("Processing webpage URL: " . $url);
+            $combinedContent .= extractWebpageContent($url) . "\n\n";
+        }
     }
 
     // Verarbeite YouTube-URL, falls vorhanden und nicht bereits durch subtitle.to verarbeitet
@@ -584,7 +620,7 @@ try {
         error_log("youtube_url empty check: " . (empty($_POST['youtube_url']) ? 'true' : 'false'));
         error_log("source_file error: " . (isset($_FILES['source_file']) ? $_FILES['source_file']['error'] : 'not set'));
         
-        throw new Exception('Keine Inhaltsquelle gefunden. Bitte laden Sie eine Datei hoch oder geben Sie eine URL ein. Debug: webpage_url=' . (isset($_POST['webpage_url']) ? $_POST['webpage_url'] : 'not set') . ', youtube_url=' . (isset($_POST['youtube_url']) ? $_POST['youtube_url'] : 'not set') . ', file_error=' . (isset($_FILES['source_file']) ? $_FILES['source_file']['error'] : 'not set'));
+        throw new Exception('Keine Inhaltsquelle gefunden. Bitte laden Sie mindestens eine Datei hoch, geben Sie eine Webseiten-URL ein oder fügen Sie ein YouTube-Video hinzu.');
     }
 
     // Hole die Anzahl der gewünschten Fragen und Antworten
