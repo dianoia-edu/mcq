@@ -44,7 +44,7 @@
         <!-- Datei-Upload -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <label class="form-label">
+                <label class="form-label fw-bold text-primary">
                     Datei-Upload
                     <i class="bi bi-info-circle text-muted ms-1" 
                        data-bs-toggle="tooltip" 
@@ -61,10 +61,10 @@
                         </button>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end align-items-center">
+                <div class="d-flex justify-content-start align-items-center">
                     <button type="button" class="btn btn-success btn-sm rounded-circle p-0" id="add-file-btn" 
-                            title="Weitere Datei hinzufügen" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            title="Weitere Datei hinzufügen" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
@@ -75,7 +75,7 @@
         <!-- Webseiten-URL -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <label class="form-label">
+                <label class="form-label fw-bold text-primary">
                     Webseiten
                     <i class="bi bi-info-circle text-muted ms-1" 
                        data-bs-toggle="tooltip" 
@@ -92,10 +92,10 @@
                         </button>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end align-items-center">
+                <div class="d-flex justify-content-start align-items-center">
                     <button type="button" class="btn btn-success btn-sm rounded-circle p-0" id="add-webpage-btn" 
-                            title="Weitere Webseite hinzufügen" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            title="Weitere Webseite hinzufügen" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
@@ -106,7 +106,7 @@
         <!-- YouTube-Link -->
         <div class="row mb-3">
             <div class="col-md-12">
-                <label for="youtube_url" class="form-label">
+                <label for="youtube_url" class="form-label fw-bold text-primary">
                     YouTube
                     <i class="bi bi-info-circle text-muted ms-1" 
                        data-bs-toggle="tooltip" 
