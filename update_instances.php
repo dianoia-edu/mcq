@@ -46,6 +46,8 @@ function performAjaxUpdate() {
         'teacher/create_instance.php' => 'Instanz-Erstellung (VERHINDERT Testergebnisse-Kopieren komplett)',
         'js/main.js' => 'JavaScript Main (korrigierte AJAX-Pfade + YouTube-Titel-Loading + Test-Speichern-Fix)',
         'teacher/save_test.php' => 'Test-Speichern (verbesserte Duplikat-Erkennung)',
+        'seb_config.php' => 'SEB-Konfiguration (Quit-Button-Fix - keine Admin-Passwort-Dauerschleife)',
+        'seb_config_override_server.php' => 'SEB-Server-Konfiguration (Quit-Button-Fix)',
         'get_youtube_title.php' => 'YouTube-Titel-Loading API (für Instanzen)',
         'includes/teacher_dashboard/test_generator_view.php' => 'Test Generator View (Modell-Auswahl + getTeacherUrl)',
         'includes/teacher_dashboard/test_editor_view.php' => 'Test Editor View (usort-Fix)',

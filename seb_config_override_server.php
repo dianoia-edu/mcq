@@ -64,7 +64,7 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <integer>0</integer>
     
     <key>allowReconfiguration</key>
-    <true/>
+    <false/>
     
     <!-- ===== QUIT SETTINGS ===== -->
     
@@ -79,6 +79,10 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     
     <key>hashedQuitPassword</key>
     <string>' . hash('sha256', 'admin123') . '</string>
+    
+    <!-- Verhindere Rekonfiguration während des Tests -->
+    <key>sebServiceIgnore</key>
+    <true/>
     
     <!-- ===== MINIMAL BROWSER RESTRICTIONS ===== -->
     

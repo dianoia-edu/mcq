@@ -83,6 +83,10 @@ $sebConfig = '<?xml version="1.0" encoding="UTF-8"?>
     <key>restartExamURL</key>
     <string>seb://quit</string>
     
+    <!-- Admin-Passwort für Quit (funktioniert bis gestern) -->
+    <key>hashedQuitPassword</key>
+    <string>' . hash('sha256', 'admin123') . '</string>
+    
     <!-- URL-Filter DEAKTIVIERT für SEB-Quit-URLs -->
     <key>URLFilterEnable</key>
     <false/>
