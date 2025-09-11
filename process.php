@@ -200,6 +200,8 @@ foreach ($_POST as $key => $value) {
         
         // Wenn es sich um eine Checkbox-Antwort handelt (Array)
         if (is_array($value)) {
+            error_log("Multiple-Choice-Frage: " . count($value) . " Antworten gewählt");
+            error_log("POST-Daten für Multiple-Choice: " . print_r($value, true));
             foreach ($value as $answerIndex) {
                 // Finde die ursprüngliche Antwortnummer für diese gewählte Antwort
                 $originalAnswerNr = null;
