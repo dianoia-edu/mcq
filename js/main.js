@@ -119,29 +119,6 @@ $(document).ready(function() {
     // Tabs initialisieren
     initializeTabs();
     
-    // Initialisiere YouTube-Button-Status beim Laden
-    $(document).ready(function() {
-        const youtubeInput = $('#youtube_url');
-        const subtitleBtn = $('#subtitleToBtn');
-        
-        if (youtubeInput.length && subtitleBtn.length) {
-            const url = youtubeInput.val();
-            if (url && url.trim() !== '') {
-                const trimmedUrl = url.trim();
-                if (isValidYoutubeUrl(trimmedUrl)) {
-                    subtitleBtn.prop('disabled', false);
-                    console.log('🔍 Button beim Laden aktiviert für URL:', trimmedUrl);
-                } else {
-                    subtitleBtn.prop('disabled', true);
-                    console.log('🔍 Button beim Laden deaktiviert für ungültige URL:', trimmedUrl);
-                }
-            } else {
-                subtitleBtn.prop('disabled', true);
-                console.log('🔍 Button beim Laden deaktiviert - kein URL');
-            }
-        }
-    });
-    
     // YouTube Video-Titel laden
     function loadYouTubeVideoTitle(url, inputElement) {
         // Extrahiere Video-ID aus der URL
@@ -206,32 +183,29 @@ $(document).ready(function() {
     }
     
     // Event-Handler für die Eingabefelder
-    $(document).on('input change', '#uploadForm input[name="source_file[]"], #uploadForm input[name="webpage_url[]"], #uploadForm input[name="youtube_url"]', function() {
+    $('#uploadForm input[type="file"], #uploadForm input[name="webpage_url"], #uploadForm input[name="youtube_url"]').on('input change', function() {
         // Aktiviere den Submit-Button, wenn mindestens ein Feld ausgefüllt ist
         let hasFile = false;
-        $('input[name="source_file[]"]').each(function() {
+        $('#uploadForm input[type="file"]').each(function() {
             if (this.files && this.files.length > 0) {
                 hasFile = true;
             }
         });
         
         let hasUrl = false;
-        $('input[name="webpage_url[]"]').each(function() {
-            const value = $(this).val();
-            if (value && value.trim() !== '') {
-                hasUrl = true;
-            }
-        });
+        const urlValue = $('#uploadForm input[name="webpage_url"]').val();
+        if (urlValue && urlValue.trim() !== '') {
+            hasUrl = true;
+        }
         
-        const youtubeInput = $('input[name="youtube_url"]');
-        const youtubeValue = youtubeInput.val();
-        const hasYoutube = youtubeInput.length > 0 && youtubeValue && youtubeValue.trim() !== '';
+        const youtubeValue = $('#uploadForm input[name="youtube_url"]').val();
+        const hasYoutube = youtubeValue && youtubeValue.trim() !== '';
         
         $('#uploadForm button[type="submit"]').prop('disabled', !hasFile && !hasUrl && !hasYoutube);
     });
     
     // Automatische URL-Validierung während der Eingabe
-    $(document).on('input', 'input[name="webpage_url[]"]', function() {
+    $('#uploadForm input[name="webpage_url"]').on('input', function() {
         const url = $(this).val();
         if (url && url.trim() !== '' && !isValidUrl(url.trim())) {
             $(this).addClass('is-invalid');
@@ -243,8 +217,8 @@ $(document).ready(function() {
         }
     });
     
-    // Automatische YouTube-URL-Validierung während der Eingabe (Event Delegation)
-    $(document).on('input', 'input[name="youtube_url"]', function() {
+    // Automatische YouTube-URL-Validierung während der Eingabe
+    $('#uploadForm input[name="youtube_url"]').on('input', function() {
         const url = $(this).val();
         const trimmedUrl = url ? url.trim() : '';
         const subtitleBtn = $('#subtitleToBtn');
@@ -265,21 +239,16 @@ $(document).ready(function() {
         } else {
             $(this).removeClass('is-invalid');
             subtitleBtn.prop('disabled', false);
-            console.log('🔍 Button aktiviert für URL:', trimmedUrl);
             
             // Versuche Video-Titel zu laden, wenn URL gültig ist
             loadYouTubeVideoTitle(trimmedUrl, $(this));
         }
     });
     
-    // Subtitle.to Button Handler (Event Delegation für dynamische Inhalte)
-    $(document).on('click', '#subtitleToBtn', function() {
-        console.log('📥 Subtitle.to Button geklickt!');
-        console.log('🔍 Button disabled:', $(this).prop('disabled'));
-        
+    // Subtitle.to Button Handler
+    $('#subtitleToBtn').on('click', function() {
         var youtubeInput = $('#youtube_url');
         var youtubeUrl = youtubeInput.val();
-        console.log('🔍 YouTube URL im Feld:', youtubeUrl);
         
         if (!youtubeUrl) {
             alert('Bitte geben Sie zuerst eine YouTube-URL ein.');
@@ -290,23 +259,16 @@ $(document).ready(function() {
         var originalUrl = youtubeInput.data('original-url');
         if (originalUrl) {
             youtubeUrl = originalUrl;
-            console.log('Verwende Original-URL:', youtubeUrl);
         } else {
             youtubeUrl = youtubeUrl.trim();
-            console.log('Verwende eingegebene URL:', youtubeUrl);
         }
         
-        console.log('🔍 Prüfe YouTube-URL...');
-        var isValid = isValidYoutubeUrl(youtubeUrl);
-        console.log('🔍 URL-Validierung Ergebnis:', isValid);
-        
-        if (!isValid) {
+        if (!isValidYoutubeUrl(youtubeUrl)) {
             alert('Bitte geben Sie eine gültige YouTube-URL ein.');
             youtubeInput.focus();
             return;
         }
         
-        console.log('Öffne subtitle.to Modal...');
         // Öffne subtitle.to Modal
         openSubtitleToModal(youtubeUrl);
     });
@@ -534,30 +496,22 @@ function formatTestPreview(content) {
 
 // Hilfsfunktionen zur URL-Validierung
 function isValidUrl(url) {
-    console.log('🔍 isValidUrl aufgerufen mit:', url);
     try {
         if (typeof URL !== 'undefined') {
-        new URL(url);
-            console.log('🔍 URL-Validierung mit URL() erfolgreich');
-        return true;
+            new URL(url);
+            return true;
         } else {
             // Fallback für ältere Browser - einfache Regex-Prüfung
             const urlPattern = /^https?:\/\/.+/i;
-            const result = urlPattern.test(url);
-            console.log('🔍 URL-Validierung mit Regex:', result);
-            return result;
+            return urlPattern.test(url);
         }
     } catch (e) {
-        console.log('🔍 URL-Validierung Fehler:', e);
         return false;
     }
 }
 
 function isValidYoutubeUrl(url) {
-    console.log('🔍 isValidYoutubeUrl aufgerufen mit:', url);
-    
     const basicValid = isValidUrl(url);
-    console.log('🔍 Basis-URL-Validierung:', basicValid);
     if (!basicValid) return false;
     
     try {
@@ -599,27 +553,21 @@ function isValidYoutubeUrl(url) {
             return /[?&]v=([^&]+)/.test(urlObj.search || '');
         }
     } catch (e) {
-        console.error('Fehler bei YouTube-URL Validierung:', e);
         return false;
     }
 }
 
 // AGGRESSIVE Anti-Werbung Funktion
 function removeAdsAggressively(iframe) {
-    console.log('💥 AGGRESSIVE Werbung-Entfernung gestartet!');
-    
     // Methode 1: Direkte iframe-Manipulation (wenn möglich)
     try {
         var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
         if (iframeDoc) {
-            console.log('🎯 iframe-Dokument zugänglich - direkte Manipulation');
             injectAggressiveAdBlock(iframeDoc);
         } else {
-            console.log('🔒 iframe-Dokument blockiert - verwende CSS-Override');
             applyExternalAdBlock(iframe);
         }
     } catch (e) {
-        console.log('🔒 CORS blockiert - verwende CSS-Override:', e.message);
         applyExternalAdBlock(iframe);
     }
     
@@ -634,7 +582,6 @@ function removeAdsAggressively(iframe) {
 }
 
 function injectAggressiveAdBlock(doc) {
-    console.log('💉 Injiziere AGGRESSIVE Anti-Werbung CSS...');
     
     // HARDCORE CSS - entfernt fast alles außer Hauptinhalt
     var aggressiveCSS = 
@@ -715,7 +662,6 @@ function injectAggressiveAdBlock(doc) {
 }
 
 function removeAdElementsAggressively(doc) {
-    console.log('🔥 AGGRESSIVE Element-Entfernung...');
     
     var removedCount = 0;
     
@@ -751,12 +697,9 @@ function removeAdElementsAggressively(doc) {
         }
     });
     
-    console.log('🔥 ' + removedCount + ' Werbung-Elemente VERNICHTET');
 }
 
 function applyExternalAdBlock(iframe) {
-    console.log('🛡️ Externe CSS-Override für iframe...');
-    
     // CSS für das iframe-Element selbst
     iframe.style.filter = 'contrast(1.1) brightness(1.1)';
     
@@ -764,7 +707,6 @@ function applyExternalAdBlock(iframe) {
     var originalSrc = iframe.src;
     if (originalSrc && !originalSrc.includes('adblock=1')) {
         iframe.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'adblock=1&no_ads=1';
-        console.log('🔧 iframe-URL modifiziert für Ad-Blocking');
     }
 }
 
@@ -780,7 +722,6 @@ function monitorAndRemoveAds(iframe) {
             );
             
             if (newAds.length > 0) {
-                console.log('🎯 ' + newAds.length + ' neue Werbung-Elemente erkannt');
                 for (var i = 0; i < newAds.length; i++) {
                     newAds[i].style.display = 'none';
                     newAds[i].setAttribute('data-removed', 'true');
@@ -794,11 +735,8 @@ function monitorAndRemoveAds(iframe) {
 
 // Subtitle.to Modal Funktionen
 function openSubtitleToModal(youtubeUrl) {
-    console.log('🚀 openSubtitleToModal aufgerufen mit URL:', youtubeUrl);
-    
     // Prüfe Bootstrap-Verfügbarkeit
     if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
-        console.error('❌ Bootstrap Modal nicht verfügbar!');
         alert('Bootstrap Modal ist nicht verfügbar. Öffne subtitle.to in neuem Tab.');
         window.open(`https://www.subtitle.to/${youtubeUrl}`, '_blank');
         return;
@@ -807,7 +745,6 @@ function openSubtitleToModal(youtubeUrl) {
     // Prüfe Modal-Element
     const modalElement = document.getElementById('subtitleToModal');
     if (!modalElement) {
-        console.error('❌ Modal-Element #subtitleToModal nicht gefunden!');
         alert('Modal-Element nicht gefunden. Öffne subtitle.to in neuem Tab.');
         window.open(`https://www.subtitle.to/${youtubeUrl}`, '_blank');
         return;
@@ -817,11 +754,8 @@ function openSubtitleToModal(youtubeUrl) {
     const externalBtn = document.getElementById('openSubtitleToExternal');
     
     if (!frameContainer) {
-        console.error('❌ Frame-Container nicht gefunden!');
         return;
     }
-    
-    console.log('✅ Alle Modal-Elemente gefunden');
     
     // Erstelle subtitle.to URL mit Ad-Blocking Parametern (Edge-kompatibel)
     var subtitleToUrl = 'https://www.subtitle.to/' + youtubeUrl;
@@ -829,8 +763,6 @@ function openSubtitleToModal(youtubeUrl) {
     // NUCLEAR OPTION: Füge Ad-Blocking Parameter hinzu
     subtitleToUrl += (subtitleToUrl.includes('?') ? '&' : '?') + 
                      'adblock=1&no_ads=1&block_ads=true&disable_ads=1';
-    
-    console.log('📝 Erstelle URL mit Ad-Blocking:', subtitleToUrl);
     
     // Reset Frame Container (Edge-kompatibel)
     frameContainer.innerHTML = 
@@ -845,7 +777,6 @@ function openSubtitleToModal(youtubeUrl) {
     // External Button Handler
     if (externalBtn) {
         externalBtn.onclick = function() {
-            console.log('🔗 Öffne in neuem Tab:', subtitleToUrl);
             window.open(subtitleToUrl, '_blank');
         };
     }
@@ -853,15 +784,12 @@ function openSubtitleToModal(youtubeUrl) {
     try {
         // Erstelle Modal-Instanz
         const modal = new bootstrap.Modal(modalElement);
-        console.log('✅ Modal-Instanz erstellt');
         
         // Zeige Modal
         modal.show();
-        console.log('✅ Modal wird angezeigt');
         
         // Versuche iframe zu laden, Fallback zu Button
         setTimeout(() => {
-            console.log('🔄 Lade iframe...');
             
             // Erstelle iframe
             const iframe = document.createElement('iframe');
@@ -874,17 +802,14 @@ function openSubtitleToModal(youtubeUrl) {
             
             // Kombinierter Event-Listener
             iframe.onload = function() {
-                console.log('✅ iframe erfolgreich geladen!');
                 try {
-                    console.log('💥 Starte AGGRESSIVE Werbung-Entfernung...');
                     removeAdsAggressively(iframe);
                 } catch (e) {
-                    console.log('ℹ️ Werbung-Entfernung nicht möglich (CORS):', e.message);
+                    // CORS blockiert - ignoriere
                 }
             };
             
             iframe.onerror = function() {
-                console.log('❌ iframe Fehler - zeige Fallback');
                 showFallbackButton();
             };
             
@@ -892,17 +817,13 @@ function openSubtitleToModal(youtubeUrl) {
             frameContainer.innerHTML = '';
             frameContainer.appendChild(iframe);
             
-            console.log('✅ iframe erstellt und hinzugefügt');
-            
             // Nach 3 Sekunden prüfen ob iframe blockiert ist
             setTimeout(() => {
                 try {
                     if (!iframe.contentDocument && !iframe.contentWindow) {
-                        console.log('⚠️ iframe blockiert - zeige Fallback');
                         showFallbackButton();
                     }
                 } catch (e) {
-                    console.log('⚠️ iframe Cross-Origin - zeige Fallback');
                     showFallbackButton();
                 }
             }, 3000);
@@ -922,7 +843,6 @@ function openSubtitleToModal(youtubeUrl) {
         }, 500);
         
     } catch (modalError) {
-        console.error('❌ Fehler beim Erstellen/Anzeigen des Modals:', modalError);
         alert('Fehler beim Öffnen des Modals. Öffne subtitle.to in neuem Tab.');
         window.open(subtitleToUrl, '_blank');
     }
@@ -941,7 +861,6 @@ function handleSubtitleFileUpload(input) {
         return;
     }
     
-    console.log('📤 Datei ausgewählt:', file.name, file.size, 'bytes');
     
     // Validierung
     if (file.size > 10 * 1024 * 1024) { // 10MB
@@ -965,8 +884,6 @@ function handleSubtitleFileUpload(input) {
     reader.onload = function(e) {
         const content = e.target.result;
         
-        console.log('📄 Datei gelesen:', content.length, 'Zeichen');
-        
         // Content validieren
         if (content.length < 50) {
             alert('Datei ist zu kurz! Mindestens 50 Zeichen erforderlich.');
@@ -981,8 +898,6 @@ function handleSubtitleFileUpload(input) {
         // UI aktualisieren
         showFilePreview(file, content);
         document.getElementById('proceedToGenerate').disabled = false;
-        
-        console.log('✅ Datei erfolgreich verarbeitet');
     };
     
     reader.onerror = function() {
@@ -1028,7 +943,6 @@ $(document).on('click', '#startTestGeneration', function() {
         return;
     }
     
-    console.log('🚀 Starte Test-Generierung mit Subtitle-Content');
     
     // Progress anzeigen
     const progressDiv = document.getElementById('generationProgress');
@@ -1074,7 +988,6 @@ $(document).on('click', '#startTestGeneration', function() {
     }
     formData.append('debug', '1');
     
-    console.log('📤 Sende Test-Generierung Request...');
     
     // AJAX-Request
     $.ajax({
@@ -1101,7 +1014,6 @@ $(document).on('click', '#startTestGeneration', function() {
             progressBar.style.width = '100%';
             progressText.textContent = 'Test erfolgreich generiert!';
             
-            console.log('✅ Test-Generierung erfolgreich:', response);
             
             setTimeout(() => {
                 // Modal schließen
@@ -1126,7 +1038,6 @@ $(document).on('click', '#startTestGeneration', function() {
         },
         error: function(xhr, status, error) {
             clearInterval(progressInterval);
-            console.error('❌ Test-Generierung fehlgeschlagen:', error);
             
             progressDiv.innerHTML = `
                 <div class="alert alert-danger">
@@ -1144,7 +1055,6 @@ $(document).on('click', '#startTestGeneration', function() {
 
 // Modal Reset bei Schließen
 $(document).on('hidden.bs.modal', '#subtitleToModal', function() {
-    console.log('🔄 Modal wird zurückgesetzt...');
     
     // Markiere YouTube-URL als "bearbeitet" für subtitle.to
     markYouTubeUrlAsProcessed();
@@ -1187,7 +1097,6 @@ $(document).on('hidden.bs.modal', '#subtitleToModal', function() {
         modalTestTitle.value = '';
     }
     
-    console.log('✅ Modal zurückgesetzt');
 });
 
 // YouTube-URL als verarbeitet markieren
@@ -1230,7 +1139,6 @@ function showSubtitleUploadReminder() {
     // Finde das Upload-Formular
     const uploadArea = document.querySelector('#uploadForm, .upload-area, [data-upload-area]');
     if (!uploadArea) {
-        console.warn('Upload-Bereich nicht gefunden');
         return;
     }
     
