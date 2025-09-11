@@ -130,7 +130,12 @@ $(document).ready(function() {
         inputElement.val('Lade Video-Titel...');
         inputElement.prop('readonly', true);
         
-        // Verwende YouTube oEmbed API mit JSONP für CORS-Umgehung
+        // Versuche verschiedene Methoden nacheinander
+        tryMethod1(inputElement, videoId, originalValue, url);
+    }
+    
+    // Methode 1: YouTube oEmbed API (JSONP)
+    function tryMethod1(inputElement, videoId, originalValue, url) {
         $.ajax({
             url: 'https://www.youtube.com/oembed',
             method: 'GET',
@@ -141,38 +146,86 @@ $(document).ready(function() {
             },
             success: function(data) {
                 if (data && data.title) {
-                    // Speichere Original-URL als data-Attribut
-                    inputElement.data('original-url', originalValue);
-                    inputElement.val(data.title);
-                    inputElement.addClass('youtube-title-loaded');
-                    
-                    // Füge Tooltip hinzu
-                    inputElement.attr('title', 'Video-Titel: ' + data.title + '\nOriginal-URL: ' + originalValue);
-                } else {
-                    // Fallback: Zeige Video-ID
-                    inputElement.data('original-url', originalValue);
-                    inputElement.val('YouTube Video: ' + videoId);
-                    inputElement.addClass('youtube-title-loaded');
-                    inputElement.attr('title', 'Video-ID: ' + videoId + '\nOriginal-URL: ' + originalValue);
+                    setVideoTitle(inputElement, data.title, originalValue, videoId);
+                    return;
                 }
-                
-                // Aktiviere Subtitle-Button
-                $('#subtitleToBtn').prop('disabled', false);
+                // Fallback zu Methode 2
+                tryMethod2(inputElement, videoId, originalValue);
             },
             error: function() {
-                // Fallback: Zeige Video-ID
-                inputElement.data('original-url', originalValue);
-                inputElement.val('YouTube Video: ' + videoId);
-                inputElement.addClass('youtube-title-loaded');
-                inputElement.attr('title', 'Video-ID: ' + videoId + '\nOriginal-URL: ' + originalValue);
-                
-                // Aktiviere Subtitle-Button
-                $('#subtitleToBtn').prop('disabled', false);
-            },
-            complete: function() {
-                inputElement.prop('readonly', false);
+                // Fallback zu Methode 2
+                tryMethod2(inputElement, videoId, originalValue);
             }
         });
+    }
+    
+    // Methode 2: YouTube Data API v3 (Server-seitig)
+    function tryMethod2(inputElement, videoId, originalValue) {
+        $.ajax({
+            url: 'get_youtube_title.php',
+            method: 'POST',
+            data: {
+                video_id: videoId
+            },
+            success: function(response) {
+                if (response.success && response.title) {
+                    setVideoTitle(inputElement, response.title, originalValue, videoId);
+                } else {
+                    // Fallback zu Methode 3
+                    tryMethod3(inputElement, videoId, originalValue);
+                }
+            },
+            error: function() {
+                // Fallback zu Methode 3
+                tryMethod3(inputElement, videoId, originalValue);
+            }
+        });
+    }
+    
+    // Methode 3: YouTube iframe API
+    function tryMethod3(inputElement, videoId, originalValue) {
+        // Erstelle temporären iframe für YouTube API
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+        document.body.appendChild(iframe);
+        
+        // Warte auf iframe-Load
+        iframe.onload = function() {
+            try {
+                // Versuche über iframe auf YouTube API zuzugreifen
+                const iframeWindow = iframe.contentWindow;
+                if (iframeWindow && iframeWindow.postMessage) {
+                    // Sende Message an YouTube iframe
+                    iframeWindow.postMessage('{"event":"command","func":"getVideoData","args":""}', '*');
+                }
+            } catch (e) {
+                // Fallback zu Methode 4
+                tryMethod4(inputElement, videoId, originalValue);
+            }
+        };
+        
+        // Timeout nach 3 Sekunden
+        setTimeout(() => {
+            tryMethod4(inputElement, videoId, originalValue);
+        }, 3000);
+    }
+    
+    // Methode 4: Fallback - Zeige Video-ID
+    function tryMethod4(inputElement, videoId, originalValue) {
+        setVideoTitle(inputElement, 'YouTube Video: ' + videoId, originalValue, videoId);
+    }
+    
+    // Hilfsfunktion: Setze Video-Titel
+    function setVideoTitle(inputElement, title, originalValue, videoId) {
+        inputElement.data('original-url', originalValue);
+        inputElement.val(title);
+        inputElement.addClass('youtube-title-loaded');
+        inputElement.attr('title', 'Video-Titel: ' + title + '\nOriginal-URL: ' + originalValue);
+        inputElement.prop('readonly', false);
+        
+        // Aktiviere Subtitle-Button
+        $('#subtitleToBtn').prop('disabled', false);
     }
     
     // YouTube Video-ID extrahieren
