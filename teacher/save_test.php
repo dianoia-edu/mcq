@@ -65,6 +65,8 @@ try {
     }
 
     error_log("Found " . count($matchingFiles) . " files with the same access code: " . $accessCode);
+    error_log("Force overwrite: " . ($forceOverwrite ? 'TRUE' : 'FALSE'));
+    error_log("Matching files: " . print_r($matchingFiles, true));
 
     if (!empty($matchingFiles) && !$forceOverwrite) {
         // Wenn es bereits Tests gibt und kein Überschreiben erzwungen wird

@@ -2315,14 +2315,26 @@ function saveTest(overwrite = false) {
     const currentTestCode = currentTestFilename ? currentTestFilename.split('_')[0] : null;
     
     if (!overwrite) {
+        // Erweiterte Prüfung: Durchsuche alle Optionen im Test-Selector
         $('#testSelector option').each(function() {
             const optionCode = $(this).data('access-code');
+            const optionValue = $(this).val();
+            
+            // Debug-Ausgabe
+            console.log('Prüfe Option:', {
+                code: optionCode,
+                value: optionValue,
+                currentCode: currentTestCode,
+                accessCode: accessCode
+            });
+            
             if (optionCode && optionCode === accessCode && optionCode !== currentTestCode) {
                 existingTest = {
                     code: optionCode,
-                    title: $(this).data('title'),
-                    filename: $(this).val()
+                    title: $(this).data('title') || $(this).text(),
+                    filename: optionValue
                 };
+                console.log('Existierender Test gefunden:', existingTest);
                 return false;
             }
         });
