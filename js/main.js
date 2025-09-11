@@ -296,7 +296,6 @@ $(document).ready(function() {
         } else {
             $(this).removeClass('is-invalid');
             subtitleBtn.prop('disabled', false);
-            console.log('🔍 Button aktiviert für URL:', trimmedUrl);
             
             // Versuche Video-Titel zu laden, wenn URL gültig ist
             loadYouTubeVideoTitle(trimmedUrl, $(this));
@@ -305,10 +304,8 @@ $(document).ready(function() {
     
     // Subtitle.to Button Handler
     $('#subtitleToBtn').on('click', function() {
-        console.log('Button geklickt!');
         var youtubeInput = $('#youtube_url');
         var youtubeUrl = youtubeInput.val();
-        console.log('YouTube URL:', youtubeUrl);
         
         if (!youtubeUrl) {
             alert('Bitte geben Sie zuerst eine YouTube-URL ein.');
@@ -319,10 +316,8 @@ $(document).ready(function() {
         var originalUrl = youtubeInput.data('original-url');
         if (originalUrl) {
             youtubeUrl = originalUrl;
-            console.log('Verwende Original-URL:', youtubeUrl);
         } else {
             youtubeUrl = youtubeUrl.trim();
-            console.log('Verwende eingegebene URL:', youtubeUrl);
         }
         
         if (!isValidYoutubeUrl(youtubeUrl)) {
@@ -331,49 +326,28 @@ $(document).ready(function() {
             return;
         }
         
-        console.log('Öffne Modal...');
         // Öffne subtitle.to Modal
         openSubtitleToModal(youtubeUrl);
     });
     
     // Debug: Prüfe ob Bootstrap verfügbar ist
     $(document).ready(function() {
-        console.log('🚀 main.js wird geladen...');
-        console.log('🔍 Bootstrap Modal verfügbar:', typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined');
-        console.log('🔍 jQuery verfügbar:', typeof $ !== 'undefined');
-        
-        // Prüfe Button-Status
-        const youtubeInput = $('#youtube_url');
-        const subtitleBtn = $('#subtitleToBtn');
-        console.log('🔍 YouTube Input gefunden:', youtubeInput.length > 0);
-        console.log('🔍 Subtitle Button gefunden:', subtitleBtn.length > 0);
-        console.log('🔍 Button disabled:', subtitleBtn.prop('disabled'));
-        console.log('🔍 YouTube URL Wert:', youtubeInput.val());
-        
         // Warte auf Tab-Laden
         setTimeout(() => {
-            console.log('🔍 Subtitle-Button vorhanden:', $('#subtitleToBtn').length > 0);
-            console.log('🔍 Modal vorhanden:', $('#subtitleToModal').length > 0);
-            console.log('🔍 YouTube-Input vorhanden:', $('input[name="youtube_url"]').length > 0);
+            // Initialisiere Button-Status falls nötig
+            const youtubeInput = $('#youtube_url');
+            const subtitleBtn = $('#subtitleToBtn');
             
-            // Detailcheck für Generator-Tab
-            if ($('#generator').length > 0) {
-                console.log('🔍 Generator-Tab gefunden');
-                console.log('🔍 Generator aktiv:', $('#generator').hasClass('active') || $('#generator').is(':visible'));
-                
-                // Suche alle Input-Felder
-                console.log('🔍 Alle Input-Felder:', $('input').length);
-                $('input').each(function(i, el) {
-                    if (el.name) console.log(`  - Input ${i}: name="${el.name}" id="${el.id}"`);
-                });
-                
-                // Suche alle Buttons  
-                console.log('🔍 Alle Buttons:', $('button').length);
-                $('button').each(function(i, el) {
-                    if (el.id) console.log(`  - Button ${i}: id="${el.id}" text="${$(el).text().trim()}"`);
-                });
+            if (youtubeInput.length && subtitleBtn.length) {
+                const url = youtubeInput.val();
+                if (url && url.trim() !== '') {
+                    const trimmedUrl = url.trim();
+                    if (isValidYoutubeUrl(trimmedUrl)) {
+                        subtitleBtn.prop('disabled', false);
+                    }
+                }
             }
-        }, 2000); // 2 Sekunden warten
+        }, 1000);
     });
     
     // Modals initialisieren
@@ -382,9 +356,6 @@ $(document).ready(function() {
     
     if (editorModalElement) {
         testEditorPreviewModal = new bootstrap.Modal(editorModalElement);
-        console.log('Test Editor Modal initialized successfully');
-    } else {
-        console.error('Test Editor Modal element not found in DOM');
     }
     
     if (generatorModalElement) {
@@ -1298,9 +1269,10 @@ $('#uploadForm').on('submit', function(e) {
     
     // Validiere YouTube-URL
     if (hasYoutube) {
-        const youtubeUrl = youtubeInput.val();
+        const youtubeInputField = $(this).find('input[name="youtube_url"]');
+        const youtubeUrl = youtubeInputField.val();
         // Verwende Original-URL falls Video-Titel geladen wurde
-        const actualUrl = youtubeInput.data('original-url') || youtubeUrl;
+        const actualUrl = youtubeInputField.data('original-url') || youtubeUrl;
         if (actualUrl && !isValidYoutubeUrl(actualUrl.trim())) {
             errors.push('Die eingegebene YouTube-URL ist ungültig. Bitte geben Sie einen gültigen YouTube-Video-Link ein.');
         }
