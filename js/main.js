@@ -1156,13 +1156,25 @@ $('#uploadForm').on('submit', function(e) {
     $('#generationResult').empty();
     
     // Prüfe, ob mindestens eine Quelle angegeben wurde
-    const fileInput = $(this).find('input[type="file"]');
-    const urlInput = $(this).find('input[name="webpage_url"]');
+    const fileInputs = $(this).find('input[name="source_file[]"]');
+    const urlInputs = $(this).find('input[name="webpage_url[]"]');
     const youtubeInput = $(this).find('input[name="youtube_url"]');
     
-    const hasFile = fileInput.length > 0 && fileInput[0].files && fileInput[0].files.length > 0;
-    const hasUrl = urlInput.val().trim() !== '';
-    const hasYoutube = youtubeInput.val().trim() !== '';
+    let hasFile = false;
+    fileInputs.each(function() {
+        if (this.files && this.files.length > 0) {
+            hasFile = true;
+        }
+    });
+    
+    let hasUrl = false;
+    urlInputs.each(function() {
+        if ($(this).val().trim() !== '') {
+            hasUrl = true;
+        }
+    });
+    
+    const hasYoutube = youtubeInput.length > 0 && youtubeInput.val().trim() !== '';
     
     // Sammle Validierungsfehler
     const errors = [];
@@ -1171,12 +1183,14 @@ $('#uploadForm').on('submit', function(e) {
         errors.push('Bitte geben Sie mindestens eine der folgenden Quellen an: Datei, Webseiten-URL oder YouTube-Link.');
     }
     
-    // Validiere Webseiten-URL
+    // Validiere Webseiten-URLs
     if (hasUrl) {
-        const url = urlInput.val().trim();
-        if (!isValidUrl(url)) {
-            errors.push('Die eingegebene Webseiten-URL ist ungültig.');
-        }
+        urlInputs.each(function() {
+            const url = $(this).val().trim();
+            if (url !== '' && !isValidUrl(url)) {
+                errors.push('Eine der eingegebenen Webseiten-URLs ist ungültig: ' + url);
+            }
+        });
     }
     
     // Validiere YouTube-URL

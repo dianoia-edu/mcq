@@ -483,45 +483,7 @@ $(document).on('click', '.remove-source-btn', function() {
     updateSourceCount();
 });
 
-// Formular-Validierung vor dem Absenden
-$(document).on('submit', '#uploadForm', function(e) {
-    try {
-        const fileInputs = $('input[name="source_file[]"]');
-        const webpageInputs = $('input[name="webpage_url[]"]');
-        const youtubeInput = document.getElementById('youtube_url');
-        
-        let hasValidSource = false;
-        
-        // Prüfe Datei-Uploads
-        fileInputs.each(function() {
-            if (this.files && this.files.length > 0) {
-                hasValidSource = true;
-            }
-        });
-        
-        // Prüfe Webseiten-URLs
-        webpageInputs.each(function() {
-            const value = $(this).val();
-            if (value && value.trim() !== '') {
-                hasValidSource = true;
-            }
-        });
-        
-        // Prüfe YouTube-URL
-        if (youtubeInput && youtubeInput.value && youtubeInput.value.trim() !== '') {
-            hasValidSource = true;
-        }
-        
-        if (!hasValidSource) {
-            e.preventDefault();
-            alert('Bitte geben Sie mindestens eine Quelle an (Datei, Webseite oder YouTube-Video).');
-            return false;
-        }
-    } catch (error) {
-        console.error('Formular-Validierung Fehler:', error);
-        // Lass das Formular normal absenden, falls Validierung fehlschlägt
-    }
-});
+// Formular-Validierung wird in main.js gehandhabt
 
 // Initialisiere beim Laden
 $(document).ready(function() {
