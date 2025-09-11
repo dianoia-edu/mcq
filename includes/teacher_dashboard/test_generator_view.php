@@ -44,6 +44,7 @@
         <!-- Datei-Upload -->
         <div class="row mb-3">
             <div class="col-md-12">
+                <div class="border rounded p-3 mb-3">
                 <label class="form-label fw-bold text-primary">
                     Datei-Upload
                     <i class="bi bi-info-circle text-muted ms-1" 
@@ -69,12 +70,14 @@
                         </svg>
                     </button>
                 </div>
+                </div>
             </div>
         </div>
 
         <!-- Webseiten-URL -->
         <div class="row mb-3">
             <div class="col-md-12">
+                <div class="border rounded p-3 mb-3">
                 <label class="form-label fw-bold text-primary">
                     Webseiten
                     <i class="bi bi-info-circle text-muted ms-1" 
@@ -100,12 +103,14 @@
                         </svg>
                     </button>
                 </div>
+                </div>
             </div>
         </div>
 
         <!-- YouTube-Link -->
         <div class="row mb-3">
             <div class="col-md-12">
+                <div class="border rounded p-3 mb-3">
                 <label for="youtube_url" class="form-label fw-bold text-primary">
                     YouTube
                     <i class="bi bi-info-circle text-muted ms-1" 
@@ -122,6 +127,7 @@
                     </button>
                 </div>
                 <div class="invalid-feedback" id="youtube_url_error"></div>
+                </div>
             </div>
         </div>
 
