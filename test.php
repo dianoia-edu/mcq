@@ -123,6 +123,14 @@ shuffle($shuffledQuestions);
 foreach ($shuffledQuestions as $qIndex => &$question) {
     $shuffledAnswers = $question['answers'];
     shuffle($shuffledAnswers);
+    
+    // WICHTIG: Behalte die ursprünglichen Antwortnummern bei!
+    foreach ($shuffledAnswers as $aIndex => &$answer) {
+        $answer['originalAnswerNr'] = $answer['nr']; // Speichere ursprüngliche Nummer
+        $answer['nr'] = $aIndex + 1; // Verwende neue Nummer für Anzeige
+    }
+    unset($answer);
+    
     $question['answers'] = $shuffledAnswers;
     
     // Speichere die ursprüngliche Fragenummer für process.php

@@ -402,6 +402,10 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             $wrongChosen = 0;
             $correctTotal = 0;
             
+            // DEBUG: Zeige Punkteberechnung für diese Frage
+            echo "<div style='background: #fff3cd; padding: 10px; margin: 10px 0; border: 1px solid #ffc107; font-family: monospace; font-size: 12px;'>";
+            echo "<strong>📊 PUNKTEBERECHNUNG für Frage " . $questionNr . ":</strong><br>";
+            
             // Berechne die Punkte erneut, genau wie in auswertung.php
             foreach ($question->answers->answer as $answer) {
                 $isCorrect = (int)$answer->correct === 1;
@@ -410,8 +414,6 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                 $rawSelected = (string)$answer->selected;
                 $schuelerantwort = (int)$rawSchuelerantwort;
                 $selected = (int)$rawSelected;
-                
-                // Debug-Ausgaben entfernt
                 
                 // KORRIGIERTE LOGIK: Nur wenn mindestens einer der Werte 1 ist, ist die Antwort gewählt
                 // ABER: Prüfe zuerst, ob die XML-Datei überhaupt gültige Daten enthält
@@ -436,7 +438,12 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                     $wasChosen = false;
                 }
                 
-                // Debug-Ausgaben entfernt
+                // DEBUG-Ausgabe für jede Antwort in der Punkteberechnung
+                echo "Antwort " . $answer['nr'] . ": ";
+                echo "Richtig=" . ($isCorrect ? "JA" : "NEIN") . " | ";
+                echo "Gewählt=" . ($wasChosen ? "JA" : "NEIN") . " | ";
+                echo "schuelerantwort='" . $rawSchuelerantwort . "' | ";
+                echo "selected='" . $rawSelected . "'<br>";
                 
                 if ($isCorrect) {
                     $correctTotal++;
@@ -451,6 +458,14 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
             
             $maxQPoints = $correctTotal;
             $achievedQPoints = max(0, $correctChosen - $wrongChosen);
+            
+            // DEBUG: Zeige das finale Ergebnis für diese Frage
+            echo "<strong>ERGEBNIS:</strong> ";
+            echo "Richtige gewählt: $correctChosen | ";
+            echo "Falsche gewählt: $wrongChosen | ";
+            echo "Max. Punkte: $maxQPoints | ";
+            echo "Erreichte Punkte: $achievedQPoints<br>";
+            echo "</div>";
             
             // Debug-Ausgaben entfernt
             
@@ -500,6 +515,34 @@ function displayTestResults($xml, $studentName = 'Unbekannt', $grade = '-') {
                             Diese Frage hat mehrere richtige Antworten ($correctTotal).
                           </div>";
                 }
+                
+                // DEBUG: Zeige alle Antworten der Frage mit Details
+                echo "<div style='background: #f0f8ff; padding: 10px; margin: 10px 0; border: 1px solid #007bff; font-family: monospace; font-size: 12px;'>";
+                echo "<strong>🔍 DEBUG für Frage " . $questionNr . ":</strong><br>";
+                
+                foreach ($question->answers->answer as $answer) {
+                    $answerText = isset($answer->text) ? (string)$answer->text : 'Keine Antworttext';
+                    $isCorrect = (string)$answer->correct === '1';
+                    // Prüfe sowohl 'schuelerantwort' als auch 'selected' Attribute - mit Debug
+                    $rawSchuelerantwort = (string)$answer->schuelerantwort;
+                    $rawSelected = (string)$answer->selected;
+                    $schuelerantwort = (int)$rawSchuelerantwort;
+                    $selected = (int)$rawSelected;
+                    
+                    // Gleiche Logik wie in der Berechnung
+                    $isSelected = false;
+                    if ($rawSchuelerantwort !== '' || $rawSelected !== '') {
+                        $isSelected = ($schuelerantwort === 1) || ($selected === 1);
+                    }
+                    
+                    // DEBUG-Ausgabe für jede Antwort
+                    echo "Antwort " . $answer['nr'] . ": ";
+                    echo "Richtig=" . ($isCorrect ? "JA" : "NEIN") . " | ";
+                    echo "Schüler=" . ($isSelected ? "ANGEKREUZT" : "NICHT ANGEKREUZT") . " | ";
+                    echo "schuelerantwort='" . $rawSchuelerantwort . "' | ";
+                    echo "selected='" . $rawSelected . "'<br>";
+                }
+                echo "</div>";
                 
                 foreach ($question->answers->answer as $answer) {
                     $answerText = isset($answer->text) ? (string)$answer->text : 'Keine Antworttext';

@@ -141,6 +141,21 @@ echo "<p><strong>Session shuffled_questions:</strong></p>";
 echo "<pre>" . print_r($_SESSION['shuffled_questions'] ?? 'NICHT GESETZT', true) . "</pre>";
 echo "<p><strong>Session test_file:</strong> " . ($_SESSION['test_file'] ?? 'NICHT GESETZT') . "</p>";
 echo "<p><strong>Session student_name:</strong> " . ($_SESSION['student_name'] ?? 'NICHT GESETZT') . "</p>";
+
+// DEBUG: Zeige die Zuordnung zwischen POST-Daten und Fragen
+echo "<h4>🔗 ZUORDNUNG POST-DATEN ZU FRAGEN:</h4>";
+foreach ($_POST as $key => $value) {
+    if (strpos($key, 'answer_') === 0) {
+        $qIndex = substr($key, 7);
+        $shuffledQuestions = $_SESSION['shuffled_questions'] ?? null;
+        if ($shuffledQuestions && isset($shuffledQuestions[$qIndex])) {
+            $originalQuestionNr = $shuffledQuestions[$qIndex]['originalQuestionNr'] ?? $shuffledQuestions[$qIndex]['nr'];
+            echo "POST: $key = " . print_r($value, true) . " → Frage Nr: $originalQuestionNr<br>";
+        } else {
+            echo "POST: $key = " . print_r($value, true) . " → FEHLER: Keine Zuordnung gefunden!<br>";
+        }
+    }
+}
 echo "</div>";
 
 foreach ($_POST as $key => $value) {
@@ -167,24 +182,47 @@ foreach ($_POST as $key => $value) {
         $originalQuestionNr = $shuffledQuestions[$qIndex]['originalQuestionNr'] ?? $shuffledQuestions[$qIndex]['nr'];
         error_log("qIndex $qIndex entspricht originaler Frage Nr: $originalQuestionNr");
         
+        // Finde die ursprüngliche Antwortnummer für die gewählte Antwort
+        $originalAnswerNr = null;
+        foreach ($shuffledQuestions[$qIndex]['answers'] as $answer) {
+            if ($answer['nr'] == $value) {
+                $originalAnswerNr = $answer['originalAnswerNr'];
+                break;
+            }
+        }
+        error_log("Gewählte Antwort Nr: $value entspricht originaler Antwort Nr: $originalAnswerNr");
+        
         // Wenn es sich um eine Checkbox-Antwort handelt (Array)
         if (is_array($value)) {
             foreach ($value as $answerIndex) {
-                // Validiere die Antwortnummer - erlaube sowohl Zahlen als auch Buchstaben
-                if (!is_numeric($answerIndex) && !preg_match('/^[A-Z]$/', $answerIndex)) {
-                    error_log("Ungültige Checkbox-Antwort: " . $answerIndex);
+                // Finde die ursprüngliche Antwortnummer für diese gewählte Antwort
+                $originalAnswerNr = null;
+                foreach ($shuffledQuestions[$qIndex]['answers'] as $answer) {
+                    if ($answer['nr'] == $answerIndex) {
+                        $originalAnswerNr = $answer['originalAnswerNr'];
+                        break;
+                    }
+                }
+                
+                if (!$originalAnswerNr) {
+                    error_log("Ungültige Checkbox-Antwort: $answerIndex - keine ursprüngliche Nummer gefunden");
                     continue;
                 }
                 
                 // Finde die ursprüngliche Antwort in der XML
-                error_log("Suche nach Frage Nr: $originalQuestionNr, Antwort Nr: $answerIndex");
+                error_log("Suche nach Frage Nr: $originalQuestionNr, ursprüngliche Antwort Nr: $originalAnswerNr");
                 foreach ($answerXml->questions->question as $question) {
                     if ((string)$question['nr'] === $originalQuestionNr) {
                         error_log("Frage gefunden: " . (string)$question['nr']);
                         foreach ($question->answers->answer as $answer) {
-                            if ((string)$answer['nr'] === $answerIndex) {
+                            if ((string)$answer['nr'] === $originalAnswerNr) {
                                 error_log("Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr']);
-                                $answer->addChild('schuelerantwort', '1');
+                                // Prüfe, ob schuelerantwort bereits existiert
+                                if (isset($answer->schuelerantwort)) {
+                                    $answer->schuelerantwort = '1';
+                                } else {
+                                    $answer->addChild('schuelerantwort', '1');
+                                }
                             }
                         }
                     }
@@ -192,19 +230,24 @@ foreach ($_POST as $key => $value) {
             }
         } else {
             // Wenn es sich um eine Radio-Button-Antwort handelt
-            if (!is_numeric($value) && !preg_match('/^[A-Z]$/', $value)) {
-                error_log("Ungültige Radio-Antwort: " . $value);
+            if (!$originalAnswerNr) {
+                error_log("Ungültige Radio-Antwort: $value - keine ursprüngliche Nummer gefunden");
                 continue;
             }
             
-            error_log("Suche nach Frage Nr: $originalQuestionNr, Radio-Antwort: $value");
+            error_log("Suche nach Frage Nr: $originalQuestionNr, ursprüngliche Radio-Antwort: $originalAnswerNr");
             foreach ($answerXml->questions->question as $question) {
                 if ((string)$question['nr'] === $originalQuestionNr) {
                     error_log("Frage gefunden: " . (string)$question['nr']);
                     foreach ($question->answers->answer as $answer) {
-                        if ((string)$answer['nr'] === $value) {
+                        if ((string)$answer['nr'] === $originalAnswerNr) {
                             error_log("Radio-Antwort gefunden und schuelerantwort=1 gesetzt: " . (string)$answer['nr']);
-                            $answer->addChild('schuelerantwort', '1');
+                            // Prüfe, ob schuelerantwort bereits existiert
+                            if (isset($answer->schuelerantwort)) {
+                                $answer->schuelerantwort = '1';
+                            } else {
+                                $answer->addChild('schuelerantwort', '1');
+                            }
                         }
                     }
                 }
