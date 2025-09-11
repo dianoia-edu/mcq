@@ -484,36 +484,42 @@ $(document).on('click', '.remove-source-btn', function() {
 });
 
 // Formular-Validierung vor dem Absenden
-$('#uploadForm').on('submit', function(e) {
-    const fileInputs = $('input[name="source_file[]"]');
-    const webpageInputs = $('input[name="webpage_url[]"]');
-    const youtubeInput = $('#youtube_url');
-    
-    let hasValidSource = false;
-    
-    // Prüfe Datei-Uploads
-    fileInputs.each(function() {
-        if (this.files && this.files.length > 0) {
+$(document).on('submit', '#uploadForm', function(e) {
+    try {
+        const fileInputs = $('input[name="source_file[]"]');
+        const webpageInputs = $('input[name="webpage_url[]"]');
+        const youtubeInput = document.getElementById('youtube_url');
+        
+        let hasValidSource = false;
+        
+        // Prüfe Datei-Uploads
+        fileInputs.each(function() {
+            if (this.files && this.files.length > 0) {
+                hasValidSource = true;
+            }
+        });
+        
+        // Prüfe Webseiten-URLs
+        webpageInputs.each(function() {
+            const value = $(this).val();
+            if (value && value.trim() !== '') {
+                hasValidSource = true;
+            }
+        });
+        
+        // Prüfe YouTube-URL
+        if (youtubeInput && youtubeInput.value && youtubeInput.value.trim() !== '') {
             hasValidSource = true;
         }
-    });
-    
-    // Prüfe Webseiten-URLs
-    webpageInputs.each(function() {
-        if ($(this).val().trim() !== '') {
-            hasValidSource = true;
+        
+        if (!hasValidSource) {
+            e.preventDefault();
+            alert('Bitte geben Sie mindestens eine Quelle an (Datei, Webseite oder YouTube-Video).');
+            return false;
         }
-    });
-    
-    // Prüfe YouTube-URL
-    if (youtubeInput.val().trim() !== '') {
-        hasValidSource = true;
-    }
-    
-    if (!hasValidSource) {
-        e.preventDefault();
-        alert('Bitte geben Sie mindestens eine Quelle an (Datei, Webseite oder YouTube-Video).');
-        return false;
+    } catch (error) {
+        console.error('Formular-Validierung Fehler:', error);
+        // Lass das Formular normal absenden, falls Validierung fehlschlägt
     }
 });
 
