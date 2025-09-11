@@ -138,13 +138,14 @@ $(document).ready(function() {
         
         let hasUrl = false;
         $('input[name="webpage_urls[]"]').each(function() {
-            if ($(this).val().trim() !== '') {
+            if ($(this).val() && $(this).val().trim() !== '') {
                 hasUrl = true;
                 return false; // break
             }
         });
         
-        const hasYoutube = $('input[name="youtube_url"]').val().trim() !== '';
+        const youtubeInput = $('input[name="youtube_url"]');
+        const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
         
         console.log('Sources check:', {hasFile, hasUrl, hasYoutube});
         
@@ -169,13 +170,14 @@ $(document).ready(function() {
         
         let hasUrl = false;
         $('input[name="webpage_urls[]"]').each(function() {
-            if ($(this).val().trim() !== '') {
+            if ($(this).val() && $(this).val().trim() !== '') {
                 hasUrl = true;
                 return false; // break
             }
         });
         
-        const hasYoutube = $('input[name="youtube_url"]').val().trim() !== '';
+        const youtubeInput = $('input[name="youtube_url"]');
+        const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
         
         console.log('Initial sources check:', {hasFile, hasUrl, hasYoutube});
         
@@ -187,7 +189,7 @@ $(document).ready(function() {
     
     // Automatische URL-Validierung während der Eingabe
     $(document).on('input', 'input[name="webpage_urls[]"]', function() {
-        const url = $(this).val().trim();
+        const url = $(this).val() ? $(this).val().trim() : '';
         if (url && !isValidUrl(url)) {
             $(this).addClass('is-invalid');
             if (!$(this).next('.invalid-feedback').length) {
@@ -200,7 +202,7 @@ $(document).ready(function() {
     
     // Automatische YouTube-URL-Validierung während der Eingabe (Event Delegation)
     $(document).on('input', 'input[name="youtube_url"]', function() {
-        const url = $(this).val().trim();
+        const url = $(this).val() ? $(this).val().trim() : '';
         const subtitleBtn = $('#subtitleToBtn');
         
         if (url && !isValidYoutubeUrl(url)) {
@@ -1229,13 +1231,13 @@ $('#uploadForm').on('submit', function(e) {
     // Prüfe Webseiten-URLs
     let hasUrl = false;
     urlInputs.each(function() {
-        if ($(this).val().trim() !== '') {
+        if ($(this).val() && $(this).val().trim() !== '') {
             hasUrl = true;
             return false; // break
         }
     });
     
-    const hasYoutube = youtubeInput.val().trim() !== '';
+    const hasYoutube = youtubeInput.length > 0 && youtubeInput.val() && youtubeInput.val().trim() !== '';
     
     // Sammle Validierungsfehler
     const errors = [];
@@ -1246,7 +1248,7 @@ $('#uploadForm').on('submit', function(e) {
     
     // Validiere Webseiten-URLs
     urlInputs.each(function() {
-        const url = $(this).val().trim();
+        const url = $(this).val() ? $(this).val().trim() : '';
         if (url !== '' && !isValidUrl(url)) {
             errors.push('Eine der eingegebenen Webseiten-URLs ist ungültig: ' + url);
         }
@@ -1254,7 +1256,7 @@ $('#uploadForm').on('submit', function(e) {
     
     // Validiere YouTube-URL
     if (hasYoutube) {
-        const youtubeUrl = youtubeInput.val().trim();
+        const youtubeUrl = youtubeInput.val() ? youtubeInput.val().trim() : '';
         if (!isValidYoutubeUrl(youtubeUrl)) {
             errors.push('Die eingegebene YouTube-URL ist ungültig. Bitte geben Sie einen gültigen YouTube-Video-Link ein.');
         }
