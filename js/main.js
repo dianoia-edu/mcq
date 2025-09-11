@@ -161,8 +161,12 @@ $(document).ready(function() {
     
     // Methode 2: YouTube Data API v3 (Server-seitig)
     function tryMethod2(inputElement, videoId, originalValue) {
+        // Bestimme die korrekte URL basierend auf dem aktuellen Pfad
+        const isInTeacherDir = window.location.pathname.includes('/teacher/');
+        const apiUrl = isInTeacherDir ? '../get_youtube_title.php' : 'get_youtube_title.php';
+        
         $.ajax({
-            url: 'get_youtube_title.php',
+            url: apiUrl,
             method: 'POST',
             data: {
                 video_id: videoId
