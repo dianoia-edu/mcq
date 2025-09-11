@@ -155,6 +155,9 @@ $(document).ready(function() {
                     inputElement.addClass('youtube-title-loaded');
                     inputElement.attr('title', 'Video-ID: ' + videoId + '\nOriginal-URL: ' + originalValue);
                 }
+                
+                // Aktiviere Subtitle-Button
+                $('#subtitleToBtn').prop('disabled', false);
             },
             error: function() {
                 // Fallback: Zeige Video-ID
@@ -162,6 +165,9 @@ $(document).ready(function() {
                 inputElement.val('YouTube Video: ' + videoId);
                 inputElement.addClass('youtube-title-loaded');
                 inputElement.attr('title', 'Video-ID: ' + videoId + '\nOriginal-URL: ' + originalValue);
+                
+                // Aktiviere Subtitle-Button
+                $('#subtitleToBtn').prop('disabled', false);
             },
             complete: function() {
                 inputElement.prop('readonly', false);
@@ -217,11 +223,17 @@ $(document).ready(function() {
     // Automatische YouTube-URL-Validierung während der Eingabe (Event Delegation)
     $(document).on('input', 'input[name="youtube_url"]', function() {
         const url = $(this).val();
-        if (!url) return;
-        const trimmedUrl = url.trim();
+        const trimmedUrl = url ? url.trim() : '';
         const subtitleBtn = $('#subtitleToBtn');
         
-        if (trimmedUrl && !isValidYoutubeUrl(trimmedUrl)) {
+        if (!trimmedUrl) {
+            // Feld ist leer - deaktiviere Button
+            $(this).removeClass('is-invalid');
+            subtitleBtn.prop('disabled', true);
+            return;
+        }
+        
+        if (!isValidYoutubeUrl(trimmedUrl)) {
             $(this).addClass('is-invalid');
             subtitleBtn.prop('disabled', true);
             if (!$(this).next('.invalid-feedback').length) {
@@ -229,31 +241,34 @@ $(document).ready(function() {
             }
         } else {
             $(this).removeClass('is-invalid');
-            subtitleBtn.prop('disabled', !trimmedUrl);
+            subtitleBtn.prop('disabled', false);
             
             // Versuche Video-Titel zu laden, wenn URL gültig ist
-            if (trimmedUrl) {
-                loadYouTubeVideoTitle(trimmedUrl, $(this));
-            }
+            loadYouTubeVideoTitle(trimmedUrl, $(this));
         }
     });
     
     // Subtitle.to Button Handler (Event Delegation für dynamische Inhalte)
     $(document).on('click', '#subtitleToBtn', function() {
         console.log('📥 Subtitle.to Button geklickt!');
-        console.log('🔍 Browser:', navigator.userAgent);
-        console.log('🔍 jQuery verfügbar:', typeof $ !== 'undefined');
-        console.log('🔍 Bootstrap verfügbar:', typeof bootstrap !== 'undefined');
         
-        var youtubeUrl = $('#youtube_url').val();
+        var youtubeInput = $('#youtube_url');
+        var youtubeUrl = youtubeInput.val();
+        
         if (!youtubeUrl) {
             alert('Bitte geben Sie zuerst eine YouTube-URL ein.');
             return;
         }
+        
         // Verwende Original-URL falls Video-Titel geladen wurde
-        youtubeUrl = $('#youtube_url').data('original-url') || youtubeUrl;
-        youtubeUrl = youtubeUrl.trim();
-        console.log('YouTube-URL:', youtubeUrl);
+        var originalUrl = youtubeInput.data('original-url');
+        if (originalUrl) {
+            youtubeUrl = originalUrl;
+            console.log('Verwende Original-URL:', youtubeUrl);
+        } else {
+            youtubeUrl = youtubeUrl.trim();
+            console.log('Verwende eingegebene URL:', youtubeUrl);
+        }
         
         console.log('🔍 Prüfe YouTube-URL...');
         var isValid = isValidYoutubeUrl(youtubeUrl);
@@ -261,7 +276,7 @@ $(document).ready(function() {
         
         if (!isValid) {
             alert('Bitte geben Sie eine gültige YouTube-URL ein.');
-            $('#youtube_url').focus();
+            youtubeInput.focus();
             return;
         }
         
