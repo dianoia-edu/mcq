@@ -239,6 +239,7 @@ $(document).ready(function() {
         } else {
             $(this).removeClass('is-invalid');
             subtitleBtn.prop('disabled', false);
+            console.log('🔍 Button aktiviert für URL:', trimmedUrl);
             
             // Versuche Video-Titel zu laden, wenn URL gültig ist
             loadYouTubeVideoTitle(trimmedUrl, $(this));
@@ -247,8 +248,10 @@ $(document).ready(function() {
     
     // Subtitle.to Button Handler
     $('#subtitleToBtn').on('click', function() {
+        console.log('Button geklickt!');
         var youtubeInput = $('#youtube_url');
         var youtubeUrl = youtubeInput.val();
+        console.log('YouTube URL:', youtubeUrl);
         
         if (!youtubeUrl) {
             alert('Bitte geben Sie zuerst eine YouTube-URL ein.');
@@ -259,8 +262,10 @@ $(document).ready(function() {
         var originalUrl = youtubeInput.data('original-url');
         if (originalUrl) {
             youtubeUrl = originalUrl;
+            console.log('Verwende Original-URL:', youtubeUrl);
         } else {
             youtubeUrl = youtubeUrl.trim();
+            console.log('Verwende eingegebene URL:', youtubeUrl);
         }
         
         if (!isValidYoutubeUrl(youtubeUrl)) {
@@ -269,6 +274,7 @@ $(document).ready(function() {
             return;
         }
         
+        console.log('Öffne Modal...');
         // Öffne subtitle.to Modal
         openSubtitleToModal(youtubeUrl);
     });
@@ -277,6 +283,14 @@ $(document).ready(function() {
     $(document).ready(function() {
         console.log('🔍 Bootstrap Modal verfügbar:', typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined');
         console.log('🔍 jQuery verfügbar:', typeof $ !== 'undefined');
+        
+        // Prüfe Button-Status
+        const youtubeInput = $('#youtube_url');
+        const subtitleBtn = $('#subtitleToBtn');
+        console.log('🔍 YouTube Input gefunden:', youtubeInput.length > 0);
+        console.log('🔍 Subtitle Button gefunden:', subtitleBtn.length > 0);
+        console.log('🔍 Button disabled:', subtitleBtn.prop('disabled'));
+        console.log('🔍 YouTube URL Wert:', youtubeInput.val());
         
         // Warte auf Tab-Laden
         setTimeout(() => {
