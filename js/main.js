@@ -119,8 +119,7 @@ $(document).ready(function() {
     // Tabs initialisieren
     initializeTabs();
     
-    // Event-Handler für die Eingabefelder - TEMPORÄR DEAKTIVIERT ZUM DEBUGGING
-    /*
+    // Event-Handler für die Eingabefelder
     $(document).on('input change', '#uploadForm input[name="source_file[]"], #uploadForm input[name="webpage_url[]"], #uploadForm input[name="youtube_url"]', function() {
         // Aktiviere den Submit-Button, wenn mindestens ein Feld ausgefüllt ist
         let hasFile = false;
@@ -144,10 +143,8 @@ $(document).ready(function() {
         
         $('#uploadForm button[type="submit"]').prop('disabled', !hasFile && !hasUrl && !hasYoutube);
     });
-    */
     
-    // Automatische URL-Validierung während der Eingabe - TEMPORÄR DEAKTIVIERT ZUM DEBUGGING
-    /*
+    // Automatische URL-Validierung während der Eingabe
     $(document).on('input', 'input[name="webpage_url[]"]', function() {
         const url = $(this).val();
         if (url && url.trim() !== '' && !isValidUrl(url.trim())) {
@@ -159,7 +156,6 @@ $(document).ready(function() {
             $(this).removeClass('is-invalid');
         }
     });
-    */
     
     // Automatische YouTube-URL-Validierung während der Eingabe (Event Delegation)
     $(document).on('input', 'input[name="youtube_url"]', function() {
